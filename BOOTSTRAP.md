@@ -89,8 +89,8 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
       `conventity_activities` satırı da yazıldı) → kayıt → trigger'lar
       (kayıt olayı, rol olayı, denetim kaydı) → **yetkisiz kullanıcı RLS'e
       takıldı.**
-- [ ] **Sıradaki (Serkan):** `sql/02_clean_install.sql`'i **conventity-prod**
-      SQL Editor'ünde çalıştır.
+- [x] **`sql/02_clean_install.sql` conventity-prod'da çalıştırıldı** —
+      "Success. No rows returned". Şema kuruldu.
 
 SQL sırası (bu repoda henüz **yok**):
 
@@ -111,17 +111,20 @@ SQL kuralları (depo standardı): idempotent · `IF NOT EXISTS` · `text + CHECK
 guard'lı (SQL Editor tek transaction — bir satır patlarsa hepsi rollback) ·
 `ALTER TABLE ... ADD COLUMN` sonrası `notify pgrst, 'reload schema';`
 
-## §4 — İlk admin (chicken-egg)
+## §4 — İlk admin (chicken-egg) · ŞU AN BURADA
 
-1. Serkan local'de uygulamadan sign up olur.
-2. `select id, email from auth.users;` → uid.
-3. ```sql
-   insert into conventity_roles (auth_user_id, scope, role, status, note)
-   values ('<serkan-uid>', 'ecosystem', 'admin', 'active', 'bootstrap owner')
-   on conflict do nothing;
-   ```
+1. **Hesabı aç.** Supabase → Authentication → Users → **Add user** →
+   e-posta + parola (*Auto Confirm User* açık). Alternatif: local'de
+   uygulamadan sign up.
+2. **`sql/03_bootstrap_owner.sql`**'i conventity-prod SQL Editor'ünde çalıştır.
+   uid'i e-postadan kendisi bulur — elle kopyalama yok. Tekrar
+   çalıştırılabilir. Üç şey yapar: kurulumu sayar, `conventity_roles`'a
+   `ecosystem/admin/active` satırını `NOT EXISTS` guard'lı yazar, sonucu
+   `rls_de_etkili` kolonuyla doğrular.
+3. `auth_user_id` boşsa rol RLS'te etkisizdir — doğrulama sorgusu bunu gösterir.
 
-`auth_user_id` boşsa rol RLS'te etkisizdir.
+Sonrasında `core.html` → Topluluklar'dan LANDCOM kurulabilir, etkinlik
+yöneticisi atanabilir.
 
 ## §6 — Deploy
 
