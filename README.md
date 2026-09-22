@@ -13,8 +13,8 @@ kalır ve bu repodan hiç etkilenmez.** İki taraf arasında kod tek yönde akar
 |---|---|
 | §1 Repo + frontend kopyası, yarım sayfalar nav dışı | ✅ |
 | §2 Config seam (`/assets/js/cv-config.js`) | ✅ — `conventity-prod` değerleri dolu |
-| §3 Temiz Supabase + SQL sırası | 🔄 proje açıldı; Auth URL config + SQL sırası kaldı |
-| §4 İlk admin (bootstrap owner) | ⏸ |
+| §3 Temiz Supabase + SQL sırası | 🔄 şema SQL'i hazır (`sql/02_clean_install.sql`), çalıştırılmayı bekliyor |
+| §4 İlk admin (bootstrap owner) | ⏸ `sql/03_bootstrap_owner.sql` hazır |
 | §6 Hostinger → conventity.com deploy | ⏸ |
 
 Ayrıntı: [`BOOTSTRAP.md`](BOOTSTRAP.md).

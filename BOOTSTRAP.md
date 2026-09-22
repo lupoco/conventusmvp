@@ -80,6 +80,17 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
       Doğrulama: `scripts/verify-clean-install.sh` — yerel PostgreSQL 16'da
       boş şemaya 3 kez çalıştırır, envanteri sayar, tek satır veri yazılmadığını
       kanıtlar.
+- [x] **`sql/02_clean_install.sql` üretildi ve doğrulandı** (3675 satır).
+      Envanter: 73 tablo · 10 view · 61 fonksiyon · 314 kısıt · 183 indeks ·
+      202 politika · 30 trigger · RLS kapalı tablo 0 · veri 0 satır.
+      Sayılar dökümle birebir tutuyor.
+      `scripts/smoke-mvp-loop.sql` ile döngü de denendi: ekosistem admin →
+      LANDCOM topluluğu → `conventus_create_managed_event` (omurgaya
+      `conventity_activities` satırı da yazıldı) → kayıt → trigger'lar
+      (kayıt olayı, rol olayı, denetim kaydı) → **yetkisiz kullanıcı RLS'e
+      takıldı.**
+- [ ] **Sıradaki (Serkan):** `sql/02_clean_install.sql`'i **conventity-prod**
+      SQL Editor'ünde çalıştır.
 
 SQL sırası (bu repoda henüz **yok**):
 
