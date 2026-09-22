@@ -18,6 +18,40 @@
 -- SQL Editor tek transaction çalıştırır: bir satır patlarsa hepsi geri alınır.
 -- ============================================================================
 
+-- ---- YANLIŞ PROJE KORUMASI -------------------------------------------------
+-- İki proje açıkken sekmeler karışıyor. Bu dosya .org'da çalışırsa idempotent
+-- olduğu için sessizce "Success" der ve HİÇBİR ŞEY yapmaz — kurulum yapıldı
+-- sanırsın. .org'un seed verisi burada parmak izi olarak kullanılıyor:
+-- temiz kurulumda bu tabloların hepsi boş.
+do $cvguard$
+declare n_prof bigint := 0; n_org bigint := 0; n_ass bigint := 0;
+begin
+  if to_regclass('public.convexus_profiles') is not null then
+    select count(*) into n_prof from public.convexus_profiles;
+  end if;
+  if to_regclass('public.conventity_orgs') is not null then
+    select count(*) into n_org from public.conventity_orgs;
+  end if;
+  if to_regclass('public.conventus_selection_assessments') is not null then
+    select count(*) into n_ass from public.conventus_selection_assessments;
+  end if;
+  if n_prof >= 100 or n_org >= 100 or n_ass >= 100 then
+    raise exception E'
+
+  YANLIS PROJE: convexus_profiles=%, conventity_orgs=%, '
+      'conventus_selection_assessments=%.
+'
+      '  Bu conventity.ORG gibi gorunuyor (shbwylrwpioqypbdhjgn) — orada zaten '
+      'her sey kurulu,
+  bu dosya orada sessizce hicbir sey yapmaz.
+'
+      '  Dogru proje: https://supabase.com/dashboard/project/tstlireeidnpchadgjly/sql/new
+'
+      '  Hicbir sey yazilmadi.
+', n_prof, n_org, n_ass;
+  end if;
+end $cvguard$;
+
 -- ---- Ön koşul: Supabase rolleri ve auth şeması hazır olmalı ---------------
 do $cvblock$
 begin

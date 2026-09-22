@@ -89,8 +89,14 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
       `conventity_activities` satırı da yazıldı) → kayıt → trigger'lar
       (kayıt olayı, rol olayı, denetim kaydı) → **yetkisiz kullanıcı RLS'e
       takıldı.**
-- [x] **`sql/02_clean_install.sql` conventity-prod'da çalıştırıldı** —
-      "Success. No rows returned". Şema kuruldu.
+- [ ] **`sql/02_clean_install.sql` conventity-prod'da çalıştırılacak.**
+      *Tuzak:* iki proje açıkken sekmeler karışıyor. Dosya idempotent olduğu
+      için `.org`'da çalıştırılırsa sessizce "Success" der ve hiçbir şey
+      yapmaz — kurulum yapıldı sanılır. Bu yüzden dosyanın başına
+      **yanlış proje koruması** eklendi: `convexus_profiles`,
+      `conventity_orgs` ya da `conventus_selection_assessments` 100+ satır
+      taşıyorsa hiçbir şey yazmadan durur ve doğru projenin linkini verir.
+      Doğru ref: **tstlireeidnpchadgjly** (yanlış: shbwylrwpioqypbdhjgn).
 
 SQL sırası (bu repoda henüz **yok**):
 
@@ -111,7 +117,7 @@ SQL kuralları (depo standardı): idempotent · `IF NOT EXISTS` · `text + CHECK
 guard'lı (SQL Editor tek transaction — bir satır patlarsa hepsi rollback) ·
 `ALTER TABLE ... ADD COLUMN` sonrası `notify pgrst, 'reload schema';`
 
-## §4 — İlk admin (chicken-egg) · ŞU AN BURADA
+## §4 — İlk admin (chicken-egg)
 
 1. **Hesabı aç.** Supabase → Authentication → Users → **Add user** →
    e-posta + parola (*Auto Confirm User* açık). Alternatif: local'de
