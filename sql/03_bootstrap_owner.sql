@@ -10,6 +10,25 @@
 --           Tekrar çalıştırılabilir — ikinci kez hiçbir şey değiştirmez.
 -- ============================================================================
 
+-- ---- 0) YANLIŞ PROJE KORUMASI ----------------------------------------------
+-- İki proje açıkken sekmeler karışıyor. Temiz kurulumda `conventity_orgs`
+-- BOŞ; .org'da 158 satır var. Dolu görürsek hiçbir şey yapmadan dur.
+do $cvguard$
+declare n_org bigint; n_prof bigint;
+begin
+  if to_regclass('public.conventity_orgs') is null then
+    raise exception E'\n\n  Bu projede sema yok — once 02_clean_install.sql calistir.\n';
+  end if;
+  select count(*) into n_org  from public.conventity_orgs;
+  select count(*) into n_prof from public.convexus_profiles;
+  if n_org > 0 or n_prof > 0 then
+    raise exception E'\n\n  YANLIS PROJE: conventity_orgs=% satir, convexus_profiles=% satir.\n'
+      '  Temiz kurulumda ikisi de 0 olmali — burasi .org (shbwylrwpioqypbdhjgn).\n'
+      '  Dogru proje: https://supabase.com/dashboard/project/tstlireeidnpchadgjly/sql/new\n'
+      '  Hicbir sey yazilmadi.\n', n_org, n_prof;
+  end if;
+end $cvguard$;
+
 -- ---- 1) Kurulum sağlam mı ---------------------------------------------------
 select 'tablo'     as nesne, count(*)::text as adet from pg_tables    where schemaname='public'
 union all select 'view',      count(*)::text from pg_views     where schemaname='public'
