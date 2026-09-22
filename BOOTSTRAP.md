@@ -60,15 +60,26 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
 - [x] Supabase → New project (**"conventity-prod"**) açıldı.
 - [x] `ref` + publishable anon key `/assets/js/cv-config.js`'e yazıldı.
 - [x] Auth → URL Configuration yapıldı (Site URL + iki redirect).
-- [ ] **Keşif (şimdi burada):** `sql/01_dump_org_schema.sql`'i **`.org`** projesinin
-      SQL Editor'ünde çalıştır → "Download CSV" → çıktıyı paylaş.
-      Salt okunur tek `select`; hiçbir şeyi değiştirmez, veri dökmez.
-      *Neden:* `conventity_orgs · people · roles · activities ·
+- [x] **Keşif:** `sql/01_dump_org_schema.sql` `.org`'da çalıştırıldı; `public`
+      şeması döküldü (74 tablo, 10 view, 60+ fonksiyon, 130+ politika).
+      Salt okunur tek `select` — hiçbir şey değişmedi, veri dökülmedi.
+      *Neden gerekliydi:* `conventity_orgs · people · roles · activities ·
       conventus_managed_events · conventus_registrations` gibi temel tabloların
       ilk `create table`'ı bu depoda **yok** (`sql/` yalnız migration tutuyor).
-      Koddan tahmin edilirse kolon tipleri/CHECK'leri yanlış çıkar —
+      Koddan tahmin edilseydi kolon tipleri/CHECK'leri yanlış çıkardı —
       "discovery before DDL".
-- [ ] SQL sırası (aşağıda) — dökümden türetilecek.
+- [ ] **Temiz kurulum SQL'i:** döküm CSV'si `scripts/dump-to-clean-install.py`
+      ile `sql/02_clean_install.sql`'e çevrilir (elle yazılmaz — 300 KB DDL'de
+      transkripsiyon hatası kaçınılmaz).
+      Dönüştürücü ne yapar: kısıt/FK → katalog kontrollü `do` döngüsü ·
+      `create index` → `if not exists` · trigger/politika → önce
+      `drop ... if exists` · `create type` → `duplicate_object` yutulur ·
+      ~1100 grant satırı → tek döngü · 74 `enable row level security` → tek
+      döngü · view'lar bağımlılık sırasına dizilir (alfabetik sıra
+      view-üstüne-view'da kırılıyor) · **hiçbir `insert` üretilmez**.
+      Doğrulama: `scripts/verify-clean-install.sh` — yerel PostgreSQL 16'da
+      boş şemaya 3 kez çalıştırır, envanteri sayar, tek satır veri yazılmadığını
+      kanıtlar.
 
 SQL sırası (bu repoda henüz **yok**):
 
