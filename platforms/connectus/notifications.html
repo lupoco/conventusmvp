@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-standalone="connectus"
+      data-platform-title="Connectus · Notifications · Conventity">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connectus · Notifications · Conventity</title>
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/shared.css" />
+  <link rel="stylesheet" href="/assets/connectus-app.css" />
+</head>
+<body>
+<div class="cn-app">
+  <div class="uncls">UNCLASSIFIED</div>
+
+  <nav class="cn-nav">
+    <a class="brand" href="/platforms/connectus/app.html">
+      <span class="mark">C</span>
+      <b>Connectus<span data-i="cn.brand_sub"> · network</span></b>
+    </a>
+    <div class="cn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="navSearch" type="search" data-ph="cn.nav.search" placeholder="Search people, expertise, orgs…" autocomplete="off">
+    </div>
+    <div class="cn-navspace"></div>
+    <div class="cn-navlinks">
+      <a href="/platforms/connectus/app.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+        <span data-i="cn.nav.home">Home</span></a>
+      <a href="/platforms/connectus/network.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17.5 14c2.4 0 4 1.7 4 4"/></svg>
+        <span data-i="cn.nav.network">Network</span></a>
+      <a href="/platforms/connectus/messages.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4z"/></svg>
+        <span data-i="cn.nav.msg">Messaging</span></a>
+      <a href="/platforms/connectus/notifications.html" class="active" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span data-i="cn.nav.alerts">Alerts</span><span class="nav-badge" id="alertsBadge" style="display:none">0</span></a>
+      <span class="divider"></span>
+      <div class="cn-navlink-me" data-menu>
+        <a href="/platforms/connectus/profile.html" data-menu-btn aria-haspopup="true" aria-expanded="false" title="Me">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg>
+          <span data-i="cn.nav.me">Me</span> &#9662;</a>
+        <div data-menu-pop>
+          <div class="menu-id"><div class="av" id="meMenuAv">&mdash;</div><div><b id="meMenuNm">&mdash;</b><span id="meMenuTag"></span></div></div>
+          <a href="/platforms/connectus/profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg> <span data-i="cn.me.view">View profile</span></a>
+          <a href="/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 0 1-4 0v-.1A1.7 1.7 0 0 0 6 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 3.4 6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H8a1.7 1.7 0 0 0 1-1.5V2a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V8a1.7 1.7 0 0 0 1.5 1H22a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg> <span data-i="cn.me.settings">Settings</span></a>
+          <div class="sep"></div>
+          <button type="button" data-signout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> <span data-i="cn.me.signout">Sign out</span></button>
+        </div>
+      </div>
+    </div>
+    <span class="divider"></span>
+    <button class="cn-lang" data-lang-toggle>TR</button>
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control>
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+  </nav>
+
+  <div class="al-wrap">
+    <div class="card">
+      <div class="hd" style="padding:16px 18px 4px"><span class="eyebrow" data-i="cn.grp.eb">Purpose-locked</span><h3 data-i="cn.al.title">Notifications</h3></div>
+      <div class="hair" style="margin:12px 18px 0"></div>
+      <div id="alList"><div class="empty" style="padding:22px" data-i="cn.al.loading">Loading…</div></div>
+    </div>
+    <div class="footnote" data-i="cn.al.foot">Derived from invitations, unread messages and group activity.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script src="/assets/i18n.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SB_URL=window.__CV_SUPABASE_URL;
+  function sb(){ if(window.__cvSb) return window.__cvSb; if(!window.supabase) return null;
+    return window.cvClient(); }
+  function $(id){ return document.getElementById(id); }
+  function T(k){ return (window.T?window.T(k):null)||k; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function initials(s){ s=String(s||'').trim(); if(!s) return '?';
+    var p=s.replace(/^(Dr|Maj|Col|Gen|Lt|Capt|Mr|Ms|Mrs|Prof)\.?\s+/i,'').split(/[\s@._-]+/).filter(Boolean);
+    return ((p[0]?p[0][0]:s[0])+(p[1]?p[1][0]:'')).toUpperCase(); }
+  function ago(t){ if(!t) return ''; var d=(Date.now()-new Date(t).getTime())/1000;
+    if(d<60) return 'now'; if(d<3600) return Math.floor(d/60)+'m'; if(d<86400) return Math.floor(d/3600)+'h';
+    if(d<604800) return Math.floor(d/86400)+'d'; return Math.floor(d/604800)+'w'; }
+
+  var items=[];
+
+  function row(it){
+    return '<a class="al-item'+(it.unread?' unread':'')+'" href="'+esc(it.href)+'">'+
+      '<div class="ic k-'+it.kind+'">'+esc(initials(it.name))+'</div>'+
+      '<div class="info"><div class="tx"><b>'+esc(it.name)+'</b> '+esc(it.text)+'</div>'+
+        (it.at?'<div class="tm">'+esc(ago(it.at))+'</div>':'')+'</div>'+
+      '<span class="go">'+esc(it.go)+'</span></a>';
+  }
+
+  function paint(){
+    var box=$('alList');
+    if(!items.length){ box.innerHTML='<div class="empty" style="padding:24px" data-i="cn.al.empty">'+esc(T('cn.al.empty'))+'</div>'; return; }
+    box.innerHTML=items.map(row).join('');
+  }
+
+  async function load(){
+    var s=sb(); if(!s){ $('alList').innerHTML='<div class="empty" style="padding:24px">'+esc(T('cn.pf.signin'))+'</div>'; return; }
+    var out=[], myId=null;
+    try{ var mp=await s.rpc('connectus_my_profile'); myId=(mp&&mp.data&&mp.data.id)||null; }catch(e){}
+    // invitations
+    try{ var c=await s.rpc('connectus_connections'); var inc=(c&&c.data&&c.data.incoming)||[];
+      inc.forEach(function(x){ out.push({kind:'inv',name:x.name||'Member',text:T('cn.al.invite'),
+        at:null, sort:Date.now(), unread:true, go:T('cn.al.review'), href:'/platforms/connectus/network.html#invitations'}); });
+    }catch(e){}
+    // unread messages
+    try{ var t=await s.rpc('connectus_threads'); var th=(t&&t.data)||[];
+      th.filter(function(x){ return x.unread>0; }).forEach(function(x){
+        out.push({kind:'msg',name:x.name||'Member',text:T('cn.al.message'),at:x.last_at,
+          sort:x.last_at?new Date(x.last_at).getTime():0, unread:true,
+          go:T('cn.al.open'), href:'/platforms/connectus/messages.html?to='+encodeURIComponent(x.person_id)}); });
+    }catch(e){}
+    // recent group posts (others')
+    try{ var f=await s.rpc('connectus_feed',{p_limit:20}); var rows=(f&&f.data)||[];
+      rows.filter(function(p){ return p.author_id && p.author_id!==myId; }).slice(0,8).forEach(function(p){
+        out.push({kind:'post',name:p.author||'Member',text:T('cn.al.post')+' · '+(p.group_name||''),at:p.created_at,
+          sort:p.created_at?new Date(p.created_at).getTime():0, unread:false,
+          go:T('cn.al.open'), href:'/platforms/connectus/app.html'}); });
+    }catch(e){}
+    out.sort(function(a,b){ return (b.sort||0)-(a.sort||0); });
+    items=out; paint();
+    // badge (invites + unread msgs)
+    var n=out.filter(function(x){ return x.unread; }).length;
+    var b=$('alertsBadge'); if(b){ if(n>0){ b.textContent=n>9?'9+':n; b.style.display=''; } else b.style.display='none'; }
+  }
+
+  async function init(){
+    var s=sb();
+    if(s){ try{ var se=await s.auth.getSession();
+      if(!se||!se.data||!se.data.session){ location.href='/login.html?next='+encodeURIComponent(location.pathname); return; }
+    }catch(e){} }
+    load();
+  }
+  var ns=$('navSearch'); if(ns) ns.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var q=(this.value||'').trim();
+    location.href='/platforms/connectus/network.html'+(q?('?q='+encodeURIComponent(q)):''); } });
+
+  if(window.CNApp) window.CNApp.onLang(function(){ paint(); });
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+<script src="/assets/connectus-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "meta": { "country": "Yemen", "generated": "2026-06-03", "sector_unit": "$B", "sector_hint": "2025 appeal requirement by cluster · US$ billions", "note": "Sourced from OCHA HNRP 2025 + FTS plan 1262. Some figures from 2024 HNO where 2025 not disaggregated." },
+  "kpis": [
+    { "label": "People in Need",       "value": "19.5M",  "sub": "+1.3M vs 2024 (OCHA, 2025)",            "gold": true },
+    { "label": "Internally Displaced",  "value": "4.5M",   "sub": "~⅓ displaced more than once (OCHA)",     "gold": false },
+    { "label": "2025 Appeal",           "value": "$2.48B", "sub": "prioritized $1.42B (OCHA/FTS)",          "gold": false },
+    { "label": "Funding Coverage",      "value": "~28%",   "sub": "~$0.70B of $2.48B (FTS, Feb 2026)",      "gold": true }
+  ],
+  "sectors_need": [
+    { "name": "Food Security", "v": 1.10 },
+    { "name": "Health",        "v": 0.26 },
+    { "name": "Nutrition",     "v": 0.24 },
+    { "name": "WASH",          "v": 0.18 },
+    { "name": "Protection",    "v": 0.17 },
+    { "name": "Shelter/NFI",   "v": 0.17 }
+  ],
+  "funding": { "required": 2.48, "received": 0.70, "unit": "$B", "pct": 0.28 },
+  "requirements": [
+    { "t": "2024",            "v": 2.70 },
+    { "t": "2025",            "v": 2.48 },
+    { "t": "2025 prioritized","v": 1.42 }
+  ],
+  "displacement": [
+    { "name": "IDPs (total)",          "v": 4.5, "c": "var(--cyan)" },
+    { "name": "Displaced 2+ times",    "v": 1.5, "c": "var(--gold)" },
+    { "name": "In inadequate shelter", "v": 6.7, "c": "var(--ok)" }
+  ],
+  "context": [
+    { "big": "12.4M", "lab": "lack sufficient access to safe drinking water (OCHA, 2024)" },
+    { "big": "4.5M",  "lab": "school-age children out of school (OCHA, 2024)" },
+    { "big": "~28%",  "lab": "of the $2.48B appeal funded — nutrition 13%, food security 22% (FTS, Feb 2026)" },
+    { "big": "Reset", "lab": "UN scaled back life-saving programmes late 2025 amid access constraints and funding cuts (OCHA, 2026)" }
+  ],
+  "sources": [
+    { "t": "OCHA — Yemen HNRP 2025 (19.5M PiN, +1.3M vs 2024)", "u": "https://www.unocha.org/publications/report/yemen/yemen-humanitarian-needs-and-response-plan-2025-january-2025-enar", "d": "Jan 2025" },
+    { "t": "FTS — Yemen HNRP 2025 (cluster funding; ~28% coverage; prioritized $1.42B)", "u": "https://fts.unocha.org/plans/1262/summary", "d": "Feb 2026" },
+    { "t": "OCHA — Yemen 2024 HRP launch ($2.7B; 4.5M IDPs; 12.4M without safe water; 4.5M children out of school)", "u": "https://yemen.un.org/en/node/259541", "d": "Feb 2024" },
+    { "t": "UNICEF — Humanitarian Action for Children Yemen 2025", "u": "https://www.unicef.org/media/165851/file/2025-HAC-Yemen.pdf", "d": "2025" },
+    { "t": "OCHA — Yemen HNRP 2026 (operating-environment context)", "u": "https://yemen.un.org/en/312711-ocha-yemen-yemen-humanitarian-needs-and-response-plan-2026-march-2026", "d": "Mar 2026" },
+    { "t": "IOM — Yemen Crisis Response Plan 2025", "u": "https://crisisresponse.iom.int/response/yemen-crisis-response-plan-2025", "d": "2025" }
+  ]
+}

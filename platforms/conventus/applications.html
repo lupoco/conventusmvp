@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Applications · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#F5F2EC; --navy2:#FFFFFF; --panel:#FFFFFF; --panel2:#FAF7F1; --panel3:#F0EDE4;
+  --gold:#004990; --gold-soft:rgba(0,73,144,.12);
+  --ink:#0E2148; --muted:#5A6486; --line:#E5DFD2; --line2:#D6CFBE;
+  --ok:#1F9E50; --warn:#B8892B; --bad:#DC2626;
+}
+body{background:var(--navy);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+.hidden{display:none !important}
+.bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 1.4rem;height:56px;background:var(--navy2);border-bottom:1px solid var(--line)}
+.bar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.badge{background:var(--gold);color:#fff;padding:3px 10px;border-radius:100px;font-size:10px;letter-spacing:.12em;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.bar-title{font-family:'Instrument Serif',sans-serif;font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-code{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em}
+.bar-nav{display:flex;gap:6px;flex-shrink:0}
+.bar-nav a{font-size:12px;font-weight:600;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:8px;transition:all .15s;white-space:nowrap}
+.bar-nav a:hover{color:var(--gold);border-color:var(--gold)}
+.wrap{max-width:1080px;margin:0 auto;padding:1.6rem 1.4rem 6rem}
+.gate{max-width:420px;margin:14vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:2rem;text-align:center}
+.gate h2{font-family:'Instrument Serif',sans-serif;font-size:1.2rem;margin-bottom:.5rem}
+.gate p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.2rem}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
+h1{font-family:'Instrument Serif',sans-serif;font-size:1.5rem;font-weight:600}
+h1 span{color:var(--gold)}
+.head-sub{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-family:inherit;font-size:.83rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{opacity:.85}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn-ghost:hover{color:var(--gold);border-color:var(--gold)}
+.btn-sm{padding:5px 11px;font-size:.72rem;border-radius:8px}
+.btn-ok{background:transparent;color:var(--ok);border:1px solid rgba(34,197,94,.4)}
+.btn-ok:hover{background:rgba(34,197,94,.12)}
+.btn-danger{background:transparent;color:var(--bad);border:1px solid rgba(239,68,68,.4)}
+.btn-danger:hover{background:rgba(239,68,68,.1)}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.2rem}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem}
+.stat .n{font-family:'Instrument Serif',sans-serif;font-size:1.5rem;font-weight:700}
+.stat .l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.stat.p .n{color:var(--warn)}
+.stat.a .n{color:var(--ok)}
+.stat.r .n{color:var(--bad)}
+/* controls */
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+.tab{padding:6px 14px;border-radius:100px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab:hover{border-color:var(--gold)}
+.tab.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+.search{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line);border-radius:100px;padding:.5rem .95rem;color:var(--ink);font-family:inherit;font-size:.82rem;outline:none;transition:border-color .15s}
+.search:focus{border-color:var(--gold)}
+/* table */
+.twrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:760px}
+thead th{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:.75rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel3);position:sticky;top:0}
+tbody td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2,#AAB4C8)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.cell-note{max-width:220px;color:var(--muted);font-size:.75rem;line-height:1.5}
+.chip{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:100px;border:1px solid;white-space:nowrap}
+.chip.pending{border-color:var(--warn);color:var(--warn)}
+.chip.approved{border-color:var(--ok);color:var(--ok)}
+.chip.rejected{border-color:var(--bad);color:var(--bad)}
+.acts{display:flex;gap:5px;white-space:nowrap}
+.empty{padding:2.2rem;text-align:center;color:var(--muted);font-size:.85rem}
+.count-note{font-size:.72rem;color:var(--muted);margin-top:.6rem;font-family:'JetBrains Mono',monospace}
+.rw{cursor:pointer}
+.rw:hover td{background:var(--panel2)}
+.drow td{background:var(--panel2);border-bottom:1px solid var(--line);padding:1rem 1.1rem}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.75rem 1.4rem}
+.dt{display:flex;flex-direction:column;gap:2px}
+.dk{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dv{font-size:.84rem;color:var(--ink);word-break:break-word}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);color:var(--ink);padding:.7rem 1.2rem;border-radius:10px;font-size:.82rem;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.bar-title{display:none}}
+</style>
+<script src="cv-skin.js"></script>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-left">
+    <span class="badge">CONVENTUS · APPLICATIONS</span>
+    <div style="min-width:0">
+      <div class="bar-title" id="evTitle">—</div>
+      <div class="bar-code" id="evCode"></div>
+    </div>
+  </div>
+  <div class="bar-nav">
+    <a href="/platforms/conventus/event-studio.html">Manage</a>
+    <a href="#" id="navAgenda">Agenda</a>
+    <a href="#" id="navAnn">Announcements</a>
+  </div>
+</div>
+
+<div class="gate hidden" id="gateAuth">
+  <h2>Sign in required</h2>
+  <p>Applications are managed by event organisers. Sign in to continue.</p>
+  <a class="btn btn-gold" href="/login.html">Sign in</a>
+</div>
+
+<div class="gate hidden" id="gateEvent">
+  <h2>Event not found</h2>
+  <p>This link is missing an event code, or the event doesn't belong to your account.</p>
+  <a class="btn btn-gold" href="/platforms/conventus/event-studio.html">Go to my events</a>
+</div>
+
+<div class="wrap hidden" id="main">
+  <div class="page-head">
+    <div>
+      <h1>Participant <span>applications</span></h1>
+      <div class="head-sub">Review, approve or reject. Export includes every field for the current filter.</div>
+    </div>
+    <button class="btn btn-gold" id="btnCsv">⬇ Export CSV</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <button class="tab on" data-f="all">All</button>
+    <button class="tab" data-f="pending">Pending</button>
+    <button class="tab" data-f="approved">Approved</button>
+    <button class="tab" data-f="rejected">Rejected</button>
+    <input class="search" id="q" placeholder="Search name, email, institution…"/>
+  </div>
+
+  <div class="twrap">
+    <table>
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty hidden" id="empty">No applications match this view.</div>
+  </div>
+  <div class="count-note" id="countNote"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var sb=window.cvClient();
+
+  var qs=new URLSearchParams(location.search);
+  var CODE=(qs.get('e')||'').trim();
+  var EVENT=null, ROWS=[], COLS=[], FILTER='all', Q='';
+
+  // tercih edilen kolon sırası + etiketler; veride hangileri varsa onlar gösterilir,
+  // listede olmayan ekstra kolonlar sona eklenir → şema değişse de sayfa kırılmaz
+  var PREF=['first_name','last_name','name','full_name','email','phone','passport_no','dob','ns_email','institution','organisation','organization','company','country','title','rank_title','rank','duty','role','note','notes','status','created_at'];
+  // tabloda gösterilen sade set — geri kalanı satır detayında + export'ta
+  var TCOLS=['first_name','last_name','email','institution','country','rank_title','role','status','created_at'];
+  // detay panelinde gösterilecek akreditasyon alanları
+  var DCOLS=['first_name','last_name','email','phone','passport_no','dob','ns_email','institution','country','rank_title','duty','role','note','status','created_at'];
+  var SKIP=['id','event_id','user_id','updated_at'];
+  var LBL={first_name:'First name',last_name:'Last name',name:'Name',full_name:'Name',email:'Email',
+    phone:'Phone',passport_no:'Passport no.',dob:'Date of birth',ns_email:'NS/NR email',
+    institution:'Organization',organisation:'Organisation',organization:'Organisation',company:'Company',
+    country:'Nation',title:'Title',rank_title:'Rank / grade',rank:'Rank',duty:'Duty / position',role:'Attending as',
+    note:'Note',notes:'Note',status:'Status',created_at:'Applied'};
+
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+  function show(el){el.classList.remove('hidden');}
+  function hide(el){el.classList.add('hidden');}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2200);}
+  function fmtDate(iso){
+    if(!iso)return'';
+    var d=new Date(iso);
+    return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
+  }
+  function pretty(k){return LBL[k]||k.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}
+
+  init();
+  async function init(){
+    var s=await sb.auth.getSession();
+    if(!s.data||!s.data.session){show($('gateAuth'));return;}
+    if(!CODE){show($('gateEvent'));return;}
+    var ev=await sb.from('conventus_managed_events').select('id,code,title').eq('code',CODE).maybeSingle();
+    if(ev.error||!ev.data){show($('gateEvent'));return;}
+    EVENT=ev.data;
+    $('evTitle').textContent=EVENT.title;
+    $('evCode').textContent=EVENT.code;
+    $('navAgenda').href='agenda.html?e='+encodeURIComponent(EVENT.code);
+    $('navAnn').href='announcements.html?e='+encodeURIComponent(EVENT.code);
+    show($('main'));
+    await load();
+  }
+
+  async function load(){
+    var r=await sb.from('conventus_registrations').select('*')
+      .eq('event_id',EVENT.id)
+      .order('created_at',{ascending:false});
+    if(r.error){toast('Load failed: '+r.error.message);return;}
+    ROWS=r.data||[];
+    buildCols();
+    render();
+  }
+
+  function buildCols(){
+    var keys={};
+    ROWS.forEach(function(x){Object.keys(x).forEach(function(k){keys[k]=1;});});
+    COLS=TCOLS.filter(function(k){return keys[k];});   // tablo sade kalsın
+  }
+  function fmtDob(v){
+    if(!v) return '';
+    var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+    return m ? m[3]+'.'+m[2]+'.'+m[1] : String(v);
+  }
+
+  function filtered(){
+    return ROWS.filter(function(x){
+      if(FILTER!=='all'&&(x.status||'pending')!==FILTER)return false;
+      if(Q){
+        var hay=COLS.map(function(k){return String(x[k]==null?'':x[k]);}).join(' ').toLowerCase();
+        if(hay.indexOf(Q)<0)return false;
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    var total=ROWS.length,
+        p=ROWS.filter(function(x){return (x.status||'pending')==='pending';}).length,
+        a=ROWS.filter(function(x){return x.status==='approved';}).length,
+        rj=ROWS.filter(function(x){return x.status==='rejected';}).length;
+    $('stats').innerHTML=
+      '<div class="stat"><div class="n">'+total+'</div><div class="l">Total</div></div>'
+      +'<div class="stat p"><div class="n">'+p+'</div><div class="l">Pending</div></div>'
+      +'<div class="stat a"><div class="n">'+a+'</div><div class="l">Approved</div></div>'
+      +'<div class="stat r"><div class="n">'+rj+'</div><div class="l">Rejected</div></div>';
+
+    var rows=filtered();
+
+    if(!ROWS.length){
+      $('thead').innerHTML='';$('tbody').innerHTML='';
+      show($('empty'));$('empty').textContent='No applications yet. Share the registration link to start receiving them.';
+      $('countNote').textContent='';
+      return;
+    }
+
+    $('thead').innerHTML='<tr>'+COLS.map(function(k){return '<th>'+esc(pretty(k))+'</th>';}).join('')+'<th>Actions</th></tr>';
+
+    if(!rows.length){
+      $('tbody').innerHTML='';
+      show($('empty'));$('empty').textContent='No applications match this view.';
+    } else {
+      hide($('empty'));
+      $('tbody').innerHTML=rows.map(function(x){
+        var tds=COLS.map(function(k){
+          var v=x[k];
+          if(k==='status'){
+            var st=v||'pending';
+            return '<td><span class="chip '+esc(st)+'">'+esc(st.toUpperCase())+'</span></td>';
+          }
+          if(k==='created_at')return '<td>'+esc(fmtDate(v))+'</td>';
+          if(k==='note'||k==='notes')return '<td class="cell-note" title="'+esc(v)+'">'+esc(v)+'</td>';
+          return '<td>'+esc(v)+'</td>';
+        }).join('');
+        var st=x.status||'pending';
+        var acts='<div class="acts">'
+          +(st!=='approved'?'<button class="btn btn-ok btn-sm" data-ok="'+x.id+'">Approve</button>':'')
+          +(st!=='rejected'?'<button class="btn btn-danger btn-sm" data-no="'+x.id+'">Reject</button>':'')
+          +'</div>';
+        var det=DCOLS.filter(function(k){return x[k]!=null && x[k]!=='';}).map(function(k){
+          var v=x[k];
+          if(k==='dob') v=fmtDob(v);
+          if(k==='created_at') v=fmtDate(v);
+          return '<div class="dt"><span class="dk">'+esc(pretty(k))+'</span><span class="dv">'+esc(v)+'</span></div>';
+        }).join('');
+        return '<tr class="rw" data-row="'+x.id+'">'+tds+'<td>'+acts+'</td></tr>'
+          + '<tr class="drow hidden" id="d'+x.id+'"><td colspan="'+(COLS.length+1)+'"><div class="dgrid">'+det+'</div></td></tr>';
+      }).join('');
+      $('tbody').querySelectorAll('.rw').forEach(function(tr){
+        tr.onclick=function(e){
+          if(e.target.closest('button')) return;   // approve/reject'e karışma
+          var d=$('d'+tr.dataset.row); if(d) d.classList.toggle('hidden');
+        };
+      });
+      $('tbody').querySelectorAll('[data-ok]').forEach(function(b){b.onclick=function(){setStatus(b.dataset.ok,'approved');};});
+      $('tbody').querySelectorAll('[data-no]').forEach(function(b){b.onclick=function(){setStatus(b.dataset.no,'rejected');};});
+    }
+    $('countNote').textContent='Showing '+rows.length+' of '+ROWS.length+' application'+(ROWS.length===1?'':'s')
+      +(FILTER!=='all'?' · filter: '+FILTER:'')+(Q?' · search: "'+Q+'"':'');
+  }
+
+  async function setStatus(id,status){
+    var r=await sb.from('conventus_registrations').update({status:status}).eq('id',id);
+    if(r.error){toast('Failed: '+r.error.message);return;}
+    toast(status==='approved'?'Application approved.':'Application rejected.');
+    await load();
+  }
+
+  // controls
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.onclick=function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on');FILTER=t.dataset.f;render();
+    };
+  });
+  $('q').addEventListener('input',function(){Q=$('q').value.trim().toLowerCase();render();});
+
+  // ---------- CSV EXPORT ----------
+  $('btnCsv').onclick=function(){
+    var rows=filtered();
+    if(!rows.length){toast('Nothing to export in this view.');return;}
+    // tüm alanlar (SKIP'tekiler dahil değil, id hariç her şey) — tam veri
+    var keys={};
+    rows.forEach(function(x){Object.keys(x).forEach(function(k){if(k!=='id'&&k!=='user_id')keys[k]=1;});});
+    var cols=PREF.filter(function(k){return keys[k];});
+    Object.keys(keys).forEach(function(k){if(cols.indexOf(k)<0)cols.push(k);});
+    function cell(v){
+      if(v==null)return'';
+      v=String(v);
+      if(/[",\n;]/.test(v))v='"'+v.replace(/"/g,'""')+'"';
+      return v;
+    }
+    var lines=[cols.map(function(k){return cell(pretty(k));}).join(',')];
+    rows.forEach(function(x){
+      lines.push(cols.map(function(k){
+        if(k==='created_at') return cell((x[k]||'').replace('T',' ').slice(0,16));
+        if(k==='dob') return cell(fmtDob(x[k]));
+        return cell(x[k]);
+      }).join(','));
+    });
+    // BOM: Türkçe karakterler Excel'de doğru açılsın
+    var blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='applications-'+(EVENT.code||'event')+'-'+FILTER+'-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+    toast(rows.length+' row'+(rows.length===1?'':'s')+' exported.');
+  };
+})();
+</script>
+</body>
+</html>

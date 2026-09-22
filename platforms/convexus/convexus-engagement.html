@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Convexus · Engagement — Industry Front Door</title>
+
+<!-- ============================================================
+     CONVEXUS > ENGAGEMENT — public intake form (Faz2-A)
+     Writes to public.convexus_engagement_requests (anon-safe).
+     RLS public_submit: only firm-descriptive fields sent; status/
+     taxonomy/demand fall to DB defaults; triage fields untouched.
+     Design system LOCKED: Instrument Serif / Manrope / JetBrains
+     Mono · cream #F5F2EC / navy #004990 / gold #E2B65E.
+     ============================================================ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --cream:#F5F2EC; --navy:#004990; --gold:#E2B65E;
+    --ink:#12233A; --muted:#5C6B7C; --line:#DED7C9;
+    --paper:#FBF9F4; --navy-2:#003a73; --ok:#1F7A4D; --err:#B23A3A;
+    --serif:"Instrument Serif",Georgia,serif;
+    --sans:"Manrope",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --r:14px; --r-s:9px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--navy)}
+
+  /* ---------- shell ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:28px 22px 80px}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:34px}
+  .brand{display:flex; align-items:baseline; gap:10px}
+  .brand .mark{font-family:var(--serif); font-size:30px; line-height:1; color:var(--navy)}
+  .brand .sub{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+  .langtog{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--paper)}
+  .langtog button{font-family:var(--mono); font-size:12px; letter-spacing:.06em; padding:7px 13px; border:0; background:transparent; color:var(--muted); cursor:pointer}
+  .langtog button[aria-pressed="true"]{background:var(--navy); color:#fff}
+  .langtog button:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
+
+  /* ---------- hero ---------- */
+  .grid{display:grid; grid-template-columns:300px 1fr; gap:38px; align-items:start}
+  .rail{position:sticky; top:22px}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); display:flex; align-items:center; gap:9px}
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--gold)}
+  h1{font-family:var(--serif); font-weight:400; font-size:46px; line-height:1.02; margin:14px 0 16px; letter-spacing:-.01em}
+  h1 em{font-style:italic; color:var(--navy)}
+  .lead{color:var(--muted); font-size:15px; max-width:34ch}
+  .railnote{margin-top:26px; border-top:1px solid var(--line); padding-top:18px}
+  .railnote p{font-size:13px; color:var(--muted); margin:0 0 10px}
+  .railnote .k{font-family:var(--mono); font-size:11px; letter-spacing:.05em; color:var(--navy); text-transform:uppercase}
+
+  /* ---------- card / form ---------- */
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:30px 30px 26px; box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  .sect{margin-bottom:26px}
+  .sect:last-of-type{margin-bottom:8px}
+  .sect > .shead{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 14px; display:flex; align-items:center; gap:8px}
+  .sect > .shead .n{color:var(--navy); font-weight:600}
+
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:15px}
+  .field.full{grid-column:1 / -1}
+  label{font-size:13.5px; font-weight:600; color:var(--ink)}
+  label .req{color:var(--gold); margin-left:3px}
+  .hint{font-size:12px; color:var(--muted); font-weight:400}
+  input[type=text], input[type=email], input[type=url], textarea, select{
+    font-family:var(--sans); font-size:15px; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:var(--r-s);
+    padding:11px 13px; width:100%; transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{resize:vertical; min-height:92px; line-height:1.5}
+  input:focus, textarea:focus, select:focus{outline:0; border-color:var(--navy); box-shadow:0 0 0 3px rgba(0,73,144,.12)}
+  input.bad, textarea.bad{border-color:var(--err); box-shadow:0 0 0 3px rgba(178,58,58,.1)}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{font-family:var(--sans); font-size:13px; font-weight:500; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:999px;
+    padding:7px 13px; cursor:pointer; transition:all .13s}
+  .chip:hover{border-color:var(--navy)}
+  .chip[aria-pressed="true"]{background:var(--navy); border-color:var(--navy); color:#fff}
+  .chip:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+
+  /* signature: the "doesn't fit" path, first-class & gold */
+  .misfit{margin-top:14px; border:1px dashed var(--gold); border-radius:var(--r-s);
+    background:rgba(226,182,94,.07); padding:14px}
+  .misfit .mtoggle{display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px; font-weight:600; color:var(--navy)}
+  .misfit .mtoggle .dot{width:9px; height:9px; border-radius:50%; background:var(--gold); flex:none}
+  .misfit .mbody{margin-top:12px; display:none}
+  .misfit.open .mbody{display:block}
+  .misfit .hint{margin-top:7px}
+
+  /* ---------- submit ---------- */
+  .foot{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:22px; padding-top:20px; border-top:1px solid var(--line); flex-wrap:wrap}
+  .foot .assure{font-size:12.5px; color:var(--muted); max-width:46ch}
+  .btn{font-family:var(--sans); font-size:15px; font-weight:700; letter-spacing:.01em;
+    background:var(--navy); color:#fff; border:1px solid var(--navy);
+    padding:13px 26px; border-radius:var(--r-s); cursor:pointer; transition:background .15s, transform .05s}
+  .btn:hover{background:var(--navy-2)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.55; cursor:not-allowed}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+  .btn .arrow{color:var(--gold)}
+
+  /* ---------- alerts ---------- */
+  .alert{border-radius:var(--r-s); padding:12px 14px; font-size:14px; margin-bottom:18px; display:none}
+  .alert.show{display:block}
+  .alert.error{background:rgba(178,58,58,.08); border:1px solid rgba(178,58,58,.3); color:var(--err)}
+
+  /* ---------- success state ---------- */
+  .done{display:none; text-align:center; padding:46px 24px}
+  .done.show{display:block}
+  .done .seal{font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ok)}
+  .done h2{font-family:var(--serif); font-weight:400; font-size:40px; margin:12px 0 14px; color:var(--navy)}
+  .done p{color:var(--muted); max-width:44ch; margin:0 auto 8px}
+  .done .again{margin-top:22px; font-family:var(--mono); font-size:12px; letter-spacing:.05em; background:none; border:0; color:var(--navy); cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+
+  @media (max-width:820px){
+    .grid{grid-template-columns:1fr; gap:24px}
+    .rail{position:static}
+    h1{font-size:38px}
+    .row{grid-template-columns:1fr}
+    .card{padding:22px 18px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <span class="mark">Convexus</span>
+      <span class="sub" data-i="brand_sub">Engagement · Front Door</span>
+    </div>
+    <div class="langtog" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="tr" aria-pressed="false">TR</button>
+      <a href="/platforms/convexus/convexus-engagement-triage.html" style="margin-left:10px;font-size:11px;opacity:.6;text-decoration:none;color:inherit" title="Operator triage console">Triage &rsaquo;</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- rail -->
+    <aside class="rail">
+      <div class="eyebrow" data-i="eyebrow">Capability intake</div>
+      <h1 data-i="h1">The industry <em>front door</em>.</h1>
+      <p class="lead" data-i="lead">Tell us what you can do. If your capability doesn't fit today's categories, that's exactly what we want to hear.</p>
+      <div class="railnote">
+        <p><span class="k" data-i="rk1">Reviewed by</span><br data-i="_br"><span data-i="rv1">A person, not a filter. We read every submission.</span></p>
+        <p><span class="k" data-i="rk2">What next</span><br><span data-i="rv2">Fitting capabilities are routed to the relevant NATO communities; non-fitting ones surface gaps worth acting on.</span></p>
+      </div>
+    </aside>
+
+    <!-- form / success -->
+    <div>
+      <div class="alert error" id="err" role="alert"></div>
+
+      <form class="card" id="form" novalidate>
+
+        <!-- who -->
+        <div class="sect">
+          <p class="shead"><span class="n">01</span> <span data-i="s1">Who you are</span></p>
+          <div class="row">
+            <div class="field">
+              <label for="org_name" data-i="l_org">Organisation<span class="req">*</span></label>
+              <input type="text" id="org_name" autocomplete="organization" />
+            </div>
+            <div class="field">
+              <label for="org_country" data-i="l_country">Country</label>
+              <input type="text" id="org_country" autocomplete="country-name" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="contact_name" data-i="l_name">Your name</label>
+              <input type="text" id="contact_name" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="contact_email" data-i="l_email">Email<span class="req">*</span> <span class="hint" data-i="l_email_h">— so we can reply</span></label>
+              <input type="email" id="contact_email" autocomplete="email" />
+            </div>
+          </div>
+          <div class="field full">
+            <label for="website" data-i="l_site">Website</label>
+            <input type="url" id="website" placeholder="https://" />
+          </div>
+        </div>
+
+        <!-- capability -->
+        <div class="sect">
+          <p class="shead"><span class="n">02</span> <span data-i="s2">What you can do</span></p>
+          <div class="field full">
+            <label for="capability_title" data-i="l_title">Capability<span class="req">*</span> <span class="hint" data-i="l_title_h">— one line</span></label>
+            <input type="text" id="capability_title" data-i-ph="ph_title" placeholder="e.g. Synthetic GPS for autonomy in GPS-denied environments" />
+          </div>
+          <div class="field full">
+            <label for="capability_summary" data-i="l_sum">Short overview</label>
+            <textarea id="capability_summary" data-i-ph="ph_sum" placeholder="A few sentences: what it does, what problem it solves, current state."></textarea>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="trl" data-i="l_trl">Maturity (TRL)</label>
+              <select id="trl">
+                <option value="" data-i="opt_trl">Select…</option>
+                <option value="1">TRL 1 — basic principles</option>
+                <option value="2">TRL 2 — concept</option>
+                <option value="3">TRL 3 — proof of concept</option>
+                <option value="4">TRL 4 — lab validated</option>
+                <option value="5">TRL 5 — relevant-env validated</option>
+                <option value="6">TRL 6 — prototype demo</option>
+                <option value="7">TRL 7 — operational-env demo</option>
+                <option value="8">TRL 8 — qualified</option>
+                <option value="9">TRL 9 — proven in operations</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="briefing_package_url" data-i="l_brief">Briefing package</label>
+              <input type="url" id="briefing_package_url" placeholder="https:// — deck, one-pager, video" />
+            </div>
+          </div>
+        </div>
+
+        <!-- focus areas -->
+        <div class="sect">
+          <p class="shead"><span class="n">03</span> <span data-i="s3">Where it fits</span> <span class="hint" data-i="s3_h">— pick any that apply</span></p>
+          <div class="chips" id="focusChips" role="group" aria-label="Focus areas"></div>
+
+          <div class="misfit" id="misfit">
+            <div class="mtoggle" id="misfitToggle" role="button" tabindex="0" aria-expanded="false">
+              <span class="dot"></span>
+              <span data-i="misfit_t">None of these fit? Tell us what you'd call it →</span>
+            </div>
+            <div class="mbody">
+              <input type="text" id="misfit_text" data-i-ph="misfit_ph" placeholder="e.g. Resilient PNT / Assured Navigation" />
+              <p class="hint" data-i="misfit_h">Capabilities that fall outside today's categories are how we find the gaps. This is a signal, not a rejection.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- targets -->
+        <div class="sect">
+          <p class="shead"><span class="n">04</span> <span data-i="s4">Who you'd like to reach</span> <span class="hint" data-i="s4_h">— optional</span></p>
+          <div class="chips" id="stakeChips" role="group" aria-label="Target communities"></div>
+          <div class="field full" style="margin-top:12px">
+            <input type="text" id="stake_other" data-i-ph="stake_ph" placeholder="Someone else? Name the team or programme" />
+          </div>
+        </div>
+
+        <div class="foot">
+          <p class="assure" data-i="assure">Your submission goes to our team for review. We'll follow up by email. Evaluation notes stay internal.</p>
+          <button type="submit" class="btn" id="submit">
+            <span data-i="btn">Send capability</span> <span class="arrow">→</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- success -->
+      <div class="card done" id="done">
+        <div class="seal" data-i="done_seal">Received</div>
+        <h2 data-i="done_h">Thank you — it's in.</h2>
+        <p data-i="done_p1">A person on our team will review your capability and follow up by email.</p>
+        <p data-i="done_p2">If it maps to a live NATO need, we'll route it. If it opens a new one, even better.</p>
+        <button class="again" id="again" data-i="done_again">Submit another capability</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+/* ---------------- config ---------------- */
+const SUPABASE_URL = window.__CV_SUPABASE_URL;
+// Uses shared client/key if the page's bootstrap already set them; else falls back.
+const ANON = window.__CV_ANON_KEY;
+const sb = window.cvClient();
+window.__cvSb = sb;
+
+/* ---------------- taxonomy ---------------- */
+const FOCUS = [
+  "Artificial Intelligence and machine-learning",
+  "Business applications and enterprise software",
+  "Cloud adoption and cloud computing",
+  "Command and control applications",
+  "Consulting and advisory",
+  "Counter-UAS",
+  "Cybersecurity and cyberspace operations",
+  "Data service and data exploitation",
+  "Hardware solutions and managed devices",
+  "Integrated air & missile defence",
+  "Interoperability solutions and services",
+  "Next generation networks",
+  "Outsourcing services",
+  "Quantum technologies",
+  "Satellite communications",
+  "Space Technologies",
+  "Supply chain security and de-risking",
+  "Training simulation and modelling"
+];
+const STAKE = ["TFX-EFDI", "LCI-X", "LANDCOM"];
+
+/* ---------------- i18n ---------------- */
+const I18N = {
+  en:{}, // English is authored inline; TR overrides below
+  tr:{
+    brand_sub:"Engagement · Ön Kapı",
+    eyebrow:"Yetenek girişi",
+    h1:"Sektörün <em>ön kapısı</em>.",
+    lead:"Ne yapabildiğinizi anlatın. Yeteneğiniz mevcut kategorilere uymuyorsa, duymak istediğimiz tam da budur.",
+    rk1:"Kim inceler", rv1:"Bir filtre değil, bir insan. Her başvuruyu okuyoruz.",
+    rk2:"Sonrası", rv2:"Uyan yetenekler ilgili NATO topluluklarına yönlendirilir; uymayanlar üzerine gidilecek boşlukları ortaya çıkarır.",
+    s1:"Kimsiniz",
+    l_org:"Kuruluş", l_country:"Ülke", l_name:"Adınız",
+    l_email:"E-posta", l_email_h:"— size dönebilmemiz için", l_site:"Web sitesi",
+    s2:"Ne yapabiliyorsunuz",
+    l_title:"Yetenek", l_title_h:"— tek satır",
+    ph_title:"ör. GPS'siz ortamda otonomi için sentetik GPS",
+    l_sum:"Kısa özet", ph_sum:"Birkaç cümle: ne yapar, hangi sorunu çözer, mevcut durumu.",
+    l_trl:"Olgunluk (TRL)", opt_trl:"Seçin…",
+    l_brief:"Tanıtım paketi",
+    s3:"Nereye oturuyor", s3_h:"— uyan hepsini seçin",
+    misfit_t:"Hiçbiri uymuyor mu? Siz ne derdiniz →",
+    misfit_ph:"ör. Dirençli PNT / Güvenli Seyrüsefer",
+    misfit_h:"Mevcut kategorilerin dışına düşen yetenekler, boşlukları bulma yolumuzdur. Bu bir ret değil, bir sinyaldir.",
+    s4:"Kime ulaşmak istersiniz", s4_h:"— opsiyonel",
+    stake_ph:"Başkası mı? Ekip ya da programın adını yazın",
+    assure:"Başvurunuz ekibimizce incelenir. E-posta ile döneriz. Değerlendirme notları içeride kalır.",
+    btn:"Yeteneği gönder",
+    done_seal:"Alındı", done_h:"Teşekkürler — bize ulaştı.",
+    done_p1:"Ekibimizden bir kişi yeteneğinizi inceleyip e-posta ile dönecek.",
+    done_p2:"Canlı bir NATO ihtiyacına denk gelirse yönlendiririz. Yeni bir ihtiyaç açarsa, daha da iyi.",
+    done_again:"Başka bir yetenek gönder"
+  }
+};
+
+/* ---------------- render chips ---------------- */
+function chip(label){
+  const b=document.createElement('button');
+  b.type='button'; b.className='chip'; b.textContent=label;
+  b.setAttribute('aria-pressed','false');
+  b.addEventListener('click',()=>b.setAttribute('aria-pressed', b.getAttribute('aria-pressed')==='true'?'false':'true'));
+  return b;
+}
+const focusWrap=document.getElementById('focusChips');
+FOCUS.forEach(f=>focusWrap.appendChild(chip(f)));
+const stakeWrap=document.getElementById('stakeChips');
+STAKE.forEach(s=>stakeWrap.appendChild(chip(s)));
+
+/* misfit expander */
+const misfit=document.getElementById('misfit');
+const mt=document.getElementById('misfitToggle');
+function toggleMisfit(){ const open=!misfit.classList.contains('open'); misfit.classList.toggle('open',open); mt.setAttribute('aria-expanded',String(open)); if(open) document.getElementById('misfit_text').focus(); }
+mt.addEventListener('click',toggleMisfit);
+mt.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); toggleMisfit();} });
+
+/* ---------------- language ---------------- */
+function applyLang(lang){
+  const dict=I18N[lang]||{};
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i]').forEach(el=>{
+    const k=el.getAttribute('data-i'); if(k==='_br') return;
+    if(dict[k]!==undefined) el.innerHTML=dict[k];
+  });
+  document.querySelectorAll('[data-i-ph]').forEach(el=>{
+    const k=el.getAttribute('data-i-ph'); if(dict[k]!==undefined) el.placeholder=dict[k];
+  });
+  document.querySelectorAll('.langtog button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+  try{ localStorage.setItem('cv-lang',lang); }catch(e){}
+}
+document.querySelectorAll('.langtog button').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.lang)));
+let startLang='en';
+try{ const s=localStorage.getItem('cv-lang'); if(s==='tr'||s==='en') startLang=s; }catch(e){}
+applyLang(startLang);
+
+/* ---------------- helpers ---------------- */
+const $=id=>document.getElementById(id);
+const errBox=$('err');
+function showErr(msg){ errBox.textContent=msg; errBox.classList.add('show'); errBox.scrollIntoView({behavior:'smooth',block:'center'}); }
+function clearErr(){ errBox.classList.remove('show'); }
+function pressed(wrap){ return [...wrap.querySelectorAll('.chip[aria-pressed="true"]')].map(c=>c.textContent); }
+function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+/* ---------------- submit ---------------- */
+$('form').addEventListener('submit', async (e)=>{
+  e.preventDefault(); clearErr();
+  const t=(I18N[document.documentElement.lang]||{});
+  ['org_name','contact_email','capability_title'].forEach(id=>$(id).classList.remove('bad'));
+
+  const org_name=$('org_name').value.trim();
+  const contact_email=$('contact_email').value.trim();
+  const capability_title=$('capability_title').value.trim();
+
+  let bad=false;
+  if(!org_name){ $('org_name').classList.add('bad'); bad=true; }
+  if(!capability_title){ $('capability_title').classList.add('bad'); bad=true; }
+  if(!contact_email || !validEmail(contact_email)){ $('contact_email').classList.add('bad'); bad=true; }
+  if(bad){ showErr(document.documentElement.lang==='tr'
+      ? 'Lütfen zorunlu alanları ve geçerli bir e-posta girin.'
+      : 'Please complete the required fields and a valid email.'); return; }
+
+  // focus_area: canonical picks + free "doesn't fit" label
+  const focus=pressed(focusWrap);
+  const mf=$('misfit_text').value.trim();
+  if(misfit.classList.contains('open') && mf) focus.push('Other: '+mf);
+
+  // target_stakeholder: chips + free
+  const stake=pressed(stakeWrap);
+  const so=$('stake_other').value.trim();
+  if(so) stake.push(so);
+
+  const trlV=$('trl').value;
+
+  // Only firm-descriptive fields — DB defaults handle status/taxonomy/demand.
+  const payload={
+    org_name,
+    org_country: $('org_country').value.trim() || null,
+    contact_name: $('contact_name').value.trim() || null,
+    contact_email,
+    website: $('website').value.trim() || null,
+    capability_title,
+    capability_summary: $('capability_summary').value.trim() || null,
+    trl: trlV ? parseInt(trlV,10) : null,
+    focus_area: focus.length ? focus : null,
+    target_stakeholder: stake.length ? stake : null,
+    briefing_package_url: $('briefing_package_url').value.trim() || null
+  };
+
+  const btn=$('submit'); btn.disabled=true;
+  const orig=btn.querySelector('[data-i="btn"]').textContent;
+  btn.querySelector('[data-i="btn"]').textContent = document.documentElement.lang==='tr' ? 'Gönderiliyor…' : 'Sending…';
+
+  try{
+    // No .select() — anon has no read under closed RLS; insert only.
+    const { error } = await sb.from('convexus_engagement_requests').insert(payload);
+    if(error) throw error;
+    $('form').style.display='none';
+    $('done').classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    console.error(err);
+    showErr((document.documentElement.lang==='tr'
+      ? 'Gönderim başarısız oldu. Lütfen tekrar deneyin. '
+      : 'Submission failed. Please try again. ') + (err.message||''));
+    btn.disabled=false;
+    btn.querySelector('[data-i="btn"]').textContent=orig;
+  }
+});
+
+/* reset for another submission */
+$('again').addEventListener('click',()=>{
+  $('form').reset();
+  [...document.querySelectorAll('.chip[aria-pressed="true"]')].forEach(c=>c.setAttribute('aria-pressed','false'));
+  misfit.classList.remove('open'); mt.setAttribute('aria-expanded','false');
+  $('done').classList.remove('show');
+  $('form').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+</body>
+</html>

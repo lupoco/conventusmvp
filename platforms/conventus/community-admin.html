@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en" data-platform="conventus">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Community Admin · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/tokens.css"/>
+<link rel="stylesheet" href="/assets/base.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+  body{min-height:100vh}
+  .strip{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    text-align:center;padding:5px;color:var(--muted);background:var(--paper-2);border-bottom:1px solid var(--line)}
+  .bar{position:sticky;top:0;z-index:var(--z-nav);display:flex;align-items:center;gap:12px;
+    padding:0 16px;height:56px;border-bottom:1px solid var(--line);background:var(--nav-bg)}
+  .bar .back{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .bar .title{font-family:var(--font-display);font-size:1.25rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .sp{flex:1}
+  .tbtn{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);
+    background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r-pill);padding:6px 12px}
+  .tbtn:hover{color:var(--pf);border-color:var(--pf)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:20px 16px 80px}
+  .head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .head .eyebrow{margin-bottom:4px}
+  .head h1{font-size:clamp(1.8rem,4vw,2.6rem)}
+  .subline{color:var(--muted);font-size:13px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .tab{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.04em;
+    padding:9px 14px;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.on{color:var(--pf);border-bottom-color:var(--pf)}
+  .tab:hover{color:var(--ink)}
+  .row-acts{display:flex;gap:6px;justify-content:flex-end}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar h3{font-family:var(--font-display);font-weight:400;font-size:1.3rem;margin:0}
+  .toolbar .sp{flex:1}
+  .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-md);font-size:13px}
+  .kv{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;font-size:14px}
+  .kv dt{color:var(--muted);font-size:12px}
+  .kv dd{margin:0;color:var(--ink)}
+  .gate{max-width:440px;margin:12vh auto;text-align:center}
+  .gate h2{font-family:var(--font-display);font-weight:400;font-size:1.8rem;margin-bottom:8px}
+  .gate p{color:var(--muted);margin-bottom:18px}
+  /* drawer */
+  .dbg{position:fixed;inset:0;background:rgba(6,12,24,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:1100}
+  .dbg.on{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,94vw);background:var(--paper);
+    border-left:1px solid var(--line);box-shadow:var(--shadow-3);transform:translateX(102%);transition:transform .22s var(--ease);z-index:1101;display:flex;flex-direction:column}
+  .drawer.on{transform:none}
+  .drawer h3{font-family:var(--font-display);font-weight:400;font-size:1.4rem;padding:18px 20px 0}
+  .dbody{padding:16px 20px;overflow-y:auto;flex:1;display:grid;gap:12px}
+  .dfoot{display:flex;gap:8px;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
+  .dfoot .sp{flex:1}
+  .ferr{color:var(--danger);font-size:12.5px;min-height:16px}
+  .chip-role{font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--line-2);color:var(--muted)}
+  .chip-role.owner{color:var(--pf);border-color:color-mix(in srgb,var(--pf) 40%,transparent)}
+  .chip-role.admin{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+  .chip-role.event_manager{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+  .warnrow{color:var(--danger)}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--paper);
+    border:1px solid var(--pf);color:var(--ink);padding:10px 18px;border-radius:var(--r-md);font-size:13px;
+    box-shadow:var(--shadow-2);opacity:0;transition:opacity .25s;pointer-events:none;z-index:1200}
+  .toast.on{opacity:1}
+  .toast.bad{border-color:var(--danger)}
+  @media(max-width:640px){.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="strip">Unclassified · Conventity · Conventus</div>
+<div class="bar">
+  <a class="back" href="/platforms/conventus/index.html">← Conventus</a>
+  <div class="title" id="barTitle">—</div>
+  <div class="sp"></div>
+  <button class="tbtn" id="langBtn">TR/EN</button>
+  <button class="tbtn" id="themeBtn">◐</button>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="empty" id="boot">…</div>
+</div>
+
+<div class="dbg" id="dbg"></div>
+<div class="drawer" id="drawer">
+  <h3 id="dTitle"></h3>
+  <div class="dbody" id="dBody"></div>
+  <div class="dfoot" id="dFoot"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_KEY=window.__CV_ANON_KEY;
+  var sb=window.cvClient();
+  window.__cvSb=sb;
+
+  /* ---------- i18n ---------- */
+  var I18N={
+   tr:{
+    signin_req:'Giriş gerekli', signin_desc:'Bu konsol topluluk yöneticileri içindir.',
+    signin:'Giriş yap', no_id:'Topluluk bulunamadı', no_id_desc:'Bağlantıda topluluk kimliği eksik.',
+    forbidden:'Yetkisiz', forbidden_desc:'Bu topluluğu yönetme yetkin yok.',
+    lvl1:'ANA', lvl2:'ALT',
+    tab_general:'Genel', tab_members:'Üyeler', tab_events:'Etkinlikler', tab_subs:'Alt Topluluklar', tab_audit:'Denetim İzi',
+    g_name:'Ad', g_short:'Kısa ad', g_slug:'Slug', g_org:'Kurum', g_country:'Ülke', g_vis:'Görünürlük',
+    g_join:'Katılım', g_domain:'Alanlar', g_focus:'Odak', g_created:'Oluşturma', g_active:'Durum',
+    g_edit:'Düzenle', st_active:'Aktif', st_suspended:'Askıda',
+    m_add:'+ Üye Ekle', m_person:'Kişi', m_email:'E-posta', m_role:'Rol', m_remove:'Çıkar',
+    m_none:'Henüz üye yok.', m_added:'Üye eklendi.', m_removed:'Üye çıkarıldı.',
+    m_need_email:'E-posta girin.', m_notfound:'Bu e-postayla kişi bulunamadı.',
+    m_confirm:'“%s” bu topluluktan çıkarılsın mı?',
+    e_none:'Bu topluluğa bağlı etkinlik yok.', e_assign:'Yönetici Ata', e_mgr:'Etkinlik yöneticisi',
+    e_pick_member:'Üye seç', e_pick_event:'Etkinlik', e_assigned:'Etkinlik yöneticisi atandı.', e_manage:'Yönet →',
+    e_role_lvl:'Yetki kademesi', e_title:'Fonksiyonel unvan',
+    ttl_none:'(unvan yok)', ttl_opr:'OPR (lider)', ttl_poc:'POC', ttl_protocol:'Protokol', ttl_escort:'Refakat', ttl_dispatcher:'Sevk', ttl_registration:'Kayıt',
+    e_need_member:'Üye seç.', e_no_activity:'Bu etkinliğin activity kaydı yok — yönetici atanamaz.',
+    e_status_draft:'Taslak', e_status_pub:'Yayında',
+    s_add:'+ Alt Topluluk', s_none:'Alt topluluk yok.', s_created:'Alt topluluk oluşturuldu.',
+    a_none:'Denetim kaydı yok.', a_granted:'verildi', a_revoked:'kaldırıldı',
+    a_role_changed:'rol değişti', a_status_changed:'durum değişti', a_inherited:'mirasla',
+    save:'Kaydet', cancel:'Vazgeç', assign:'Ata', need_name:'Ad zorunlu.', saved:'Kaydedildi.',
+    role_owner:'owner', role_admin:'admin', role_organizer:'organizer', role_member:'member',
+    role_event_manager:'event_manager',
+    vis_public:'Herkese açık', vis_unlisted:'Listelenmez', vis_private:'Özel', vis_invite:'Davetli', vis_members_only:'Üyeye özel',
+    join_open:'Açık', join_request:'Başvuru ile', join_invite:'Davet ile',
+    inherit_note:'Alt topluluğa eklenen üye ana topluluğa da düşer (mirasla).'
+   },
+   en:{
+    signin_req:'Sign in required', signin_desc:'This console is for community managers.',
+    signin:'Sign in', no_id:'Community not found', no_id_desc:'The link is missing a community id.',
+    forbidden:'Not authorized', forbidden_desc:'You cannot manage this community.',
+    lvl1:'MAIN', lvl2:'SUB',
+    tab_general:'General', tab_members:'Members', tab_events:'Events', tab_subs:'Sub-communities', tab_audit:'Audit trail',
+    g_name:'Name', g_short:'Short name', g_slug:'Slug', g_org:'Organization', g_country:'Country', g_vis:'Visibility',
+    g_join:'Join policy', g_domain:'Domains', g_focus:'Focus', g_created:'Created', g_active:'Status',
+    g_edit:'Edit', st_active:'Active', st_suspended:'Suspended',
+    m_add:'+ Add member', m_person:'Person', m_email:'Email', m_role:'Role', m_remove:'Remove',
+    m_none:'No members yet.', m_added:'Member added.', m_removed:'Member removed.',
+    m_need_email:'Enter an email.', m_notfound:'No person found with that email.',
+    m_confirm:'Remove “%s” from this community?',
+    e_none:'No events linked to this community.', e_assign:'Assign manager', e_mgr:'Event manager',
+    e_pick_member:'Pick member', e_pick_event:'Event', e_assigned:'Event manager assigned.', e_manage:'Manage →',
+    e_role_lvl:'Authority level', e_title:'Functional title',
+    ttl_none:'(no title)', ttl_opr:'OPR (lead)', ttl_poc:'POC', ttl_protocol:'Protocol', ttl_escort:'Escort', ttl_dispatcher:'Dispatcher', ttl_registration:'Registration',
+    e_need_member:'Pick a member.', e_no_activity:'This event has no activity row — cannot assign a manager.',
+    e_status_draft:'Draft', e_status_pub:'Published',
+    s_add:'+ Sub-community', s_none:'No sub-communities.', s_created:'Sub-community created.',
+    a_none:'No audit entries.', a_granted:'granted', a_revoked:'revoked',
+    a_role_changed:'role changed', a_status_changed:'status changed', a_inherited:'inherited',
+    save:'Save', cancel:'Cancel', assign:'Assign', need_name:'Name is required.', saved:'Saved.',
+    role_owner:'owner', role_admin:'admin', role_organizer:'organizer', role_member:'member',
+    role_event_manager:'event_manager',
+    vis_public:'Public', vis_unlisted:'Unlisted', vis_private:'Private', vis_invite:'Invite', vis_members_only:'Members only',
+    join_open:'Open', join_request:'By request', join_invite:'By invite',
+    inherit_note:'A member added to a sub-community is also inherited into the main community.'
+   }
+  };
+  function lang(){ return (window.CVPrefs&&CVPrefs.getLang&&CVPrefs.getLang())||'en'; }
+  function T(k){ var d=I18N[lang()]||I18N.en; return d[k]!=null?d[k]:(I18N.en[k]!=null?I18N.en[k]:k); }
+  function Tf(k,v){ return T(k).replace('%s',v); }
+
+  /* ---------- helpers ---------- */
+  function $(s,r){ return (r||document).querySelector(s); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtD(iso){ if(!iso) return '—'; var d=new Date(iso);
+    return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }
+  function fmtDT(iso){ if(!iso) return '—'; var d=new Date(iso);
+    return fmtD(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  var toastT;
+  function toast(m,bad){ var t=$('#toast'); t.textContent=m; t.classList.toggle('bad',!!bad); t.classList.add('on');
+    clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('on'); },2400); }
+  function roleChip(r){ return '<span class="chip-role '+esc(r)+'">'+esc(T('role_'+r)||r)+'</span>'; }
+
+  /* drawer */
+  function openDrawer(title, body, foot){
+    $('#dTitle').textContent=title; $('#dBody').innerHTML=body; $('#dFoot').innerHTML=foot;
+    $('#dbg').classList.add('on'); $('#drawer').classList.add('on');
+  }
+  function closeDrawer(){ $('#dbg').classList.remove('on'); $('#drawer').classList.remove('on'); }
+  $('#dbg').addEventListener('click',closeDrawer);
+
+  /* ---------- state ---------- */
+  var CID=new URLSearchParams(location.search).get('id');
+  var COM=null, TAB='general';
+  var members=[], events=[], subs=[], audit=[], peopleMap={};
+
+  /* ---------- boot ---------- */
+  boot();
+  async function boot(){
+    if(!CID){ gate('no_id'); return; }
+    var s=await sb.auth.getSession();
+    if(!s.data||!s.data.session){ gate('signin'); return; }
+    var can=await sb.rpc('conventity_can_manage_community',{p_cid:CID});
+    if(can.error){ gate('forbidden', can.error.message); return; }
+    if(!can.data){ gate('forbidden'); return; }
+    var c=await sb.from('conventus_communities').select('*').eq('id',CID).maybeSingle();
+    if(c.error||!c.data){ gate('forbidden', c.error&&c.error.message); return; }
+    COM=c.data;
+    $('#barTitle').textContent=COM.name;
+    await loadAll();
+    render();
+  }
+  function gate(kind, detail){
+    var map={no_id:['no_id','no_id_desc',null], signin:['signin_req','signin_desc','/login.html'], forbidden:['forbidden','forbidden_desc',null]};
+    var g=map[kind];
+    $('#wrap').innerHTML='<div class="gate"><h2>'+esc(T(g[0]))+'</h2><p>'+esc(T(g[1]))+
+      (detail?'<br><span class="mono" style="font-size:11px">'+esc(detail)+'</span>':'')+'</p>'+
+      (g[2]?'<a class="btn btn-primary" href="'+g[2]+'">'+esc(T('signin'))+'</a>':'')+'</div>';
+  }
+
+  async function loadAll(){
+    var m=await sb.from('conventity_roles').select('*').eq('scope','community').eq('scope_id',CID);
+    members=(m.data||[]).sort(function(a,b){ return rank(a.role)-rank(b.role); });
+    var e=await sb.from('conventus_managed_events')
+      .select('id,code,title,activity_id,start_date,published,visibility,community_id').eq('community_id',CID);
+    events=e.data||[];
+    var s=await sb.from('conventus_communities').select('*').eq('parent_id',CID).order('name');
+    subs=s.data||[];
+    // audit: community scope + this community's event activities
+    var actIds=events.map(function(x){return x.activity_id;}).filter(Boolean);
+    var au=await sb.from('conventus_role_events').select('*').eq('scope','community').eq('scope_id',CID)
+      .order('created_at',{ascending:false}).limit(200);
+    audit=au.data||[];
+    if(actIds.length){
+      var au2=await sb.from('conventus_role_events').select('*').eq('scope','activity').in('scope_id',actIds)
+        .order('created_at',{ascending:false}).limit(200);
+      audit=audit.concat(au2.data||[]).sort(function(a,b){ return (b.created_at||'').localeCompare(a.created_at||''); });
+    }
+    // best-effort names (people RLS may restrict for non-ecosystem admins)
+    var ids=members.map(function(x){return x.person_id;}).filter(Boolean);
+    peopleMap={};
+    if(ids.length){
+      var pp=await sb.from('conventity_people').select('id,full_name,email').in('id',ids);
+      (pp.data||[]).forEach(function(p){ peopleMap[p.id]=p; });
+    }
+  }
+  function rank(r){ return {owner:1,admin:2,organizer:3,member:4}[r]||9; }
+  function pLabel(row){
+    var p=peopleMap[row.person_id];
+    if(p) return (p.full_name||p.email||row.person_id);
+    return row.person_id||row.auth_user_id||'—';
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var lvl=COM.level===2?'lvl2':'lvl1';
+    var tabs=[['general','tab_general'],['members','tab_members'],['events','tab_events'],['subs','tab_subs'],['audit','tab_audit']];
+    if(COM.level===2) tabs=tabs.filter(function(t){return t[0]!=='subs';}); // alt topluluğun altı olmaz
+    var html=''+
+      '<div class="head"><div><div class="eyebrow">'+esc(T(lvl))+' · conventus_communities</div>'+
+        '<h1>'+esc(COM.name)+'</h1></div></div>'+
+      '<div class="subline">'+
+        (COM.short_name?'<span class="mono">'+esc(COM.short_name)+'</span>·':'')+
+        '<span>'+esc(T('g_vis'))+': '+esc(T('vis_'+COM.visibility)||COM.visibility)+'</span>·'+
+        '<span>'+esc(T('g_join'))+': '+esc(T('join_'+COM.join_policy)||COM.join_policy)+'</span>·'+
+        '<span>'+(COM.is_active?esc(T('st_active')):'<span class="warnrow">'+esc(T('st_suspended'))+'</span>')+'</span>'+
+      '</div>'+
+      '<div class="tabs">'+tabs.map(function(t){
+        return '<button class="tab'+(TAB===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+esc(T(t[1]))+'</button>';
+      }).join('')+'</div>'+
+      '<div id="tabbody"></div>';
+    $('#wrap').innerHTML=html;
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
+      b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
+    });
+    ({general:tGeneral,members:tMembers,events:tEvents,subs:tSubs,audit:tAudit}[TAB]||tGeneral)();
+  }
+
+  function tGeneral(){
+    var c=COM;
+    $('#tabbody').innerHTML='<div class="card"><dl class="kv">'+
+      kv('g_name',c.name)+kv('g_short',c.short_name)+kv('g_slug',c.slug)+
+      kv('g_country',c.country)+
+      kvRaw('g_vis',esc(T('vis_'+c.visibility)||c.visibility))+
+      kvRaw('g_join',esc(T('join_'+c.join_policy)||c.join_policy))+
+      kv('g_domain',(c.domain||[]).join(', '))+kv('g_focus',(c.focus_area||[]).join(', '))+
+      kvRaw('g_created',esc(fmtDT(c.created_at)))+
+      kvRaw('g_active',c.is_active?esc(T('st_active')):'<span class="warnrow">'+esc(T('st_suspended'))+'</span>')+
+      '</dl></div>';
+  }
+  function kv(k,v){ return '<dt>'+esc(T(k))+'</dt><dd>'+esc(v||'—')+'</dd>'; }
+  function kvRaw(k,v){ return '<dt>'+esc(T(k))+'</dt><dd>'+v+'</dd>'; }
+
+  function tMembers(){
+    var body='<div class="toolbar"><h3>'+esc(T('tab_members'))+'</h3><div class="sp"></div>'+
+      '<button class="btn btn-primary btn-sm" id="mAdd">'+esc(T('m_add'))+'</button></div>';
+    if(COM.level===2) body+='<div class="empty" style="text-align:left;border-style:solid;margin-bottom:12px">ⓘ '+esc(T('inherit_note'))+'</div>';
+    if(!members.length){ body+='<div class="empty">'+esc(T('m_none'))+'</div>'; }
+    else{
+      body+='<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('m_person'))+'</th><th>'+
+        esc(T('m_role'))+'</th><th></th></tr></thead><tbody>'+
+        members.map(function(r){
+          var warn=r.auth_user_id?'':' <span class="chip-role" style="color:var(--danger);border-color:var(--danger)">auth?</span>';
+          return '<tr><td style="color:var(--ink);font-weight:600">'+esc(pLabel(r))+warn+'</td>'+
+            '<td>'+roleChip(r.role)+'</td>'+
+            '<td class="row-acts"><button class="btn btn-ghost btn-sm" data-rm="'+r.id+'">'+esc(T('m_remove'))+'</button></td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    $('#tabbody').innerHTML=body;
+    var add=$('#mAdd'); if(add) add.addEventListener('click',memberForm);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-rm]'),function(b){
+      b.addEventListener('click',function(){ removeMember(b.getAttribute('data-rm')); });
+    });
+  }
+  function memberForm(){
+    var ROLES=window.CV.communityRoles;
+    openDrawer(T('m_add'),
+      '<div><label>'+esc(T('m_email'))+'</label><input id="mEmail" type="email" placeholder="ad@kurum.mil"/></div>'+
+      '<div><label>'+esc(T('m_role'))+'</label><select id="mRole">'+ROLES.map(function(r){
+        return '<option value="'+r+'">'+esc(T('role_'+r))+'</option>';}).join('')+'</select></div>'+
+      '<div class="ferr" id="mErr"></div>',
+      '<div class="sp"></div><button class="btn btn-ghost" id="mCancel">'+esc(T('cancel'))+'</button>'+
+      '<button class="btn btn-primary" id="mSave">'+esc(T('save'))+'</button>');
+    $('#mCancel').addEventListener('click',closeDrawer);
+    $('#mSave').addEventListener('click',addMember);
+    setTimeout(function(){ var el=$('#mEmail'); if(el) el.focus(); },50);
+  }
+  async function addMember(){
+    var email=($('#mEmail').value||'').trim().toLowerCase();
+    var role=$('#mRole').value||'member';
+    if(!email){ $('#mErr').textContent=T('m_need_email'); return; }
+    var pr=await sb.from('conventity_people').select('id,auth_user_id,email').ilike('email',email).limit(1);
+    if(pr.error){ $('#mErr').textContent=pr.error.message; return; }
+    if(!pr.data||!pr.data.length){ $('#mErr').textContent=T('m_notfound'); return; }
+    var per=pr.data[0];
+    var res=await sb.from('conventity_roles').insert({person_id:per.id,auth_user_id:per.auth_user_id,
+      scope:'community',scope_id:CID,role:role,status:'active'});
+    if(res.error){ $('#mErr').textContent=res.error.message; return; }
+    closeDrawer(); toast(T('m_added')); await loadAll(); render();
+  }
+  async function removeMember(rid){
+    var r=members.find(function(x){return x.id===rid;}); if(!r) return;
+    if(!confirm(Tf('m_confirm', pLabel(r)))) return;
+    var res=await sb.from('conventity_roles').delete().eq('id',rid);
+    if(res.error){ toast(res.error.message,true); return; }
+    toast(T('m_removed')); await loadAll(); render();
+  }
+
+  function tEvents(){
+    var body='<div class="toolbar"><h3>'+esc(T('tab_events'))+'</h3></div>';
+    if(!events.length){ body+='<div class="empty">'+esc(T('e_none'))+'</div>'; }
+    else{
+      body+='<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('e_pick_event'))+
+        '</th><th>'+esc(T('g_active'))+'</th><th>'+esc(T('e_mgr'))+'</th><th></th></tr></thead><tbody>'+
+        events.map(function(ev){
+          var mgrs=members; // managers come from activity roles; show assign action
+          return '<tr><td style="color:var(--ink);font-weight:600">'+esc(ev.title||ev.code)+
+            ' <span class="mono" style="color:var(--muted);font-size:11px">'+esc(ev.code)+'</span></td>'+
+            '<td>'+(ev.published?esc(T('e_status_pub')):esc(T('e_status_draft')))+'</td>'+
+            '<td class="mono" style="font-size:11px;color:var(--muted)">'+esc(ev.activity_id?ev.activity_id.slice(0,8):'—')+'</td>'+
+            '<td class="row-acts"><a class="btn btn-ghost btn-sm" href="/platforms/conventus/event-manage.html?e='+encodeURIComponent(ev.code||'')+'">'+esc(T('e_manage'))+'</a> '+
+            '<button class="btn btn-ghost btn-sm" data-assign="'+ev.id+'">'+esc(T('e_assign'))+'</button></td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    $('#tabbody').innerHTML=body;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-assign]'),function(b){
+      b.addEventListener('click',function(){ assignForm(b.getAttribute('data-assign')); });
+    });
+  }
+  function assignForm(evId){
+    var ev=events.find(function(x){return x.id==evId;}); if(!ev) return;
+    if(!ev.activity_id){ toast(T('e_no_activity'),true); return; }
+    // only active community members are eligible (karar #3)
+    var elig=members.filter(function(m){ return m.status==='active'; });
+    var TITLES=['','opr','poc','protocol','escort','dispatcher','registration'];
+    openDrawer(T('e_assign')+' · '+(ev.title||ev.code),
+      '<div><label>'+esc(T('e_pick_member'))+'</label><select id="amMember"><option value="">—</option>'+
+        elig.map(function(m){ return '<option value="'+esc(m.person_id)+'|'+esc(m.auth_user_id||'')+'">'+
+          esc(pLabel(m))+' ('+esc(T('role_'+m.role))+')</option>'; }).join('')+'</select></div>'+
+      '<div><label>'+esc(T('e_role_lvl'))+'</label><select id="amRole">'+
+        '<option value="event_manager">'+esc(T('role_event_manager'))+'</option>'+
+        '<option value="organizer">'+esc(T('role_organizer'))+'</option></select></div>'+
+      '<div><label>'+esc(T('e_title'))+'</label><select id="amTitle">'+
+        TITLES.map(function(t){ return '<option value="'+t+'">'+esc(T('ttl_'+(t||'none')))+'</option>'; }).join('')+'</select></div>'+
+      '<div class="ferr" id="amErr"></div>',
+      '<div class="sp"></div><button class="btn btn-ghost" id="amCancel">'+esc(T('cancel'))+'</button>'+
+      '<button class="btn btn-primary" id="amSave">'+esc(T('assign'))+'</button>');
+    $('#amCancel').addEventListener('click',closeDrawer);
+    $('#amSave').addEventListener('click',function(){ doAssign(ev); });
+  }
+  async function doAssign(ev){
+    var v=$('#amMember').value;
+    if(!v){ $('#amErr').textContent=T('e_need_member'); return; }
+    var parts=v.split('|'); var pid=parts[0], uid=parts[1]||null;
+    var role=($('#amRole')&&$('#amRole').value)||'event_manager';
+    var title=($('#amTitle')&&$('#amTitle').value)||null;
+    var res=await sb.from('conventity_roles').insert({person_id:pid,auth_user_id:uid,
+      scope:'activity',scope_id:ev.activity_id,role:role,title:title,status:'active'});
+    if(res.error){ $('#amErr').textContent=res.error.message; return; }
+    closeDrawer(); toast(T('e_assigned')); await loadAll(); render();
+  }
+
+  function tSubs(){
+    var body='<div class="toolbar"><h3>'+esc(T('tab_subs'))+'</h3><div class="sp"></div>'+
+      '<button class="btn btn-primary btn-sm" id="sAdd">'+esc(T('s_add'))+'</button></div>';
+    if(!subs.length){ body+='<div class="empty">'+esc(T('s_none'))+'</div>'; }
+    else{
+      body+='<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('g_name'))+'</th><th>'+
+        esc(T('g_vis'))+'</th><th></th></tr></thead><tbody>'+
+        subs.map(function(s){
+          return '<tr><td style="color:var(--ink);font-weight:600">'+esc(s.name)+
+            (s.short_name?' <span class="mono" style="color:var(--muted);font-size:11px">'+esc(s.short_name)+'</span>':'')+'</td>'+
+            '<td><span class="chip-role">'+esc(T('vis_'+s.visibility)||s.visibility)+'</span></td>'+
+            '<td class="row-acts"><a class="btn btn-ghost btn-sm" href="?id='+encodeURIComponent(s.id)+'">'+esc(T('g_edit'))+'</a></td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    $('#tabbody').innerHTML=body;
+    var add=$('#sAdd'); if(add) add.addEventListener('click',subForm);
+  }
+  function subForm(){
+    var VIS=['public','unlisted','private'], JOIN=['open','request','invite'];
+    openDrawer(T('s_add'),
+      '<div><label>'+esc(T('g_name'))+'</label><input id="sName"/></div>'+
+      '<div><label>'+esc(T('g_short'))+'</label><input id="sShort"/></div>'+
+      '<div><label>'+esc(T('g_slug'))+'</label><input id="sSlug" placeholder="auto"/></div>'+
+      '<div><label>'+esc(T('g_vis'))+'</label><select id="sVis">'+VIS.map(function(v){return '<option value="'+v+'">'+esc(T('vis_'+v))+'</option>';}).join('')+'</select></div>'+
+      '<div><label>'+esc(T('g_join'))+'</label><select id="sJoin">'+JOIN.map(function(v){return '<option value="'+v+'"'+(v==='invite'?' selected':'')+'>'+esc(T('join_'+v))+'</option>';}).join('')+'</select></div>'+
+      '<div class="ferr" id="sErr"></div>',
+      '<div class="sp"></div><button class="btn btn-ghost" id="sCancel">'+esc(T('cancel'))+'</button>'+
+      '<button class="btn btn-primary" id="sSave">'+esc(T('save'))+'</button>');
+    $('#sCancel').addEventListener('click',closeDrawer);
+    $('#sSave').addEventListener('click',saveSub);
+  }
+  async function saveSub(){
+    var name=($('#sName').value||'').trim();
+    if(!name){ $('#sErr').textContent=T('need_name'); return; }
+    var slug=($('#sSlug').value||'').trim() || name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    var res=await sb.from('conventus_communities').insert({parent_id:CID,name:name,
+      short_name:($('#sShort').value||'').trim()||null, slug:slug,
+      visibility:$('#sVis').value||'public', join_policy:$('#sJoin').value||'invite'});
+    if(res.error){ $('#sErr').textContent=res.error.message; return; }
+    closeDrawer(); toast(T('s_created')); await loadAll(); render();
+  }
+
+  function tAudit(){
+    var body='<div class="toolbar"><h3>'+esc(T('tab_audit'))+'</h3></div>';
+    if(!audit.length){ body+='<div class="empty">'+esc(T('a_none'))+'</div>'; }
+    else{
+      body+='<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('g_created'))+'</th><th>'+
+        esc(T('m_role'))+'</th><th>action</th><th>scope</th></tr></thead><tbody>'+
+        audit.map(function(a){
+          return '<tr><td class="mono" style="font-size:11px">'+esc(fmtDT(a.created_at))+'</td>'+
+            '<td>'+(a.to_value?roleChip(a.to_value):(a.from_value?roleChip(a.from_value):'—'))+'</td>'+
+            '<td>'+esc(T('a_'+a.action)||a.action)+'</td>'+
+            '<td class="mono" style="font-size:11px;color:var(--muted)">'+esc(a.scope)+'</td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    $('#tabbody').innerHTML=body;
+  }
+
+  /* ---------- prefs wiring ---------- */
+  $('#langBtn').addEventListener('click',function(){ if(window.CVPrefs){ CVPrefs.toggleLang(); } });
+  $('#themeBtn').addEventListener('click',function(){ if(window.CVPrefs){ CVPrefs.toggleTheme(); } });
+  if(window.CVPrefs&&CVPrefs.onChange){ CVPrefs.onChange(function(what){ if(what==='lang'&&COM) render(); }); }
+})();
+</script>
+</body>
+</html>

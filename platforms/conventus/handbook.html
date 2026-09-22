@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Handbook · Conventus</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F5F2EC;--paper:#fff;--paper2:#FAF7F1;--ink:#0E2148;--ink2:#1F2D55;--muted:#5A6486;--line:#E5DFD2;--line2:#D6CFBE;--pf:#004990;--gold:#B8892B}
+body[data-dark]{--bg:#0B1428;--paper:#101C36;--paper2:#0E1A32;--ink:#EEF1F7;--ink2:#AAB4C8;--muted:#7F8AA2;--line:#243456;--line2:#2A3A5E;--pf:#4B92DB;--gold:#E0A63C}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--pf);text-decoration:none}
+.bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:0 1.3rem;height:56px;background:var(--paper);border-bottom:1px solid var(--line)}
+.badge{background:var(--pf);color:#fff;padding:3px 11px;border-radius:100px;font-size:10px;letter-spacing:.12em;font-weight:700;font-family:'JetBrains Mono',monospace}
+.bar-r{display:flex;gap:8px;align-items:center}
+.pill{padding:5px 12px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font-size:11px;font-weight:800;color:var(--muted);font-family:inherit;text-decoration:none}
+.pill:hover{border-color:var(--pf);color:var(--pf)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:100px;overflow:hidden;background:var(--paper2)}
+.seg button{padding:5px 11px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer}
+.seg button.on{background:var(--pf);color:#fff}
+.wrap{max-width:860px;margin:0 auto;padding:2.2rem 1.3rem 6rem}
+h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(1.9rem,4vw,2.5rem)}
+h1 em{font-style:italic;color:var(--pf)}
+.sub{color:var(--muted);font-size:.9rem;margin:.4rem 0 2rem;line-height:1.6}
+h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.45rem;margin:2.2rem 0 .8rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin-bottom:.9rem}
+.card b{color:var(--ink)}
+.card p{font-size:.86rem;color:var(--muted);line-height:1.7}
+.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:.6rem 0 .2rem}
+.stg{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;padding:6px 12px;border-radius:100px;border:1px solid var(--line2);color:var(--muted)}
+.stg.hot{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.arrow{color:var(--line2);font-weight:800}
+.step{display:flex;gap:12px;margin-bottom:.7rem}
+.n{flex:0 0 26px;height:26px;border-radius:100px;background:var(--paper2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font:800 12px 'JetBrains Mono',monospace;color:var(--gold)}
+.step p{font-size:.86rem;color:var(--muted);line-height:1.65;padding-top:2px}
+.step b{color:var(--ink)}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;gap:10px;align-items:center"><span class="badge">CONVENTUS</span>
+    <span style="font-size:12px;font-weight:700;color:var(--muted)" data-i18n="crumb">Handbook</span></div>
+  <div class="bar-r">
+    <a class="pill" href="index.html" data-i18n="back">← Conventus</a>
+    <a class="pill" href="event-studio.html" data-i18n="studio">Studio</a>
+    <div class="seg"><button id="langEN">EN</button><button id="langTR">TR</button></div>
+    <button class="pill" id="themeBtn">🌙</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1 data-i18n-html="h1">The Conventus <em>Handbook</em></h1>
+  <p class="sub" data-i18n="sub">How events flow through Conventus — from the first card to the final report. Short, practical, no jargon.</p>
+
+  <h2 data-i18n="s1">The event lifecycle</h2>
+  <div class="card">
+    <div class="flow">
+      <span class="stg">DRAFT</span><span class="arrow">→</span>
+      <span class="stg hot" data-i18n="std">📅 SAVE THE DATE</span><span class="arrow">→</span>
+      <span class="stg hot" data-i18n="inv">✉ REGISTRATION OPEN</span><span class="arrow">→</span>
+      <span class="stg" data-i18n="run">EXECUTION</span><span class="arrow">→</span>
+      <span class="stg" data-i18n="close">CLOSURE</span>
+    </div>
+    <p data-i18n="s1p">You never set the stage by hand — it follows your actions. Publish the card and invitees can add the date to their calendars; open registration when the invitation is ready; the event runs; after the end date it moves to closure (reports, certificates, documents).</p>
+  </div>
+
+  <h2 data-i18n="s2">Event Manager — quickstart</h2>
+  <div class="card">
+    <div class="step"><div class="n">1</div><p data-i18n="q1"><b>Enter your Workspace.</b> Conventus → Event Manager door. You only ever see your own events. Pick one or create a new one.</p></div>
+    <div class="step"><div class="n">2</div><p data-i18n="q2"><b>Build the event card.</b> In the Engine panel: title, dates, city, summary, point of contact — the who/what/where/when of your event.</p></div>
+    <div class="step"><div class="n">3</div><p data-i18n="q3"><b>Publish — Save the Date.</b> The card goes live on the Events page with an 📅 Add-to-Calendar button. Registration stays closed.</p></div>
+    <div class="step"><div class="n">4</div><p data-i18n="q4"><b>Open registration.</b> When your invitation is ready, one click opens the registration form. Approve applications from the Applications screen.</p></div>
+    <div class="step"><div class="n">5</div><p data-i18n="q5"><b>Run it.</b> Agenda, announcements and Go &amp; Meet travel services all work from the same panel — and everything you publish appears instantly on the public pages.</p></div>
+  </div>
+
+  <h2 data-i18n="s3">The four doors</h2>
+  <div class="card"><p data-i18n="d1">🌍 <b>Go &amp; Meet</b> — the public showcase: browse events, save dates, register, and plan accommodation, transfers and tours from contracted providers.</p></div>
+  <div class="card"><p data-i18n="d2">🎟 <b>Participant / Invitee</b> — your personal event home: registrations, programmes and your travel plan.</p></div>
+  <div class="card"><p data-i18n="d3">🗂 <b>Event Manager</b> — the Organizer Workspace and Studio described above.</p></div>
+  <div class="card"><p data-i18n="d4">🤝 <b>Service Provider</b> — hotels, transfer companies and tour agencies apply, get accredited by Conventity, then manage listings and answer participant requests.</p></div>
+
+  <h2 data-i18n="s4">Good to know</h2>
+  <div class="card"><p data-i18n="g1">🔒 <b>Isolation by design.</b> Every organizer sees only their own events, applications and agendas — enforced at the database level, not just the interface.</p></div>
+  <div class="card"><p data-i18n="g2">📴 <b>Undo is always cheap.</b> Unpublish returns a card to draft; pausing registration returns it to Save-the-Date. Nothing is deleted.</p></div>
+  <div class="card"><p data-i18n="g3">🌙 <b>Your theme and language follow you</b> across every Conventus page.</p></div>
+</div>
+
+<script>
+(function(){
+  var I18N={
+   en:{},
+   tr:{
+    crumb:'El Kitabı',back:'← Conventus',studio:'Studio',
+    h1:'Conventus <em>El Kitabı</em>',
+    sub:'Etkinlikler Conventus\u2019ta nasıl akar — ilk karttan son rapora. Kısa, pratik, jargonsuz.',
+    s1:'Etkinlik yaşam döngüsü',std:'📅 SAVE THE DATE',inv:'✉ KAYIT AÇIK',run:'İCRA',close:'KAPANIŞ',
+    s1p:'Safhayı asla elle seçmezsin — eylemlerini takip eder. Kartı yayınla, davetliler tarihi takvimlerine eklesin; davet hazır olunca kaydı aç; etkinlik icra edilir; bitiş tarihinden sonra kapanışa geçer (raporlar, sertifikalar, dokümanlar).',
+    s2:'Event Manager — hızlı başlangıç',
+    q1:'<b>Workspace\u2019ine gir.</b> Conventus → Event Manager kapısı. Yalnızca kendi etkinliklerini görürsün. Birini seç ya da yenisini oluştur.',
+    q2:'<b>Etkinlik kartını kur.</b> Engine panelinde: başlık, tarihler, şehir, özet, irtibat noktası — etkinliğinin kim/ne/nerede/ne zaman\u2019ı.',
+    q3:'<b>Yayınla — Save the Date.</b> Kart, Events sayfasında 📅 Takvime Ekle düğmesiyle canlıya çıkar. Kayıt kapalı kalır.',
+    q4:'<b>Kaydı aç.</b> Davetin hazır olduğunda tek tıkla kayıt formu açılır. Başvuruları Applications ekranından onayla.',
+    q5:'<b>Yürüt.</b> Ajanda, duyurular ve Go & Meet seyahat hizmetleri aynı panelden yönetilir — yayınladığın her şey kamu sayfalarına anında düşer.',
+    s3:'Dört kapı',
+    d1:'🌍 <b>Go & Meet</b> — kamu vitrini: etkinliklere göz at, tarihleri kaydet, kayıt ol; sözleşmeli sağlayıcılardan konaklama, transfer ve tur planla.',
+    d2:'🎟 <b>Katılımcı / Davetli</b> — kişisel etkinlik evin: kayıtların, programlar ve seyahat planın.',
+    d3:'🗂 <b>Event Manager</b> — yukarıda anlatılan Organizer Workspace ve Studio.',
+    d4:'🤝 <b>Hizmet Sağlayıcı</b> — oteller, transfer firmaları ve tur acentaları başvurur, Conventity akredite eder; sonra ilanlarını yönetir, katılımcı taleplerini yanıtlar.',
+    s4:'Bilmekte fayda var',
+    g1:'🔒 <b>Tasarım gereği izolasyon.</b> Her organizatör yalnız kendi etkinliklerini, başvurularını ve ajandalarını görür — arayüzde değil, veritabanı seviyesinde.',
+    g2:'📴 <b>Geri almak hep ucuzdur.</b> Unpublish kartı taslağa döndürür; kaydı duraklatmak Save-the-Date\u2019e döndürür. Hiçbir şey silinmez.',
+    g3:'🌙 <b>Tema ve dil seçimin</b> tüm Conventus sayfalarında seni takip eder.'
+   }
+  };
+  var LANG=localStorage.getItem('cv-lang')||'en';
+  function t(k){var d=I18N[LANG]||{};return d[k];}
+  function apply(){
+    document.documentElement.lang=LANG;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){var v=t(el.dataset.i18n);if(LANG==='tr'&&v!=null)el.textContent=v.replace(/<[^>]*>/g,'');else if(LANG==='en')el.textContent=el.dataset.en||(el.dataset.en=el.textContent);});
+    document.querySelectorAll('[data-i18n]').forEach(function(el){var v=t(el.dataset.i18n);if(LANG==='tr'&&v!=null&&/<b>|<em>/.test(v))el.innerHTML=v;});
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){var v=t(el.dataset.i18nHtml);if(LANG==='tr'&&v!=null)el.innerHTML=v;else if(LANG==='en')el.innerHTML=el.dataset.en||(el.dataset.en=el.innerHTML);});
+    document.getElementById('langEN').classList.toggle('on',LANG==='en');
+    document.getElementById('langTR').classList.toggle('on',LANG==='tr');
+  }
+  document.getElementById('langEN').onclick=function(){LANG='en';localStorage.setItem('cv-lang','en');apply();};
+  document.getElementById('langTR').onclick=function(){LANG='tr';localStorage.setItem('cv-lang','tr');apply();};
+  var dark=localStorage.getItem('cn-dark')==='1';
+  function ad(){document.body.toggleAttribute('data-dark',dark);document.getElementById('themeBtn').textContent=dark?'☀️':'🌙';}
+  document.getElementById('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');ad();};
+  ad();apply();
+})();
+</script>
+</body>
+</html>

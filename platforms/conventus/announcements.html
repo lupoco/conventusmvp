@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Announcements · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1428; --navy2:#0F1A30; --panel:#13213D; --panel2:#0E1A32; --panel3:#1B2C4E;
+  --pf:#4B92DB; --pf-soft:rgba(75,146,219,.14);
+  --gold:#E2B65E; --gold-soft:rgba(226,182,94,.14);
+  --ink:#EDF1F7; --muted:#8293AD; --line:#243456; --line2:#2C3D63;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+}
+body{background:var(--navy);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
+a{color:var(--pf);text-decoration:none}
+.hidden{display:none !important}
+.bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 1.4rem;height:56px;background:var(--navy2);border-bottom:1px solid var(--line)}
+.bar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.badge{background:var(--pf);color:#fff;padding:3px 10px;border-radius:100px;font-size:10px;letter-spacing:.12em;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.ver{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:2px 8px;white-space:nowrap}
+.bar-title{font-family:'Manrope',sans-serif;font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-code{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em}
+.bar-nav{display:flex;gap:6px;flex-shrink:0}
+.bar-nav a{font-size:12px;font-weight:600;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:8px;transition:all .15s;white-space:nowrap}
+.bar-nav a:hover{color:var(--pf);border-color:var(--pf)}
+.wrap{max-width:760px;margin:0 auto;padding:1.6rem 1.4rem 6rem}
+.gate{max-width:420px;margin:14vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:2rem;text-align:center}
+.gate h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.5rem;margin-bottom:.5rem}
+.gate p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.2rem}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.3rem;flex-wrap:wrap}
+h1{font-family:'Instrument Serif',serif;font-size:2rem;font-weight:400}
+h1 span{color:var(--pf)}
+.head-sub{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-family:inherit;font-size:.83rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-gold{background:var(--pf);color:#fff}
+.btn-gold:hover{opacity:.85}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn-ghost:hover{color:var(--pf);border-color:var(--pf)}
+.btn-danger{background:transparent;color:var(--bad);border:1px solid rgba(239,68,68,.4)}
+.btn-danger:hover{background:rgba(239,68,68,.1)}
+.btn-sm{padding:5px 11px;font-size:.75rem;border-radius:8px}
+.alist{display:flex;flex-direction:column;gap:10px}
+.ann{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:12px;padding:1rem 1.15rem}
+.ann.pub{border-left-color:var(--ok)}
+.ann-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.ann-title{font-family:'Manrope',sans-serif;font-weight:600;font-size:.97rem}
+.chip{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:100px;border:1px solid}
+.chip.pub{border-color:var(--ok);color:var(--ok)}
+.chip.draft{border-color:var(--warn);color:var(--warn)}
+.chip.pin{border-color:var(--gold);color:var(--gold)}
+.ann-body{font-size:.82rem;color:var(--muted);line-height:1.6;white-space:pre-wrap}
+.ann-foot{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;gap:8px;flex-wrap:wrap}
+.ann-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.ann-acts{display:flex;gap:6px}
+.empty{background:var(--panel2);border:1px dashed var(--line2);border-radius:12px;padding:2rem;text-align:center;color:var(--muted);font-size:.85rem}
+.overlay{position:fixed;inset:0;background:rgba(5,12,24,.72);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:6vh 1rem;overflow-y:auto}
+.form-card{width:100%;max-width:540px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:1.7rem}
+.form-card h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.4rem;margin-bottom:1rem}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem;color:var(--ink);font-family:'Manrope',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--pf)}
+select{cursor:pointer}
+.frow{display:flex;gap:.7rem}
+.frow>div{flex:1}
+.hint{font-size:.72rem;color:var(--muted);margin-top:.35rem;line-height:1.4}
+.chip.aud{border-color:var(--pf);color:var(--pf)}
+.chip.sched{border-color:var(--gold);color:var(--gold)}
+textarea{resize:vertical;min-height:110px}
+input[type=checkbox]{width:auto}
+.fld{margin-bottom:.9rem}
+.chk-row{display:flex;align-items:center;gap:8px;margin-bottom:.6rem}
+.chk-row label{margin:0;text-transform:none;font-family:'Manrope',sans-serif;font-size:.82rem;letter-spacing:0;color:var(--ink)}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.1rem}
+.form-err{color:var(--bad);font-size:.78rem;margin-top:.7rem;display:none}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--pf);color:var(--ink);padding:.7rem 1.2rem;border-radius:10px;font-size:.82rem;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:640px){.bar-title{display:none}}
+</style>
+<script src="cv-skin.js"></script>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-left">
+    <span class="badge">CONVENTUS · ANNOUNCEMENTS</span>
+    <div style="min-width:0">
+      <div class="bar-title" id="evTitle">—</div>
+      <div class="bar-code" id="evCode"></div>
+    </div>
+  </div>
+  <div class="bar-nav">
+    <a href="/platforms/conventus/event-studio.html">Manage</a>
+    <a href="#" id="navAgenda">Agenda</a>
+    <a href="#" id="navApps">Applications</a>
+    <span class="ver">v1.2</span>
+  </div>
+</div>
+
+<div class="gate hidden" id="gateAuth">
+  <h2>Sign in required</h2>
+  <p>Announcements are managed by event organisers. Sign in to continue.</p>
+  <a class="btn btn-gold" href="/login.html">Sign in</a>
+</div>
+
+<div class="gate hidden" id="gateEvent">
+  <h2>Event not found</h2>
+  <p>This link is missing an event code, or the event doesn't belong to your account.</p>
+  <a class="btn btn-gold" href="/platforms/conventus/event-studio.html">Go to my events</a>
+</div>
+
+<div class="wrap hidden" id="main">
+  <div class="page-head">
+    <div>
+      <h1>Event <span>announcements</span></h1>
+      <div class="head-sub">Published announcements appear at the top of the public programme. Pinned ones stay first.</div>
+    </div>
+    <button class="btn btn-gold" id="btnAdd">+ New announcement</button>
+  </div>
+  <div class="alist" id="alist"></div>
+</div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="form-card">
+    <h3 id="formTitle">New announcement</h3>
+    <div class="fld">
+      <label>Title *</label>
+      <input id="fTitle" maxlength="180" placeholder="e.g. Shuttle schedule updated"/>
+    </div>
+    <div class="fld">
+      <label>Message</label>
+      <textarea id="fBody" maxlength="4000" placeholder="Details participants should know…"></textarea>
+    </div>
+    <div class="fld">
+      <label>Audience</label>
+      <select id="fAud">
+        <option value="all">Everyone (public programme)</option>
+        <option value="approved">Approved participants only</option>
+        <option value="pending">Pending applicants</option>
+        <option value="community_members">Community members</option>
+        <option value="organizers">Organisers only</option>
+      </select>
+      <div class="hint">Who this announcement is meant for. Visibility is enforced server-side by row-level security.</div>
+    </div>
+    <div class="fld">
+      <label>Schedule publish (optional)</label>
+      <div class="frow">
+        <div><input id="fPubDate" maxlength="10" placeholder="DD.MM.YYYY" inputmode="numeric"/></div>
+        <div><input id="fPubTime" maxlength="5" placeholder="HH:MM" inputmode="numeric"/></div>
+      </div>
+      <div class="hint">Leave empty to publish now (when "Published" is on). If set, the announcement goes live at this time.</div>
+    </div>
+    <div class="chk-row"><input id="fPin" type="checkbox"/><label for="fPin">📌 Pinned — always shown first</label></div>
+    <div class="chk-row"><input id="fPub" type="checkbox"/><label for="fPub">Published — visible on the public programme</label></div>
+    <div class="form-err" id="formErr"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="btnCancel">Cancel</button>
+      <button class="btn btn-gold" id="btnSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var sb=window.cvClient();
+
+  var qs=new URLSearchParams(location.search);
+  var CODE=(qs.get('e')||'').trim();
+  var EVENT=null, ROWS=[], editId=null;
+
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+  function show(el){el.classList.remove('hidden');}
+  function hide(el){el.classList.add('hidden');}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2200);}
+  function fmtDate(iso){
+    var d=new Date(iso);
+    return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear()
+      +' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  var AUD_LABEL={all:'Everyone',approved:'Approved only',pending:'Pending',community_members:'Community',organizers:'Organisers'};
+  // DD.MM.YYYY masked input
+  function maskDate(el){el.addEventListener('input',function(){
+    var v=el.value.replace(/\D/g,'').slice(0,8),o='';
+    if(v.length>=1)o=v.slice(0,2);
+    if(v.length>=3)o=v.slice(0,2)+'.'+v.slice(2,4);
+    if(v.length>=5)o=v.slice(0,2)+'.'+v.slice(2,4)+'.'+v.slice(4,8);
+    el.value=o;
+  });}
+  function maskTime(el){el.addEventListener('input',function(){
+    var v=el.value.replace(/\D/g,'').slice(0,4),o='';
+    if(v.length>=1)o=v.slice(0,2);
+    if(v.length>=3)o=v.slice(0,2)+':'+v.slice(2,4);
+    el.value=o;
+  });}
+  // DD.MM.YYYY + HH:MM -> ISO (local); returns null if empty, throws on invalid
+  function toIso(dstr,tstr){
+    dstr=(dstr||'').trim(); tstr=(tstr||'').trim();
+    if(!dstr)return null;
+    var dm=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dstr);
+    if(!dm)throw new Error('date');
+    var hh=0,mm=0;
+    if(tstr){var tm=/^(\d{1,2}):(\d{2})$/.exec(tstr);if(!tm)throw new Error('time');hh=+tm[1];mm=+tm[2];}
+    var dd=+dm[1],mo=+dm[2],yr=+dm[3];
+    if(mo<1||mo>12||dd<1||dd>31||hh>23||mm>59)throw new Error('range');
+    var d=new Date(yr,mo-1,dd,hh,mm,0,0);
+    if(isNaN(d.getTime()))throw new Error('invalid');
+    return d.toISOString();
+  }
+  function fromIso(iso){
+    if(!iso)return{d:'',t:''};
+    var d=new Date(iso);if(isNaN(d.getTime()))return{d:'',t:''};
+    var p=function(n){return String(n).padStart(2,'0');};
+    return{d:p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear(),t:p(d.getHours())+':'+p(d.getMinutes())};
+  }
+  maskDate($('fPubDate')); maskTime($('fPubTime'));
+
+  init();
+  async function init(){
+    var s=await sb.auth.getSession();
+    if(!s.data||!s.data.session){show($('gateAuth'));return;}
+    if(!CODE){show($('gateEvent'));return;}
+    var ev=await sb.from('conventus_managed_events').select('id,code,title').eq('code',CODE).maybeSingle();
+    if(ev.error||!ev.data){show($('gateEvent'));return;}
+    EVENT=ev.data;
+    $('evTitle').textContent=EVENT.title;
+    $('evCode').textContent=EVENT.code;
+    $('navAgenda').href='/platforms/conventus/agenda.html?e='+encodeURIComponent(EVENT.code);
+    $('navApps').href='/platforms/conventus/applications.html?e='+encodeURIComponent(EVENT.code);
+    show($('main'));
+    await load();
+  }
+
+  async function load(){
+    var r=await sb.from('conventus_announcements').select('*')
+      .eq('event_id',EVENT.id)
+      .order('pinned',{ascending:false})
+      .order('created_at',{ascending:false});
+    if(r.error){toast('Load failed: '+r.error.message);return;}
+    ROWS=r.data||[];
+    render();
+  }
+
+  function render(){
+    if(!ROWS.length){
+      $('alist').innerHTML='<div class="empty">No announcements yet. Use <b style="color:var(--ink)">+ New announcement</b> to post the first one.</div>';
+      return;
+    }
+    $('alist').innerHTML=ROWS.map(function(x){
+      return '<div class="ann'+(x.is_published?' pub':'')+'">'
+        +'<div class="ann-top">'
+          +(x.pinned?'<span class="chip pin">📌 PINNED</span>':'')
+          +'<span class="ann-title">'+esc(x.title)+'</span>'
+          +(x.is_published?'<span class="chip pub">PUBLISHED</span>':'<span class="chip draft">DRAFT</span>')
+          +'<span class="chip aud">'+esc(AUD_LABEL[x.audience]||x.audience||'Everyone')+'</span>'
+          +(x.publish_at?'<span class="chip sched">⏱ '+fmtDate(x.publish_at)+'</span>':'')
+        +'</div>'
+        +(x.body?'<div class="ann-body">'+esc(x.body)+'</div>':'')
+        +'<div class="ann-foot">'
+          +'<span class="ann-date">'+fmtDate(x.created_at)+'</span>'
+          +'<div class="ann-acts">'
+            +'<button class="btn btn-ghost btn-sm" data-edit="'+x.id+'">Edit</button>'
+            +'<button class="btn btn-ghost btn-sm" data-pub="'+x.id+'">'+(x.is_published?'Unpublish':'Publish')+'</button>'
+            +'<button class="btn btn-danger btn-sm" data-del="'+x.id+'">Delete</button>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+    $('alist').querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){openForm(b.dataset.edit);};});
+    $('alist').querySelectorAll('[data-pub]').forEach(function(b){b.onclick=function(){togglePub(b.dataset.pub);};});
+    $('alist').querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){del(b.dataset.del);};});
+  }
+
+  $('btnAdd').onclick=function(){openForm(null);};
+  $('btnCancel').onclick=closeForm;
+  $('overlay').addEventListener('click',function(e){if(e.target===this)closeForm();});
+
+  function openForm(id){
+    editId=id;
+    var x=id?ROWS.find(function(a){return a.id===id;}):null;
+    $('formTitle').textContent=x?'Edit announcement':'New announcement';
+    $('fTitle').value=x?x.title:'';
+    $('fBody').value=x?(x.body||''):'';
+    $('fAud').value=(x&&x.audience)?x.audience:'all';
+    var pa=fromIso(x?x.publish_at:null);
+    $('fPubDate').value=pa.d; $('fPubTime').value=pa.t;
+    $('fPin').checked=x?!!x.pinned:false;
+    $('fPub').checked=x?!!x.is_published:false;
+    $('formErr').style.display='none';
+    show($('overlay'));
+    $('fTitle').focus();
+  }
+  function closeForm(){hide($('overlay'));editId=null;}
+
+  $('btnSave').onclick=async function(){
+    var err=$('formErr');
+    var title=$('fTitle').value.trim();
+    if(!title){err.textContent='Title is required.';err.style.display='block';return;}
+    var publishAt;
+    try{ publishAt=toIso($('fPubDate').value,$('fPubTime').value); }
+    catch(e){ err.textContent='Schedule date/time is invalid. Use DD.MM.YYYY and HH:MM.';err.style.display='block';return; }
+    var payload={
+      event_id:EVENT.id,
+      title:title,
+      body:$('fBody').value.trim()||null,
+      audience:$('fAud').value,
+      publish_at:publishAt,
+      pinned:$('fPin').checked,
+      is_published:$('fPub').checked
+    };
+    $('btnSave').disabled=true;
+    var r=editId
+      ? await sb.from('conventus_announcements').update(payload).eq('id',editId)
+      : await sb.from('conventus_announcements').insert(payload);
+    $('btnSave').disabled=false;
+    if(r.error){err.textContent='Save failed: '+r.error.message;err.style.display='block';return;}
+    closeForm();
+    toast(editId?'Announcement updated.':'Announcement posted.');
+    await load();
+  };
+
+  async function togglePub(id){
+    var x=ROWS.find(function(a){return a.id===id;});if(!x)return;
+    var r=await sb.from('conventus_announcements').update({is_published:!x.is_published}).eq('id',id);
+    if(r.error){toast('Failed: '+r.error.message);return;}
+    toast(x.is_published?'Unpublished.':'Published.');
+    await load();
+  }
+  async function del(id){
+    var x=ROWS.find(function(a){return a.id===id;});if(!x)return;
+    if(!confirm('Delete "'+x.title+'"?'))return;
+    var r=await sb.from('conventus_announcements').delete().eq('id',id);
+    if(r.error){toast('Delete failed: '+r.error.message);return;}
+    toast('Deleted.');
+    await load();
+  }
+})();
+</script>
+</body>
+</html>

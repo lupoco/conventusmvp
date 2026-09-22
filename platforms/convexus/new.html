@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-title="Create capability profile · Convexus · Conventity">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create capability profile · Convexus</title>
+<meta name="description" content="Add a dual-use capability profile to the Convexus pool." />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="/assets/shared.css" />
+
+<style>
+  :root{
+    --cvx: var(--pf-convexus, #6366F1);
+    --gold: var(--brand-gold, #C8A24B);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:'Manrope', system-ui, sans-serif;
+    background:var(--bg, #f5f6f9);
+    color:var(--ink, #0e1726);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Instrument Serif', Georgia, serif; letter-spacing:-.02em; }
+  em{ font-style:normal; color:var(--cvx); }
+  .wrap{ max-width:860px; margin:0 auto; padding:0 28px; }
+
+  /* Topbar (shared look) */
+  .cvx-topbar{ display:flex; align-items:center; gap:20px; padding:14px 28px; background:var(--paper,#fff); border-bottom:1px solid var(--line,#e4e7ee); position:sticky; top:0; z-index:40; }
+  .cvx-brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
+  .cvx-brand svg{ width:34px; height:34px; flex:none; }
+  .cvx-brand .bn{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:700; font-size:15px; letter-spacing:.14em; color:var(--ink,#0e1726); line-height:1; }
+  .cvx-brand .bt{ display:block; font-size:8.5px; font-weight:600; letter-spacing:.22em; color:var(--muted,#8a93a5); margin-top:3px; }
+  .cvx-crumb{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted,#8a93a5); }
+  .cvx-crumb a{ color:var(--muted,#8a93a5); text-decoration:none; }
+  .cvx-crumb a:hover{ color:var(--ink,#0e1726); }
+  .cvx-crumb b{ color:var(--ink,#0e1726); font-weight:600; }
+  .cvx-top-sp{ margin-left:auto; }
+  .cvx-btn{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13px; font-weight:600; border-radius:999px; padding:8px 15px; cursor:pointer; border:1px solid var(--line,#e4e7ee); background:var(--paper,#fff); color:var(--ink-2,#3a4252); text-decoration:none; }
+  .cvx-btn:hover{ border-color:var(--cvx); color:var(--cvx); }
+  .cvx-btn svg{ width:14px; height:14px; }
+
+  /* Head */
+  .head{ padding:44px 0 8px; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.18em; color:var(--cvx); margin-bottom:14px; }
+  .eyebrow .ln{ width:26px; height:2px; background:var(--cvx); border-radius:2px; }
+  .head h1{ font-size:clamp(26px,4vw,40px); font-weight:700; line-height:1.05; margin:0 0 12px; color:var(--ink,#0e1726); }
+  .head p{ font-size:15px; line-height:1.6; color:var(--ink-2,#3a4252); max-width:60ch; margin:0; }
+
+  /* Form shell */
+  form{ padding:26px 0 80px; }
+  .group{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:18px; padding:24px 26px; margin-bottom:16px; }
+  .group > .g-k{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.14em; color:var(--cvx); margin:0 0 4px; }
+  .group > .g-t{ font-size:16px; font-weight:600; color:var(--ink,#0e1726); margin:0 0 18px; }
+
+  .row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .fld{ display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
+  .fld:last-child{ margin-bottom:0; }
+  .fld label{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.08em; color:var(--ink-2,#3a4252); }
+  .fld label .req{ color:var(--cvx); }
+  .fld .hint{ font-size:11.5px; color:var(--muted,#8a93a5); font-weight:400; letter-spacing:0; }
+  .fld input, .fld textarea, .fld select{ font:inherit; font-size:14px; color:var(--ink,#0e1726); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:11px; padding:11px 13px; width:100%; }
+  .fld input:focus, .fld textarea:focus, .fld select:focus{ outline:none; border-color:var(--cvx); box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 14%, transparent); }
+  .fld textarea{ resize:vertical; min-height:92px; line-height:1.55; }
+  .cc{ font-size:11.5px; color:var(--muted,#8a93a5); text-align:right; margin-top:-2px; }
+
+  /* Chip multiselect */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ position:relative; }
+  .chip input{ position:absolute; opacity:0; pointer-events:none; }
+  .chip span{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; color:var(--ink-2,#3a4252); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:7px 13px; cursor:pointer; transition:all .14s; user-select:none; }
+  .chip span::before{ content:""; width:13px; height:13px; border-radius:4px; border:1.5px solid var(--muted,#c3c8d4); flex:none; transition:all .14s; }
+  .chip input:checked + span{ color:#fff; background:var(--cvx); border-color:var(--cvx); }
+  .chip input:checked + span::before{ background:#fff; border-color:#fff; }
+  .chip input:focus-visible + span{ box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 22%, transparent); }
+
+  /* Radio pills (use profile) */
+  .pills{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pill-r input{ position:absolute; opacity:0; pointer-events:none; }
+  .pill-r{ position:relative; }
+  .pill-r span{ display:inline-flex; flex-direction:column; gap:2px; font-size:13px; font-weight:600; color:var(--ink-2,#3a4252); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:12px; padding:11px 16px; cursor:pointer; transition:all .14s; }
+  .pill-r span small{ font-size:11px; font-weight:400; color:var(--muted,#8a93a5); letter-spacing:0; }
+  .pill-r input:checked + span{ border-color:var(--cvx); background:color-mix(in srgb,var(--cvx) 8%, var(--paper,#fff)); color:var(--cvx); }
+  .pill-r input:checked + span small{ color:color-mix(in srgb,var(--cvx) 70%, var(--ink-2,#3a4252)); }
+
+  /* Focus primary hint */
+  .focus-note{ font-size:11.5px; color:var(--muted,#8a93a5); margin-top:14px; padding-top:14px; border-top:1px solid var(--line,#e4e7ee); }
+
+  /* Focus areas — clean multi-column checklist */
+  .checklist{ column-count:3; column-gap:26px; }
+  .checklist .ck{ display:flex; align-items:flex-start; gap:10px; padding:7px 0; cursor:pointer; break-inside:avoid; -webkit-column-break-inside:avoid; }
+  .checklist .ck input{ position:absolute; opacity:0; pointer-events:none; }
+  .checklist .ck .box{ flex:none; width:16px; height:16px; margin-top:1px; border-radius:5px; border:1.5px solid var(--muted,#c3c8d4); background:var(--paper,#fff); display:grid; place-items:center; transition:all .14s; }
+  .checklist .ck .box svg{ width:11px; height:11px; color:#fff; opacity:0; transform:scale(.6); transition:all .14s; }
+  .checklist .ck input:checked + .box{ background:var(--cvx); border-color:var(--cvx); }
+  .checklist .ck input:checked + .box svg{ opacity:1; transform:scale(1); }
+  .checklist .ck input:focus-visible + .box{ box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 24%, transparent); }
+  .checklist .ck .lb{ font-size:13.5px; line-height:1.35; color:var(--ink-2,#3a4252); transition:color .14s; }
+  .checklist .ck:hover .lb{ color:var(--ink,#0e1726); }
+  .checklist .ck input:checked ~ .lb{ color:var(--ink,#0e1726); font-weight:500; }
+  @media(max-width:720px){ .checklist{ column-count:2; } }
+  @media(max-width:460px){ .checklist{ column-count:1; } }
+
+  /* Footer actions */
+  .actions{ display:flex; align-items:center; gap:12px; justify-content:flex-end; margin-top:6px; }
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:14px; font-weight:600; color:#fff; background:var(--cvx); border:0; border-radius:999px; padding:12px 22px; cursor:pointer; }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-primary:disabled{ opacity:.6; cursor:not-allowed; filter:none; }
+  .btn-primary svg{ width:15px; height:15px; }
+  .btn-ghost{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13.5px; font-weight:600; color:var(--ink-2,#3a4252); background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:12px 20px; cursor:pointer; text-decoration:none; }
+  .btn-ghost:hover{ border-color:var(--cvx); color:var(--cvx); }
+
+  /* Inline messages */
+  .msg{ font-size:13.5px; line-height:1.5; border-radius:12px; padding:13px 15px; margin-bottom:16px; display:none; }
+  .msg.show{ display:block; }
+  .msg.err{ background:color-mix(in srgb,#D14343 8%, var(--paper,#fff)); border:1px solid color-mix(in srgb,#D14343 30%, var(--line,#e4e7ee)); color:#A32C2C; }
+  .msg.ok{ background:color-mix(in srgb,#2FA36B 8%, var(--paper,#fff)); border:1px solid color-mix(in srgb,#2FA36B 30%, var(--line,#e4e7ee)); color:#1E7A4C; }
+
+  /* Auth-gate overlay */
+  .gate{ position:fixed; inset:0; background:color-mix(in srgb,var(--bg,#f5f6f9) 86%, transparent); backdrop-filter:blur(3px); display:none; place-items:center; z-index:100; padding:24px; }
+  .gate.show{ display:grid; }
+  .gate-card{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:18px; padding:32px 30px; max-width:400px; text-align:center; }
+  .gate-card h3{ font-size:19px; font-weight:700; margin:0 0 8px; color:var(--ink,#0e1726); }
+  .gate-card p{ font-size:14px; line-height:1.55; color:var(--ink-2,#3a4252); margin:0 0 20px; }
+
+  @media(max-width:640px){ .row{ grid-template-columns:1fr; } .wrap{ padding:0 18px; } .actions{ flex-direction:column-reverse; align-items:stretch; } .btn-primary,.btn-ghost{ justify-content:center; } }
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<header class="cvx-topbar">
+  <a class="cvx-brand" href="/index.html" aria-label="Conventity home">
+    <svg viewBox="0 0 100 100" fill="none"><path d="M 81.1 71.8 A 38 38 0 1 1 81.1 28.2" stroke="var(--logo-outer,#0E2148)" stroke-width="8" stroke-linecap="round"/><path d="M 66.4 61.5 A 20 20 0 1 1 66.4 38.5" stroke="var(--logo-inner,#2A6FDB)" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="4.5" fill="var(--logo-inner,#2A6FDB)"/></svg>
+    <span><span class="bn">CONVENTITY</span><span class="bt">ECOSYSTEM FOR FUTURE</span></span>
+  </a>
+  <nav class="cvx-crumb" aria-label="Breadcrumb">
+    <a href="/dashboard/index.html">Dashboard</a><span>›</span><a href="/platforms/convexus/index.html">Convexus</a><span>›</span><b>New profile</b>
+  </nav>
+  <span class="cvx-top-sp"></span>
+  <a class="cvx-btn" href="/platforms/convexus/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to pool</a>
+</header>
+
+<main class="wrap">
+  <div class="head">
+    <span class="eyebrow"><span class="ln"></span> CONVEXUS · NEW CAPABILITY PROFILE</span>
+    <h1>Add a capability to the <em>pool.</em></h1>
+    <p>Describe one capability once. It joins a permanent, searchable pool that the demand side draws from across civil, industrial and defence domains.</p>
+  </div>
+
+  <div class="msg err" id="formErr"></div>
+
+  <form id="profileForm" novalidate>
+    <!-- Organisation -->
+    <div class="group">
+      <p class="g-k">◇ ORGANISATION</p>
+      <p class="g-t">Who is behind this capability</p>
+      <div class="row">
+        <div class="fld">
+          <label for="orgName">Organisation name <span class="req">*</span></label>
+          <input id="orgName" name="orgName" type="text" maxlength="120" required placeholder="e.g. Aeon Sensing Systems" />
+        </div>
+        <div class="fld">
+          <label for="orgCountry">Country</label>
+          <input id="orgCountry" name="orgCountry" type="text" maxlength="60" placeholder="e.g. Türkiye" />
+        </div>
+      </div>
+      <div class="fld">
+        <label for="summary">Capability summary</label>
+        <textarea id="summary" name="summary" maxlength="600" placeholder="What the capability does, who it serves, and what makes it distinctive."></textarea>
+        <div class="cc"><span id="sumCount">0</span> / 600</div>
+      </div>
+    </div>
+
+    <!-- Classification -->
+    <div class="group">
+      <p class="g-k">◇ CLASSIFICATION</p>
+      <p class="g-t">How the capability is positioned</p>
+
+      <div class="fld">
+        <label>Use profile</label>
+        <span class="hint">Where the capability is primarily applied.</span>
+        <div class="pills" id="useProfile" role="radiogroup" aria-label="Use profile">
+          <label class="pill-r"><input type="radio" name="use_profile" value="defence" /><span>Defence<small>Security / defence application</small></span></label>
+          <label class="pill-r"><input type="radio" name="use_profile" value="dualuse" checked /><span>Dual-use<small>Both military and civil</small></span></label>
+          <label class="pill-r"><input type="radio" name="use_profile" value="civil" /><span>Civil-commercial<small>Civil / commercial focus</small></span></label>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>Cost class</label>
+        <span class="hint">How the capability is fielded at scale — its survivability and unit-cost posture.</span>
+        <div class="pills" id="costClass" role="radiogroup" aria-label="Cost class">
+          <label class="pill-r"><input type="radio" name="cost_class" value="survivable" /><span>Survivable<small>High-value, protected, few in number</small></span></label>
+          <label class="pill-r"><input type="radio" name="cost_class" value="attritable" /><span>Attritable<small>Low-cost, acceptable to lose</small></span></label>
+          <label class="pill-r"><input type="radio" name="cost_class" value="consumable" /><span>Consumable<small>Expendable, produced at scale</small></span></label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="fld">
+          <label for="trl">Technology readiness (TRL)</label>
+          <span class="hint">Self-assessed maturity, 1–9.</span>
+          <select id="trl" name="trl">
+            <option value="">Not specified</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="visibility">Visibility</label>
+          <span class="hint">Who can see this profile in the pool.</span>
+          <select id="visibility" name="visibility">
+            <option value="public" selected>Public — listed in the pool</option>
+            <option value="gated">Gated — visible on request</option>
+            <option value="nda">NDA — hidden until agreement</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Domains -->
+    <div class="group">
+      <p class="g-k">◇ DOMAINS</p>
+      <p class="g-t">Where it operates</p>
+      <div class="chips" id="domainChips"><!-- filled from convexus_domains --></div>
+    </div>
+
+    <!-- Focus areas -->
+    <div class="group">
+      <p class="g-k">◇ FOCUS AREAS</p>
+      <p class="g-t">Technology &amp; capability categories</p>
+      <div class="checklist" id="focusChips"><!-- filled from convexus_focus_areas --></div>
+      <p class="focus-note">The first focus area you select is marked as the primary capability.</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="group">
+      <p class="g-k">◇ CONTACT</p>
+      <p class="g-t">How the demand side reaches you</p>
+      <div class="row">
+        <div class="fld">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="url" maxlength="200" placeholder="https://example.com" />
+        </div>
+        <div class="fld">
+          <label for="contactEmail">Contact email</label>
+          <input id="contactEmail" name="contactEmail" type="email" maxlength="160" placeholder="name@organisation.com" />
+        </div>
+      </div>
+    </div>
+
+    <div class="msg ok" id="formOk"></div>
+
+    <div class="actions">
+      <a class="btn-ghost" href="/platforms/convexus/index.html">Cancel</a>
+      <button class="btn-primary" id="submitBtn" type="submit">
+        Publish to pool
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </form>
+</main>
+
+<!-- Auth gate -->
+<div class="gate" id="authGate">
+  <div class="gate-card">
+    <h3>Sign in to add a profile</h3>
+    <p>Capability profiles are tied to your account. Sign in to publish to the Convexus pool.</p>
+    <a class="btn-primary" id="gateLogin" href="/login.html" style="justify-content:center;">Go to sign in</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+/* =================================================================
+   CONVEXUS — new capability profile
+   Schema (verified):
+     convexus_profiles(id, owner_id, org_name*, org_country, summary,
+       use_profile, trl 1-9, visibility public|gated|nda,
+       status draft|active|archived, website, contact_email)
+     convexus_profile_domains(profile_id, domain_code)
+     convexus_profile_focus_areas(profile_id, focus_code, is_primary)
+   ================================================================= */
+const SB_URL = window.__CV_SUPABASE_URL;
+const SB_KEY = window.__CV_ANON_KEY;
+const sb = window.cvClient();
+
+const $ = (id) => document.getElementById(id);
+const pick = (o, ...k) => { for (const key of k) if (o && o[key] != null && o[key] !== '') return o[key]; return ''; };
+
+let CURRENT_USER = null;
+
+// ---- TRL options ----
+(function fillTrl(){
+  const sel = $('trl');
+  for (let i = 1; i <= 9; i++){
+    const o = document.createElement('option');
+    o.value = i; o.textContent = 'TRL ' + i;
+    sel.appendChild(o);
+  }
+})();
+
+// ---- Load taxonomy chips ----
+async function loadChips(){
+  const [dom, foc] = await Promise.all([
+    sb.from('convexus_domains').select('*').order('sort_order', { ascending: true }),
+    sb.from('convexus_focus_areas').select('*').order('sort_order', { ascending: true }),
+  ]);
+  const domRows = dom.data || [];
+  const focRows = foc.data || [];
+
+  $('domainChips').innerHTML = domRows.map(r => {
+    const code = pick(r,'code'); const name = pick(r,'name','code');
+    return `<label class="chip"><input type="checkbox" name="domain" value="${code}"><span>${name}</span></label>`;
+  }).join('');
+
+  const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
+  $('focusChips').innerHTML = focRows.map(r => {
+    const code = pick(r,'code'); const name = pick(r,'name','code');
+    return `<label class="ck"><input type="checkbox" name="focus" value="${code}"><span class="box">${check}</span><span class="lb">${name}</span></label>`;
+  }).join('');
+}
+
+// ---- Summary counter ----
+$('summary').addEventListener('input', e => { $('sumCount').textContent = e.target.value.length; });
+
+// ---- Auth check ----
+async function checkAuth(){
+  const { data } = await sb.auth.getUser();
+  CURRENT_USER = data && data.user;
+  if (!CURRENT_USER){
+    // remember where to return after login
+    const back = encodeURIComponent(location.pathname);
+    $('gateLogin').href = '/login.html?redirect=' + back;
+    $('authGate').classList.add('show');
+  }
+}
+
+// ---- Collect selected checkbox values ----
+function selected(name){
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+}
+
+function showErr(text){ const m = $('formErr'); m.textContent = text; m.classList.add('show'); m.scrollIntoView({ behavior:'smooth', block:'center' }); }
+function clearErr(){ $('formErr').classList.remove('show'); }
+
+// ---- Submit ----
+$('profileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErr();
+
+  if (!CURRENT_USER){ $('authGate').classList.add('show'); return; }
+
+  const orgName = $('orgName').value.trim();
+  if (!orgName){ showErr('Organisation name is required.'); $('orgName').focus(); return; }
+
+  const btn = $('submitBtn');
+  btn.disabled = true; btn.querySelector('svg').style.display = 'none';
+  const originalLabel = btn.childNodes[0].nodeValue;
+  btn.childNodes[0].nodeValue = EDIT_ID ? 'Saving… ' : 'Publishing… ';
+
+  const trlVal = $('trl').value ? parseInt($('trl').value, 10) : null;
+  const useVal = (document.querySelector('input[name="use_profile"]:checked') || {}).value || null;
+  const costVal = (document.querySelector('input[name="cost_class"]:checked') || {}).value || null;
+
+  const profile = {
+    org_name: orgName,
+    org_country: $('orgCountry').value.trim() || null,
+    summary: $('summary').value.trim() || null,
+    use_profile: useVal,
+    cost_class: costVal,
+    trl: trlVal,
+    visibility: $('visibility').value || 'public',
+    status: 'active',
+    website: $('website').value.trim() || null,
+    contact_email: $('contactEmail').value.trim() || null,
+  };
+  // owner_id only set on create (don't overwrite on edit)
+  if (!EDIT_ID) profile.owner_id = CURRENT_USER.id;
+
+  try {
+    let pid = EDIT_ID;
+
+    if (EDIT_ID){
+      // ---- UPDATE existing profile ----
+      const { error: eu } = await sb.from('convexus_profiles').update(profile).eq('id', EDIT_ID);
+      if (eu) throw eu;
+      // replace junctions: delete old, insert new
+      await sb.from('convexus_profile_domains').delete().eq('profile_id', EDIT_ID);
+      await sb.from('convexus_profile_focus_areas').delete().eq('profile_id', EDIT_ID);
+    } else {
+      // ---- INSERT new profile ----
+      const { data: created, error: e1 } = await sb
+        .from('convexus_profiles').insert(profile).select('id').single();
+      if (e1) throw e1;
+      pid = created.id;
+    }
+
+    // domains
+    const domains = selected('domain');
+    if (domains.length){
+      const rows = domains.map(code => ({ profile_id: pid, domain_code: code }));
+      const { error: e2 } = await sb.from('convexus_profile_domains').insert(rows);
+      if (e2) throw e2;
+    }
+    // focus areas (first selected = primary)
+    const focus = selected('focus');
+    if (focus.length){
+      const rows = focus.map((code, i) => ({ profile_id: pid, focus_code: code, is_primary: i === 0 }));
+      const { error: e3 } = await sb.from('convexus_profile_focus_areas').insert(rows);
+      if (e3) throw e3;
+    }
+
+    const ok = $('formOk');
+    ok.textContent = EDIT_ID ? 'Changes saved. Taking you back to the pool…' : 'Profile published. Taking you back to the pool…';
+    ok.classList.add('show');
+    setTimeout(() => { location.href = '/platforms/convexus/index.html'; }, 1100);
+
+  } catch (err) {
+    btn.disabled = false; btn.querySelector('svg').style.display = '';
+    btn.childNodes[0].nodeValue = originalLabel;
+    const detail = (err && (err.message || err.details || err.hint)) || 'Something went wrong.';
+    showErr((EDIT_ID ? 'Could not save: ' : 'Could not publish: ') + detail);
+    console.error('Save failed:', err);
+  }
+});
+
+// ---- Edit mode ----
+const EDIT_ID = new URLSearchParams(location.search).get('edit');
+
+async function loadForEdit(){
+  if (!EDIT_ID) return;
+  // switch UI to edit mode
+  const h1 = document.querySelector('.head h1');
+  if (h1) h1.innerHTML = 'Edit capability <em>profile.</em>';
+  const eyebrow = document.querySelector('.eyebrow');
+  if (eyebrow) eyebrow.innerHTML = '<span class="ln"></span> CONVEXUS · EDIT PROFILE';
+  const btn = $('submitBtn');
+  if (btn) btn.childNodes[0].nodeValue = 'Save changes ';
+
+  try {
+    const [{ data: p, error }, dRes, fRes] = await Promise.all([
+      sb.from('convexus_profiles').select('*').eq('id', EDIT_ID).single(),
+      sb.from('convexus_profile_domains').select('*').eq('profile_id', EDIT_ID),
+      sb.from('convexus_profile_focus_areas').select('*').eq('profile_id', EDIT_ID),
+    ]);
+    if (error) throw error;
+    if (!p) return;
+
+    // text fields
+    $('orgName').value = p.org_name || '';
+    $('orgCountry').value = p.org_country || '';
+    $('summary').value = p.summary || '';
+    $('sumCount').textContent = ($('summary').value || '').length;
+    $('website').value = p.website || '';
+    $('contactEmail').value = p.contact_email || '';
+    if (p.trl) $('trl').value = String(p.trl);
+    if (p.visibility) $('visibility').value = p.visibility;
+    // radios
+    const setRadio = (name, val) => { const el = document.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; };
+    if (p.use_profile) setRadio('use_profile', p.use_profile);
+    if (p.cost_class) setRadio('cost_class', p.cost_class);
+
+    // checkboxes need chips loaded first — loadChips() runs in boot; wait a tick
+    const applyChecks = () => {
+      (dRes.data || []).forEach(r => { const el = document.querySelector(`input[name="domain"][value="${r.domain_code}"]`); if (el) el.checked = true; });
+      (fRes.data || []).forEach(r => { const el = document.querySelector(`input[name="focus"][value="${r.focus_code}"]`); if (el) el.checked = true; });
+    };
+    // if chips already present apply now, else observe
+    if (document.querySelector('input[name="domain"]')) applyChecks();
+    else {
+      const iv = setInterval(() => { if (document.querySelector('input[name="domain"]')){ applyChecks(); clearInterval(iv); } }, 60);
+      setTimeout(() => clearInterval(iv), 4000);
+    }
+  } catch (err) {
+    console.error('Edit load failed:', err);
+    showErr('Could not load this profile for editing: ' + (err.message || 'unknown error'));
+  }
+}
+
+// Boot
+loadChips().then(loadForEdit);
+checkAuth();
+</script>
+</body>
+</html>

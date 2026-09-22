@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Verified by Conventity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+:root{
+  --cream:#F5F2EC; --paper:#FBFAF7; --paper2:#F1EDE4;
+  --navy:#0E2148; --blue:#004990; --blue2:#06488A; --gold:#E2B65E;
+  --ink:#0E2148; --ink2:#40495e; --ink3:#6b7488;
+  --line:#e4ddd979; --line2:#ded6cc; --ok:#1f7a4d;
+  --logo-outer:#0E2148; --logo-inner:#2A6FDB;
+  --shadow:0 1px 2px rgba(14,33,72,.04),0 8px 30px rgba(14,33,72,.06);
+  --mono:'JetBrains Mono',ui-monospace,monospace; --body:'Manrope',system-ui,sans-serif; --serif:'Instrument Serif',Georgia,serif;
+}
+html[data-theme="dark"]{--cream:#0b1428;--paper:#101c36;--paper2:#0e1a32;--ink:#eef1f7;--ink2:#aab4c8;--ink3:#7f8aa2;--line:#24345690;--line2:#2a3a5e;--logo-outer:#EEF1F7;--logo-inner:#5BC0FF;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+em{font-style:italic;font-family:var(--serif);font-weight:400}
+.mono{font-family:var(--mono)}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+::selection{background:var(--gold);color:var(--navy)}
+
+.classbar{background:var(--navy);color:#dbe2f0;text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:3.5px;font-weight:600;padding:3px 0;text-transform:uppercase}
+html[data-theme="dark"] .classbar{background:#060d1c;color:#9fb0d0}
+.topbar{display:flex;align-items:center;gap:12px;padding:13px 26px;border-bottom:1px solid var(--line2)}
+.mark{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.mark svg{width:100%;height:100%;display:block}
+.brand{display:flex;flex-direction:column;line-height:1.02}
+.brand b{font-family:var(--serif);font-size:21px;font-weight:400;color:var(--ink)}
+.brand span{font-size:9px;letter-spacing:2.4px;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.brand .dot{color:var(--gold)}
+.spacer{flex:1}
+.tbtn{height:32px;padding:0 11px;border-radius:9px;border:1px solid var(--line2);background:var(--paper);color:var(--ink2);font-size:12px;font-weight:600}
+.tbtn:hover{border-color:var(--gold);color:var(--ink)}
+.tbtn.icon{width:32px;padding:0}
+.langpill{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;height:32px}
+.langpill button{border:0;background:var(--paper);color:var(--ink3);font-size:11px;font-weight:700;padding:0 10px}
+.langpill button.on{background:var(--blue);color:#fff}
+
+.wrap{max-width:720px;margin:0 auto;padding:38px 24px 70px}
+.state{text-align:center;padding:70px 20px;color:var(--ink3)}
+.state h2{font-family:var(--serif);font-weight:400;font-size:30px;color:var(--ink);margin:0 0 8px}
+
+.seal{width:132px;height:132px;margin:0 auto 22px;display:block}
+.eyebrow{text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.cert-title{text-align:center;font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.1;color:var(--ink);margin:8px 0 6px}
+.cert-sub{text-align:center;color:var(--ink2);font-size:15px;margin:0 0 18px}
+.tier{display:flex;justify-content:center;margin:0 0 26px}
+.tierbadge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gold);background:color-mix(in srgb,var(--gold) 12%,transparent);
+  color:var(--ink);border-radius:30px;padding:7px 16px;font-weight:700;font-size:13px;letter-spacing:.3px}
+.tierbadge .lv{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:1px}
+
+.card{background:var(--paper);border:1px solid var(--line2);border-radius:12px;box-shadow:var(--shadow);padding:22px 24px;margin:0 0 18px}
+.card h3{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:700;margin:0 0 14px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:9px 16px;font-size:14px}
+.kv dt{color:var(--ink3);font-weight:600}
+.kv dd{margin:0;color:var(--ink);font-weight:500}
+.kv dd.mono{font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+
+.chain{position:relative;margin:6px 0 0;padding-left:24px}
+.chain::before{content:'';position:absolute;left:6px;top:6px;bottom:10px;width:2px;background:var(--line2)}
+.step{position:relative;padding:0 0 20px}
+.step::before{content:'';position:absolute;left:-24px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:2px solid var(--gold)}
+.step.done::before{background:var(--gold)}
+.step .st-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.step .st-t{font-weight:700;font-size:14.5px;color:var(--ink)}
+.step .st-d{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.step .st-m{font-size:13px;color:var(--ink2);margin-top:2px}
+.step .st-a{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.3px;padding:1px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--ink2);margin-top:6px}
+.step .st-a.nato{border-color:var(--gold);color:var(--gold)}
+
+.integrity{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:var(--ink3);border-top:1px solid var(--line2);padding-top:16px;margin-top:22px}
+.integrity b{color:var(--ink2)}
+.actions{display:flex;gap:8px;justify-content:center;margin:8px 0 26px}
+.loading{text-align:center;padding:80px 20px;color:var(--ink3)}
+@media(max-width:560px){
+  .wrap{padding:26px 18px 56px}
+  .seal{width:104px;height:104px;margin-bottom:18px}
+  .cert-title{font-size:29px}
+  .cert-sub{font-size:14px}
+  .card{padding:18px 16px}
+  .kv{grid-template-columns:1fr;gap:2px 0}
+  .kv dt{font-size:12px;letter-spacing:.3px;margin-top:9px}
+  .kv dd{font-size:14.5px}
+  .topbar{padding:11px 16px}
+}
+</style>
+</head>
+<body>
+<div class="classbar">Unclassified</div>
+<div class="topbar">
+  <div class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6.5" stroke-linecap="round"/><path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="5.5" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="var(--logo-inner)"/></svg></div>
+  <div class="brand"><b>Conventity <span class="dot">Verified</span></b><span data-i="sub">Kanıt Doğrulama</span></div>
+  <div class="spacer"></div>
+  <div class="langpill" id="langPill"><button data-lang="tr">TR</button><button data-lang="en">EN</button></div>
+  <button class="tbtn icon" id="themeBtn" title="Theme">◐</button>
+</div>
+
+<div class="wrap"><div id="view"><div class="loading" data-i="loading">Yükleniyor…</div></div></div>
+
+<script>
+"use strict";
+var SB_URL=window.__CV_SUPABASE_URL;
+function sb(){return window.cvClient();}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+var LANG=localStorage.getItem('cv-lang')||'en';
+var I18N={
+ tr:{sub:'Kanıt Doğrulama', loading:'Yükleniyor…',
+   verified:'Conventity · Doğrulandı', proven_at:'şu faaliyette doğrulandı:',
+   f_facts:'Doğrulama künyesi', f_org:'Organizasyon', f_activity:'Faaliyet', f_type:'Kanıt tipi', f_verdict:'Sonuç',
+   f_auth:'Veren otorite', f_date:'Tarih', f_slug:'Kanıt kimliği', f_score:'Skor',
+   f_chain:'Kanıt zinciri', integrity:'Bu mühür <b>Conventity</b>’nindir ve kayıtlar <b>append-only</b>’dir — eklenir, silinmez. “nato” burada yalnızca referanstır, NATO mührü basılmaz.',
+   copy:'Bağlantıyı kopyala', copied:'Kopyalandı.', notfound_t:'Kanıt bulunamadı', notfound_d:'Bu kimlik için doğrulanmış bir kayıt yok.',
+   empty_t:'Kanıt kimliği belirtilmedi', empty_d:'Bir doğrulama sayfasını görmek için geçerli bir /verified/<kimlik> bağlantısı kullanın.',
+   tier1:'Değerlendirildi', tier2:'Doğrulandı', tier3:'Yetenek-Kanıtlı', lv:'Kademe',
+   et_participation_seal:'Katılım mührü', et_assessment:'Değerlendirme', et_validated:'Doğrulama', et_badge_ref:'Yetenek rozeti'},
+ en:{sub:'Evidence Verification', loading:'Loading…',
+   verified:'Conventity · Verified', proven_at:'verified through:',
+   f_facts:'Verification record', f_org:'Organization', f_activity:'Activity', f_type:'Evidence type', f_verdict:'Outcome',
+   f_auth:'Issuing authority', f_date:'Date', f_slug:'Proof id', f_score:'Score',
+   f_chain:'Proof chain', integrity:'This seal belongs to <b>Conventity</b> and records are <b>append-only</b> — added, never deleted. Here “nato” is a reference only; no NATO seal is issued.',
+   copy:'Copy link', copied:'Copied.', notfound_t:'Proof not found', notfound_d:'There is no verified record for this id.',
+   empty_t:'No proof id given', empty_d:'Use a valid /verified/<id> link to view a verification page.',
+   tier1:'Assessed', tier2:'Validated', tier3:'Capability-Proven', lv:'Tier',
+   et_participation_seal:'Participation seal', et_assessment:'Assessment', et_validated:'Validation', et_badge_ref:'Capability badge'}
+};
+function T(k){var d=I18N[LANG]||I18N.tr;return d[k]!=null?d[k]:(I18N.tr[k]!=null?I18N.tr[k]:k);}
+function applyI18n(){document.querySelectorAll('[data-i]').forEach(function(n){n.innerHTML=T(n.getAttribute('data-i'));});document.documentElement.lang=LANG;}
+function setLang(l){LANG=l;localStorage.setItem('cv-lang',l);document.querySelectorAll('#langPill button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-lang')===l);});applyI18n();load();}
+document.querySelectorAll('#langPill button').forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+
+/* Ortak tema motoruyla hizalı: anahtar cv-theme, öznitelik [data-theme].
+   Eski cn-dark anahtarı geriye dönük onurlandırılır (sayfa kendine yeter). */
+function curTheme(){
+  var t=localStorage.getItem('cv-theme');
+  if(t==='dark'||t==='light')return t;
+  return localStorage.getItem('cn-dark')==='1'?'dark':'light';
+}
+function applyTheme(){document.documentElement.setAttribute('data-theme',curTheme());}
+document.getElementById('themeBtn').addEventListener('click',function(){
+  var next=curTheme()==='dark'?'light':'dark';
+  localStorage.setItem('cv-theme',next);
+  localStorage.setItem('cn-dark',next==='dark'?'1':'0');
+  document.documentElement.setAttribute('data-theme',next);
+});
+
+function fmtDate(ts){if(!ts)return '—';var m=(''+ts).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?(m[3]+'.'+m[2]+'.'+m[1]):(''+ts).slice(0,10);}
+function tierOf(t){if(t==='badge_ref')return 3;if(t==='validated')return 2;return 1;}
+function tierLabel(lv){return T('tier'+lv);}
+
+function getSlug(){
+  var u=new URL(location.href);
+  var q=u.searchParams.get('s')||u.searchParams.get('slug'); if(q)return q.trim();
+  var parts=u.pathname.replace(/\/+$/,'').split('/').filter(Boolean);
+  var idx=parts.indexOf('verified'); if(idx>=0&&parts[idx+1])return decodeURIComponent(parts[idx+1]);
+  if(u.hash&&u.hash.length>1)return decodeURIComponent(u.hash.slice(1));
+  return '';
+}
+
+var SEAL='<svg class="seal" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+  '<circle cx="60" cy="60" r="57" stroke="#0E2148" stroke-width="2"/>'+
+  '<circle cx="60" cy="60" r="49" stroke="#E2B65E" stroke-width="1"/>'+
+  '<circle cx="60" cy="60" r="35" fill="#0E2148"/>'+
+  '<path d="M50 60 L57 68 L72 51" stroke="#E2B65E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'+
+  '<g stroke="#E2B65E" stroke-width="1.4">'+
+    '<line x1="60" y1="5" x2="60" y2="12"/><line x1="60" y1="108" x2="60" y2="115"/>'+
+    '<line x1="5" y1="60" x2="12" y2="60"/><line x1="108" y1="60" x2="115" y2="60"/></g>'+
+  '</svg>';
+
+function stateBox(titleKey,descKey){
+  return '<div class="state">'+SEAL+'<h2>'+esc(T(titleKey))+'</h2><p>'+esc(T(descKey))+'</p></div>';
+}
+
+async function load(){
+  var v=document.getElementById('view');
+  v.innerHTML='<div class="loading">'+esc(T('loading'))+'</div>';
+  var slug=getSlug();
+  if(!slug){v.innerHTML=stateBox('empty_t','empty_d');return;}
+  try{
+    var ev=await sb().from('conventity_evidence').select('*').eq('proof_slug',slug).order('issued_at',{ascending:false});
+    var rows=(ev.data||[]);
+    if(!rows.length){v.innerHTML=stateBox('notfound_t','notfound_d');return;}
+    var primary=rows[0], act=null, org=null, chain=rows;
+    if(primary.activity_id){
+      var a=await sb().from('conventity_activities').select('*').eq('id',primary.activity_id).maybeSingle(); act=a.data;
+      var chq=sb().from('conventity_evidence').select('*').eq('activity_id',primary.activity_id);
+      if(primary.org_id) chq=chq.eq('org_id',primary.org_id);
+      var ch=await chq.order('issued_at',{ascending:true});
+      if(ch.data&&ch.data.length)chain=ch.data;
+    }
+    if(primary.org_id){var o=await sb().from('conventity_orgs').select('*').eq('id',primary.org_id).maybeSingle(); org=o.data;}
+    render(v,primary,act,org,chain);
+  }catch(e){ v.innerHTML=stateBox('notfound_t','notfound_d'); }
+}
+
+function render(v,primary,act,org,chain){
+  var lv=tierOf(primary.evidence_type);
+  var who=org?org.legal_name:(act?act.title:'—');
+  var factRow=function(l,val,mono){return (val==null||val==='')?'':'<dt>'+esc(T(l))+'</dt><dd'+(mono?' class="mono"':'')+'>'+esc(val)+'</dd>';};
+  var facts='<dl class="kv">'+
+    factRow('f_org',org?org.legal_name:'')+
+    factRow('f_activity',act?act.title:'')+
+    '<dt>'+esc(T('f_type'))+'</dt><dd>'+esc(T('et_'+primary.evidence_type))+'</dd>'+
+    factRow('f_verdict',primary.verdict)+
+    '<dt>'+esc(T('f_auth'))+'</dt><dd>'+esc(primary.issuing_auth||'conventity')+'</dd>'+
+    factRow('f_score',primary.score_total)+
+    '<dt>'+esc(T('f_date'))+'</dt><dd class="mono">'+esc(fmtDate(primary.issued_at))+'</dd>'+
+    '<dt>'+esc(T('f_slug'))+'</dt><dd class="mono">'+esc(primary.proof_slug||'')+'</dd>'+
+  '</dl>';
+
+  var steps=chain.map(function(r){
+    var l=tierOf(r.evidence_type);
+    return '<div class="step done"><div class="st-h"><span class="st-t">'+esc(tierLabel(l))+'</span>'+
+      '<span class="st-d">'+esc(fmtDate(r.issued_at))+'</span></div>'+
+      '<div class="st-m">'+esc(T('et_'+r.evidence_type))+(r.verdict?(' — '+esc(r.verdict)):'')+'</div>'+
+      '<span class="st-a'+(r.issuing_auth==='nato'?' nato':'')+'">'+esc(r.issuing_auth||'conventity')+'</span></div>';
+  }).join('');
+
+  v.innerHTML=
+    SEAL+
+    '<div class="eyebrow">'+esc(T('verified'))+'</div>'+
+    '<h1 class="cert-title">'+esc(who)+'</h1>'+
+    (act?('<p class="cert-sub">'+esc(T('proven_at'))+' <em>'+esc(act.title)+'</em></p>'):'')+
+    '<div class="tier"><span class="tierbadge"><span class="lv">'+esc(T('lv'))+' '+lv+'</span> '+esc(tierLabel(lv))+'</span></div>'+
+    '<div class="actions"><button class="tbtn" id="copyBtn">'+esc(T('copy'))+'</button></div>'+
+    '<div class="card"><h3>'+esc(T('f_facts'))+'</h3>'+facts+'</div>'+
+    '<div class="card"><h3>'+esc(T('f_chain'))+'</h3><div class="chain">'+steps+'</div>'+
+      '<div class="integrity"><span>◆</span><p style="margin:0">'+T('integrity')+'</p></div></div>';
+  var cb=document.getElementById('copyBtn');
+  if(cb)cb.addEventListener('click',function(){var t=location.href;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){cb.textContent=T('copied');});}else{cb.textContent=T('copied');}});
+}
+
+applyTheme(); setLang(LANG);
+</script>
+</body>
+</html>

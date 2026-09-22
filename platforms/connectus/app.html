@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-standalone="connectus"
+      data-platform-title="Connectus · Home · Conventity">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connectus · Home · Conventity</title>
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/shared.css" />
+  <link rel="stylesheet" href="/assets/connectus-app.css" />
+</head>
+<body>
+<div class="cn-app">
+  <div class="uncls">UNCLASSIFIED</div>
+
+  <nav class="cn-nav">
+    <a class="brand" href="/platforms/connectus/app.html">
+      <span class="mark">C</span>
+      <b>Connectus<span data-i="cn.brand_sub"> · network</span></b>
+    </a>
+    <div class="cn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="navSearch" type="search" data-ph="cn.nav.search" placeholder="Search people, expertise, orgs…" autocomplete="off">
+    </div>
+    <div class="cn-navspace"></div>
+    <div class="cn-navlinks">
+      <a href="/platforms/connectus/app.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+        <span data-i="cn.nav.home">Home</span></a>
+      <a href="/platforms/connectus/network.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17.5 14c2.4 0 4 1.7 4 4"/></svg>
+        <span data-i="cn.nav.network">Network</span></a>
+      <a href="/platforms/connectus/messages.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4z"/></svg>
+        <span data-i="cn.nav.msg">Messaging</span></a>
+      <a href="/platforms/connectus/notifications.html" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span data-i="cn.nav.alerts">Alerts</span><span class="nav-badge" id="alertsBadge" style="display:none">0</span></a>
+      <span class="divider"></span>
+      <div class="cn-navlink-me" data-menu>
+        <a href="/platforms/connectus/profile.html" data-menu-btn aria-haspopup="true" aria-expanded="false" title="Me">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg>
+          <span data-i="cn.nav.me">Me</span> ▾</a>
+        <div data-menu-pop>
+          <div class="menu-id"><div class="av" id="meMenuAv">—</div><div><b id="meMenuNm">—</b><span id="meMenuTag"></span></div></div>
+          <a href="/platforms/connectus/profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg> <span data-i="cn.me.view">View profile</span></a>
+          <a href="/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 2h-5l-.3 2.6a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L3 11a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1L9.5 22h5l.3-2.6a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6a7 7 0 0 0 .1-1z"/></svg> <span data-i="cn.me.settings">Settings</span></a>
+          <div class="sep"></div>
+          <button type="button" data-signout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> <span data-i="cn.me.signout">Sign out</span></button>
+        </div>
+      </div>
+    </div>
+    <span class="divider"></span>
+    <button class="cn-lang" data-lang-toggle>TR</button>
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control>
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+  </nav>
+
+  <div class="cn-grid">
+    <aside class="cn-col-left">
+      <div class="card idc" id="idCard">
+        <div class="cover"></div>
+        <div class="av" id="idAv">—</div>
+        <div class="nm" id="idNm">Loading…</div>
+        <div class="tg" id="idTg"></div>
+        <div class="org" id="idOrg"></div>
+        <div class="prov" id="idProv"></div>
+      </div>
+      <div class="card">
+        <div class="qlinks">
+          <a href="/platforms/connectus/profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg> <span data-i="cn.home.your_profile">Your profile</span></a>
+          <a href="/platforms/connectus/network.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg> <span data-i="cn.home.connections">Connections</span></a>
+          <a href="#groups"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg> <span data-i="cn.home.groups">Groups</span></a>
+        </div>
+      </div>
+      <div class="footnote"><span data-i="cn.home.footline">Purpose-locked. Provenance-backed.</span><br><a href="/platforms/connectus/index.html" data-i="cn.foot.about">About Connectus →</a></div>
+    </aside>
+
+    <main class="cn-col-center">
+      <div class="card">
+        <div class="composer">
+          <div class="av" id="cmpAv">—</div>
+          <div class="row">
+            <select id="cmpGroup"><option value="" data-i="cn.cmp.select">Select a group to post in…</option></select>
+            <textarea id="cmpBody" data-ph="cn.cmp.ph" placeholder="Share an update, an ask, or an offer with your groups…"></textarea>
+            <div class="bar">
+              <div class="kinds" id="cmpKinds">
+                <button class="chip-k" data-kind="note" aria-pressed="true" data-i="cn.kind.note">Note</button>
+                <button class="chip-k" data-kind="ask" data-i="cn.kind.ask">Ask</button>
+                <button class="chip-k" data-kind="offer" data-i="cn.kind.offer">Offer</button>
+                <button class="chip-k" data-kind="announce" data-i="cn.kind.announce">Announce</button>
+              </div>
+              <button class="btn-post" id="cmpPost" data-i="cn.cmp.post" disabled>Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed" id="feed">
+        <div class="card"><div class="empty" data-i="cn.feed.loading">Loading your feed…</div></div>
+      </div>
+    </main>
+
+    <aside class="cn-col-right">
+      <div class="card">
+        <div class="hd"><span class="eyebrow" data-i="cn.grow.eb">Grow your network</span><h3 data-i="cn.grow.title">People to connect</h3></div>
+        <div class="hair" style="margin:11px 15px 0;"></div>
+        <div id="grow"><div class="empty" data-i="cn.grow.finding">Finding relevant people…</div></div>
+        <a class="seeall" href="/platforms/connectus/network.html" data-i="cn.grow.seeall">See all suggestions →</a>
+      </div>
+      <div class="card" id="groups">
+        <div class="hd"><span class="eyebrow" data-i="cn.grp.eb">Purpose-locked</span><h3 data-i="cn.grp.title">Groups to join</h3></div>
+        <div class="hair" style="margin:11px 15px 0;"></div>
+        <div id="grpList"><div class="empty" data-i="cn.grp.loading">Loading groups…</div></div>
+      </div>
+      <div class="footnote" data-i="cn.home.suggest_note">Suggestions are rule-based and explainable — each shows <b>why</b>. AI advises; humans decide.</div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script src="/assets/i18n.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SB_URL=window.__CV_SUPABASE_URL;
+  function sb(){ if(window.__cvSb) return window.__cvSb; if(!window.supabase) return null;
+    return window.cvClient(); }
+  function $(id){ return document.getElementById(id); }
+  function T(k){ return (window.T?window.T(k):null)||k; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function initials(s){ s=String(s||'').trim(); if(!s) return '?';
+    var p=s.replace(/^(Dr|Maj|Col|Gen|Lt|Capt|Mr|Ms|Mrs|Prof)\.?\s+/i,'').split(/[\s@._-]+/).filter(Boolean);
+    return ((p[0]?p[0][0]:s[0])+(p[1]?p[1][0]:'')).toUpperCase(); }
+  function ago(t){ if(!t) return ''; var d=(Date.now()-new Date(t).getTime())/1000;
+    if(d<60) return 'now'; if(d<3600) return Math.floor(d/60)+'m'; if(d<86400) return Math.floor(d/3600)+'h';
+    if(d<604800) return Math.floor(d/86400)+'d'; return Math.floor(d/604800)+'w'; }
+  function clock(t){ if(!t) return ''; try{ return new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+
+  var me=null, curKind='note', outSet={}, commentsLoaded={};
+
+  function paintMe(p){
+    me=p||null;
+    var nm=(p&&p.name)||T('cn.pf.member'), tg=(p&&p.tagline)||T('cn.pf.member');
+    $('idAv').textContent=initials(nm); $('cmpAv').textContent=initials(nm);
+    $('idNm').textContent=nm; $('idTg').textContent=tg;
+    $('idOrg').textContent=(p&&p.org)?('· '+p.org):'';
+    var pr='';
+    pr+='<a href="/platforms/connectus/network.html"><b>'+((p&&p.connections)||0)+'</b><span>'+T('cn.prov.conn')+'</span></a>';
+    pr+='<a href="/platforms/connectus/profile.html"><b>'+((p&&p.events)||0)+'</b><span>'+T('cn.prov.events')+'</span></a>';
+    pr+='<a href="/platforms/connectus/profile.html"><b>'+((p&&p.certs)||0)+'</b><span>'+T('cn.prov.certs')+'</span></a>';
+    $('idProv').innerHTML=pr;
+    // Me menu identity
+    $('meMenuAv').textContent=initials(nm); $('meMenuNm').textContent=nm;
+    $('meMenuTag').textContent=(p&&p.tagline)||'';
+  }
+
+  function postCard(p){
+    var who=esc(p.author||'Member'), g=esc(p.group_name||'Group');
+    var eng='';
+    if(p.reactions||p.comments){
+      eng='<div class="engage">'+
+        (p.reactions?'<span><b>'+p.reactions+'</b> '+esc(T('cn.post.endorse'))+'</span>':'')+
+        (p.comments?'<span><b>'+p.comments+'</b> '+esc(T('cn.post.reply'))+'</span>':'')+'</div>';
+    }
+    return '<div class="card post" data-post="'+esc(p.id)+'">'+
+      '<div class="top"><a href="/platforms/connectus/profile.html?id='+esc(p.author_id||'')+'" class="av" style="text-decoration:none">'+esc(initials(p.author))+'</a>'+
+        '<div class="who"><b>'+who+'</b><div class="meta">'+
+          '<span class="g">'+g+'</span><span>·</span><span>'+esc(ago(p.created_at))+'</span></div></div>'+
+        '<span class="kindtag">'+esc(p.kind||'note')+'</span></div>'+
+      '<div class="body">'+esc(p.body||'')+'</div>'+ eng +
+      '<div class="acts">'+
+        '<button type="button" data-endorse="'+esc(p.id)+'" class="'+(p.reacted?'on':'')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-6 0v4H4l2 11h12l2-11z"/></svg><span>'+esc(T('cn.post.endorse'))+'</span></button>'+
+        '<button type="button" data-reply="'+esc(p.id)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z"/></svg><span>'+esc(T('cn.post.reply'))+'</span></button>'+
+        '<button type="button" data-refer="'+esc(p.id)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg><span>'+esc(T('cn.post.refer'))+'</span></button>'+
+      '</div>'+
+      '<div class="comments" id="cm-'+esc(p.id)+'">'+
+        '<div class="cbox"><input type="text" data-comment-in="'+esc(p.id)+'" placeholder="'+esc(T('cn.post.comment_ph'))+'">'+
+        '<button type="button" data-comment-send="'+esc(p.id)+'">'+esc(T('cn.post.send'))+'</button></div>'+
+        '<div class="clist" id="cl-'+esc(p.id)+'"></div></div>'+
+      '</div>';
+  }
+  function commentCard(c){
+    return '<div class="comment"><div class="av">'+esc(initials(c.author))+'</div>'+
+      '<div class="bd"><b>'+esc(c.author||'Member')+'</b><div class="tx">'+esc(c.body||'')+'</div>'+
+      '<div class="tm">'+esc(clock(c.created_at))+'</div></div></div>';
+  }
+
+  function growCard(p){
+    var on=!!outSet[p.id];
+    return '<div class="sugg"><a href="/platforms/connectus/profile.html?id='+esc(p.id)+'" class="av" style="text-decoration:none">'+esc(initials(p.name))+'</a>'+
+      '<div class="info"><a href="/platforms/connectus/profile.html?id='+esc(p.id)+'" style="text-decoration:none"><b>'+esc(p.name)+'</b></a><div class="tg">'+esc(p.tagline||'')+'</div>'+
+        '<div class="why">'+esc(p.why||'')+'</div>'+
+        '<button class="btn-mini'+(on?' on':'')+'" data-connect="'+esc(p.id)+'"'+(on?' disabled':'')+'>'+(on?esc(T('cn.pending')):esc(T('cn.connect')))+'</button>'+
+      '</div></div>';
+  }
+
+  function grpCard(g){
+    var mine=!!g.my_role;
+    return '<div class="grp"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></div>'+
+      '<div class="info"><b>'+esc(g.name)+'</b><span>'+esc(g.purpose_kind||'topic')+' · '+(g.members||0)+' '+esc(T('cn.members_word'))+'</span></div>'+
+      (mine?'<span class="btn-mini on" style="cursor:default">'+esc(T('cn.grp.member'))+'</span>':'<button class="btn-mini" data-join="'+esc(g.id)+'">'+esc(T('cn.grp.join'))+'</button>')+'</div>';
+  }
+
+  async function loadFeed(){
+    var s=sb(), box=$('feed'); commentsLoaded={};
+    if(!s){ box.innerHTML='<div class="card"><div class="empty">'+esc(T('cn.pf.signin'))+'</div></div>'; return; }
+    try{
+      var r=await s.rpc('connectus_feed',{p_limit:30}); var rows=(r&&r.data)||[];
+      if(!rows.length){ box.innerHTML='<div class="card"><div class="empty">'+esc(T('cn.feed.empty'))+'</div></div>'; return; }
+      box.innerHTML=rows.map(postCard).join('');
+    }catch(e){ box.innerHTML='<div class="card"><div class="empty">'+esc(T('cn.feed.unavail'))+'</div></div>'; }
+  }
+
+  async function loadComments(pid){
+    var s=sb(); if(!s) return;
+    try{ var r=await s.rpc('connectus_post_comments',{p_post:pid,p_limit:50}); var rows=(r&&r.data)||[];
+      var el=$('cl-'+pid); if(el) el.innerHTML=rows.map(commentCard).join(''); commentsLoaded[pid]=true;
+    }catch(e){}
+  }
+
+  async function loadGrow(){
+    var s=sb(), box=$('grow');
+    if(!s){ box.innerHTML='<div class="empty">'+esc(T('cn.pf.signin'))+'</div>'; return; }
+    try{
+      var c=await s.rpc('connectus_connections'); var conn=(c&&c.data)||{};
+      outSet={}; (conn.outgoing||[]).forEach(function(id){ outSet[id]=1; });
+      var connectedSet={}; (conn.accepted||[]).forEach(function(a){ connectedSet[a.person_id]=1; });
+      var r=await s.rpc('connectus_discover',{p_query:null,p_limit:8}); var rows=(r&&r.data)||[];
+      rows=rows.filter(function(p){ return !connectedSet[p.id]; }).slice(0,4);
+      box.innerHTML=rows.length?rows.map(growCard).join(''):'<div class="empty">'+esc(T('cn.grow.none'))+'</div>';
+    }catch(e){ box.innerHTML='<div class="empty">'+esc(T('cn.grow.unavail'))+'</div>'; }
+  }
+
+  async function loadGroups(){
+    var s=sb(), box=$('grpList'), sel=$('cmpGroup');
+    if(!s){ box.innerHTML='<div class="empty">'+esc(T('cn.pf.signin'))+'</div>'; return; }
+    try{
+      var r=await s.rpc('connectus_groups'); var rows=(r&&r.data)||[];
+      var mine=rows.filter(function(g){ return g.my_role; });
+      sel.innerHTML='<option value="">'+esc(T('cn.cmp.select'))+'</option>'+
+        mine.map(function(g){ return '<option value="'+esc(g.id)+'">'+esc(g.name)+'</option>'; }).join('');
+      var show=rows.slice(0,5);
+      box.innerHTML=show.length?show.map(grpCard).join(''):'<div class="empty">'+esc(T('cn.grp.none'))+'</div>';
+      syncPostBtn();
+    }catch(e){ box.innerHTML='<div class="empty">'+esc(T('cn.grp.unavail'))+'</div>'; }
+  }
+
+  async function loadAlerts(){
+    var s=sb(); if(!s) return;
+    try{
+      var c=await s.rpc('connectus_connections'); var inc=(c&&c.data&&c.data.incoming)||[];
+      var t=await s.rpc('connectus_threads'); var th=(t&&t.data)||[];
+      var unread=th.reduce(function(a,x){ return a+(x.unread||0); },0);
+      var n=inc.length+unread;
+      var b=$('alertsBadge'); if(b){ if(n>0){ b.textContent=n>9?'9+':n; b.style.display=''; } else b.style.display='none'; }
+    }catch(e){}
+  }
+
+  function syncPostBtn(){ var g=$('cmpGroup').value, b=($('cmpBody').value||'').trim(); $('cmpPost').disabled=!(g&&b); }
+
+  async function init(){
+    var s=sb();
+    if(!s){ paintMe(null); loadFeed(); loadGrow(); loadGroups(); return; }
+    try{ var se=await s.auth.getSession();
+      if(!se||!se.data||!se.data.session){ location.href='/login.html?next='+encodeURIComponent(location.pathname); return; }
+    }catch(e){}
+    try{ var mp=await s.rpc('connectus_my_profile'); paintMe((mp&&mp.data)||null);
+      try{ var c=await s.rpc('connectus_connections'); if(c&&c.data){ if(me) me.connections=((c.data.accepted||[]).length); paintMe(me); } }catch(e){}
+    }catch(e){ paintMe(null); }
+    loadFeed(); loadGrow(); loadGroups(); loadAlerts();
+  }
+
+  document.addEventListener('click', async function(e){
+    var s=sb();
+    var k=e.target.closest('[data-kind]');
+    if(k){ curKind=k.getAttribute('data-kind');
+      document.querySelectorAll('#cmpKinds .chip-k').forEach(function(b){ b.setAttribute('aria-pressed', b===k?'true':'false'); }); return; }
+    var cn=e.target.closest('[data-connect]');
+    if(cn){ if(!s){ alert(T('cn.signin_connect')); return; } cn.disabled=true; cn.classList.add('on'); cn.textContent=T('cn.pending');
+      try{ await s.rpc('connectus_connect',{p_addressee:cn.getAttribute('data-connect'),p_purpose:null}); }catch(err){} return; }
+    var jn=e.target.closest('[data-join]');
+    if(jn){ if(!s){ alert(T('cn.signin_join')); return; } jn.disabled=true;
+      try{ await s.rpc('connectus_join_group',{p_group:jn.getAttribute('data-join')}); }catch(err){} loadGroups(); return; }
+    // feed: endorse
+    var en=e.target.closest('[data-endorse]');
+    if(en){ if(!s){ alert(T('cn.signin_generic')); return; }
+      var pid=en.getAttribute('data-endorse'), on=!en.classList.contains('on');
+      en.classList.toggle('on', on);
+      try{ await s.rpc('connectus_react',{p_post:pid,p_on:on}); }catch(err){} loadFeed(); return; }
+    // feed: reply -> toggle comments
+    var rp=e.target.closest('[data-reply]');
+    if(rp){ var pid2=rp.getAttribute('data-reply'), wrap=$('cm-'+pid2);
+      if(wrap){ var open=wrap.classList.toggle('open');
+        if(open && !commentsLoaded[pid2]) loadComments(pid2);
+        if(open){ var inp=wrap.querySelector('[data-comment-in]'); if(inp) inp.focus(); } }
+      return; }
+    // feed: comment send
+    var cs=e.target.closest('[data-comment-send]');
+    if(cs){ if(!s) return; var pid3=cs.getAttribute('data-comment-send');
+      var inp2=document.querySelector('[data-comment-in="'+pid3+'"]'); var body=(inp2&&inp2.value||'').trim();
+      if(!body) return; cs.disabled=true;
+      try{ var rr=await s.rpc('connectus_comment',{p_post:pid3,p_body:body});
+        if(rr&&rr.data&&rr.data.ok!==false){ inp2.value=''; await loadComments(pid3);
+          var eng=$('feed'); } }catch(err){}
+      cs.disabled=false; loadAlerts(); return; }
+    // feed: refer -> copy shareable summary
+    var rf=e.target.closest('[data-refer]');
+    if(rf){ var card=rf.closest('[data-post]'); var body=card?card.querySelector('.body'):null;
+      var txt=(body?body.textContent:'')+'\n— via Connectus';
+      try{ await navigator.clipboard.writeText(txt); }catch(err){}
+      var lbl=rf.querySelector('span'); if(lbl){ var old=lbl.textContent; lbl.textContent='✓'; setTimeout(function(){ lbl.textContent=old; },1200); }
+      return; }
+    if(e.target.closest('#cmpPost')){
+      if(!s) return; var gid=$('cmpGroup').value, bd=($('cmpBody').value||'').trim();
+      if(!gid||!bd) return; var btn=$('cmpPost'); btn.disabled=true;
+      try{ var r=await s.rpc('connectus_post',{p_group:gid,p_body:bd,p_kind:curKind});
+        if(r&&r.data&&r.data.ok!==false){ $('cmpBody').value=''; loadFeed(); } }catch(err){}
+      syncPostBtn(); return;
+    }
+  });
+  document.addEventListener('input', function(e){ if(e.target.id==='cmpBody') syncPostBtn(); });
+  document.addEventListener('change', function(e){ if(e.target.id==='cmpGroup') syncPostBtn(); });
+  document.addEventListener('keydown', function(e){ if(e.target && e.target.hasAttribute && e.target.hasAttribute('data-comment-in') && e.key==='Enter'){
+    e.preventDefault(); var pid=e.target.getAttribute('data-comment-in'); var b=document.querySelector('[data-comment-send="'+pid+'"]'); if(b) b.click(); } });
+  $('navSearch').addEventListener('keydown', function(e){ if(e.key==='Enter'){ var q=(this.value||'').trim();
+    location.href='/platforms/connectus/network.html'+(q?('?q='+encodeURIComponent(q)):''); } });
+
+  // re-render on language switch
+  if(window.CNApp) window.CNApp.onLang(function(){ paintMe(me); loadFeed(); loadGrow(); loadGroups(); });
+
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+<script src="/assets/connectus-app.js"></script>
+</body>
+</html>

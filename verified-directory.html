@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Verified Capabilities · Conventity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+:root{
+  --cream:#F5F2EC;--paper:#FBFAF7;--paper2:#F1EDE4;--navy:#0E2148;--blue:#004990;--blue2:#06488A;--gold:#E2B65E;
+  --ink:#0E2148;--ink2:#40495e;--ink3:#6b7488;--line:#e4ddd979;--line2:#ded6cc;--ok:#1f7a4d;
+  --logo-outer:#0E2148;--logo-inner:#2A6FDB;
+  --shadow:0 1px 2px rgba(14,33,72,.04),0 6px 20px rgba(14,33,72,.05);
+  --mono:'JetBrains Mono',ui-monospace,monospace;--body:'Manrope',system-ui,sans-serif;--serif:'Instrument Serif',Georgia,serif;
+}
+html[data-theme="dark"]{--cream:#0b1428;--paper:#101c36;--paper2:#0e1a32;--ink:#eef1f7;--ink2:#aab4c8;--ink3:#7f8aa2;--line:#24345690;--line2:#2a3a5e;--logo-outer:#EEF1F7;--logo-inner:#5BC0FF;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+em{font-style:italic;font-family:var(--serif);font-weight:400}.mono{font-family:var(--mono)}
+button{font-family:inherit;cursor:pointer}a{text-decoration:none;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}::selection{background:var(--gold);color:var(--navy)}
+.classbar{background:var(--navy);color:#dbe2f0;text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:3.5px;font-weight:600;padding:3px 0;text-transform:uppercase}
+html[data-theme="dark"] .classbar{background:#060d1c;color:#9fb0d0}
+.topbar{display:flex;align-items:center;gap:12px;padding:13px 26px;border-bottom:1px solid var(--line2)}
+.mark{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.mark svg{width:100%;height:100%;display:block}
+.brand{display:flex;flex-direction:column;line-height:1.02}
+.brand b{font-family:var(--serif);font-size:21px;font-weight:400;color:var(--ink)}
+.brand span{font-size:9px;letter-spacing:2.4px;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.brand .dot{color:var(--gold)}.spacer{flex:1}
+.tbtn{height:32px;padding:0 11px;border-radius:9px;border:1px solid var(--line2);background:var(--paper);color:var(--ink2);font-size:12px;font-weight:600}
+.tbtn:hover{border-color:var(--gold);color:var(--ink)}.tbtn.icon{width:32px;padding:0}
+.langpill{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;height:32px}
+.langpill button{border:0;background:var(--paper);color:var(--ink3);font-size:11px;font-weight:700;padding:0 10px}
+.langpill button.on{background:var(--blue);color:#fff}
+.wrap{max-width:1100px;margin:0 auto;padding:34px 24px 70px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+.h1{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.08;color:var(--ink);margin:8px 0 8px}
+.lead{color:var(--ink2);font-size:15px;max-width:760px;margin:0 0 22px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line2);padding-top:16px;margin-bottom:20px}
+.count{font-family:var(--mono);font-size:12.5px;color:var(--ink3)}
+.searchbox{position:relative}
+.searchbox input{height:36px;width:230px;padding:0 12px 0 32px;border:1px solid var(--line2);border-radius:9px;background:var(--paper);color:var(--ink);font-size:13.5px}
+.searchbox svg{position:absolute;left:10px;top:10px;color:var(--ink3)}
+.filters{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.filters button{border:0;border-right:1px solid var(--line2);background:var(--paper);color:var(--ink3);font-size:12px;font-weight:600;padding:0 12px;height:36px}
+.filters button:last-child{border-right:0}.filters button.on{background:var(--navy);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pcard{background:var(--paper);border:1px solid var(--line2);border-left:3px solid var(--tc,var(--navy));border-radius:12px;padding:17px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;transition:transform .12s,box-shadow .12s}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,33,72,.1)}
+.pc-h{display:flex;align-items:center;gap:8px}
+.tchip{font-size:10.5px;font-weight:700;letter-spacing:.3px;padding:2px 9px;border-radius:20px;border:1px solid var(--line2);color:var(--ink2)}
+.tchip.t3{border-color:var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.tchip.t2{border-color:var(--blue);color:var(--blue2)}
+.pc-d{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.pc-org{font-family:var(--serif);font-size:21px;line-height:1.15;color:var(--ink)}
+.pc-v{font-size:13.5px;color:var(--ink2)}
+.pc-a{font-size:12.5px;color:var(--ink3)}
+.pc-link{margin-top:4px;font-size:12.5px;font-weight:700;color:var(--blue2);align-self:flex-start}
+.pc-link:hover{color:var(--navy)}
+.state{text-align:center;padding:70px 20px;color:var(--ink3)}
+.state h2{font-family:var(--serif);font-weight:400;font-size:28px;color:var(--ink);margin:0 0 8px}
+.loading{text-align:center;padding:70px;color:var(--ink3)}
+.wheelwrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px 0 26px}
+.wheelwrap svg{width:330px;max-width:88vw;height:auto;display:block;overflow:visible}
+.wheelwrap .wseg{cursor:pointer;transition:filter .14s,stroke-width .14s;transform-box:fill-box;transform-origin:center}
+.wheelwrap.intro .wseg{animation:wbloom .5s cubic-bezier(.2,.75,.2,1) both}
+.wheelwrap .wseg:hover{filter:brightness(1.14) saturate(1.05);stroke-width:4}
+.wheelwrap .wsel{animation:wpulse 1.7s ease-in-out infinite}
+.wheelwrap .whint{font-family:var(--mono);font-size:11px;letter-spacing:.4px;color:var(--ink3);transition:opacity .3s}
+@keyframes wbloom{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes wpulse{0%,100%{stroke-opacity:1}50%{stroke-opacity:.28}}
+@keyframes wspin{to{transform:rotate(360deg)}}
+.wheelwrap .wring{transform-box:view-box;transform-origin:center;animation:wspin 55s linear infinite}
+@media(prefers-reduced-motion:reduce){.wheelwrap.intro .wseg{animation-duration:.001s}.wheelwrap .wsel,.wheelwrap .wring{animation:none}}
+@media(max-width:560px){
+  .wrap{padding:24px 18px 56px}
+  .h1{font-size:30px}
+  .lead{font-size:14.5px}
+  .searchbox input{width:100%}
+  .searchbox{flex:1 1 100%}
+  .bar{gap:8px}
+  .filters{flex:1 1 100%}
+  .filters button{flex:1;padding:0 6px;font-size:11.5px}
+  .grid{grid-template-columns:1fr}
+  .topbar{padding:11px 16px}
+}
+</style>
+</head>
+<body>
+<div class="classbar">Unclassified</div>
+<div class="topbar">
+  <div class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6.5" stroke-linecap="round"/><path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="5.5" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="var(--logo-inner)"/></svg></div>
+  <div class="brand"><b>Conventity <span class="dot">Verified</span></b><span data-i="sub">Doğrulanmış Yetenekler</span></div>
+  <div class="spacer"></div>
+  <div class="langpill" id="langPill"><button data-lang="tr">TR</button><button data-lang="en">EN</button></div>
+  <button class="tbtn icon" id="themeBtn" title="Theme">◐</button>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow" data-i="eyebrow">Conventity · Doğrulandı</div>
+  <h1 class="h1" data-i="title">Doğrulanmış <em>Yetenekler</em></h1>
+  <p class="lead" data-i="lead">Faaliyetlerde değerlendirilmiş, taşınabilir kanıta bağlanmış yetenekler. Her mühür bir kanıt zincirine dayanır.</p>
+  <div class="wheelwrap" id="wheelwrap" hidden><div id="wheel"></div><div class="whint" data-i="wheel_pick">Alanları seçmek için bir dilime dokunun</div></div>
+  <div class="bar">
+    <span class="count" id="count"></span>
+    <div class="spacer"></div>
+    <div class="searchbox"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" data-ph="search"/></div>
+    <div class="filters" id="filters">
+      <button data-f="0" class="on" data-i="f_all">Tümü</button>
+      <button data-f="1" data-i="tier1">Değerlendirildi</button>
+      <button data-f="2" data-i="tier2">Doğrulandı</button>
+      <button data-f="3" data-i="tier3">Yetenek-Kanıtlı</button>
+    </div>
+  </div>
+  <div id="view"><div class="loading" data-i="loading">Yükleniyor…</div></div>
+</div>
+
+<script>
+"use strict";
+var SB_URL=window.__CV_SUPABASE_URL;
+function sb(){return window.cvClient();}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function $(s){return document.querySelector(s);}function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+
+var LANG=localStorage.getItem('cv-lang')||'en';
+var I18N={
+ tr:{sub:'Doğrulanmış Yetenekler', loading:'Yükleniyor…', eyebrow:'Conventity · Doğrulandı',
+   title:'Doğrulanmış <em>Yetenekler</em>', lead:'Faaliyetlerde değerlendirilmiş, taşınabilir kanıta bağlanmış yetenekler. Her mühür bir kanıt zincirine dayanır.',
+   search:'Ara — firma, sonuç…', f_all:'Tümü', tier1:'Değerlendirildi', tier2:'Doğrulandı', tier3:'Yetenek-Kanıtlı',
+   via:'şu faaliyette:', view:'Doğrulamayı gör', cnt:'%s doğrulanmış kayıt',
+   empty_t:'Henüz doğrulanmış kayıt yok', empty_d:'Kanıtlar oluştukça yetenekler burada görünecek.',
+   none_t:'Eşleşen kayıt yok', none_d:'Filtre veya aramayı değiştirin.',
+   wheel_all:'Tümü', wheel_verified:'doğrulanmış', wheel_pick:'Alanları seçmek için bir dilime dokunun',
+   wd_auto:'Otonomi & C-UAS', wd_ai:'YZ & Veri', wd_cyber:'Siber & Ağlar', wd_space:'Uzay & SATCOM',
+   wd_iamd:'Hava & Füze Savunma', wd_quant:'Kuantum & Sensör', wd_hw:'Donanım & Platform', wd_svc:'Etkinleştirici & Hizmet',
+   wab_auto:'C-UAS', wab_ai:'YZ', wab_cyber:'Siber', wab_space:'Uzay', wab_iamd:'IAMD', wab_quant:'Kuantum', wab_hw:'Donanım', wab_svc:'Hizmet'},
+ en:{sub:'Verified Capabilities', loading:'Loading…', eyebrow:'Conventity · Verified',
+   title:'Verified <em>Capabilities</em>', lead:'Capabilities assessed in activities and bound to portable evidence. Every seal rests on a proof chain.',
+   search:'Search — firm, outcome…', f_all:'All', tier1:'Assessed', tier2:'Validated', tier3:'Capability-Proven',
+   via:'via:', view:'View verification', cnt:'%s verified records',
+   empty_t:'No verified records yet', empty_d:'Capabilities will appear here as evidence accrues.',
+   none_t:'No matching records', none_d:'Change the filter or search.',
+   wheel_all:'All', wheel_verified:'verified', wheel_pick:'Tap a slice to filter by domain',
+   wd_auto:'Autonomy & C-UAS', wd_ai:'AI & Data', wd_cyber:'Cyber & Networks', wd_space:'Space & SATCOM',
+   wd_iamd:'Air & Missile Defence', wd_quant:'Quantum & Sensing', wd_hw:'Hardware & Platform', wd_svc:'Enablers & Services',
+   wab_auto:'C-UAS', wab_ai:'AI', wab_cyber:'Cyber', wab_space:'Space', wab_iamd:'IAMD', wab_quant:'Quantum', wab_hw:'HW', wab_svc:'Services'}
+};
+function T(k){var d=I18N[LANG]||I18N.tr;return d[k]!=null?d[k]:(I18N.tr[k]!=null?I18N.tr[k]:k);}
+function Tf(k,a){return T(k).replace('%s',a);}
+function applyI18n(){$$('[data-i]').forEach(function(n){n.innerHTML=T(n.getAttribute('data-i'));});$$('[data-ph]').forEach(function(n){n.setAttribute('placeholder',T(n.getAttribute('data-ph')));});document.documentElement.lang=LANG;}
+function setLang(l){LANG=l;localStorage.setItem('cv-lang',l);$$('#langPill button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-lang')===l);});applyI18n();draw();}
+$$('#langPill button').forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+/* Ortak tema motoruyla hizalı: anahtar cv-theme, öznitelik [data-theme].
+   Eski cn-dark anahtarı geriye dönük onurlandırılır (sayfa kendine yeter). */
+function curTheme(){
+  var t=localStorage.getItem('cv-theme');
+  if(t==='dark'||t==='light')return t;
+  return localStorage.getItem('cn-dark')==='1'?'dark':'light';
+}
+function applyTheme(){document.documentElement.setAttribute('data-theme',curTheme());}
+$('#themeBtn').addEventListener('click',function(){
+  var next=curTheme()==='dark'?'light':'dark';
+  localStorage.setItem('cv-theme',next);
+  localStorage.setItem('cn-dark',next==='dark'?'1':'0');
+  document.documentElement.setAttribute('data-theme',next);
+});
+
+function fmtDate(ts){if(!ts)return '';var m=(''+ts).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?(m[3]+'.'+m[2]+'.'+m[1]):(''+ts).slice(0,10);}
+function tierOf(t){if(t==='badge_ref')return 3;if(t==='validated')return 2;return 1;}
+function tierColor(lv){return lv===3?'var(--gold)':(lv===2?'var(--blue)':'var(--ink3)');}
+
+var ITEMS=[],orgMap={},actMap={},FILTER=0,DOMAIN=null,WHEEL_SEEN=false,WHEEL_PREV=0;
+
+/* ---- yetenek alanları: NATO/DIANA odak taksonomisinden türetilmiş
+   çember-navigasyon. Kayıtlar org+verdict+faaliyet metninden anahtar-kelimeyle
+   sınıflanır; eşleşmeyen → 'svc' (etkinleştirici/hizmet) düşer. Salt yönlendirme. */
+var ECO_DOM=[
+  {k:'auto', c:'#06488A', kw:['cuas','c-uas','uas','uav','autonom','drone','counter','unmanned']},
+  {k:'ai',   c:'#5B5BD6', kw:['ai ','machine','learning',' ml','data','analyt','artificial','yapay']},
+  {k:'cyber',c:'#1F9E50', kw:['cyber','siber','network','interoper','5g',' comms','communicat']},
+  {k:'space',c:'#8B47CE', kw:['space','uzay','satellite','satcom','orbit','geospatial']},
+  {k:'iamd', c:'#B8791F', kw:['iamd','missile','füze','air defen','c2 ','command','radar','sensor','istar']},
+  {k:'quant',c:'#12897E', kw:['quantum','kuantum','sensing','pnt','navigation']},
+  {k:'hw',   c:'#DC7B5B', kw:['hardware','donanım','device','robot','material','energy','platform']},
+  {k:'svc',  c:'#7A8296', kw:['cloud','software','consult','training','simulation','supply','service','logistic','enterprise']}
+];
+function ecoClassify(txt){txt=(' '+(txt||'')+' ').toLowerCase();
+  for(var i=0;i<ECO_DOM.length;i++){var d=ECO_DOM[i];
+    for(var j=0;j<d.kw.length;j++){if(txt.indexOf(d.kw[j])>-1)return d.k;}}
+  return 'svc';}
+function itemText(r){return (orgMap[r.org_id]||'')+' '+(r.verdict||'')+' '+(actMap[r.activity_id]||'');}
+function classifyItem(r){return ecoClassify(itemText(r));}
+function wPolar(c,r,deg){var a=(deg-90)*Math.PI/180;return {x:c+r*Math.cos(a),y:c+r*Math.sin(a)};}
+function wF(n){return Math.round(n*100)/100;}
+function wSector(c,ri,ro,a0,a1){var lg=(a1-a0)>180?1:0;
+  var p0=wPolar(c,ro,a0),p1=wPolar(c,ro,a1),q1=wPolar(c,ri,a1),q0=wPolar(c,ri,a0);
+  return 'M'+wF(p0.x)+' '+wF(p0.y)+' A'+ro+' '+ro+' 0 '+lg+' 1 '+wF(p1.x)+' '+wF(p1.y)+
+    ' L'+wF(q1.x)+' '+wF(q1.y)+' A'+ri+' '+ri+' 0 '+lg+' 0 '+wF(q0.x)+' '+wF(q0.y)+' Z';}
+function renderWheel(total,domCount){
+  var wrap=$('#wheelwrap'); if(!wrap) return;
+  if(!total){wrap.hidden=true;$('#wheel').innerHTML='';return;}
+  wrap.hidden=false;
+  var C=190,RI=74,RO=150,N=ECO_DOM.length,step=360/N;
+  var svg='<svg viewBox="0 0 '+(C*2)+' '+(C*2)+'" role="img" aria-label="Verified domains">';
+  // slow-rotating dashed accent ring (alive halo)
+  svg+='<circle class="wring" cx="'+C+'" cy="'+C+'" r="'+(RO+8)+'" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-opacity="0.42" stroke-dasharray="2 14" stroke-linecap="round"/>';
+  for(var i=0;i<N;i++){
+    var d=ECO_DOM[i],a0=i*step,a1=a0+step,mid=a0+step/2,cnt=domCount[d.k]||0,sel=(DOMAIN===d.k);
+    var op=cnt?(sel?1:0.82):0.24, dly=(i*0.055).toFixed(3);
+    svg+='<path class="wseg'+(sel?' wsel':'')+'" data-dom="'+d.k+'" style="animation-delay:'+dly+'s" d="'+wSector(C,RI,RO,a0,a1)+'" fill="'+d.c+'" fill-opacity="'+op+'" '+
+      'stroke="'+(sel?'var(--gold)':'var(--cream)')+'" stroke-width="'+(sel?3:2)+'"><title>'+esc(T('wd_'+d.k))+' — '+cnt+'</title></path>';
+    var lp=wPolar(C,(RI+RO)/2,mid);
+    svg+='<text x="'+wF(lp.x)+'" y="'+wF(lp.y-3)+'" text-anchor="middle" fill="#fff" font-family="var(--body)" font-size="11" font-weight="700" style="pointer-events:none;fill-opacity:'+(cnt?1:0.6)+'">'+esc(T('wab_'+d.k))+'</text>';
+    svg+='<text x="'+wF(lp.x)+'" y="'+wF(lp.y+11)+'" text-anchor="middle" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="600" style="pointer-events:none;fill-opacity:'+(cnt?0.9:0.5)+'">'+cnt+'</text>';
+  }
+  svg+='<circle class="wseg" data-dom="" cx="'+C+'" cy="'+C+'" r="'+(RI-4)+'" fill="var(--navy)"/>';
+  var shown=DOMAIN?(domCount[DOMAIN]||0):total, nm=DOMAIN?T('wd_'+DOMAIN):T('wheel_all');
+  if(nm.length>18)nm=nm.slice(0,17)+'…';
+  svg+='<text id="wheelNum" x="'+C+'" y="'+(C-8)+'" text-anchor="middle" fill="#fff" font-family="var(--serif)" font-size="34" style="pointer-events:none">'+shown+'</text>';
+  svg+='<text x="'+C+'" y="'+(C+9)+'" text-anchor="middle" fill="var(--gold)" font-family="var(--mono)" font-size="8.5" font-weight="600" letter-spacing="1.2" style="pointer-events:none;text-transform:uppercase">'+esc(T('wheel_verified'))+'</text>';
+  svg+='<text x="'+C+'" y="'+(C+26)+'" text-anchor="middle" fill="#cbd5ea" font-family="var(--body)" font-size="10.5" font-weight="600" style="pointer-events:none">'+esc(nm)+'</text>';
+  svg+='</svg>';
+  $('#wheel').innerHTML=svg;
+  if(!WHEEL_SEEN){WHEEL_SEEN=true;wrap.classList.add('intro');setTimeout(function(){wrap.classList.remove('intro');},900);}
+  wheelCountUp($('#wheelNum'),WHEEL_PREV,shown,460); WHEEL_PREV=shown;
+}
+function wReduced(){try{return window.matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
+function wheelCountUp(el,from,to,dur){
+  if(!el)return; from=from||0;to=to||0;
+  if(wReduced()||from===to){el.textContent=to;return;}
+  var t0=performance.now();
+  function step(t){var k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);
+    el.textContent=Math.round(from+(to-from)*e); if(k<1)requestAnimationFrame(step); else el.textContent=to;}
+  requestAnimationFrame(step);
+}
+
+async function load(){
+  var v=$('#view');
+  try{
+    var ev=await sb().from('conventity_evidence').select('*').not('proof_slug','is',null).order('issued_at',{ascending:false});
+    var rows=ev.data||[];
+    if(!rows.length){ITEMS=[];renderWheel(0,{});v.innerHTML=stateBox('empty_t','empty_d');$('#count').textContent='';return;}
+    var oi=await sb().from('conventity_orgs').select('id,legal_name').limit(10000);(oi.data||[]).forEach(function(o){orgMap[o.id]=o.legal_name;});
+    var ai=await sb().from('conventity_activities').select('id,title').limit(10000);(ai.data||[]).forEach(function(a){actMap[a.id]=a.title;});
+    var bySlug={};
+    rows.forEach(function(r){var k=r.proof_slug;var cur=bySlug[k];
+      if(!cur||tierOf(r.evidence_type)>tierOf(cur.evidence_type)||(tierOf(r.evidence_type)===tierOf(cur.evidence_type)&&(r.issued_at||'')>(cur.issued_at||''))) bySlug[k]=r;});
+    ITEMS=Object.keys(bySlug).map(function(k){return bySlug[k];});
+    draw();
+  }catch(e){ v.innerHTML=stateBox('empty_t','empty_d'); }
+}
+function stateBox(t,d){return '<div class="state"><h2>'+esc(T(t))+'</h2><p>'+esc(T(d))+'</p></div>';}
+
+function draw(){
+  var v=$('#view'); var q=($('#q').value||'').toLowerCase().trim();
+  var base=ITEMS.filter(function(r){
+    if(FILTER&&tierOf(r.evidence_type)!==FILTER)return false;
+    if(!q)return true;
+    return itemText(r).toLowerCase().indexOf(q)>-1;
+  });
+  var domCount={}; ECO_DOM.forEach(function(d){domCount[d.k]=0;});
+  base.forEach(function(r){domCount[classifyItem(r)]++;});
+  renderWheel(base.length,domCount);
+  var list=DOMAIN?base.filter(function(r){return classifyItem(r)===DOMAIN;}):base;
+  list.sort(function(a,b){var d=tierOf(b.evidence_type)-tierOf(a.evidence_type);if(d)return d;return (b.issued_at||'')<(a.issued_at||'')?-1:1;});
+  $('#count').textContent=Tf('cnt',list.length);
+  if(!list.length){v.innerHTML=stateBox('none_t','none_d');return;}
+  v.innerHTML='<div class="grid">'+list.map(function(r){
+    var lv=tierOf(r.evidence_type);var org=orgMap[r.org_id]||T('sub');var act=actMap[r.activity_id];
+    return '<a class="pcard" style="--tc:'+tierColor(lv)+'" href="verified.html?s='+encodeURIComponent(r.proof_slug)+'">'+
+      '<div class="pc-h"><span class="tchip t'+lv+'">'+esc(T('tier'+lv))+'</span><span class="pc-d">'+esc(fmtDate(r.issued_at))+'</span></div>'+
+      '<div class="pc-org">'+esc(org)+'</div>'+
+      (r.verdict?'<div class="pc-v">'+esc(r.verdict)+'</div>':'')+
+      (act?'<div class="pc-a">'+esc(T('via'))+' '+esc(act)+'</div>':'')+
+      '<span class="pc-link">'+esc(T('view'))+' →</span></a>';
+  }).join('')+'</div>';
+}
+
+$('#q').addEventListener('input',draw);
+$$('#filters button').forEach(function(b){b.addEventListener('click',function(){FILTER=parseInt(b.getAttribute('data-f'),10);$$('#filters button').forEach(function(x){x.classList.toggle('on',x===b);});draw();});});
+$('#wheel').addEventListener('click',function(e){
+  var seg=e.target.closest?e.target.closest('.wseg'):null; if(!seg)return;
+  var dk=seg.getAttribute('data-dom');
+  DOMAIN=(dk&&DOMAIN!==dk)?dk:null;
+  draw();
+});
+
+applyTheme(); setLang(LANG); load();
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergens · Organization Profiles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* ============ 09b · ORGANIZATION PROFILES — page styles ============ */
+  .intro{margin-bottom:16px}
+  .search{display:flex;align-items:center;gap:9px;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+    border:1px solid var(--panel-line);border-radius:11px;padding:0 14px;margin-bottom:18px;max-width:420px}
+  .search input{flex:1;background:transparent;border:0;outline:0;color:var(--ink);font-family:var(--f-body);font-size:14px;padding:11px 0}
+  .search input::placeholder{color:var(--mute)}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .ocard{background:linear-gradient(180deg,var(--panel),var(--navy-2));border:1px solid var(--panel-line);
+    border-radius:16px;padding:20px;box-shadow:var(--sh-card)}
+  .chead{display:flex;align-items:flex-start;gap:12px}
+  .cname{font-family:var(--f-display);font-size:20px;font-weight:700;line-height:1.18;letter-spacing:-.01em}
+  .type{font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--cyan);
+    border:1px solid rgba(39,176,230,.35);border-radius:5px;padding:1px 7px;margin-top:7px;display:inline-block}
+  .overall{margin-left:auto;text-align:center;flex:none}
+  .overall .n{font-family:var(--f-serif);font-weight:400;font-size:34px;line-height:1;color:var(--violet)}
+  .overall .l{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;margin-top:2px}
+  .mandate{color:var(--ink-dim);font-size:13px;line-height:1.55;margin:12px 0 14px}
+
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:14px}
+  .fact .k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .fact .v{font-size:14px;font-weight:500;margin-top:3px}
+  .ochips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .ochip{font-family:var(--f-mono);font-size:10px;color:var(--cyan);border:1px solid rgba(39,176,230,.3);border-radius:5px;padding:1px 6px}
+  .ochip.area{color:var(--mute);border-color:var(--panel-line)}
+
+  .block{border-top:1px solid var(--panel-line);padding-top:12px;margin-top:6px}
+  .block h4{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:9px}
+  .fundrow{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12.5px}
+  .fundrow .nm{width:110px;flex:none;color:var(--mute)}
+  .fundrow .bar{flex:1;height:8px;background:var(--panel-line);border-radius:5px;overflow:hidden}
+  .fundrow .bar i{display:block;height:100%;background:var(--cyan);border-radius:5px;width:0;transition:width .8s ease}
+  .fundrow .pc{width:36px;text-align:right;font-family:var(--f-mono);font-size:11px}
+
+  .scorerow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px}
+  .scorerow .nm{width:96px;flex:none}
+  .scorerow .bar{flex:1;height:8px;background:var(--panel-line);border-radius:5px;overflow:hidden}
+  .scorerow .bar i{display:block;height:100%;border-radius:5px;width:0;transition:width .8s ease}
+  .scorerow .sc{width:30px;text-align:right;font-family:var(--f-mono);font-size:11px;color:var(--gold)}
+  .rationale{font-size:11px;color:var(--mute);line-height:1.45;margin:-2px 0 9px 106px}
+
+  .cfoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--panel-line);padding-top:12px;margin-top:6px}
+  .conf{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 9px;border-radius:6px;border:1px solid var(--panel-line);color:var(--mute)}
+  .conf.high{color:var(--ok);border-color:rgba(94,197,168,.4)}
+  .conf.medium{color:var(--gold);border-color:rgba(226,182,94,.4)}
+  .conf.low{color:var(--danger);border-color:rgba(217,106,90,.4)}
+  .upd{font-family:var(--f-mono);font-size:10.5px;color:var(--mute)}
+
+  @media(max-width:880px){.cards{grid-template-columns:1fr}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<div id="shell-nav"></div>
+
+<div class="wrap">
+  <div class="banner sample"><span class="gem">◆</span> Sample profiles — <b>illustrative figures demonstrating the Cognis schema; replace orgs.json with generated records</b></div>
+
+  <div class="intro">
+    <div class="eyebrow">05 — Humanitarian Response · Organization Profiles</div>
+    <h1>Organization <span>Profiles</span></h1>
+    <p class="lede">Evidence-based profiles of the organizations behind humanitarian action — mandate, budget, footprint, funding mix and a reliability / effectiveness / transparency assessment.</p>
+  </div>
+
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8ba3c4" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    <input id="q" type="text" placeholder="Search organization, type, expertise, or country…">
+  </div>
+
+  <div class="cards" id="cards"></div>
+</div>
+
+<div id="shell-footer"></div>
+
+<script src="shell.js"></script>
+<script>
+const FALLBACK = {
+  meta:{title:"Organization Profiles",scope:"Civil-only · Humanitarian Response as a Network",generated:"2026-06-03",note:"Illustrative/sample profiles."},
+  organizations:[
+    {organization:"World Food Programme (WFP)",type:"UN agency",mandate_summary:"Food assistance and emergency logistics in crisis and food-insecure settings.",profile:{annual_budget:{value:"9.8B",currency:"USD",year:"2023"},staff_count:{value:"23,000",year:"2023"},areas_of_operation:["Syria","Sudan","Yemen","DRC","Afghanistan","Horn of Africa"],domains_of_expertise:["Food security","Logistics","Cash transfers"],funding_sources:[{donor:"United States",share_pct:42},{donor:"Germany",share_pct:12},{donor:"EU",share_pct:8}]},evaluation:{reliability:{score:5,rationale:"Audited, consistent reporting; strong footprint."},effectiveness:{score:5,rationale:"Large verified reach; mature logistics."},transparency:{score:4,rationale:"Public financials and dashboards."},overall:4.8},confidence:"high",last_updated:"2026-05-20"},
+    {organization:"UNHCR",type:"UN agency",mandate_summary:"Protection and assistance for refugees, returnees, and stateless people.",profile:{annual_budget:{value:"5.0B",currency:"USD",year:"2023"},staff_count:{value:"20,000",year:"2023"},areas_of_operation:["Syria","Türkiye","Jordan","Bangladesh","Uganda"],domains_of_expertise:["Protection","Registration","Shelter"],funding_sources:[{donor:"United States",share_pct:38},{donor:"EU",share_pct:11},{donor:"Private",share_pct:10}]},evaluation:{reliability:{score:4,rationale:"Established reporting; donor concentration risk."},effectiveness:{score:4,rationale:"Broad protection reach."},transparency:{score:4,rationale:"Open data portal."},overall:4.0},confidence:"high",last_updated:"2026-05-18"},
+    {organization:"ICRC",type:"Red Cross/Crescent",mandate_summary:"Protection and assistance for people affected by armed conflict; promotion of IHL.",profile:{annual_budget:{value:"2.4B",currency:"CHF",year:"2023"},staff_count:{value:"20,000",year:"2023"},areas_of_operation:["Syria","Ukraine","Sudan","Gaza","Sahel"],domains_of_expertise:["Protection","IHL","Health","Water"],funding_sources:[{donor:"United States",share_pct:22},{donor:"EU members",share_pct:30},{donor:"Switzerland",share_pct:15}]},evaluation:{reliability:{score:5,rationale:"Strong neutrality record; audited."},effectiveness:{score:4,rationale:"Effective in access-constrained zones."},transparency:{score:4,rationale:"Detailed annual reporting."},overall:4.5},confidence:"high",last_updated:"2026-05-15"},
+    {organization:"IOM",type:"UN agency",mandate_summary:"Migration management, displacement tracking, and reintegration support.",profile:{annual_budget:{value:"3.4B",currency:"USD",year:"2023"},staff_count:{value:"20,000",year:"2023"},areas_of_operation:["Syria","Libya","Bangladesh","Ethiopia","Yemen"],domains_of_expertise:["Displacement tracking","Mobility","Reintegration"],funding_sources:[{donor:"United States",share_pct:35},{donor:"EU",share_pct:14},{donor:"Germany",share_pct:9}]},evaluation:{reliability:{score:4,rationale:"Solid data products; project-funded."},effectiveness:{score:4,rationale:"Authoritative displacement data."},transparency:{score:3,rationale:"Project-level transparency varies."},overall:3.8},confidence:"medium",last_updated:"2026-05-22"},
+    {organization:"Example Relief Foundation",type:"INGO",mandate_summary:"Emergency food security and WASH delivery in protracted-crisis settings.",profile:{annual_budget:{value:"180M",currency:"USD",year:"2024"},staff_count:{value:"2,400",year:"2024"},areas_of_operation:["Syria","Türkiye","Jordan"],domains_of_expertise:["Food security","WASH","Emergency logistics"],funding_sources:[{donor:"ECHO",share_pct:34},{donor:"Private",share_pct:28}]},evaluation:{reliability:{score:4,rationale:"Audited financials."},effectiveness:{score:4,rationale:"Third-party-evaluated reach."},transparency:{score:3,rationale:"Partial donor disclosure."},overall:3.8},confidence:"medium",last_updated:"2026-05-10"}
+  ]
+};
+
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const scoreColor=s=>s>=4.5?css('--ok'):s>=3.5?css('--cyan'):s>=2.5?css('--gold'):css('--danger');
+let DATA, QUERY='';
+
+function matches(o){
+  if(!QUERY) return true;
+  const hay=(o.organization+' '+o.type+' '+o.profile.domains_of_expertise.join(' ')+' '+o.profile.areas_of_operation.join(' ')).toLowerCase();
+  return hay.includes(QUERY);
+}
+
+function card(o){
+  const p=o.profile, e=o.evaluation;
+  const areas=p.areas_of_operation;
+  const scoreBar=(nm,obj)=>{
+    const pct=(obj.score/5)*100, col=scoreColor(obj.score);
+    return `<div class="scorerow"><span class="nm">${nm}</span><span class="bar"><i style="width:${pct}%;background:${col}"></i></span><span class="sc">${obj.score}/5</span></div>
+            <div class="rationale">${obj.rationale}</div>`;
+  };
+  const fund=p.funding_sources.filter(f=>f.share_pct>0).map(f=>
+    `<div class="fundrow"><span class="nm">${f.donor}</span><span class="bar"><i data-w="${f.share_pct}"></i></span><span class="pc">${f.share_pct}%</span></div>`).join('');
+  return `<div class="ocard">
+    <div class="chead">
+      <div><div class="cname">${o.organization}</div><span class="type">${o.type}</span></div>
+      <div class="overall"><div class="n">${e.overall.toFixed(1)}</div><div class="l">overall</div></div>
+    </div>
+    <div class="mandate">${o.mandate_summary}</div>
+    <div class="facts">
+      <div class="fact"><div class="k">Annual budget</div><div class="v">${p.annual_budget.value} ${p.annual_budget.currency} <span style="color:var(--mute);font-size:11px">(${p.annual_budget.year})</span></div></div>
+      <div class="fact"><div class="k">Staff</div><div class="v">${p.staff_count.value} <span style="color:var(--mute);font-size:11px">(${p.staff_count.year})</span></div></div>
+      <div class="fact" style="grid-column:1/-1"><div class="k">Areas of operation (${areas.length})</div><div class="ochips">${areas.map(a=>`<span class="ochip area">${a}</span>`).join('')}</div></div>
+      <div class="fact" style="grid-column:1/-1"><div class="k">Expertise</div><div class="ochips">${p.domains_of_expertise.map(d=>`<span class="ochip">${d}</span>`).join('')}</div></div>
+    </div>
+    <div class="block"><h4>Funding sources</h4>${fund}</div>
+    <div class="block"><h4>Evaluation</h4>
+      ${scoreBar('Reliability',e.reliability)}
+      ${scoreBar('Effectiveness',e.effectiveness)}
+      ${scoreBar('Transparency',e.transparency)}
+    </div>
+    <div class="cfoot"><span class="conf ${o.confidence}">${o.confidence} confidence</span><span class="upd">updated ${o.last_updated}</span></div>
+  </div>`;
+}
+
+function render(){
+  const wrap=document.getElementById('cards');
+  wrap.innerHTML=DATA.organizations.filter(matches).map(card).join('') || '<div style="color:var(--mute);font-family:monospace;padding:30px">No matching organizations.</div>';
+  requestAnimationFrame(()=>wrap.querySelectorAll('.fundrow .bar i, .scorerow .bar i').forEach(i=>{ if(i.dataset.w) i.style.width=i.dataset.w+'%'; }));
+}
+
+document.getElementById('q').addEventListener('input',e=>{QUERY=e.target.value.trim().toLowerCase();render();});
+
+(async function init(){
+  CONV.mount('humanitarian','Scores are evidence-based; every figure should trace to a source.');
+  try{const r=await fetch('./orgs.json',{cache:'no-store'});if(!r.ok)throw 0;DATA=await r.json();}
+  catch(e){DATA=FALLBACK;}
+  render();
+})();
+</script>
+</body>
+</html>

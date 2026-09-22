@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create account · Conventity</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/tokens.css" />
+  <link rel="stylesheet" href="/assets/base.css" />
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+  <script>
+    window.__cvSb = window.cvClient();
+    var _sb = window.__cvSb;
+  </script>
+  <style>
+    /* Sayfa paleti kanonik token'lara alias'lanır — değerler tokens.css'ten
+       gelir, açık/koyu otomatik döner. Reset + gövde tipografisi base.css'te. */
+    :root {
+      --gold: var(--pf); --gold-light: color-mix(in srgb, var(--pf) 82%, #fff); --gold-dim: var(--pf-glow);
+      --panel: var(--paper-2); --surface: var(--paper-2);
+      --border: var(--line); --border-accent: color-mix(in srgb, var(--pf) 26%, transparent);
+      --text: var(--ink); --sub: var(--ink-2);
+      --input-bg: var(--paper-2); --input-focus: var(--pf-glow); --btn-fg: #fff;
+      --r: var(--r-md); --ease: var(--dur) cubic-bezier(.4,0,.2,1);
+    }
+    body { min-height: 100vh; display: flex; }
+
+    .topbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: flex-end; padding: 0 1.75rem; z-index: 100; }
+    .theme-seg { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; overflow: hidden; }
+    .theme-seg button { padding: 0.3rem 0.6rem; background: transparent; border: none; cursor: pointer; color: var(--muted); transition: background var(--ease); display: flex; align-items: center; }
+    .theme-seg button.active { background: var(--gold); color: #060810; border-radius: 100px; }
+    .theme-seg button svg { width: 10px; height: 10px; }
+
+    /* LEFT */
+    .left {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+      padding: 3.5rem 4rem; position: relative; overflow: hidden;
+      background: var(--panel); border-right: 1px solid var(--border-accent);
+    }
+    .left::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 50% at 10% 90%, var(--pf-glow) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 60% at 90% 10%, rgba(28,48,96,0.2) 0%, transparent 60%); }
+    canvas#net { position: absolute; inset: 0; opacity: 0.2; }
+
+    .logo { position: relative; z-index: 1; display: flex; align-items: center; gap: 1rem; }
+    .logo-icon { width: 42px; height: 42px; }
+    .logo-name { font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.24em; color: var(--text); text-transform: uppercase; }
+    .logo-tagline { font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; }
+    .logo-tagline .plain { color: var(--sub); }
+    .logo-tagline .accent { color: var(--gold); }
+
+    .left-body { position: relative; z-index: 1; max-width: 480px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.67rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.6rem; }
+    .eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+    .left-headline { font-family: var(--font-display); font-size: clamp(2.2rem, 3.5vw, 3.6rem); font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; color: var(--text); margin-bottom: 1.6rem; }
+    .left-headline em { color: var(--gold); font-style: normal; }
+    .left-sub { font-size: 0.88rem; color: var(--sub); line-height: 1.8; margin-bottom: 2rem; }
+
+    .left-features { display: flex; flex-direction: column; gap: 1rem; }
+    .feat { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .feat-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--gold-dim); border: 1px solid var(--border-accent); display: grid; place-items: center; flex-shrink: 0; margin-top: 1px; }
+    .feat-icon svg { width: 16px; height: 16px; color: var(--gold); }
+    .feat-text .t { font-size: 0.83rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .feat-text .s { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+    .platform-pills { position: relative; z-index: 1; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .pill { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.26rem 0.65rem; border: 1px solid var(--border); border-radius: 100px; color: var(--muted); background: var(--surface); }
+    .pill.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* RIGHT */
+    .right { width: 500px; display: flex; flex-direction: column; justify-content: center; padding: 5.5rem 4rem 3.5rem; overflow-y: auto; }
+
+    /* STEPS */
+    .steps { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; }
+    .step { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 500; color: var(--muted); }
+    .step.active { color: var(--gold); }
+    .step.done { color: #4ADE80; }
+    .step-num { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 0.62rem; font-weight: 700; flex-shrink: 0; }
+    .step.done .step-num { background: #4ADE80; border-color: #4ADE80; color: #060810; }
+    .step.active .step-num { background: var(--gold); border-color: var(--gold); color: #060810; }
+    .step-sep { flex: 1; height: 1px; background: var(--border); max-width: 40px; }
+
+    .form-header { margin-bottom: 1.6rem; }
+    .form-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text); margin-bottom: 0.5rem; line-height: 1; }
+    .form-sub { font-size: 0.8rem; color: var(--sub); }
+    .form-sub a { color: var(--gold); text-decoration: none; font-weight: 500; }
+
+    /* ACCOUNT TYPE CARDS */
+    .type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1.4rem; }
+    .type-card { padding: 1.1rem 1rem; border: 1.5px solid var(--border); border-radius: var(--r); cursor: pointer; transition: border-color var(--ease), background var(--ease); background: var(--surface); display: flex; align-items: center; gap: 0.8rem; }
+    .type-card:hover { border-color: color-mix(in srgb, var(--pf) 35%, transparent); }
+    .type-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .type-icon { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); display: grid; place-items: center; flex-shrink: 0; transition: border-color var(--ease); }
+    .type-card.selected .type-icon { border-color: var(--gold); background: var(--pf-glow); }
+    .type-icon svg { width: 18px; height: 18px; color: var(--muted); transition: color var(--ease); }
+    .type-card.selected .type-icon svg { color: var(--gold); }
+    .type-info { flex: 1; }
+    .type-label { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .type-sub { font-size: 0.68rem; color: var(--muted); }
+
+    /* FIELDS */
+    .field { margin-bottom: 0.85rem; }
+    .field label { display: block; font-size: 0.67rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+    .field-hint { font-size: 0.65rem; color: var(--muted); margin-top: 0.3rem; }
+    .pass-wrap { position: relative; }
+    .pass-wrap input { padding-right: 3rem !important; }
+    .field input, .field select { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--r); padding: 0.82rem 1rem; font-size: 0.88rem; color: var(--text); font-family: var(--font-body); outline: none; transition: border-color var(--ease), background var(--ease), box-shadow var(--ease); }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus, .field select:focus { border-color: var(--gold); background: var(--input-focus); box-shadow: 0 0 0 3px var(--pf-glow); }
+    .toggle-pass { position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; transition: color var(--ease); }
+    .toggle-pass:hover { color: var(--gold); }
+    .toggle-pass svg { width: 17px; height: 17px; }
+
+    /* OPTIONAL FIELDS SECTION */
+    .optional-section { margin-top: 0.3rem; margin-bottom: 0.85rem; }
+    .optional-toggle { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.74rem; color: var(--sub); font-weight: 500; padding: 0.5rem 0; border: none; background: none; font-family: var(--font-body); width: 100%; text-align: left; }
+    .optional-toggle svg { width: 14px; height: 14px; transition: transform var(--ease); flex-shrink: 0; }
+    .optional-toggle.open svg { transform: rotate(180deg); }
+    .optional-fields { display: none; padding-top: 0.5rem; }
+    .optional-fields.open { display: block; }
+    .optional-note { font-size: 0.68rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem; }
+
+    /* TERMS */
+    .checkbox-wrap { display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 0.55rem; cursor: pointer; }
+    .checkbox-wrap input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; accent-color: var(--gold); cursor: pointer; }
+    .checkbox-label { font-size: 0.76rem; color: var(--sub); line-height: 1.5; }
+    .checkbox-label a { color: var(--gold); text-decoration: none; }
+
+    /* BUTTONS */
+    .btn-primary { width: 100%; padding: 0.92rem; background: var(--gold); border: none; border-radius: var(--r); font-family: var(--font-body); font-size: 0.83rem; font-weight: 600; letter-spacing: 0.05em; color: var(--btn-fg); cursor: pointer; text-transform: uppercase; transition: background var(--ease); box-shadow: 0 4px 20px color-mix(in srgb, var(--pf) 25%, transparent); margin-top: 0.5rem; }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+    .oauth-sep { display: flex; align-items: center; gap: 0.75rem; margin: 1.15rem 0 0.9rem; color: var(--muted); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .oauth-sep::before, .oauth-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .oauth-row { display: flex; gap: 0.6rem; }
+    .oauth-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.72rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: border-color var(--ease); }
+    .oauth-btn:hover { border-color: var(--gold); }
+    .oauth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .msg { font-size: 0.74rem; font-weight: 500; margin-top: 0.5rem; margin-bottom: 0.5rem; display: none; }
+    .msg.show { display: block; }
+    .msg.err { color: #F87171; }
+    .msg.ok { color: #4ADE80; }
+    .footer-note { margin-top: 1rem; font-size: 0.67rem; color: var(--muted); line-height: 1.65; }
+
+    /* VERIFY PAGE */
+    .verify-icon { width: 56px; height: 56px; background: var(--gold-dim); border: 1px solid var(--border-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+    .verify-icon svg { width: 24px; height: 24px; color: var(--gold); }
+    .resend-link { font-size: 0.76rem; color: var(--sub); text-align: center; margin-top: 1rem; }
+    .resend-link button { background: none; border: none; color: var(--gold); cursor: pointer; font-family: var(--font-body); font-size: 0.76rem; font-weight: 500; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--panel); border: 1px solid var(--border-accent); border-radius: 16px; max-width: 560px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .modal-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.2rem; line-height: 1; }
+    .modal-body { overflow-y: auto; padding: 1.5rem; font-size: 0.78rem; color: var(--sub); line-height: 1.75; }
+    .modal-body h4 { font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .modal-body p { margin-bottom: 0.6rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+    .modal-footer button { width: 100%; padding: 0.8rem; background: var(--gold); border: none; border-radius: 10px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 600; color: var(--btn-fg); cursor: pointer; }
+
+    @media (max-width: 900px) { .left { display: none; } .right { width: 100%; padding: 5rem 1.5rem 2.5rem; } }
+
+    /* Kanonik font override'ları */
+    .logo-name, .optional-toggle, .field input, .field select, .btn-primary,
+    .resend-link button, .modal-footer button, .modal-title { font-family: var(--font-body); }
+    .left-headline, .form-title { font-family: var(--font-display); font-weight: 400; }
+    .left-headline em { font-style: italic; }
+    .logo-icon { width: 40px; height: 40px; }
+    .lang-btn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; padding: 0 12px; margin-left: .5rem;
+      background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: var(--r-pill); height: 30px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="theme-seg" id="theme-seg">
+    <button data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+    <button data-theme-set="system" aria-label="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    <button data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+  </div>
+  <button class="lang-btn" id="langBtn" aria-label="Language"></button>
+</div>
+
+<!-- LEFT -->
+<div class="left">
+  <canvas id="net"></canvas>
+  <a class="logo" href="/index.html" aria-label="Conventity" style="text-decoration:none">
+    <svg class="logo-icon" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="var(--logo-inner)"/>
+    </svg>
+    <div>
+      <div class="logo-name" data-i="cs.brand">Conventity</div>
+      <div class="logo-tagline" data-i="a.brand_sub" style="color:var(--muted)">Ecosystem for Future</div>
+    </div>
+  </a>
+
+  <div class="left-body">
+    <p class="eyebrow" data-i="rg.eyebrow">Join the ecosystem</p>
+    <h1 class="left-headline"><span data-i="a.head1">Your identity.</span><br/><span data-i="a.head2">Six platforms.</span><br/><em data-i="rg.head3">One future.</em></h1>
+    <p class="left-sub" data-i="rg.left_sub">Register once. Access the entire Conventity ecosystem.</p>
+
+    <div class="left-features">
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5l-8-3z"/></svg>
+        </div>
+        <div class="feat-text">
+          <div class="t" data-i="rg.feat1_t">Secure by design</div>
+          <div class="s" data-i="rg.feat1_s">Role-based access, audit-aware sessions.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18"/></svg>
+        </div>
+        <div class="feat-text">
+          <div class="t" data-i="rg.feat2_t">One identity, six platforms</div>
+          <div class="s" data-i="rg.feat2_s">Personal or corporate — one account.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="feat-text">
+          <div class="t" data-i="rg.feat3_t">Admin-controlled access</div>
+          <div class="s" data-i="rg.feat3_s">Some platforms require approval.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="platform-pills">
+    <span class="pill active" data-i="cs.pf_convergens">Convergens</span>
+    <span class="pill" data-i="cs.pf_convexus">Convexus</span>
+    <span class="pill" data-i="cs.pf_conventlab">ConventLab</span>
+    <span class="pill" data-i="cs.pf_consultus">Consultus</span>
+    <span class="pill" data-i="cs.pf_connectus">Connectus</span>
+    <span class="pill" data-i="cs.pf_conventus">Conventus</span>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div><span data-i="rg.step1">Register</span></div>
+    <div class="step-sep"></div>
+    <div class="step" id="step2"><div class="step-num">2</div><span data-i="rg.step2">Confirm</span></div>
+  </div>
+
+  <!-- PAGE 1 -->
+  <div class="page active" id="page1">
+    <div class="form-header">
+      <h2 class="form-title" data-i="rg.title">Create account</h2>
+      <p class="form-sub"><span data-i="rg.sub_pre">Already have one?</span> <a href="/login.html" data-i="rg.sub_link">Sign in</a></p>
+    </div>
+
+    <!-- ACCOUNT TYPE -->
+    <div class="type-selector">
+      <div class="type-card selected" id="type-personal" onclick="selectType('personal')">
+        <div class="type-icon">
+          <!-- Personal: single node with orbiting ring — individual identity -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" stroke-dasharray="2 3" opacity="0.5"/>
+            <circle cx="12" cy="8" r="3"/>
+            <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+            <circle cx="12" cy="12" r="1" fill="currentColor" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="type-info">
+          <div class="type-label" data-i="rg.type_personal">Personal</div>
+          <div class="type-sub" data-i="rg.type_personal_sub">Individual account</div>
+        </div>
+      </div>
+      <div class="type-card" id="type-corporate" onclick="selectType('corporate')">
+        <div class="type-icon">
+          <!-- Corporate: interconnected nodes — organization network -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="5" r="2.5"/>
+            <circle cx="5" cy="17" r="2.5"/>
+            <circle cx="19" cy="17" r="2.5"/>
+            <line x1="12" y1="7.5" x2="6.5" y2="15"/>
+            <line x1="12" y1="7.5" x2="17.5" y2="15"/>
+            <line x1="7.5" y1="17" x2="16.5" y2="17"/>
+          </svg>
+        </div>
+        <div class="type-info">
+          <div class="type-label" data-i="rg.type_corporate">Corporate</div>
+          <div class="type-sub" data-i="rg.type_corporate_sub">Company account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUIRED: EMAIL + PASSWORD (always visible, right after type selection) -->
+    <div class="field">
+      <label id="email-label" data-i="rg.lbl_email">Email</label>
+      <input type="email" id="email" data-ph="rg.ph_email" autocomplete="email" />
+    </div>
+
+    <div class="field">
+      <label data-i="rg.lbl_pass">Password</label>
+      <div class="pass-wrap">
+        <input type="password" id="password" data-ph="rg.ph_pass" autocomplete="new-password" />
+        <button class="toggle-pass" type="button" id="toggle-pass-btn">
+          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- PERSONAL OPTIONAL FIELDS -->
+    <div id="fields-personal">
+      <div class="optional-section">
+        <button class="optional-toggle" id="opt-personal-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          <span data-i="rg.opt_personal">Additional information (optional)</span>
+        </button>
+        <div class="optional-fields" id="opt-personal-fields">
+          <div class="optional-note" data-i="rg.opt_note_personal">These fields are optional and can be completed later in your profile settings.</div>
+          <div class="field">
+            <label data-i="rg.lbl_username">Username</label>
+            <input type="text" id="username" data-ph="rg.ph_username" autocomplete="username" />
+            <div class="field-hint" data-i="rg.hint_username">Letters, numbers and underscores only.</div>
+          </div>
+          <div class="field">
+            <label data-i="rg.lbl_country">Country</label>
+            <select id="country-personal"><option value="" data-i="rg.ph_country">Select country...</option><option value="AF">🇦🇫 Afghanistan</option><option value="AL">🇦🇱 Albania</option><option value="DZ">🇩🇿 Algeria</option><option value="AD">🇦🇩 Andorra</option><option value="AO">🇦🇴 Angola</option><option value="AG">🇦🇬 Antigua and Barbuda</option><option value="AR">🇦🇷 Argentina</option><option value="AM">🇦🇲 Armenia</option><option value="AU">🇦🇺 Australia</option><option value="AT">🇦🇹 Austria</option><option value="AZ">🇦🇿 Azerbaijan</option><option value="BS">🇧🇸 Bahamas</option><option value="BH">🇧🇭 Bahrain</option><option value="BD">🇧🇩 Bangladesh</option><option value="BB">🇧🇧 Barbados</option><option value="BY">🇧🇾 Belarus</option><option value="BE">🇧🇪 Belgium</option><option value="BZ">🇧🇿 Belize</option><option value="BJ">🇧🇯 Benin</option><option value="BT">🇧🇹 Bhutan</option><option value="BO">🇧🇴 Bolivia</option><option value="BA">🇧🇦 Bosnia and Herzegovina</option><option value="BW">🇧🇼 Botswana</option><option value="BR">🇧🇷 Brazil</option><option value="BN">🇧🇳 Brunei</option><option value="BG">🇧🇬 Bulgaria</option><option value="BF">🇧🇫 Burkina Faso</option><option value="BI">🇧🇮 Burundi</option><option value="CV">🇨🇻 Cabo Verde</option><option value="KH">🇰🇭 Cambodia</option><option value="CM">🇨🇲 Cameroon</option><option value="CA">🇨🇦 Canada</option><option value="CF">🇨🇫 Central African Republic</option><option value="TD">🇹🇩 Chad</option><option value="CL">🇨🇱 Chile</option><option value="CN">🇨🇳 China</option><option value="CO">🇨🇴 Colombia</option><option value="KM">🇰🇲 Comoros</option><option value="CG">🇨🇬 Congo</option><option value="CR">🇨🇷 Costa Rica</option><option value="HR">🇭🇷 Croatia</option><option value="CU">🇨🇺 Cuba</option><option value="CY">🇨🇾 Cyprus</option><option value="CZ">🇨🇿 Czech Republic</option><option value="DK">🇩🇰 Denmark</option><option value="DJ">🇩🇯 Djibouti</option><option value="DM">🇩🇲 Dominica</option><option value="DO">🇩🇴 Dominican Republic</option><option value="EC">🇪🇨 Ecuador</option><option value="EG">🇪🇬 Egypt</option><option value="SV">🇸🇻 El Salvador</option><option value="GQ">🇬🇶 Equatorial Guinea</option><option value="ER">🇪🇷 Eritrea</option><option value="EE">🇪🇪 Estonia</option><option value="SZ">🇸🇿 Eswatini</option><option value="ET">🇪🇹 Ethiopia</option><option value="FJ">🇫🇯 Fiji</option><option value="FI">🇫🇮 Finland</option><option value="FR">🇫🇷 France</option><option value="GA">🇬🇦 Gabon</option><option value="GM">🇬🇲 Gambia</option><option value="GE">🇬🇪 Georgia</option><option value="DE">🇩🇪 Germany</option><option value="GH">🇬🇭 Ghana</option><option value="GR">🇬🇷 Greece</option><option value="GD">🇬🇩 Grenada</option><option value="GT">🇬🇹 Guatemala</option><option value="GN">🇬🇳 Guinea</option><option value="GW">🇬🇼 Guinea-Bissau</option><option value="GY">🇬🇾 Guyana</option><option value="HT">🇭🇹 Haiti</option><option value="HN">🇭🇳 Honduras</option><option value="HU">🇭🇺 Hungary</option><option value="IS">🇮🇸 Iceland</option><option value="IN">🇮🇳 India</option><option value="ID">🇮🇩 Indonesia</option><option value="IR">🇮🇷 Iran</option><option value="IQ">🇮🇶 Iraq</option><option value="IE">🇮🇪 Ireland</option><option value="IL">🇮🇱 Israel</option><option value="IT">🇮🇹 Italy</option><option value="JM">🇯🇲 Jamaica</option><option value="JP">🇯🇵 Japan</option><option value="JO">🇯🇴 Jordan</option><option value="KZ">🇰🇿 Kazakhstan</option><option value="KE">🇰🇪 Kenya</option><option value="KI">🇰🇮 Kiribati</option><option value="KW">🇰🇼 Kuwait</option><option value="KG">🇰🇬 Kyrgyzstan</option><option value="LA">🇱🇦 Laos</option><option value="LV">🇱🇻 Latvia</option><option value="LB">🇱🇧 Lebanon</option><option value="LS">🇱🇸 Lesotho</option><option value="LR">🇱🇷 Liberia</option><option value="LY">🇱🇾 Libya</option><option value="LI">🇱🇮 Liechtenstein</option><option value="LT">🇱🇹 Lithuania</option><option value="LU">🇱🇺 Luxembourg</option><option value="MG">🇲🇬 Madagascar</option><option value="MW">🇲🇼 Malawi</option><option value="MY">🇲🇾 Malaysia</option><option value="MV">🇲🇻 Maldives</option><option value="ML">🇲🇱 Mali</option><option value="MT">🇲🇹 Malta</option><option value="MH">🇲🇭 Marshall Islands</option><option value="MR">🇲🇷 Mauritania</option><option value="MU">🇲🇺 Mauritius</option><option value="MX">🇲🇽 Mexico</option><option value="FM">🇫🇲 Micronesia</option><option value="MD">🇲🇩 Moldova</option><option value="MC">🇲🇨 Monaco</option><option value="MN">🇲🇳 Mongolia</option><option value="ME">🇲🇪 Montenegro</option><option value="MA">🇲🇦 Morocco</option><option value="MZ">🇲🇿 Mozambique</option><option value="MM">🇲🇲 Myanmar</option><option value="NA">🇳🇦 Namibia</option><option value="NR">🇳🇷 Nauru</option><option value="NP">🇳🇵 Nepal</option><option value="NL">🇳🇱 Netherlands</option><option value="NZ">🇳🇿 New Zealand</option><option value="NI">🇳🇮 Nicaragua</option><option value="NE">🇳🇪 Niger</option><option value="NG">🇳🇬 Nigeria</option><option value="NO">🇳🇴 Norway</option><option value="OM">🇴🇲 Oman</option><option value="PK">🇵🇰 Pakistan</option><option value="PW">🇵🇼 Palau</option><option value="PA">🇵🇦 Panama</option><option value="PG">🇵🇬 Papua New Guinea</option><option value="PY">🇵🇾 Paraguay</option><option value="PE">🇵🇪 Peru</option><option value="PH">🇵🇭 Philippines</option><option value="PL">🇵🇱 Poland</option><option value="PT">🇵🇹 Portugal</option><option value="QA">🇶🇦 Qatar</option><option value="RO">🇷🇴 Romania</option><option value="RU">🇷🇺 Russia</option><option value="RW">🇷🇼 Rwanda</option><option value="KN">🇰🇳 Saint Kitts and Nevis</option><option value="LC">🇱🇨 Saint Lucia</option><option value="VC">🇻🇨 Saint Vincent and the Grenadines</option><option value="WS">🇼🇸 Samoa</option><option value="SM">🇸🇲 San Marino</option><option value="ST">🇸🇹 Sao Tome and Principe</option><option value="SA">🇸🇦 Saudi Arabia</option><option value="SN">🇸🇳 Senegal</option><option value="RS">🇷🇸 Serbia</option><option value="SC">🇸🇨 Seychelles</option><option value="SL">🇸🇱 Sierra Leone</option><option value="SG">🇸🇬 Singapore</option><option value="SK">🇸🇰 Slovakia</option><option value="SI">🇸🇮 Slovenia</option><option value="SB">🇸🇧 Solomon Islands</option><option value="SO">🇸🇴 Somalia</option><option value="ZA">🇿🇦 South Africa</option><option value="SS">🇸🇸 South Sudan</option><option value="ES">🇪🇸 Spain</option><option value="LK">🇱🇰 Sri Lanka</option><option value="SD">🇸🇩 Sudan</option><option value="SR">🇸🇷 Suriname</option><option value="SE">🇸🇪 Sweden</option><option value="CH">🇨🇭 Switzerland</option><option value="SY">🇸🇾 Syria</option><option value="TW">🇹🇼 Taiwan</option><option value="TJ">🇹🇯 Tajikistan</option><option value="TZ">🇹🇿 Tanzania</option><option value="TH">🇹🇭 Thailand</option><option value="TL">🇹🇱 Timor-Leste</option><option value="TG">🇹🇬 Togo</option><option value="TO">🇹🇴 Tonga</option><option value="TT">🇹🇹 Trinidad and Tobago</option><option value="TN">🇹🇳 Tunisia</option><option value="TR">🇹🇷 Turkey</option><option value="TM">🇹🇲 Turkmenistan</option><option value="TV">🇹🇻 Tuvalu</option><option value="UG">🇺🇬 Uganda</option><option value="UA">🇺🇦 Ukraine</option><option value="AE">🇦🇪 United Arab Emirates</option><option value="GB">🇬🇧 United Kingdom</option><option value="US">🇺🇸 United States</option><option value="UY">🇺🇾 Uruguay</option><option value="UZ">🇺🇿 Uzbekistan</option><option value="VU">🇻🇺 Vanuatu</option><option value="VE">🇻🇪 Venezuela</option><option value="VN">🇻🇳 Vietnam</option><option value="YE">🇾🇪 Yemen</option><option value="ZM">🇿🇲 Zambia</option><option value="ZW">🇿🇼 Zimbabwe</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CORPORATE OPTIONAL FIELDS -->
+    <div id="fields-corporate" style="display:none;">
+      <div class="optional-section">
+        <button class="optional-toggle" id="opt-corporate-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          <span data-i="rg.opt_corporate">Company information (optional)</span>
+        </button>
+        <div class="optional-fields" id="opt-corporate-fields">
+          <div class="optional-note" data-i="rg.opt_note_corporate">These fields are optional. Admin may request additional information before granting full access.</div>
+          <div class="field">
+            <label data-i="rg.lbl_company">Company name</label>
+            <input type="text" id="company-name" data-ph="rg.ph_company" />
+          </div>
+          <div class="field">
+            <label data-i="rg.lbl_industry">Industry / Sector</label>
+            <select id="industry">
+              <option value="" data-i="rg.ph_industry">Select industry...</option>
+              <option value="technology" data-i="rg.ind_technology">Technology</option>
+              <option value="defence" data-i="rg.ind_defence">Defence &amp; Security</option>
+              <option value="finance" data-i="rg.ind_finance">Finance &amp; Investment</option>
+              <option value="energy" data-i="rg.ind_energy">Energy</option>
+              <option value="healthcare" data-i="rg.ind_healthcare">Healthcare</option>
+              <option value="manufacturing" data-i="rg.ind_manufacturing">Manufacturing</option>
+              <option value="consulting" data-i="rg.ind_consulting">Consulting</option>
+              <option value="education" data-i="rg.ind_education">Education</option>
+              <option value="media" data-i="rg.ind_media">Media &amp; Communications</option>
+              <option value="other" data-i="rg.ind_other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i="rg.lbl_country">Country</label>
+            <select id="country-corporate"><option value="" data-i="rg.ph_country">Select country...</option><option value="AF">🇦🇫 Afghanistan</option><option value="AL">🇦🇱 Albania</option><option value="DZ">🇩🇿 Algeria</option><option value="AD">🇦🇩 Andorra</option><option value="AO">🇦🇴 Angola</option><option value="AG">🇦🇬 Antigua and Barbuda</option><option value="AR">🇦🇷 Argentina</option><option value="AM">🇦🇲 Armenia</option><option value="AU">🇦🇺 Australia</option><option value="AT">🇦🇹 Austria</option><option value="AZ">🇦🇿 Azerbaijan</option><option value="BS">🇧🇸 Bahamas</option><option value="BH">🇧🇭 Bahrain</option><option value="BD">🇧🇩 Bangladesh</option><option value="BB">🇧🇧 Barbados</option><option value="BY">🇧🇾 Belarus</option><option value="BE">🇧🇪 Belgium</option><option value="BZ">🇧🇿 Belize</option><option value="BJ">🇧🇯 Benin</option><option value="BT">🇧🇹 Bhutan</option><option value="BO">🇧🇴 Bolivia</option><option value="BA">🇧🇦 Bosnia and Herzegovina</option><option value="BW">🇧🇼 Botswana</option><option value="BR">🇧🇷 Brazil</option><option value="BN">🇧🇳 Brunei</option><option value="BG">🇧🇬 Bulgaria</option><option value="BF">🇧🇫 Burkina Faso</option><option value="BI">🇧🇮 Burundi</option><option value="CV">🇨🇻 Cabo Verde</option><option value="KH">🇰🇭 Cambodia</option><option value="CM">🇨🇲 Cameroon</option><option value="CA">🇨🇦 Canada</option><option value="CF">🇨🇫 Central African Republic</option><option value="TD">🇹🇩 Chad</option><option value="CL">🇨🇱 Chile</option><option value="CN">🇨🇳 China</option><option value="CO">🇨🇴 Colombia</option><option value="KM">🇰🇲 Comoros</option><option value="CG">🇨🇬 Congo</option><option value="CR">🇨🇷 Costa Rica</option><option value="HR">🇭🇷 Croatia</option><option value="CU">🇨🇺 Cuba</option><option value="CY">🇨🇾 Cyprus</option><option value="CZ">🇨🇿 Czech Republic</option><option value="DK">🇩🇰 Denmark</option><option value="DJ">🇩🇯 Djibouti</option><option value="DM">🇩🇲 Dominica</option><option value="DO">🇩🇴 Dominican Republic</option><option value="EC">🇪🇨 Ecuador</option><option value="EG">🇪🇬 Egypt</option><option value="SV">🇸🇻 El Salvador</option><option value="GQ">🇬🇶 Equatorial Guinea</option><option value="ER">🇪🇷 Eritrea</option><option value="EE">🇪🇪 Estonia</option><option value="SZ">🇸🇿 Eswatini</option><option value="ET">🇪🇹 Ethiopia</option><option value="FJ">🇫🇯 Fiji</option><option value="FI">🇫🇮 Finland</option><option value="FR">🇫🇷 France</option><option value="GA">🇬🇦 Gabon</option><option value="GM">🇬🇲 Gambia</option><option value="GE">🇬🇪 Georgia</option><option value="DE">🇩🇪 Germany</option><option value="GH">🇬🇭 Ghana</option><option value="GR">🇬🇷 Greece</option><option value="GD">🇬🇩 Grenada</option><option value="GT">🇬🇹 Guatemala</option><option value="GN">🇬🇳 Guinea</option><option value="GW">🇬🇼 Guinea-Bissau</option><option value="GY">🇬🇾 Guyana</option><option value="HT">🇭🇹 Haiti</option><option value="HN">🇭🇳 Honduras</option><option value="HU">🇭🇺 Hungary</option><option value="IS">🇮🇸 Iceland</option><option value="IN">🇮🇳 India</option><option value="ID">🇮🇩 Indonesia</option><option value="IR">🇮🇷 Iran</option><option value="IQ">🇮🇶 Iraq</option><option value="IE">🇮🇪 Ireland</option><option value="IL">🇮🇱 Israel</option><option value="IT">🇮🇹 Italy</option><option value="JM">🇯🇲 Jamaica</option><option value="JP">🇯🇵 Japan</option><option value="JO">🇯🇴 Jordan</option><option value="KZ">🇰🇿 Kazakhstan</option><option value="KE">🇰🇪 Kenya</option><option value="KI">🇰🇮 Kiribati</option><option value="KW">🇰🇼 Kuwait</option><option value="KG">🇰🇬 Kyrgyzstan</option><option value="LA">🇱🇦 Laos</option><option value="LV">🇱🇻 Latvia</option><option value="LB">🇱🇧 Lebanon</option><option value="LS">🇱🇸 Lesotho</option><option value="LR">🇱🇷 Liberia</option><option value="LY">🇱🇾 Libya</option><option value="LI">🇱🇮 Liechtenstein</option><option value="LT">🇱🇹 Lithuania</option><option value="LU">🇱🇺 Luxembourg</option><option value="MG">🇲🇬 Madagascar</option><option value="MW">🇲🇼 Malawi</option><option value="MY">🇲🇾 Malaysia</option><option value="MV">🇲🇻 Maldives</option><option value="ML">🇲🇱 Mali</option><option value="MT">🇲🇹 Malta</option><option value="MH">🇲🇭 Marshall Islands</option><option value="MR">🇲🇷 Mauritania</option><option value="MU">🇲🇺 Mauritius</option><option value="MX">🇲🇽 Mexico</option><option value="FM">🇫🇲 Micronesia</option><option value="MD">🇲🇩 Moldova</option><option value="MC">🇲🇨 Monaco</option><option value="MN">🇲🇳 Mongolia</option><option value="ME">🇲🇪 Montenegro</option><option value="MA">🇲🇦 Morocco</option><option value="MZ">🇲🇿 Mozambique</option><option value="MM">🇲🇲 Myanmar</option><option value="NA">🇳🇦 Namibia</option><option value="NR">🇳🇷 Nauru</option><option value="NP">🇳🇵 Nepal</option><option value="NL">🇳🇱 Netherlands</option><option value="NZ">🇳🇿 New Zealand</option><option value="NI">🇳🇮 Nicaragua</option><option value="NE">🇳🇪 Niger</option><option value="NG">🇳🇬 Nigeria</option><option value="NO">🇳🇴 Norway</option><option value="OM">🇴🇲 Oman</option><option value="PK">🇵🇰 Pakistan</option><option value="PW">🇵🇼 Palau</option><option value="PA">🇵🇦 Panama</option><option value="PG">🇵🇬 Papua New Guinea</option><option value="PY">🇵🇾 Paraguay</option><option value="PE">🇵🇪 Peru</option><option value="PH">🇵🇭 Philippines</option><option value="PL">🇵🇱 Poland</option><option value="PT">🇵🇹 Portugal</option><option value="QA">🇶🇦 Qatar</option><option value="RO">🇷🇴 Romania</option><option value="RU">🇷🇺 Russia</option><option value="RW">🇷🇼 Rwanda</option><option value="KN">🇰🇳 Saint Kitts and Nevis</option><option value="LC">🇱🇨 Saint Lucia</option><option value="VC">🇻🇨 Saint Vincent and the Grenadines</option><option value="WS">🇼🇸 Samoa</option><option value="SM">🇸🇲 San Marino</option><option value="ST">🇸🇹 Sao Tome and Principe</option><option value="SA">🇸🇦 Saudi Arabia</option><option value="SN">🇸🇳 Senegal</option><option value="RS">🇷🇸 Serbia</option><option value="SC">🇸🇨 Seychelles</option><option value="SL">🇸🇱 Sierra Leone</option><option value="SG">🇸🇬 Singapore</option><option value="SK">🇸🇰 Slovakia</option><option value="SI">🇸🇮 Slovenia</option><option value="SB">🇸🇧 Solomon Islands</option><option value="SO">🇸🇴 Somalia</option><option value="ZA">🇿🇦 South Africa</option><option value="SS">🇸🇸 South Sudan</option><option value="ES">🇪🇸 Spain</option><option value="LK">🇱🇰 Sri Lanka</option><option value="SD">🇸🇩 Sudan</option><option value="SR">🇸🇷 Suriname</option><option value="SE">🇸🇪 Sweden</option><option value="CH">🇨🇭 Switzerland</option><option value="SY">🇸🇾 Syria</option><option value="TW">🇹🇼 Taiwan</option><option value="TJ">🇹🇯 Tajikistan</option><option value="TZ">🇹🇿 Tanzania</option><option value="TH">🇹🇭 Thailand</option><option value="TL">🇹🇱 Timor-Leste</option><option value="TG">🇹🇬 Togo</option><option value="TO">🇹🇴 Tonga</option><option value="TT">🇹🇹 Trinidad and Tobago</option><option value="TN">🇹🇳 Tunisia</option><option value="TR">🇹🇷 Turkey</option><option value="TM">🇹🇲 Turkmenistan</option><option value="TV">🇹🇻 Tuvalu</option><option value="UG">🇺🇬 Uganda</option><option value="UA">🇺🇦 Ukraine</option><option value="AE">🇦🇪 United Arab Emirates</option><option value="GB">🇬🇧 United Kingdom</option><option value="US">🇺🇸 United States</option><option value="UY">🇺🇾 Uruguay</option><option value="UZ">🇺🇿 Uzbekistan</option><option value="VU">🇻🇺 Vanuatu</option><option value="VE">🇻🇪 Venezuela</option><option value="VN">🇻🇳 Vietnam</option><option value="YE">🇾🇪 Yemen</option><option value="ZM">🇿🇲 Zambia</option><option value="ZW">🇿🇼 Zimbabwe</option></select>
+          </div>
+          <div class="field">
+            <label data-i="rg.lbl_authperson">Authorized person name</label>
+            <input type="text" id="auth-person" data-ph="rg.ph_authperson" />
+          </div>
+          <div class="field">
+            <label data-i="rg.lbl_authtitle">Title / Position</label>
+            <input type="text" id="auth-title" data-ph="rg.ph_authtitle" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label class="checkbox-wrap">
+      <input type="checkbox" id="terms-check" />
+      <span class="checkbox-label" data-i="rg.terms_label">I have read and agree to the <a href="#" id="open-terms">Terms of Service</a> and <a href="#" id="open-privacy">Privacy Policy</a>.</span>
+    </label>
+    <label class="checkbox-wrap">
+      <input type="checkbox" id="kvkk-check" />
+      <span class="checkbox-label" data-i="rg.kvkk_label">I consent to the processing of my personal data in accordance with the <a href="#" id="open-kvkk">KVKK / GDPR Privacy Notice</a>.</span>
+    </label>
+
+    <p class="msg err" id="error1"></p>
+    <button class="btn-primary" id="btn-register" data-i="rg.btn">Create account</button>
+
+    <div class="oauth-sep"><span data-i="a.or">or</span></div>
+    <div class="oauth-row">
+      <button type="button" class="oauth-btn" data-provider="google">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button type="button" class="oauth-btn" data-provider="linkedin_oidc">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </button>
+    </div>
+
+    <p class="footer-note" data-i="rg.footer_note">Platform-specific access is managed by admins after registration.</p>
+  </div>
+
+  <!-- PAGE 2: EMAIL CONFIRMATION -->
+  <div class="page" id="page2">
+    <div class="verify-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    </div>
+    <div class="form-header">
+      <h2 class="form-title" data-i="rg.verify_title">Check your email</h2>
+      <p class="form-sub"><span data-i="rg.verify_sent">We sent a confirmation link to</span> <strong id="verify-email-display"></strong>.</p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1.2rem;">
+      <p style="font-size:0.82rem;color:var(--sub);line-height:1.7;" data-i="rg.verify_box1">Click the link in your email to activate your account.</p>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:0.6rem;" data-i="rg.verify_box2">Don't see it? Check your spam folder.</p>
+    </div>
+    <a href="/login.html" class="btn-primary" style="display:block;text-align:center;text-decoration:none;" data-i="rg.verify_goto">Go to Sign in</a>
+    <div class="resend-link" style="margin-top:1rem;"><span data-i="rg.resend_pre">Didn't receive it?</span> <button id="btn-resend" data-i="rg.resend_btn">Resend email</button></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer"><button id="modal-footer-close" data-i="rg.modal_close">Close</button></div>
+  </div>
+</div>
+
+<script src="/assets/i18n.js"></script>
+<script src="/assets/signin-log.js"></script>
+<script>
+  var P=window.CVPrefs;
+  // THEME 3-seg + LANG + TITLE (paylaşılan prefs.js)
+  function syncTheme(){var cur=P?P.getTheme():'system';document.querySelectorAll('[data-theme-set]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-theme-set')===cur);});}
+  document.querySelectorAll('[data-theme-set]').forEach(function(b){b.addEventListener('click',function(){if(P)P.setTheme(b.getAttribute('data-theme-set'));syncTheme();paintAccent();});});
+  function syncLang(){var b=document.getElementById('langBtn');if(b&&P)b.textContent=P.getLang()==='tr'?'EN':'TR';}
+  document.getElementById('langBtn').addEventListener('click',function(){if(P)P.toggleLang();});
+  function setTitle(){if(window.T)document.title=T('rg.meta');}
+  if(P)P.onChange(function(w){if(w==='lang'){setTitle();syncLang();if(window.selectType)window.selectType(accountType);}if(w==='theme'){syncTheme();paintAccent();}});
+  setTitle();syncLang();syncTheme();
+
+  // CANVAS
+  var cvs=document.getElementById('net'),cx=cvs.getContext('2d'),nodes=[],ACC='#004990';
+  function paintAccent(){ACC=(getComputedStyle(document.documentElement).getPropertyValue('--pf')||'#004990').trim();}
+  function resize(){cvs.width=cvs.offsetWidth;cvs.height=cvs.offsetHeight;}
+  function initNodes(){nodes=[];var n=Math.min(Math.floor(cvs.width*cvs.height/16000),34);for(var i=0;i<n;i++)nodes.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.2+.4});}
+  function draw(){cx.clearRect(0,0,cvs.width,cvs.height);var D=120;cx.globalAlpha=.55;nodes.forEach(function(a){a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>cvs.width)a.vx*=-1;if(a.y<0||a.y>cvs.height)a.vy*=-1;cx.beginPath();cx.arc(a.x,a.y,a.r,0,Math.PI*2);cx.fillStyle=ACC;cx.fill();});for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<D){cx.globalAlpha=(1-d/D)*.28;cx.beginPath();cx.moveTo(nodes[i].x,nodes[i].y);cx.lineTo(nodes[j].x,nodes[j].y);cx.strokeStyle=ACC;cx.lineWidth=.5;cx.stroke();}}requestAnimationFrame(draw);}
+  window.addEventListener('resize',function(){resize();initNodes();});
+  paintAccent();resize();initNodes();draw();
+
+  // PASSWORD TOGGLE
+  document.getElementById('toggle-pass-btn').addEventListener('click',function(){
+    var inp=document.getElementById('password');var show=inp.type==='password';inp.type=show?'text':'password';
+    document.getElementById('eye-icon').innerHTML=show?'<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>':'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  });
+
+  // ACCOUNT TYPE
+  var accountType='personal';
+  window.selectType=function(type){
+    accountType=type;
+    document.getElementById('type-personal').classList.toggle('selected',type==='personal');
+    document.getElementById('type-corporate').classList.toggle('selected',type==='corporate');
+    document.getElementById('fields-personal').style.display=type==='personal'?'block':'none';
+    document.getElementById('fields-corporate').style.display=type==='corporate'?'block':'none';
+    var L=document.getElementById('email-label'),I=document.getElementById('email');
+    if(type==='corporate'){L.textContent=T('rg.lbl_email_biz');I.setAttribute('placeholder',T('rg.ph_email_biz'));}
+    else{L.textContent=T('rg.lbl_email');I.setAttribute('placeholder',T('rg.ph_email'));}
+  };
+
+  // OPTIONAL FIELDS TOGGLES
+  document.getElementById('opt-personal-btn').addEventListener('click',function(){
+    this.classList.toggle('open');
+    document.getElementById('opt-personal-fields').classList.toggle('open');
+  });
+  document.getElementById('opt-corporate-btn').addEventListener('click',function(){
+    this.classList.toggle('open');
+    document.getElementById('opt-corporate-fields').classList.toggle('open');
+  });
+
+  // STEP
+  function showPage(n){
+    document.getElementById('page1').classList.toggle('active',n===1);
+    document.getElementById('page2').classList.toggle('active',n===2);
+    document.getElementById('step1').className='step'+(n===1?' active':' done');
+    document.getElementById('step2').className='step'+(n===2?' active':'');
+  }
+  function showErr(id,msg){var el=document.getElementById(id);el.textContent=msg;el.classList.add('show');}
+  function clearErr(id){var el=document.getElementById(id);el.textContent='';el.classList.remove('show');}
+
+  // MODAL
+  function openModal(title,body){document.getElementById('modal-title').textContent=title;document.getElementById('modal-body').innerHTML=body;document.getElementById('modal-overlay').classList.add('open');}
+  window.closeModal=function(){document.getElementById('modal-overlay').classList.remove('open');};
+  // delegasyon — i18n yeniden render'ından sonra da çalışır
+  document.addEventListener('click',function(e){
+    var a=e.target.closest?e.target.closest('a'):null;
+    if(a&&a.id==='open-terms'){e.preventDefault();openModal(T('rg.modal_terms'),T('rg.terms_html'));}
+    else if(a&&a.id==='open-privacy'){e.preventDefault();openModal(T('rg.modal_privacy'),T('rg.terms_html'));}
+    else if(a&&a.id==='open-kvkk'){e.preventDefault();openModal(T('rg.modal_kvkk'),T('rg.kvkk_html'));}
+  });
+  document.getElementById('modal-close').addEventListener('click',window.closeModal);
+  document.getElementById('modal-footer-close').addEventListener('click',window.closeModal);
+  document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
+
+  // REGISTER
+  document.getElementById('btn-register').addEventListener('click',async function(){
+    clearErr('error1');
+    var email=document.getElementById('email').value.trim();
+    var password=document.getElementById('password').value;
+    if(!email){showErr('error1',T('rg.err_email'));return;}
+    if(password.length<8){showErr('error1',T('rg.err_pass'));return;}
+    if(!document.getElementById('terms-check').checked){showErr('error1',T('rg.err_terms'));return;}
+    if(!document.getElementById('kvkk-check').checked){showErr('error1',T('rg.err_kvkk'));return;}
+
+    var metadata={account_type:accountType,role:'member'};
+    if(accountType==='personal'){
+      var username=document.getElementById('username').value.trim();
+      var country=document.getElementById('country-personal').value;
+      if(username) metadata.username=username;
+      if(country) metadata.country=country;
+    } else {
+      var companyName=document.getElementById('company-name').value.trim();
+      var industry=document.getElementById('industry').value;
+      var country=document.getElementById('country-corporate').value;
+      var authPerson=document.getElementById('auth-person').value.trim();
+      var authTitle=document.getElementById('auth-title').value.trim();
+      if(companyName) metadata.company_name=companyName;
+      if(industry) metadata.industry=industry;
+      if(country) metadata.country=country;
+      if(authPerson) metadata.auth_person=authPerson;
+      if(authTitle) metadata.auth_title=authTitle;
+    }
+
+    var btn=this;btn.disabled=true;btn.textContent=T('rg.btn_wait');
+    var result=await _sb.auth.signUp({email:email,password:password,options:{data:metadata}});
+    btn.disabled=false;btn.textContent=T('rg.btn');
+    if(result.error){showErr('error1',result.error.message);return;}
+    document.getElementById('verify-email-display').textContent=email;
+    showPage(2);
+  });
+
+  // RESEND
+  document.getElementById('btn-resend').addEventListener('click',async function(){
+    var email=document.getElementById('email').value.trim();
+    await _sb.auth.resend({email:email,type:'signup'});
+    alert(T('rg.resend_done'));
+  });
+
+  // SOSYAL KAYIT/GİRİŞ (Google / LinkedIn) — sağlayıcılar Supabase'te etkin olmalı
+  document.querySelectorAll('[data-provider]').forEach(function(b){
+    b.addEventListener('click', function(){
+      b.disabled=true;
+      try{ localStorage.setItem('cv-signin-pending', b.getAttribute('data-provider')); }catch(_){}
+      _sb.auth.signInWithOAuth({ provider: b.getAttribute('data-provider'), options: { redirectTo: window.location.origin + '/index.html' } })
+        .then(function(res){ if(res && res.error){ b.disabled=false; showErr('error1', T('a.oauth_err')); } })
+        .catch(function(){ b.disabled=false; showErr('error1', T('a.oauth_err')); });
+    });
+  });
+</script>
+</body>
+</html>

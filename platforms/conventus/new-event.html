@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Event · Conventus</title>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+  const _sb = window.cvClient();
+  (async()=>{ const {data:{session}} = await _sb.auth.getSession(); if(!session) window.location.href='/login.html'; })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--gold:#C9973A;--gold-dim:rgba(201,151,58,.12);--r:14px;--ease:.2s ease}
+  [data-resolved-theme="dark"]{--bg:#060810;--panel:#0A0D1A;--surface:rgba(255,255,255,.04);--surface-2:rgba(255,255,255,.02);--border:rgba(255,255,255,.08);--border-accent:rgba(201,151,58,.2);--text:#EEE9E2;--sub:#8B95A8;--muted:#525C6B;--field:#0d1120}
+  [data-resolved-theme="light"]{--bg:#F2F1EE;--panel:#FFFFFF;--surface:rgba(0,0,0,.025);--surface-2:rgba(0,0,0,.015);--border:rgba(0,0,0,.09);--border-accent:rgba(201,151,58,.28);--text:#111318;--sub:#555E6E;--muted:#9CA3AF;--field:#FBFAF8}
+  body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif;transition:background var(--ease),color var(--ease)}
+  nav{position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:1px solid var(--border-accent);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4vw,2.5rem)}
+  .brand{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--text)}
+  .brand svg{width:30px;height:30px}
+  .brand b{font-family:'Manrope',system-ui,sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+  .brand small{display:block;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .nav-right{display:flex;align-items:center;gap:.7rem;font-size:.78rem;color:var(--sub)}
+  .btn-nav{padding:.35rem .8rem;border:1px solid var(--border);border-radius:100px;background:transparent;color:var(--sub);font:500 .72rem 'Manrope';cursor:pointer;text-decoration:none;transition:border-color var(--ease),color var(--ease)}
+  .btn-nav:hover{border-color:var(--gold);color:var(--gold)}
+  main{max-width:760px;margin:0 auto;padding:2.4rem 1.5rem 5rem}
+  .eyebrow{font-size:.66rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem}
+  .eyebrow::before{content:"";width:16px;height:1px;background:var(--gold)}
+  h1{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+  .lead{color:var(--sub);font-size:.86rem;margin-bottom:2rem;max-width:46ch}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:clamp(1.4rem,3vw,2rem)}
+  .field{margin-bottom:1.15rem}
+  .field label{display:block;font-size:.74rem;font-weight:600;letter-spacing:.03em;color:var(--sub);margin-bottom:.4rem}
+  .field label .req{color:var(--gold)}
+  .field input[type=text],.field input[type=date],.field textarea{width:100%;background:var(--field);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;color:var(--text);font:400 .86rem 'Manrope';transition:border-color var(--ease)}
+  .field textarea{min-height:84px;resize:vertical}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .checks{display:flex;flex-direction:column;gap:.7rem;margin:.3rem 0 1.4rem}
+  .check{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:var(--text)}
+  .check input{margin-top:.15rem;width:16px;height:16px;accent-color:var(--gold)}
+  .check .h{font-weight:600}
+  .check .d{color:var(--muted);font-size:.72rem}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.85rem;border:none;border-radius:11px;background:var(--gold);color:#0b0b0b;font:700 .86rem 'Manrope';cursor:pointer;transition:opacity var(--ease),transform .15s}
+  .btn:hover{opacity:.92;transform:translateY(-1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .msg{margin-top:1rem;font-size:.8rem;padding:.7rem .9rem;border-radius:10px;display:none}
+  .msg.err{display:block;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171}
+  /* success */
+  .success{display:none;margin-top:1.5rem;background:var(--gold-dim);border:1px solid var(--border-accent);border-radius:14px;padding:1.2rem}
+  .success h3{font-family:'Instrument Serif',Georgia,serif;font-size:1rem;margin-bottom:.5rem}
+  .success p{font-size:.78rem;color:var(--sub);margin-bottom:.8rem}
+  .linkbox{display:flex;gap:.5rem;align-items:stretch}
+  .linkbox input{flex:1;background:var(--field);border:1px solid var(--border);border-radius:9px;padding:.6rem .7rem;color:var(--text);font:400 .78rem 'Manrope'}
+  .linkbox button{padding:.6rem .9rem;border:1px solid var(--gold);border-radius:9px;background:transparent;color:var(--gold);font:600 .74rem 'Manrope';cursor:pointer;white-space:nowrap}
+  /* list */
+  .section-label{font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2.6rem 0 1rem;display:flex;align-items:center;gap:.6rem}
+  .section-label::after{content:"";flex:1;height:1px;background:var(--border)}
+  .ev{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.7rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .ev .t{font-family:'Instrument Serif',Georgia,serif;font-weight:700;font-size:.95rem}
+  .ev .m{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+  .ev .status{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .55rem;border-radius:100px;border:1px solid var(--border-accent);color:var(--gold);background:var(--gold-dim)}
+  .ev .copy{font-size:.68rem;color:var(--sub);border:1px solid var(--border);border-radius:8px;padding:.35rem .6rem;background:transparent;cursor:pointer}
+  .ev .copy:hover{border-color:var(--gold);color:var(--gold)}
+  .empty{color:var(--muted);font-size:.8rem;padding:1rem 0}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+</style>
+<script src="cv-skin.js"></script>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/dashboard/index.html">
+    <svg viewBox="0 0 56 56" fill="none"><path d="M47 21A21 21 0 1 0 47 35" stroke="#1C3060" stroke-width="3.5" stroke-linecap="round"/><path d="M39 23A13 13 0 1 0 39 33" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" fill="#1C3060"/></svg>
+    <span><b>Conventus</b><small>Event & Protocol</small></span>
+  </a>
+  <div class="nav-right">
+    <span id="who"></span>
+    <a class="btn-nav" href="/dashboard/index.html">Dashboard</a>
+  </div>
+</nav>
+
+<main>
+  <div class="eyebrow">Organiser</div>
+  <h1>Create an event</h1>
+  <p class="lead">Set up the event once. You'll get a link to share — invitees register and apply through it.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Community <span class="req">*</span></label>
+      <select id="community" style="width:100%;background:var(--field);border:1px solid var(--border);border-radius:11px;padding:.75rem .85rem;color:var(--text);font:inherit;outline:none">
+        <option value="">Loading…</option>
+      </select>
+      <div style="font-size:.74rem;color:var(--muted);margin-top:5px">The event belongs to this community — you can only pick communities you manage.</div>
+    </div>
+    <div class="field">
+      <label>Event title <span class="req">*</span></label>
+      <input type="text" id="title" placeholder="e.g. Planning Conference 2026" maxlength="120" />
+    </div>
+    <div class="row2">
+      <div class="field"><label>Start date</label><input type="text" id="start_date" maxlength="10" inputmode="numeric" placeholder="DD.MM.YYYY" /></div>
+      <div class="field"><label>End date</label><input type="text" id="end_date" maxlength="10" inputmode="numeric" placeholder="DD.MM.YYYY" /></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Location</label><input type="text" id="location" placeholder="City, Country · Venue" maxlength="140" /></div>
+      <div class="field"><label>Host organisation</label><input type="text" id="host_org" placeholder="e.g. Ministry of ..." maxlength="140" /></div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="description" placeholder="A short description invitees will see." maxlength="600"></textarea>
+    </div>
+    <div class="checks">
+      <label class="check"><input type="checkbox" id="registration_open" checked /><span><span class="h">Open for registration</span><span class="d">Invitees can apply through the link right away.</span></span></label>
+      <label class="check"><input type="checkbox" id="invite_only" /><span><span class="h">Invite-only</span><span class="d">Only people you send the link to should apply.</span></span></label>
+    </div>
+    <button class="btn" id="createBtn">Create event &amp; get link</button>
+    <div class="msg err" id="err"></div>
+
+    <div class="success" id="success">
+      <h3>Event created ✓</h3>
+      <p>Share this registration link with your invitees:</p>
+      <div class="linkbox">
+        <input type="text" id="shareLink" readonly />
+        <button id="copyLink">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Your events</div>
+  <div id="eventList"><div class="empty">Loading…</div></div>
+</main>
+
+<script>
+  // theme (match whatever was set on the dashboard)
+  (function(){
+    var t=localStorage.getItem('cv-theme')||'system';
+    function r(x){return x==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):x;}
+    document.documentElement.setAttribute('data-resolved-theme',r(t));
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){ if((localStorage.getItem('cv-theme')||'system')==='system') document.documentElement.setAttribute('data-resolved-theme',r('system')); });
+  })();
+
+  const $ = id => document.getElementById(id);
+
+  // DD.MM.YYYY masked date entry (native date input is banned house-wide)
+  function maskDate(el){ el.addEventListener('input',()=>{
+    const v=el.value.replace(/\D/g,'').slice(0,8); let o='';
+    if(v.length>=1)o=v.slice(0,2);
+    if(v.length>=3)o=v.slice(0,2)+'.'+v.slice(2,4);
+    if(v.length>=5)o=v.slice(0,2)+'.'+v.slice(2,4)+'.'+v.slice(4,8);
+    el.value=o;
+  }); }
+  // DD.MM.YYYY -> YYYY-MM-DD (ISO date); '' -> null; throws on malformed
+  function ddmmToIso(s){
+    s=(s||'').trim(); if(!s) return null;
+    const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s);
+    if(!m) throw new Error('date');
+    const dd=+m[1], mo=+m[2], yr=+m[3];
+    if(mo<1||mo>12||dd<1||dd>31) throw new Error('range');
+    return m[3]+'-'+m[2]+'-'+m[1];
+  }
+  // YYYY-MM-DD (or ISO) -> DD.MM.YYYY for display
+  function isoToDdmm(s){
+    if(!s) return ''; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s));
+    return m ? m[3]+'.'+m[2]+'.'+m[1] : String(s);
+  }
+  maskDate($('start_date')); maskDate($('end_date'));
+
+  const regBase = new URL('register.html', location.href).href;   // register page next to this one
+  const linkFor = code => `${regBase}?e=${code}`;
+  const newCode = () => { const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<8;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
+
+  // show who is signed in
+  (async()=>{ const {data:{user}}=await _sb.auth.getUser(); if(user){ const m=user.user_metadata||{}; $('who').textContent=(m.username||m.first_name||user.email.split('@')[0]); } })();
+
+  // Load the communities this user may create events for (owner/admin/organizer, or ecosystem admin).
+  async function loadCommunities(){
+    const sel=$('community');
+    const {data:{user}}=await _sb.auth.getUser();
+    if(!user){ sel.innerHTML='<option value="">Sign in required</option>'; return; }
+    let comms=[];
+    const {data:isAdmin}=await _sb.rpc('conventity_is_admin',{p_scope:'ecosystem'});
+    if(isAdmin){
+      comms=(await _sb.from('conventus_communities').select('id,name,short_name').eq('is_active',true).order('name')).data||[];
+    } else {
+      const roles=(await _sb.from('conventity_roles').select('scope_id')
+        .eq('scope','community').eq('auth_user_id',user.id).in('role',['owner','admin','organizer'])).data||[];
+      const ids=[...new Set(roles.map(r=>r.scope_id).filter(Boolean))];
+      comms= ids.length ? ((await _sb.from('conventus_communities').select('id,name,short_name').in('id',ids).eq('is_active',true).order('name')).data||[]) : [];
+    }
+    if(!comms.length){
+      sel.innerHTML='<option value="">No community you manage</option>';
+      $('createBtn').disabled=true;
+      showErr('You need to manage a community before creating an event. Ask a community admin to add you.');
+      return;
+    }
+    sel.innerHTML='<option value="">— select a community —</option>'+
+      comms.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.short_name?' ('+esc(c.short_name)+')':''}</option>`).join('');
+  }
+
+  async function createEvent(){
+    $('err').style.display='none';
+    const community_id=$('community').value;
+    const title=$('title').value.trim();
+    if(!community_id){ showErr('Please select a community.'); return; }
+    if(!title){ showErr('Please enter an event title.'); return; }
+    let startIso, endIso;
+    try { startIso=ddmmToIso($('start_date').value); endIso=ddmmToIso($('end_date').value); }
+    catch(e){ showErr('Dates must be in DD.MM.YYYY format.'); return; }
+    $('createBtn').disabled=true; $('createBtn').textContent='Creating…';
+    const {data,error}=await _sb.rpc('conventus_create_managed_event',{
+      p_community_id:community_id,
+      p_code:newCode(),
+      p_title:title,
+      p_start_date:startIso,
+      p_end_date:endIso,
+      p_location:$('location').value.trim()||null,
+      p_host_org:$('host_org').value.trim()||null,
+      p_description:$('description').value.trim()||null,
+      p_registration_open:$('registration_open').checked,
+      p_invite_only:$('invite_only').checked
+    });
+    $('createBtn').disabled=false; $('createBtn').textContent='Create event & get link';
+    if(error){ showErr(error.message); return; }
+    const created=Array.isArray(data)?data[0]:data;
+    const link=linkFor(created.code);
+    $('shareLink').value=link;
+    $('success').style.display='block';
+    $('success').scrollIntoView({behavior:'smooth',block:'nearest'});
+    // reset form title so it's clear it saved
+    $('title').value=''; $('location').value=''; $('host_org').value=''; $('description').value='';
+    $('start_date').value=''; $('end_date').value='';
+    loadEvents();
+  }
+  function showErr(m){ const e=$('err'); e.textContent=m; e.style.display='block'; }
+
+  $('createBtn').addEventListener('click',createEvent);
+  $('copyLink').addEventListener('click',()=>{ navigator.clipboard.writeText($('shareLink').value); $('copyLink').textContent='Copied ✓'; setTimeout(()=>$('copyLink').textContent='Copy',1500); });
+
+  async function loadEvents(){
+    const {data,error}=await _sb.from('conventus_managed_events').select('*').order('created_at',{ascending:false});
+    const box=$('eventList');
+    if(error){ box.innerHTML=`<div class="empty">Couldn't load events: ${error.message}</div>`; return; }
+    if(!data||!data.length){ box.innerHTML=`<div class="empty">No events yet. Create your first one above.</div>`; return; }
+    box.innerHTML=data.map(e=>{
+      const when=[e.start_date,e.end_date].filter(Boolean).map(isoToDdmm).join(' → ')||'Date TBC';
+      return `<div class="ev">
+        <div>
+          <div class="t">${esc(e.title)}</div>
+          <div class="m">${esc(when)}${e.location?' · '+esc(e.location):''} · code ${esc(e.code)}</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <span class="status">${e.registration_open?'Open':'Closed'}</span>
+          <a class="copy" href="/platforms/conventus/event-manage.html?e=${esc(e.code)}" style="text-decoration:none">Manage</a>
+          <button class="copy" data-link="${esc(linkFor(e.code))}">Copy link</button>
+        </div>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('button.copy[data-link]').forEach(b=>b.addEventListener('click',()=>{ navigator.clipboard.writeText(b.dataset.link); const o=b.textContent; b.textContent='Copied ✓'; setTimeout(()=>b.textContent=o,1500); }));
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  loadEvents();
+  loadCommunities();
+</script>
+</body>
+</html>

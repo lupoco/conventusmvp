@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Agenda · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1428; --navy2:#0F1A30; --panel:#13213D; --panel2:#0E1A32; --panel3:#1B2C4E;
+  --pf:#4B92DB; --pf-soft:rgba(75,146,219,.14);
+  --gold:#E2B65E; --gold-soft:rgba(226,182,94,.14);
+  --ink:#EDF1F7; --muted:#8293AD; --line:#243456; --line2:#2C3D63;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+}
+body{background:var(--navy);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
+a{color:var(--pf);text-decoration:none}
+.mono{font-family:'JetBrains Mono',monospace}
+.hidden{display:none !important}
+
+/* TOP BAR */
+.bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 1.4rem;height:56px;background:var(--navy2);border-bottom:1px solid var(--line)}
+.bar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.badge{background:var(--pf);color:#fff;padding:3px 10px;border-radius:100px;font-size:10px;letter-spacing:.12em;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.bar-title{font-family:'Manrope',sans-serif;font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-code{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em}
+.bar-nav{display:flex;gap:6px;flex-shrink:0}
+.bar-nav a{font-size:12px;font-weight:600;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:8px;transition:all .15s;white-space:nowrap}
+.bar-nav a:hover{color:var(--pf);border-color:var(--pf)}
+.ver{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:4px 9px;white-space:nowrap;align-self:center}
+
+.wrap{max-width:920px;margin:0 auto;padding:1.6rem 1.4rem 6rem}
+
+/* GATES */
+.gate{max-width:420px;margin:14vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:2rem;text-align:center}
+.gate h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.5rem;margin-bottom:.5rem}
+.gate p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.2rem}
+
+/* HEAD */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.3rem;flex-wrap:wrap}
+h1{font-family:'Instrument Serif',serif;font-size:2rem;font-weight:400}
+h1 span{color:var(--pf)}
+.head-sub{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-family:inherit;font-size:.83rem;font-weight:600;cursor:pointer;border:none;transition:opacity .15s,border-color .15s,color .15s,background .15s}
+.btn-gold{background:var(--pf);color:#fff}
+.btn-gold:hover{opacity:.85}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn-ghost:hover{color:var(--pf);border-color:var(--pf)}
+.btn-sm{padding:5px 11px;font-size:.75rem;border-radius:8px}
+
+/* 12/24 toggle */
+.tfmt{display:inline-flex;border:1px solid var(--line);border-radius:100px;overflow:hidden}
+.tfmt button{padding:6px 13px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s}
+.tfmt button.on{background:var(--pf);color:#fff}
+
+/* DAY ACCORDION */
+.day{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px;background:var(--panel2)}
+.day-head{display:flex;align-items:center;gap:14px;padding:1rem 1.2rem;background:linear-gradient(90deg,var(--panel3),var(--panel));cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:background .15s}
+.day-head:hover{background:linear-gradient(90deg,#1A3A69,var(--panel))}
+.day.open .day-head{border-bottom-color:var(--line)}
+.chev{width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--pf);font-size:.75rem;flex-shrink:0;transition:transform .25s}
+.day.open .chev{transform:rotate(180deg)}
+.day-name{font-family:'Manrope',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.05em;text-transform:uppercase}
+.day-sum{font-size:.75rem;color:var(--muted);margin-top:2px}
+.day-addbtn{margin-left:auto;flex-shrink:0}
+.day-btns{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
+.day-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.day.open .day-body{max-height:5000px}
+.day-empty{padding:1.4rem 1.2rem;color:var(--muted);font-size:.82rem}
+.day-empty b{color:var(--ink)}
+
+/* ITEM ROWS */
+.item{display:grid;grid-template-columns:96px 34px 1fr auto;gap:0 14px;align-items:start;padding:.9rem 1.2rem;border-top:1px solid var(--line);position:relative}
+.item:first-child{border-top:none}
+.item-time .t1{font-family:'JetBrains Mono',monospace;font-size:.86rem;color:var(--ink)}
+.item-time .t2{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-top:2px}
+.item-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid var(--line2);background:var(--panel)}
+.item-body{min-width:0}
+.item-title{font-family:'Manrope',sans-serif;font-weight:600;font-size:.95rem}
+.item-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-top:3px;align-items:center}
+.chip{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:100px;border:1px solid}
+.chip.pub{border-color:var(--ok);color:var(--ok)}
+.chip.draft{border-color:var(--warn);color:var(--warn)}
+.cf{font-size:.74rem;color:var(--muted)}
+.cf b{color:var(--ink);font-weight:600}
+.item-desc{font-size:.78rem;color:var(--muted);line-height:1.55;margin-top:6px;max-width:560px}
+.item-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.link-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;border:1px solid var(--pf);color:var(--pf);font-size:.72rem;font-weight:600;transition:all .15s}
+.link-btn:hover{background:var(--pf);color:#fff}
+.item::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--tc,var(--line2))}
+
+/* EDIT dropdown */
+.emenu{position:relative;flex-shrink:0}
+.emenu-list{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line2);border-radius:10px;min-width:130px;z-index:20;box-shadow:0 14px 34px rgba(0,0,0,.4);overflow:hidden}
+.emenu-list button{display:block;width:100%;text-align:left;padding:.55rem .9rem;background:transparent;border:none;color:var(--ink);font-family:inherit;font-size:.8rem;cursor:pointer}
+.emenu-list button:hover{background:var(--panel3);color:var(--pf)}
+.emenu-list button.danger{color:var(--bad)}
+.emenu-list button.danger:hover{background:rgba(239,68,68,.12);color:var(--bad)}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(5,12,24,.72);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:5vh 1rem;overflow-y:auto}
+.form-card{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:1.7rem}
+.form-card h3{font-family:'Manrope',sans-serif;font-size:1.15rem;margin-bottom:.25rem}
+.form-card .fsub{font-size:.78rem;color:var(--muted);margin-bottom:1.1rem}
+
+/* TYPE CARDS */
+.tlabel{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:1.1rem}
+.tcard{position:relative;border:1px solid var(--line);border-radius:12px;padding:.75rem .8rem;background:var(--panel2);cursor:pointer;transition:all .15s;text-align:left;font-family:inherit;color:var(--ink)}
+.tcard:hover{border-color:var(--pf)}
+.tcard.on{border-color:var(--pf);background:var(--pf-soft);box-shadow:0 0 0 1px var(--pf) inset}
+.tcard .tcat{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.14em;display:block;margin-bottom:6px}
+.tcard .tico{font-size:19px;display:block;margin-bottom:4px}
+.tcard .tnm{font-family:'Manrope',sans-serif;font-size:.83rem;font-weight:600}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.fgrid .full{grid-column:1/-1}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem;color:var(--ink);font-family:'Manrope',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;color-scheme:dark}
+input:focus,textarea:focus,select:focus{border-color:var(--pf)}
+textarea{resize:vertical;min-height:70px}
+input[type=checkbox]{width:auto}
+.chk-row{display:flex;align-items:center;gap:8px}
+.chk-row label{margin:0;text-transform:none;font-family:'Manrope',sans-serif;font-size:.82rem;letter-spacing:0;color:var(--ink)}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.2rem}
+.form-err{color:var(--bad);font-size:.78rem;margin-top:.8rem;display:none}
+.fsep{height:1px;background:var(--line);margin:1.1rem 0;grid-column:1/-1}
+
+/* dynamic rows (buttons + columns manager) */
+.dyn-row{display:grid;grid-template-columns:1fr 1.4fr 34px;gap:8px;margin-bottom:8px;align-items:center}
+.dyn-row.cols{grid-template-columns:1.4fr 1fr 34px}
+.dyn-x{width:34px;height:34px;border-radius:9px;border:1px solid rgba(239,68,68,.4);background:transparent;color:var(--bad);cursor:pointer;font-size:14px;transition:background .15s}
+.dyn-x:hover{background:rgba(239,68,68,.12)}
+.dyn-add{margin-top:2px}
+.mini-note{font-size:.72rem;color:var(--muted);margin-top:6px;line-height:1.5}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--pf);color:var(--ink);padding:.7rem 1.2rem;border-radius:10px;font-size:.82rem;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media(max-width:640px){
+  .item{grid-template-columns:80px 1fr auto}
+  .item-ic{display:none}
+  .types{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr}
+  .bar-title{display:none}
+  .day-addbtn span,.day-btns span{display:none}
+}
+</style>
+<script src="cv-skin.js"></script>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-left">
+    <span class="badge">CONVENTUS · AGENDA</span>
+    <div style="min-width:0">
+      <div class="bar-title" id="evTitle">—</div>
+      <div class="bar-code" id="evCode"></div>
+    </div>
+  </div>
+  <div class="bar-nav">
+    <a href="/platforms/conventus/event-studio.html">Manage</a>
+    <a href="#" id="navApps">Applications</a>
+    <a href="/platforms/conventus/event-studio.html">Events</a>
+    <span class="ver">v1.1</span>
+  </div>
+</div>
+
+<div class="gate hidden" id="gateAuth">
+  <h2>Sign in required</h2>
+  <p>The Agenda module is for event organisers. Sign in with your organiser account to continue.</p>
+  <a class="btn btn-gold" href="/login.html">Sign in</a>
+</div>
+
+<div class="gate hidden" id="gateEvent">
+  <h2>Event not found</h2>
+  <p>This link is missing an event code, or the event doesn't belong to your account. Open Agenda from your events list.</p>
+  <a class="btn btn-gold" href="/platforms/conventus/event-studio.html">Go to my events</a>
+</div>
+
+<div class="wrap hidden" id="main">
+  <div class="page-head">
+    <div>
+      <h1>Build your <span>agenda</span></h1>
+      <div class="head-sub">Add items day by day. Drafts stay private until published.</div>
+    </div>
+    <div class="head-actions">
+      <div class="tfmt">
+        <button id="fmt12">12H</button>
+        <button id="fmt24">24H</button>
+      </div>
+      <a class="btn btn-ghost" id="btnProg" href="#" target="_blank" rel="noopener">↗ View programme</a>
+      <button class="btn btn-ghost" id="btnCols">⚙ Columns</button>
+      <button class="btn btn-gold" id="btnAdd">+ Add agenda item</button>
+    </div>
+  </div>
+  <div id="dayList"></div>
+</div>
+
+<!-- ITEM FORM -->
+<div class="overlay hidden" id="overlay">
+  <div class="form-card">
+    <h3 id="formTitle">Add agenda item</h3>
+    <div class="fsub">Fill in the details below to add an item to the schedule.</div>
+
+    <div class="tlabel">Event type</div>
+    <div class="types" id="typeCards"></div>
+
+    <div class="fgrid">
+      <div class="full">
+        <label>Title *</label>
+        <input id="fTitle" maxlength="200" placeholder="e.g. Opening Ceremony"/>
+      </div>
+      <div>
+        <label>Date *</label>
+        <input id="fDate" type="date"/>
+      </div>
+      <div>
+        <label>Room / Location</label>
+        <input id="fRoom" maxlength="80" placeholder="e.g. Main Hall"/>
+      </div>
+      <div>
+        <label>Start time *</label>
+        <input id="fStart" type="time"/>
+      </div>
+      <div>
+        <label>End time</label>
+        <input id="fEnd" type="time"/>
+      </div>
+      <div class="full">
+        <label>Speakers / Hosts</label>
+        <input id="fSpeakers" maxlength="300" placeholder="Name (Org), Name (Org)"/>
+      </div>
+
+      <!-- CUSTOM COLUMNS (dynamic) -->
+      <div class="full hidden" id="cfWrap">
+        <div class="fsep"></div>
+        <div class="tlabel">Your columns</div>
+        <div class="fgrid" id="cfFields"></div>
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="full">
+        <div class="fsep"></div>
+        <div class="tlabel">Buttons (links on this item)</div>
+        <div id="btnRows"></div>
+        <button type="button" class="btn btn-ghost btn-sm dyn-add" id="btnAddBtnRow">+ Add button</button>
+        <div class="mini-note">Örn. "Join link" + toplantı URL'i, "Materials" + doküman URL'i. Butonlar öğe kartında görünür.</div>
+      </div>
+
+      <div class="full">
+        <label>Description</label>
+        <textarea id="fDesc" maxlength="2000" placeholder="Add details about this item…"></textarea>
+      </div>
+      <div class="full chk-row">
+        <input id="fPub" type="checkbox"/>
+        <label for="fPub">Published — visible to participants</label>
+      </div>
+    </div>
+    <div class="form-err" id="formErr"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="btnCancel">Cancel</button>
+      <button class="btn btn-gold" id="btnSave">Save item</button>
+    </div>
+  </div>
+</div>
+
+<!-- COLUMNS MANAGER -->
+<div class="overlay hidden" id="colOverlay">
+  <div class="form-card" style="max-width:520px">
+    <h3>Manage columns</h3>
+    <div class="fsub">Bu etkinliğin agenda öğelerine eklenecek özel alanlar. Örn. Attendees (number), Dress code (text), AV equipment (yes/no).</div>
+    <div id="colRows"></div>
+    <button type="button" class="btn btn-ghost btn-sm dyn-add" id="btnAddColRow">+ Add column</button>
+    <div class="form-err" id="colErr"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="colCancel">Cancel</button>
+      <button class="btn btn-gold" id="colSave">Save columns</button>
+    </div>
+  </div>
+</div>
+
+<!-- COPY DAY -->
+<div class="overlay hidden" id="cpOverlay">
+  <div class="form-card" style="max-width:430px">
+    <h3>Copy day</h3>
+    <div class="fsub" id="cpSub"></div>
+    <label>Copy to date</label>
+    <input id="cpDate" type="date"/>
+    <div class="form-err" id="cpErr"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="cpCancel">Cancel</button>
+      <button class="btn btn-gold" id="cpSave">Copy items</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var sb=window.cvClient();
+
+  var TYPES={
+    session:    {nm:'Session',        cat:'SCHEDULE',    ic:'🎤', c:'#E2B65E'},
+    meal:       {nm:'Meal',           cat:'HOSPITALITY', ic:'🍽️', c:'#0EA5A4'},
+    transport:  {nm:'Transport',      cat:'LOGISTICS',   ic:'🚌', c:'#3B82F6'},
+    social:     {nm:'Social',         cat:'SOCIAL',      ic:'🎉', c:'#D946EF'},
+    executive:  {nm:'Executive Time', cat:'EXECUTIVE',   ic:'💼', c:'#94A3B8'},
+    networking: {nm:'Networking',     cat:'CONNECTION',  ic:'🤝', c:'#22C55E'}
+  };
+  var CTYPE_LBL={text:'Text',number:'Number',yesno:'Yes / No'};
+
+  var qs=new URLSearchParams(location.search);
+  var CODE=(qs.get('e')||'').trim();
+  var EVENT=null, SESSIONS=[], FIELD_DEFS=[], editId=null, formType='session';
+  var openDays={};
+  var MODE24=localStorage.getItem('cv-agenda-24h')!=='0';
+
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+  function show(el){el.classList.remove('hidden');}
+  function hide(el){el.classList.add('hidden');}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2200);}
+  function slug(s){var k=String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');return k||('f'+Math.random().toString(36).slice(2,7));}
+
+  var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DAYL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function pd(s){var p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+  function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function dayName(s){var d=pd(s);return DAYL[d.getDay()].toUpperCase()+', '+MONL[d.getMonth()].toUpperCase().slice(0,3)+' '+d.getDate();}
+  function fmtT(t){
+    if(!t)return'';
+    var h=+t.slice(0,2),m=t.slice(3,5);
+    if(MODE24)return String(h).padStart(2,'0')+':'+m;
+    var ap=h>=12?'pm':'am';var h12=h%12;if(h12===0)h12=12;
+    return h12+':'+m+' '+ap;
+  }
+  function setFmtBtns(){$('fmt12').classList.toggle('on',!MODE24);$('fmt24').classList.toggle('on',MODE24);}
+  $('fmt12').onclick=function(){MODE24=false;localStorage.setItem('cv-agenda-24h','0');setFmtBtns();render();};
+  $('fmt24').onclick=function(){MODE24=true;localStorage.setItem('cv-agenda-24h','1');setFmtBtns();render();};
+
+  // ---------- BOOT ----------
+  init();
+  async function init(){
+    setFmtBtns();
+    var s=await sb.auth.getSession();
+    if(!s.data||!s.data.session){show($('gateAuth'));return;}
+    if(!CODE){show($('gateEvent'));return;}
+    var ev=await sb.from('conventus_managed_events')
+      .select('id,code,title,start_date,end_date,agenda_field_defs')
+      .eq('code',CODE).maybeSingle();
+    if(ev.error||!ev.data){show($('gateEvent'));return;}
+    EVENT=ev.data;
+    FIELD_DEFS=Array.isArray(EVENT.agenda_field_defs)?EVENT.agenda_field_defs:[];
+    $('evTitle').textContent=EVENT.title;
+    $('evCode').textContent=EVENT.code;
+    $('navApps').href='/platforms/conventus/applications.html?e='+encodeURIComponent(EVENT.code);
+    $('btnProg').href='/platforms/conventus/programme.html?e='+encodeURIComponent(EVENT.code);
+    show($('main'));
+    buildTypeCards();
+    await loadSessions();
+  }
+
+  async function loadSessions(){
+    var r=await sb.from('conventus_sessions').select('*')
+      .eq('event_id',EVENT.id)
+      .order('session_date',{ascending:true})
+      .order('start_time',{ascending:true})
+      .order('sort_order',{ascending:true});
+    if(r.error){toast('Load failed: '+r.error.message);return;}
+    SESSIONS=r.data||[];
+    render();
+  }
+
+  function dayRange(){
+    var set={};
+    if(EVENT.start_date&&EVENT.end_date){
+      var d=pd(EVENT.start_date),end=pd(EVENT.end_date),n=0;
+      while(d<=end&&n<31){set[iso(d)]=1;d.setDate(d.getDate()+1);n++;}
+    }else if(EVENT.start_date){set[EVENT.start_date]=1;}
+    SESSIONS.forEach(function(x){set[x.session_date]=1;});
+    var list=Object.keys(set).sort();
+    if(!list.length)list=[iso(new Date())];
+    return list;
+  }
+
+  // ---------- RENDER ----------
+  function cfHtml(x){
+    var cf=x.custom_fields||{};
+    var parts=[];
+    FIELD_DEFS.forEach(function(f){
+      var v=cf[f.k];
+      if(v===undefined||v===null||v==='')return;
+      if(f.t==='yesno'){ if(v===true||v==='true') parts.push('<span class="cf"><b>'+esc(f.l)+'</b> ✓</span>'); }
+      else parts.push('<span class="cf"><b>'+esc(f.l)+':</b> '+esc(v)+'</span>');
+    });
+    return parts.join('');
+  }
+  function btnHtml(x){
+    var arr=Array.isArray(x.buttons)?x.buttons:[];
+    if(!arr.length)return'';
+    return '<div class="item-btns">'+arr.map(function(b){
+      var u=String(b.u||'');
+      if(u&&!/^https?:\/\//i.test(u))u='https://'+u;
+      return '<a class="link-btn" href="'+esc(u)+'" target="_blank" rel="noopener">🔗 '+esc(b.t||'Link')+'</a>';
+    }).join('')+'</div>';
+  }
+
+  function render(){
+    var days=dayRange();
+    days.forEach(function(d){if(!(d in openDays))openDays[d]=true;});
+
+    $('dayList').innerHTML=days.map(function(d){
+      var rows=SESSIONS.filter(function(x){return x.session_date===d;});
+      var sum;
+      if(rows.length){
+        var t0=rows[0].start_time,t1=null;
+        rows.forEach(function(x){var e=x.end_time||x.start_time;if(!t1||e>t1)t1=e;});
+        sum=rows.length+' item'+(rows.length===1?'':'s')+' · '+fmtT(t0)+' – '+fmtT(t1);
+      }else sum='0 items';
+      var body;
+      if(rows.length){
+        body=rows.map(function(x){
+          var T=TYPES[x.item_type]||TYPES.session;
+          return '<div class="item" style="--tc:'+T.c+'">'
+            +'<div class="item-time"><div class="t1">'+fmtT(x.start_time)+'</div><div class="t2">'+(x.end_time?('– '+fmtT(x.end_time)):'')+'</div></div>'
+            +'<div class="item-ic" title="'+T.nm+'">'+T.ic+'</div>'
+            +'<div class="item-body">'
+              +'<div class="item-title">'+esc(x.title)+'</div>'
+              +'<div class="item-meta">'
+                +'<span class="chip" style="border-color:'+T.c+';color:'+T.c+'">'+T.nm.toUpperCase()+'</span>'
+                +(x.room?'<span>📍 '+esc(x.room)+'</span>':'')
+                +(x.speakers?'<span>🎙 '+esc(x.speakers)+'</span>':'')
+                +cfHtml(x)
+                +(x.is_published?'<span class="chip pub">PUBLISHED</span>':'<span class="chip draft">DRAFT</span>')
+              +'</div>'
+              +(x.description?'<div class="item-desc">'+esc(x.description)+'</div>':'')
+              +btnHtml(x)
+            +'</div>'
+            +'<div class="emenu">'
+              +'<button class="btn btn-ghost btn-sm" data-menu="'+x.id+'">Edit ▾</button>'
+              +'<div class="emenu-list hidden" data-mlist="'+x.id+'">'
+                +'<button data-edit="'+x.id+'">Edit</button>'
+                +'<button data-copy="'+x.id+'">Copy</button>'
+                +'<button data-pub="'+x.id+'">'+(x.is_published?'Unpublish':'Publish')+'</button>'
+                +'<button class="danger" data-del="'+x.id+'">Delete</button>'
+              +'</div>'
+            +'</div>'
+          +'</div>';
+        }).join('');
+      }else{
+        body='<div class="day-empty">Try adding agenda items to get started! <b>+ Add item</b> above.</div>';
+      }
+      return '<div class="day'+(openDays[d]?' open':'')+'" data-day="'+d+'">'
+        +'<div class="day-head" data-toggle="'+d+'">'
+          +'<span class="chev">▾</span>'
+          +'<div><div class="day-name">'+dayName(d)+'</div><div class="day-sum">'+sum+'</div></div>'
+          +'<div class="day-btns">'
+            +'<button class="btn btn-ghost btn-sm" data-copyday="'+d+'">⧉ <span>Copy day</span></button>'
+            +'<button class="btn btn-ghost btn-sm" data-addday="'+d+'">+ <span>Add item</span></button>'
+          +'</div>'
+        +'</div>'
+        +'<div class="day-body">'+body+'</div>'
+      +'</div>';
+    }).join('');
+
+    var root=$('dayList');
+    root.querySelectorAll('[data-toggle]').forEach(function(h){
+      h.addEventListener('click',function(e){
+        if(e.target.closest('.day-btns'))return;
+        var d=h.dataset.toggle;openDays[d]=!openDays[d];render();
+      });
+    });
+    root.querySelectorAll('[data-addday]').forEach(function(b){
+      b.onclick=function(e){e.stopPropagation();openForm(null,b.dataset.addday);};
+    });
+    root.querySelectorAll('[data-copyday]').forEach(function(b){
+      b.onclick=function(e){e.stopPropagation();openCopyDay(b.dataset.copyday);};
+    });
+    root.querySelectorAll('[data-menu]').forEach(function(b){
+      b.onclick=function(e){
+        e.stopPropagation();
+        var id=b.dataset.menu;
+        root.querySelectorAll('.emenu-list').forEach(function(l){if(l.dataset.mlist!==id)l.classList.add('hidden');});
+        root.querySelector('[data-mlist="'+id+'"]').classList.toggle('hidden');
+      };
+    });
+    root.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){closeMenus();openForm(b.dataset.edit,null);};});
+    root.querySelectorAll('[data-copy]').forEach(function(b){b.onclick=function(){closeMenus();copyItem(b.dataset.copy);};});
+    root.querySelectorAll('[data-pub]').forEach(function(b){b.onclick=function(){closeMenus();togglePub(b.dataset.pub);};});
+    root.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){closeMenus();delItem(b.dataset.del);};});
+  }
+  function closeMenus(){document.querySelectorAll('.emenu-list').forEach(function(l){l.classList.add('hidden');});}
+  document.addEventListener('click',closeMenus);
+
+  // ---------- TYPE CARDS ----------
+  function buildTypeCards(){
+    $('typeCards').innerHTML=Object.keys(TYPES).map(function(k){
+      var T=TYPES[k];
+      return '<button type="button" class="tcard" data-type="'+k+'">'
+        +'<span class="tcat" style="color:'+T.c+'">— '+T.cat+'</span>'
+        +'<span class="tico">'+T.ic+'</span>'
+        +'<span class="tnm">'+T.nm+'</span>'
+      +'</button>';
+    }).join('');
+    $('typeCards').querySelectorAll('.tcard').forEach(function(b){
+      b.onclick=function(){formType=b.dataset.type;markType();};
+    });
+  }
+  function markType(){
+    $('typeCards').querySelectorAll('.tcard').forEach(function(b){
+      b.classList.toggle('on',b.dataset.type===formType);
+    });
+  }
+
+  // ---------- CUSTOM FIELD INPUTS (item form) ----------
+  function renderCF(vals){
+    vals=vals||{};
+    if(!FIELD_DEFS.length){hide($('cfWrap'));return;}
+    show($('cfWrap'));
+    $('cfFields').innerHTML=FIELD_DEFS.map(function(f){
+      var v=vals[f.k];
+      if(f.t==='yesno'){
+        return '<div class="full chk-row"><input type="checkbox" id="cf_'+f.k+'" '+((v===true||v==='true')?'checked':'')+'/><label for="cf_'+f.k+'">'+esc(f.l)+'</label></div>';
+      }
+      var typ=f.t==='number'?'number':'text';
+      return '<div><label>'+esc(f.l)+'</label><input type="'+typ+'" id="cf_'+f.k+'" value="'+esc(v==null?'':v)+'"/></div>';
+    }).join('');
+  }
+  function collectCF(){
+    var out={};
+    FIELD_DEFS.forEach(function(f){
+      var el=$('cf_'+f.k);if(!el)return;
+      if(f.t==='yesno')out[f.k]=el.checked;
+      else{var v=el.value.trim();if(v!=='')out[f.k]=v;}
+    });
+    return out;
+  }
+
+  // ---------- BUTTON ROWS (item form) ----------
+  function addBtnRow(t,u){
+    var d=document.createElement('div');
+    d.className='dyn-row';
+    d.innerHTML='<input placeholder="Label — e.g. Join link" maxlength="40" class="br-t" value="'+esc(t||'')+'"/>'
+      +'<input placeholder="URL — e.g. meet.example.com/abc" maxlength="500" class="br-u" value="'+esc(u||'')+'"/>'
+      +'<button type="button" class="dyn-x">✕</button>';
+    d.querySelector('.dyn-x').onclick=function(){d.remove();};
+    $('btnRows').appendChild(d);
+  }
+  $('btnAddBtnRow').onclick=function(){addBtnRow('','');};
+  function collectBtns(){
+    var out=[];
+    $('btnRows').querySelectorAll('.dyn-row').forEach(function(r){
+      var t=r.querySelector('.br-t').value.trim();
+      var u=r.querySelector('.br-u').value.trim();
+      if(t&&u)out.push({t:t,u:u});
+    });
+    return out;
+  }
+
+  // ---------- ITEM FORM ----------
+  $('btnAdd').onclick=function(){openForm(null,null);};
+  $('btnCancel').onclick=closeForm;
+  $('overlay').addEventListener('click',function(e){if(e.target===this)closeForm();});
+
+  function openForm(id,presetDay){
+    editId=id;
+    var x=id?SESSIONS.find(function(s){return s.id===id;}):null;
+    formType=x?(x.item_type||'session'):'session';
+    markType();
+    $('formTitle').textContent=x?'Edit agenda item':'Add agenda item';
+    $('fTitle').value=x?x.title:'';
+    $('fDate').value=x?x.session_date:(presetDay||EVENT.start_date||iso(new Date()));
+    $('fStart').value=x?(x.start_time||'').slice(0,5):'';
+    $('fEnd').value=x?(x.end_time||'').slice(0,5):'';
+    $('fRoom').value=x?(x.room||''):'';
+    $('fSpeakers').value=x?(x.speakers||''):'';
+    $('fDesc').value=x?(x.description||''):'';
+    $('fPub').checked=x?!!x.is_published:false;
+    renderCF(x?x.custom_fields:{});
+    $('btnRows').innerHTML='';
+    (x&&Array.isArray(x.buttons)?x.buttons:[]).forEach(function(b){addBtnRow(b.t,b.u);});
+    $('formErr').style.display='none';
+    show($('overlay'));
+    $('fTitle').focus();
+  }
+  function closeForm(){hide($('overlay'));editId=null;}
+
+  $('btnSave').onclick=async function(){
+    var err=$('formErr');
+    var title=$('fTitle').value.trim(),date=$('fDate').value,
+        start=$('fStart').value,end=$('fEnd').value;
+    if(!title||!date||!start){err.textContent='Title, date and start time are required.';err.style.display='block';return;}
+    if(end&&end<=start){err.textContent='End time must be after start time.';err.style.display='block';return;}
+    var payload={
+      event_id:EVENT.id,title:title,
+      description:$('fDesc').value.trim()||null,
+      session_date:date,start_time:start,end_time:end||null,
+      room:$('fRoom').value.trim()||null,
+      speakers:$('fSpeakers').value.trim()||null,
+      item_type:formType,
+      custom_fields:collectCF(),
+      buttons:collectBtns(),
+      is_published:$('fPub').checked
+    };
+    $('btnSave').disabled=true;
+    var r=editId
+      ? await sb.from('conventus_sessions').update(payload).eq('id',editId)
+      : await sb.from('conventus_sessions').insert(payload);
+    $('btnSave').disabled=false;
+    if(r.error){err.textContent='Save failed: '+r.error.message;err.style.display='block';return;}
+    closeForm();openDays[date]=true;
+    toast(editId?'Item updated.':'Item added.');
+    await loadSessions();
+  };
+
+  async function copyItem(id){
+    var x=SESSIONS.find(function(s){return s.id===id;});if(!x)return;
+    var r=await sb.from('conventus_sessions').insert({
+      event_id:EVENT.id,title:x.title+' (copy)',description:x.description,
+      session_date:x.session_date,start_time:x.start_time,end_time:x.end_time,
+      room:x.room,speakers:x.speakers,item_type:x.item_type||'session',
+      custom_fields:x.custom_fields||{},buttons:x.buttons||[],
+      is_published:false
+    });
+    if(r.error){toast('Copy failed: '+r.error.message);return;}
+    toast('Item copied (as draft).');await loadSessions();
+  }
+  async function togglePub(id){
+    var x=SESSIONS.find(function(s){return s.id===id;});if(!x)return;
+    var r=await sb.from('conventus_sessions').update({is_published:!x.is_published}).eq('id',id);
+    if(r.error){toast('Failed: '+r.error.message);return;}
+    toast(x.is_published?'Item unpublished.':'Item published.');await loadSessions();
+  }
+  async function delItem(id){
+    var x=SESSIONS.find(function(s){return s.id===id;});if(!x)return;
+    if(!confirm('Delete "'+x.title+'"? This cannot be undone.'))return;
+    var r=await sb.from('conventus_sessions').delete().eq('id',id);
+    if(r.error){toast('Delete failed: '+r.error.message);return;}
+    toast('Item deleted.');await loadSessions();
+  }
+
+  // ---------- COPY DAY ----------
+  var cpSrc=null;
+  $('cpCancel').onclick=function(){hide($('cpOverlay'));};
+  $('cpOverlay').addEventListener('click',function(e){if(e.target===this)hide($('cpOverlay'));});
+  function openCopyDay(d){
+    var rows=SESSIONS.filter(function(x){return x.session_date===d;});
+    if(!rows.length){toast('Nothing to copy on this day.');return;}
+    cpSrc=d;
+    $('cpSub').textContent=rows.length+' item'+(rows.length===1?'':'s')+' from '+dayName(d)+' will be copied as drafts.';
+    var nd=pd(d);nd.setDate(nd.getDate()+1);
+    $('cpDate').value=iso(nd);
+    $('cpErr').style.display='none';
+    show($('cpOverlay'));
+  }
+  $('cpSave').onclick=async function(){
+    var err=$('cpErr');
+    var tgt=$('cpDate').value;
+    if(!tgt){err.textContent='Choose a target date.';err.style.display='block';return;}
+    if(tgt===cpSrc){err.textContent='Target date must be different from the source day.';err.style.display='block';return;}
+    var rows=SESSIONS.filter(function(x){return x.session_date===cpSrc;});
+    var payloads=rows.map(function(x){return{
+      event_id:EVENT.id,title:x.title,description:x.description,
+      session_date:tgt,start_time:x.start_time,end_time:x.end_time,
+      room:x.room,speakers:x.speakers,item_type:x.item_type||'session',
+      custom_fields:x.custom_fields||{},buttons:x.buttons||[],
+      is_published:false
+    };});
+    $('cpSave').disabled=true;
+    var r=await sb.from('conventus_sessions').insert(payloads);
+    $('cpSave').disabled=false;
+    if(r.error){err.textContent='Copy failed: '+r.error.message;err.style.display='block';return;}
+    hide($('cpOverlay'));
+    openDays[tgt]=true;
+    toast(payloads.length+' item'+(payloads.length===1?'':'s')+' copied to '+dayName(tgt)+'.');
+    await loadSessions();
+  };
+
+  // ---------- COLUMNS MANAGER ----------
+  $('btnCols').onclick=openCols;
+  $('colCancel').onclick=function(){hide($('colOverlay'));};
+  $('colOverlay').addEventListener('click',function(e){if(e.target===this)hide($('colOverlay'));});
+
+  function colRow(l,t){
+    var d=document.createElement('div');
+    d.className='dyn-row cols';
+    d.innerHTML='<input placeholder="Column name — e.g. Attendees" maxlength="40" class="cr-l" value="'+esc(l||'')+'"/>'
+      +'<select class="cr-t">'
+        +'<option value="text"'+(t==='text'?' selected':'')+'>Text</option>'
+        +'<option value="number"'+(t==='number'?' selected':'')+'>Number</option>'
+        +'<option value="yesno"'+(t==='yesno'?' selected':'')+'>Yes / No</option>'
+      +'</select>'
+      +'<button type="button" class="dyn-x">✕</button>';
+    d.querySelector('.dyn-x').onclick=function(){d.remove();};
+    $('colRows').appendChild(d);
+  }
+  $('btnAddColRow').onclick=function(){colRow('','text');};
+
+  function openCols(){
+    $('colRows').innerHTML='';
+    FIELD_DEFS.forEach(function(f){colRow(f.l,f.t);});
+    if(!FIELD_DEFS.length)colRow('','text');
+    $('colErr').style.display='none';
+    show($('colOverlay'));
+  }
+
+  $('colSave').onclick=async function(){
+    var defs=[],seen={},dup=false;
+    $('colRows').querySelectorAll('.dyn-row').forEach(function(r){
+      var l=r.querySelector('.cr-l').value.trim();
+      var t=r.querySelector('.cr-t').value;
+      if(!l)return;
+      var k=slug(l);
+      if(seen[k]){dup=true;return;}
+      seen[k]=1;
+      defs.push({k:k,l:l,t:t});
+    });
+    if(dup){$('colErr').textContent='Two columns have the same name.';$('colErr').style.display='block';return;}
+    $('colSave').disabled=true;
+    var r=await sb.from('conventus_managed_events')
+      .update({agenda_field_defs:defs}).eq('id',EVENT.id);
+    $('colSave').disabled=false;
+    if(r.error){$('colErr').textContent='Save failed: '+r.error.message;$('colErr').style.display='block';return;}
+    FIELD_DEFS=defs;
+    hide($('colOverlay'));
+    toast('Columns saved.');
+    render();
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+{
+  "meta": {
+    "title": "CIMIC Analytical Layers",
+    "scope": "Civil-only · resilience awareness",
+    "generated": "2026-06-03",
+    "note": "Sample/illustrative analytical content for UI prototype. Replace with analyst-produced, sourced reporting."
+  },
+  "statuses": {
+    "current": {
+      "label": "Current",
+      "c": "var(--ok)"
+    },
+    "updated": {
+      "label": "Updated",
+      "c": "var(--cyan)"
+    },
+    "draft": {
+      "label": "Draft",
+      "c": "var(--gold)"
+    },
+    "stale": {
+      "label": "Stale",
+      "c": "var(--mute)"
+    },
+    "alert": {
+      "label": "Attention",
+      "c": "var(--danger)"
+    }
+  },
+  "layers": [
+    {
+      "id": "gov",
+      "name": "Governance & Administration",
+      "status": "current",
+      "updated": "2026-05-28",
+      "subheads": [
+        "Authority mapping",
+        "Service continuity",
+        "Rule of law"
+      ],
+      "bluf": "Local administrative capacity is uneven; service continuity holds in urban centres but lapses in contested peripheries.",
+      "findings": [
+        "De facto authorities established in most governorates; coordination interfaces still maturing.",
+        "Civil registry and documentation gaps complicate returns and aid eligibility."
+      ],
+      "indicators": [
+        "Functional municipalities",
+        "Documentation backlog",
+        "Local dispute volume"
+      ],
+      "purpose": "Maps who governs and whether essential public functions keep running."
+    },
+    {
+      "id": "pop",
+      "name": "Population & Displacement",
+      "status": "updated",
+      "updated": "2026-06-01",
+      "subheads": [
+        "IDP movements",
+        "Returns",
+        "Camp profiles"
+      ],
+      "bluf": "Net displacement is declining as large-scale returns continue, but secondary displacement persists near friction lines.",
+      "findings": [
+        "Returns concentrated in a few governorates; absorption capacity strained.",
+        "Camp populations decreasing yet residual caseload remains highly vulnerable."
+      ],
+      "indicators": [
+        "Net IDP change",
+        "Return intentions",
+        "Camp decongestion rate"
+      ],
+      "purpose": "Tracks where people are moving, returning, and concentrating."
+    },
+    {
+      "id": "infra",
+      "name": "Infrastructure & Essential Services",
+      "status": "alert",
+      "updated": "2026-05-30",
+      "subheads": [
+        "Energy",
+        "Water",
+        "Transport"
+      ],
+      "bluf": "Essential services operate well below capacity; water and energy shortfalls are the binding constraints on recovery.",
+      "findings": [
+        "Power availability intermittent; reliance on costly private generation.",
+        "Water systems degraded; drought compounds scarcity in agricultural zones."
+      ],
+      "indicators": [
+        "Grid availability hrs/day",
+        "Network water coverage",
+        "Road access status"
+      ],
+      "purpose": "Monitors the condition and availability of essential services."
+    },
+    {
+      "id": "econ",
+      "name": "Economy & Livelihoods",
+      "status": "current",
+      "updated": "2026-05-27",
+      "subheads": [
+        "Markets",
+        "Employment",
+        "Prices (MEB)"
+      ],
+      "bluf": "Liquidity shortages and price volatility suppress purchasing power; livelihoods remain fragile.",
+      "findings": [
+        "Minimum Expenditure Basket cost rising faster than wages.",
+        "Cash access constrained; informal economy dominant."
+      ],
+      "indicators": [
+        "MEB trend",
+        "Wage-to-MEB ratio",
+        "Cash availability"
+      ],
+      "purpose": "Assesses market function, prices, and household purchasing power."
+    },
+    {
+      "id": "humco",
+      "name": "Humanitarian Actors & Coordination",
+      "status": "current",
+      "updated": "2026-05-29",
+      "subheads": [
+        "Cluster presence",
+        "Access",
+        "Funding"
+      ],
+      "bluf": "Coordination architecture is consolidating under a unified structure; funding shortfalls drive hard prioritization.",
+      "findings": [
+        "Cluster coverage strong in accessible areas, thin in periphery.",
+        "Appeal underfunded; activities reprioritized to highest-severity needs."
+      ],
+      "indicators": [
+        "Partner presence",
+        "Access incidents",
+        "Funding coverage %"
+      ],
+      "purpose": "Maps humanitarian presence, access, and funding against need."
+    },
+    {
+      "id": "health",
+      "name": "Public Health",
+      "status": "alert",
+      "updated": "2026-05-31",
+      "subheads": [
+        "Facilities",
+        "Disease surveillance",
+        "Nutrition"
+      ],
+      "bluf": "Health system capacity is critically reduced; outbreak and malnutrition risks are elevated.",
+      "findings": [
+        "Significant share of facilities non- or partially functional; workforce depleted.",
+        "Water-related disease risk rising alongside drought and WASH gaps."
+      ],
+      "indicators": [
+        "Functional facilities %",
+        "Outbreak alerts",
+        "Malnutrition screening"
+      ],
+      "purpose": "Monitors health-system capacity, disease risk, and nutrition."
+    },
+    {
+      "id": "social",
+      "name": "Social & Cultural Dynamics",
+      "status": "draft",
+      "updated": "2026-05-22",
+      "subheads": [
+        "Community cohesion",
+        "Information environment",
+        "Protection"
+      ],
+      "bluf": "Inter-community tensions are localized but sensitive; the information environment is contested.",
+      "findings": [
+        "Returns and resource competition create friction in some communities.",
+        "Rumour and misinformation affect aid uptake and perceptions."
+      ],
+      "indicators": [
+        "Tension reports",
+        "Rumour tracking",
+        "Protection incidents"
+      ],
+      "purpose": "Reads community cohesion, the information environment, and protection."
+    },
+    {
+      "id": "hazard",
+      "name": "Hazard & Environment",
+      "status": "updated",
+      "updated": "2026-06-02",
+      "subheads": [
+        "Climate stress",
+        "Explosive ordnance",
+        "Disaster risk"
+      ],
+      "bluf": "Climate stress and explosive-ordnance contamination are persistent, cross-cutting drivers of need.",
+      "findings": [
+        "Severe drought reduces agricultural output and water access.",
+        "Explosive ordnance causes recurring civilian casualties and blocks land use."
+      ],
+      "indicators": [
+        "Rainfall anomaly",
+        "EO incident rate",
+        "Hazard exposure"
+      ],
+      "purpose": "Tracks climate, explosive-ordnance, and disaster risk as cross-cutting drivers."
+    }
+  ]
+}

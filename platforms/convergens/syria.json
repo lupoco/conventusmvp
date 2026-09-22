@@ -1,0 +1,43 @@
+{
+  "meta": { "country": "Syria", "generated": "2026-06-03" },
+  "kpis": [
+    { "label": "People in Need",       "value": "16.5M",  "sub": "~70% of population (OCHA, 2025)",        "gold": true },
+    { "label": "Internally Displaced",  "value": "5.5M",   "sub": "1.4M in 1,782 camps/sites (OCHA)",       "gold": false },
+    { "label": "2025 Appeal",           "value": "$3.19B", "sub": "10.3M targeted (OCHA)",                  "gold": false },
+    { "label": "Funding Coverage",      "value": "~30%",   "sub": "of 2025 appeal (UN, Dec 2025)",          "gold": true }
+  ],
+  "sectors_need": [
+    { "name": "Healthcare", "v": 15.8 },
+    { "name": "WASH",       "v": 14.4 },
+    { "name": "Children",   "v": 7.5 },
+    { "name": "Nutrition",  "v": 5.7 },
+    { "name": "Education",  "v": 2.5 }
+  ],
+  "funding": { "required": 3.19, "received": 0.96, "unit": "$B", "pct": 0.30 },
+  "requirements": [
+    { "t": "2021",  "v": 4.22 },
+    { "t": "2024",  "v": 4.07 },
+    { "t": "2025",  "v": 3.19 },
+    { "t": "2026*", "v": 3.20 }
+  ],
+  "displacement": [
+    { "name": "IDPs (current)",          "v": 5.5, "c": "var(--cyan)" },
+    { "name": "Returned since Dec '24",  "v": 2.5, "c": "var(--gold)" },
+    { "name": "In IDP camps/sites",      "v": 1.4, "c": "var(--ok)" }
+  ],
+  "context": [
+    { "big": "57%",   "lab": "of hospitals fully functional; ~15.8M need healthcare (WHO, 2025)" },
+    { "big": "36-yr", "lab": "worst drought in 36 years; rainfall 54% below average, 8.5M with worsened water access (UNICEF, 2025)" },
+    { "big": ">50%",  "lab": "of the population is food insecure (UN, 2025)" },
+    { "big": "90",    "lab": "explosive-ordnance casualties in October 2025 alone (OCHA)" }
+  ],
+  "sources": [
+    { "t": "OCHA — Syrian Arab Republic country page (GHO 2026: $3.2B / 10.3M)", "u": "https://www.unocha.org/syrian-arab-republic", "d": "Apr 2026" },
+    { "t": "OCHA — Humanitarian Overview No. 2 (16.5M PiN; 5.5M IDPs; 1.4M in camps)", "u": "https://www.unocha.org/publications/report/syrian-arab-republic/syrian-arab-republic-humanitarian-overview-issue-no-2-november-2025", "d": "Nov 2025" },
+    { "t": "OCHA — Humanitarian Response Priorities Jan–Dec 2025 ($3.19B / 10.3M)", "u": "https://www.unocha.org/publications/report/syrian-arab-republic/syrian-arab-republic-humanitarian-response-priorities-january-december-2025", "d": "2025" },
+    { "t": "FTS — Syria HRP 2024 ($4.07B required, 34.8% funded)", "u": "https://fts.unocha.org/plans/1175/summary", "d": "Mar 2025" },
+    { "t": "IOM — Syria Crisis Response Plan 2026 (6.08M IDPs Oct; 2.5M returns)", "u": "https://crisisresponse.iom.int/response/syrian-arab-republic-crisis-response-plan-2026", "d": "2026" },
+    { "t": "UN News — 2025 appeal ~30% funded", "u": "https://news.un.org/en/story/2025/12/1166629", "d": "Dec 2025" },
+    { "t": "UNICEF — Humanitarian Action for Children Syria 2025 (WASH 13.6M; nutrition 5.7M)", "u": "https://www.unicefusa.org/sites/default/files/2024-12/UNICEF_Humanitarian_Action_Children_Syria_2025.pdf", "d": "2025" }
+  ]
+}

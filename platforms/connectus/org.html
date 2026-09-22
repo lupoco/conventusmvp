@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-standalone="connectus"
+      data-platform-title="Connectus · Organisation · Conventity">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connectus · Organisation · Conventity</title>
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/shared.css" />
+  <link rel="stylesheet" href="/assets/connectus-app.css" />
+</head>
+<body>
+<div class="cn-app">
+  <div class="uncls">UNCLASSIFIED</div>
+
+  <!-- ===== Top nav ===== -->
+  <nav class="cn-nav">
+    <a class="brand" href="/platforms/connectus/app.html">
+      <span class="mark">C</span>
+      <b>Connectus<span data-i="cn.brand_sub"> · network</span></b>
+    </a>
+    <div class="cn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="navSearch" type="search" data-ph="cn.nav.search" placeholder="Search people, expertise, orgs…" autocomplete="off">
+    </div>
+    <div class="cn-navspace"></div>
+    <div class="cn-navlinks">
+      <a href="/platforms/connectus/app.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+        <span data-i="cn.nav.home">Home</span></a>
+      <a href="/platforms/connectus/network.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17.5 14c2.4 0 4 1.7 4 4"/></svg>
+        <span data-i="cn.nav.network">Network</span></a>
+      <a href="/platforms/connectus/messages.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4z"/></svg>
+        <span data-i="cn.nav.msg">Messaging</span></a>
+      <a href="/platforms/connectus/notifications.html" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span data-i="cn.nav.alerts">Alerts</span><span class="nav-badge" id="alertsBadge" style="display:none">0</span></a>
+      <span class="divider"></span>
+      <div class="cn-navlink-me" data-menu>
+        <a href="/platforms/connectus/profile.html" data-menu-btn aria-haspopup="true" aria-expanded="false" title="Me">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg>
+          <span data-i="cn.nav.me">Me</span> &#9662;</a>
+        <div data-menu-pop>
+          <div class="menu-id"><div class="av" id="meMenuAv">&mdash;</div><div><b id="meMenuNm">&mdash;</b><span id="meMenuTag"></span></div></div>
+          <a href="/platforms/connectus/profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3-6 7-6s7 2.6 7 6"/></svg> <span data-i="cn.me.view">View profile</span></a>
+          <a href="/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 0 1-4 0v-.1A1.7 1.7 0 0 0 6 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 3.4 6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H8a1.7 1.7 0 0 0 1-1.5V2a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V8a1.7 1.7 0 0 0 1.5 1H22a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg> <span data-i="cn.me.settings">Settings</span></a>
+          <div class="sep"></div>
+          <button type="button" data-signout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> <span data-i="cn.me.signout">Sign out</span></button>
+        </div>
+      </div>
+    </div>
+    <span class="divider"></span>
+    <button class="cn-lang" data-lang-toggle>TR</button>
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control>
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+  </nav>
+
+  <!-- ===== Organisation ===== -->
+  <div class="org-wrap" id="orgWrap">
+    <div class="org-top">
+      <div class="org-cover"></div>
+      <div class="org-head">
+        <div class="org-logo" id="oLogo">—</div>
+        <div class="org-id">
+          <h1 class="org-name" id="oName">Loading…</h1>
+          <div class="org-meta" id="oMeta"></div>
+          <div class="org-stats" id="oStats"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="pf-section">
+      <span class="eyebrow" data-i="cn.org.cap_eb">Collective capability</span>
+      <h2 data-i="cn.org.cap_t">Areas of expertise</h2>
+      <div class="tagwrap" id="oTags"><span class="pf-empty" data-i="cn.msg.loading">Loading…</span></div>
+      <div class="disclaim" data-i="cn.org.cap_disc">Aggregated from the verified expertise of this organisation's members in the ecosystem.</div>
+    </section>
+
+    <section class="pf-section">
+      <span class="eyebrow" data-i="cn.org.prov_eb">Provenance</span>
+      <h2 data-i="cn.org.rec_t">Organisation records</h2>
+      <div id="oCreds"><div class="pf-empty" data-i="cn.msg.loading">Loading…</div></div>
+      <div class="disclaim" data-i="cn.org.rec_disc">Portable proof from evidenced activities. AI advises; humans decide.</div>
+    </section>
+
+    <section class="pf-section">
+      <span class="eyebrow" data-i="cn.org.ppl_eb">People</span>
+      <h2><span data-i="cn.org.mem_t">Members</span> <span id="oMemCount" style="color:var(--muted);font-family:Manrope;font-size:14px"></span></h2>
+      <div class="mem-grid" id="oMembers"><div class="pf-empty" data-i="cn.msg.loading">Loading…</div></div>
+    </section>
+
+    <div class="footnote">Connectus · purpose-locked professional network · <a href="/platforms/connectus/index.html" data-i="cn.foot.about">About →</a></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script src="/assets/i18n.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SB_URL=window.__CV_SUPABASE_URL;
+  function sb(){ if(window.__cvSb) return window.__cvSb; if(!window.supabase) return null;
+    return window.cvClient(); }
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function initials(s){ s=String(s||'').trim(); if(!s) return '?';
+    var p=s.replace(/^(Dr|Maj|Col|Gen|Lt|Capt|Mr|Ms|Mrs|Prof)\.?\s+/i,'').split(/[\s@._-]+/).filter(Boolean);
+    return ((p[0]?p[0][0]:s[0])+(p[1]?p[1][0]:'')).toUpperCase(); }
+  function orgInit(s){ s=String(s||'').trim(); if(!s) return '?';
+    var p=s.split(/[\s.\-]+/).filter(Boolean); return ((p[0]?p[0][0]:'')+(p[1]?p[1][0]:'')).toUpperCase()||s[0].toUpperCase(); }
+  function fmtDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateString('en-GB',{year:'numeric',month:'short'}); }catch(e){ return ''; } }
+  function qp(k){ try{ return new URLSearchParams(location.search).get(k); }catch(e){ return null; } }
+
+  function T(k){ return (window.T?window.T(k):null)||k; }
+  var orgId=qp('id'), lastO=null, loaded=false;
+
+  function credIcon(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l7 4v6c0 4.4-3 8.2-7 10-4-1.8-7-5.6-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>'; }
+
+  function render(o){
+    if(!loaded && !o) return; lastO=o;
+    if(!o){ $('oName').textContent=T('cn.org.notfound');
+      $('oMeta').textContent=T('cn.org.notfound_s');
+      $('oTags').innerHTML='<span class="pf-empty">—</span>';
+      $('oCreds').innerHTML='<div class="pf-empty">—</div>';
+      $('oMembers').innerHTML='<div class="pf-empty">—</div>'; return; }
+
+    $('oLogo').textContent=orgInit(o.short||o.name);
+    $('oName').textContent=o.name;
+    var meta='<span class="pill">'+esc(o.org_type||'organisation')+'</span>';
+    if(o.nation) meta+='<span>'+esc(o.nation)+'</span>';
+    if(o.short && o.short!==o.name) meta+='<span>· '+esc(o.short)+'</span>';
+    $('oMeta').innerHTML=meta;
+    $('oStats').innerHTML='<div><b>'+(o.members_count||0)+'</b> <span>'+esc(T('cn.org.l_mem'))+'</span></div>'+
+      '<div><b>'+((o.expertise||[]).length)+'</b> <span>'+esc(T('cn.org.l_areas'))+'</span></div>'+
+      '<div><b>'+((o.credentials||[]).length)+'</b> <span>'+esc(T('cn.org.l_rec'))+'</span></div>';
+
+    var tags=o.expertise||[];
+    $('oTags').innerHTML=tags.length?tags.map(function(t){ return '<span class="tagpill">'+esc(t)+'</span>'; }).join('')
+      :'<span class="pf-empty">'+esc(T('cn.org.no_exp'))+'</span>';
+
+    var creds=o.credentials||[];
+    $('oCreds').innerHTML=creds.length?creds.map(function(c){
+      var slug=c.proof_slug;
+      var show=slug?('<a class="show" href="/verified.html?s='+encodeURIComponent(slug)+'" target="_blank" rel="noopener">'+esc(T('cn.pf.show_rec'))+' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></a>'):'';
+      return '<div class="cred"><div class="badge">'+credIcon()+'</div><div class="info"><b>'+esc(c.type||'evidence')+'</b>'+
+        '<div class="sub">via '+esc(c.activity||'Activity')+'</div>'+
+        (c.issued_at?'<div class="date">'+esc(fmtDate(c.issued_at))+'</div>':'')+'</div>'+show+'</div>';
+    }).join(''):'<div class="pf-empty">'+esc(T('cn.org.no_rec'))+'</div>';
+
+    var mem=o.members||[];
+    $('oMemCount').textContent=mem.length?('· '+(o.members_count||mem.length)):'';
+    $('oMembers').innerHTML=mem.length?mem.map(function(m){
+      return '<a class="mem" href="/platforms/connectus/profile.html?id='+encodeURIComponent(m.id)+'">'+
+        '<div class="av">'+esc(initials(m.name))+'</div><div class="info"><b>'+esc(m.name)+'</b>'+
+        '<div class="tg">'+esc(m.tagline||'')+'</div>'+(m.events?'<div class="ev">'+m.events+' '+esc(T('cn.org.activities'))+'</div>':'')+'</div></a>';
+    }).join(''):'<div class="pf-empty">'+esc(T('cn.org.no_mem'))+'</div>';
+  }
+
+  async function init(){
+    var s=sb();
+    if(!s){ loaded=true; render(null); return; }
+    try{ var se=await s.auth.getSession();
+      if(!se||!se.data||!se.data.session){ location.href='/login.html?next='+encodeURIComponent(location.pathname+location.search); return; }
+    }catch(e){}
+    if(!orgId){ loaded=true; render(null); return; }
+    try{ var r=await s.rpc('connectus_org_detail',{p_org_id:orgId}); loaded=true; render((r&&r.data)||null); }
+    catch(e){ loaded=true; render(null); }
+  }
+  var ns=$('navSearch'); if(ns) ns.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var q=(this.value||'').trim();
+    location.href='/platforms/connectus/network.html'+(q?('?q='+encodeURIComponent(q)):''); } });
+
+  if(window.CNApp) window.CNApp.onLang(function(){ if(loaded) render(lastO); });
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+<script src="/assets/connectus-app.js"></script>
+</body>
+</html>

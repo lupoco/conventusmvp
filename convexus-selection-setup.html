@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Convexus · Selection Engine · Setup</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-soft:rgba(0,73,144,.08); --pf-line:rgba(0,73,144,.3);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --gold:#E2B65E; --ok:#1E8E5A; --warn:#B7791F; --err:#C0392B;
+}
+body[data-dark]{
+  --pf:#5B92D6; --pf-soft:rgba(91,146,214,.12); --pf-line:rgba(91,146,214,.35);
+  --bg:#141B2B; --paper:#1C2436; --paper2:#212A3E;
+  --ink:#E8ECF5; --ink2:#C4CCDE; --muted:#8B97B4;
+  --line:#2C3650; --line2:#38435F;
+  --gold:#E2B65E; --ok:#3FBE7E; --warn:#D9A441; --err:#E06A5C;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh;transition:background .2s,color .2s}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 1.3rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.crumbs{display:flex;align-items:center;gap:8px;font:600 12px 'Manrope';color:var(--muted)}
+.crumbs a{color:var(--pf);text-decoration:none}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font:700 10px 'JetBrains Mono';letter-spacing:.1em}
+.bar-right{display:flex;align-items:center;gap:6px}
+.mini{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font:700 11px 'Manrope';color:var(--muted);transition:.15s}
+.mini:hover{border-color:var(--pf);color:var(--pf)}
+.mini.on{border-color:var(--pf);color:var(--pf);background:var(--pf-soft)}
+.langs{display:flex;gap:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:1.4rem 1rem 6rem}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font:700 11px 'Manrope';letter-spacing:.16em;text-transform:uppercase;color:var(--pf);margin-bottom:.5rem}
+h1{font:400 34px 'Instrument Serif',serif;line-height:1.1;margin:0 0 .25rem}
+h1 em{font-style:italic;color:var(--pf)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 1.4rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.1rem;margin-bottom:1rem}
+.card h2{font:700 12px 'JetBrains Mono';letter-spacing:.09em;text-transform:uppercase;color:var(--pf);margin:0 0 .15rem;display:flex;align-items:center;gap:.5rem}
+.card .note{font-size:12px;color:var(--muted);margin:.15rem 0 .9rem;line-height:1.6}
+.grid{display:grid;gap:.7rem}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.fl{position:relative}
+label{display:flex;align-items:center;gap:.35rem;font:600 10.5px 'JetBrains Mono';letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.28rem}
+.iq{width:15px;height:15px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font:700 10px 'Manrope';display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s;user-select:none}
+.iq:hover{border-color:var(--pf);color:var(--pf)}
+.iq.on{background:var(--pf);color:#fff;border-color:var(--pf)}
+.info{display:none;margin:.1rem 0 .5rem;padding:.55rem .7rem;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:9px;font-size:12px;line-height:1.55;color:var(--ink2)}
+.info.show{display:block;animation:fade .18s ease}
+.info b{color:var(--pf)}
+@keyframes fade{from{opacity:0;transform:translateY(-2px)}to{opacity:1}}
+input[type=text],input[type=number],select,textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:400 13.5px 'Manrope',sans-serif}
+body[data-dark] input,body[data-dark] select,body[data-dark] textarea{background:var(--paper2)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pf)}
+textarea{min-height:60px;resize:vertical}
+.chk{display:flex;align-items:center;gap:.5rem;font-size:13px;color:var(--ink)}
+.chk input{width:16px;height:16px;accent-color:var(--pf)}
+.btn{background:var(--pf);color:#fff;border:none;border-radius:9px;padding:.55rem 1rem;font:700 12.5px 'Manrope';cursor:pointer;transition:.15s}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--pf);border:1px solid var(--pf)}
+.btn.dan{background:transparent;color:var(--err);border:1px solid var(--err)}
+.btn.sm{padding:.32rem .6rem;font-size:11.5px;border-radius:7px}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg);border:1px solid var(--line);border-radius:100px;padding:.22rem .6rem;font:600 11px 'JetBrains Mono'}
+.pill b{cursor:pointer;color:var(--err)}
+.need{border:1px solid var(--line);border-radius:11px;padding:.8rem;margin-bottom:.7rem;background:var(--bg)}
+.crit{display:grid;grid-template-columns:1.6fr 1fr .7fr .9fr .7fr auto;gap:.4rem;margin-bottom:.35rem;align-items:center}
+@media(max-width:760px){.crit{grid-template-columns:1fr 1fr}}
+.crit input,.crit select{padding:.38rem .5rem;font-size:12.5px}
+.ff{display:flex;gap:.6rem;border:1px solid var(--line);border-radius:10px;padding:.6rem .7rem;margin-bottom:.45rem;background:var(--bg)}
+.ff.core{border-left:3px solid var(--gold);border-radius:0 10px 10px 0}
+.ff .k{font:700 10.5px 'JetBrains Mono';color:var(--muted);letter-spacing:.05em}
+.ff .body{flex:1;min-width:0}
+.tag{font:700 9px 'JetBrains Mono';letter-spacing:.08em;border-radius:100px;padding:2px 7px;border:1px solid;white-space:nowrap}
+.t-core{color:#8a6d1f;border-color:var(--gold);background:rgba(226,182,94,.14)}
+.t-score{color:var(--pf);border-color:var(--pf-line);background:var(--pf-soft)}
+.t-cust{color:var(--muted);border-color:var(--line)}
+.sec{font:700 11px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .5rem;padding-bottom:.25rem;border-bottom:1px solid var(--line)}
+.evrow{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.6rem .7rem;border:1px solid var(--line);border-radius:10px;margin-bottom:.4rem;background:var(--bg);cursor:pointer}
+.evrow:hover{border-color:var(--pf)}
+.st{font:700 9.5px 'JetBrains Mono';letter-spacing:.08em;border:1px solid var(--line);border-radius:100px;padding:2px 8px;color:var(--muted)}
+.bar2{display:flex;justify-content:space-between;align-items:center;gap:1rem;position:sticky;bottom:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-top:1rem}
+.msg{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1rem;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.msg.on{opacity:1}
+.gate{max-width:440px;margin:5rem auto;text-align:center}
+.hidden{display:none!important}
+.hintbar{display:flex;align-items:center;gap:.6rem;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:11px;padding:.7rem .9rem;margin-bottom:1rem;font-size:12.5px;color:var(--ink2)}
+.hintbar b{color:var(--pf)}
+.hintbar .x{margin-left:auto;cursor:pointer;color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="crumbs"><a href="/platforms/convexus/index.html">← Convexus</a><span>·</span><span class="badge" data-i18n="eng">SELECTION</span></div>
+  <div class="bar-right">
+    <div class="langs">
+      <button class="mini lg" data-lg="en">EN</button>
+      <button class="mini lg" data-lg="tr">TR</button>
+      <button class="mini lg" data-lg="fr">FR</button>
+      <button class="mini lg" data-lg="de">DE</button>
+    </div>
+    <button class="mini" id="themeBtn">🌙</button>
+  </div>
+</div>
+<div class="wrap">
+  <div id="gate" class="gate hidden">
+    <h1 data-i18n="gate_h">Sign-in <em>required</em></h1>
+    <p class="sub" data-i18n="gate_s">The selection engine is available to event organisers.</p>
+    <a class="btn" href="/login.html" style="text-decoration:none;display:inline-block" data-i18n="gate_b">Sign in</a>
+  </div>
+  <div id="listView" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrow">Convexus · Selection Engine</div>
+    <h1 data-i18n="list_h">Selection <em>Engine</em></h1>
+    <p class="sub" data-i18n="list_s">Define an event's filtering criteria and design the application form.</p>
+    <div class="hintbar" id="hint1"><span>💡</span><span data-i18n="hint_list"></span><span class="x" data-hide="hint1">✕</span></div>
+    <div class="card">
+      <h2 data-i18n="my_events">My events</h2>
+      <div id="evList"></div>
+      <div class="row" style="margin-top:.8rem">
+        <input type="text" id="newCode" data-ph="ph_code" style="max-width:260px">
+        <input type="text" id="newTitle" data-ph="ph_title" style="flex:1;min-width:200px">
+        <button class="btn" id="btnNew" data-i18n="new_ev">+ New selection event</button>
+      </div>
+      <p class="note" data-i18n="clone_note" style="margin-top:.6rem"></p>
+    </div>
+  </div>
+  <div id="editView" class="hidden">
+    <div class="crumbs" style="margin-bottom:.6rem"><a href="#" id="backLink" data-i18n="back">← Event list</a></div>
+    <h1 id="evTitle">—</h1>
+    <p class="sub" id="evSub">—</p>
+    <div class="hintbar" id="hint2"><span>💡</span><span data-i18n="hint_edit"></span><span class="x" data-hide="hint2">✕</span></div>
+
+    <div class="card">
+      <h2><span data-i18n="s1">1 · Event identity</span></h2>
+      <div class="grid g3">
+        <div class="fl"><label data-i18n="l_code">Code</label><input type="text" id="f_code" disabled></div>
+        <div class="fl"><label><span data-i18n="l_host">Host nation</span> <span class="iq" data-info="i_host">?</span></label><div class="info" data-for="i_host"></div><input type="text" id="f_host" placeholder="LV"></div>
+        <div class="fl"><label><span data-i18n="l_domain">Domain axis</span> <span class="iq" data-info="i_domain">?</span></label><div class="info" data-for="i_domain"></div>
+          <select id="f_domain">
+            <option value="ground" data-i18n="dom_ground">Ground</option><option value="aerial" data-i18n="dom_aerial">Aerial</option>
+            <option value="maritime" data-i18n="dom_maritime">Maritime</option><option value="space" data-i18n="dom_space">Space</option>
+            <option value="cyber" data-i18n="dom_cyber">Cyber</option><option value="other" data-i18n="dom_other">Other</option>
+          </select></div>
+      </div>
+      <div class="grid g3" style="margin-top:.7rem">
+        <div class="fl"><label data-i18n="l_title">Title</label><input type="text" id="f_title"></div>
+        <div class="fl"><label data-i18n="l_start">Start</label><input type="text" id="f_ws" class="dt" placeholder="05.05.2026" maxlength="10"></div>
+        <div class="fl"><label data-i18n="l_end">End</label><input type="text" id="f_we" class="dt" placeholder="12.05.2026" maxlength="10"></div>
+      </div>
+      <div class="fl" style="margin-top:.7rem"><label><span data-i18n="l_status">Status</span> <span class="iq" data-info="i_status">?</span></label><div class="info" data-for="i_status"></div>
+        <select id="f_status" style="max-width:260px">
+          <option value="draft" data-i18n="st_draft">Draft</option><option value="open" data-i18n="st_open">Open</option>
+          <option value="closed" data-i18n="st_closed">Closed</option><option value="assessed" data-i18n="st_assessed">Assessed</option>
+          <option value="published" data-i18n="st_published">Published</option>
+        </select></div>
+    </div>
+
+    <div class="card">
+      <h2><span data-i18n="s2">2 · Eligibility gate</span> <span class="iq" data-info="i_elig">?</span></h2>
+      <div class="info" data-for="i_elig"></div>
+      <p class="note" data-i18n="elig_note"></p>
+      <div class="grid g2">
+        <div class="fl"><label data-i18n="l_ok">Eligible countries</label>
+          <div class="row" id="okChips" style="margin-bottom:.4rem"></div>
+          <div class="row"><select id="okPick" style="flex:1"></select><button class="btn sm ghost" id="okAdd" data-i18n="add">Add</button></div></div>
+        <div class="fl"><label data-i18n="l_no">Excluded countries</label>
+          <div class="row" id="noChips" style="margin-bottom:.4rem"></div>
+          <div class="row"><select id="noPick" style="flex:1"></select><button class="btn sm dan" id="noAdd" data-i18n="add">Add</button></div></div>
+      </div>
+      <div class="row" style="margin-top:.8rem;gap:1.2rem">
+        <label class="chk"><input type="checkbox" id="f_partner"> <span data-i18n="c_partner"></span></label>
+        <label class="chk"><input type="checkbox" id="f_foci"> <span data-i18n="c_foci"></span> <span class="iq" data-info="i_foci">?</span></label>
+      </div>
+      <div class="info" data-for="i_foci"></div>
+    </div>
+
+    <div class="card">
+      <h2><span data-i18n="s3">3 · Thresholds & portfolio</span> <span class="iq" data-info="i_thr">?</span></h2>
+      <div class="info" data-for="i_thr"></div>
+      <div class="grid g3">
+        <div class="fl"><label><span data-i18n="l_mintrl">Minimum TRL</span> <span class="iq" data-info="i_mintrl">?</span></label><div class="info" data-for="i_mintrl"></div><input type="number" id="f_mintrl" min="1" max="9"></div>
+        <div class="fl"><label><span data-i18n="l_floor">Absolute TRL floor</span> <span class="iq" data-info="i_floor">?</span></label><div class="info" data-for="i_floor"></div><input type="number" id="f_floor" min="1" max="9"></div>
+        <div class="fl"><label data-i18n="l_slots">Invite slots</label><input type="number" id="f_slots" min="1"></div>
+      </div>
+      <div class="grid g2" style="margin-top:.7rem">
+        <div class="fl"><label><span data-i18n="l_reserve">Reserve slots</span> <span class="iq" data-info="i_reserve">?</span></label><div class="info" data-for="i_reserve"></div><input type="number" id="f_reserve" min="0"></div>
+        <div class="fl"><label><span data-i18n="l_minspec">Min specialists per area</span> <span class="iq" data-info="i_minspec">?</span></label><div class="info" data-for="i_minspec"></div><input type="number" id="f_minspec" min="0"></div>
+      </div>
+      <label class="chk" style="margin-top:.8rem"><input type="checkbox" id="f_multi"> <span data-i18n="c_multi"></span></label>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="s4">4 · Timeline</h2>
+      <div class="grid g2">
+        <div class="fl"><label data-i18n="l_dl">Application deadline</label><input type="text" id="f_dl" class="dt" maxlength="10"></div>
+        <div class="fl"><label data-i18n="l_asd">Assessment</label><input type="text" id="f_asd" class="dt" maxlength="10"></div>
+        <div class="fl"><label data-i18n="l_inv">Invitation</label><input type="text" id="f_inv" class="dt" maxlength="10"></div>
+        <div class="fl"><label data-i18n="l_cfm">Confirmation deadline</label><input type="text" id="f_cfm" class="dt" maxlength="10"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span data-i18n="s5">5 · Challenge areas</span> <span class="iq" data-info="i_needs">?</span></h2>
+      <div class="info" data-for="i_needs"></div>
+      <p class="note" data-i18n="needs_note"></p>
+      <div id="needs"></div>
+      <button class="btn ghost sm" id="addNeed" data-i18n="add_need">+ Add challenge area</button>
+    </div>
+
+    <div class="card">
+      <h2><span data-i18n="s6">6 · Application form</span> <span class="iq" data-info="i_form">?</span></h2>
+      <div class="info" data-for="i_form"></div>
+      <p class="note"><span class="tag t-core" style="margin-right:.3rem">CORE</span><span data-i18n="form_note"></span></p>
+      <div id="fields"></div>
+      <div class="row" style="margin-top:.8rem">
+        <input type="text" id="cfKey" data-ph="ph_key" style="max-width:180px">
+        <input type="text" id="cfLabel" data-ph="ph_q" style="flex:1;min-width:180px">
+        <select id="cfType" style="max-width:150px">
+          <option value="text" data-i18n="ty_text">Text</option><option value="textarea" data-i18n="ty_textarea">Long text</option>
+          <option value="number" data-i18n="ty_number">Number</option><option value="boolean" data-i18n="ty_boolean">Yes/No</option>
+          <option value="select" data-i18n="ty_select">Single choice</option><option value="multiselect" data-i18n="ty_multi">Multi choice</option>
+          <option value="url" data-i18n="ty_url">Link</option><option value="file" data-i18n="ty_file">File</option>
+        </select>
+        <button class="btn sm" id="cfAdd" data-i18n="add_custom">+ Custom field</button>
+      </div>
+    </div>
+
+    <div class="bar2">
+      <div id="dirty" style="font-size:12px;color:var(--muted)" data-i18n="saved">Saved</div>
+      <div class="row">
+        <button class="btn ghost" id="btnPreview" data-i18n="preview">Preview form</button>
+        <button class="btn" id="btnSave" data-i18n="save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="msg" id="msg"></div>
+<script>
+(function(){
+'use strict';
+var I18N={
+ en:{eng:"SELECTION",eyebrow:"Convexus · Selection Engine",gate_h:'Sign-in <em>required</em>',gate_s:"The selection engine is available to event organisers.",gate_b:"Sign in",list_h:'Selection <em>Engine</em>',list_s:"Define an event's filtering criteria and design the application form.",hint_list:"<b>First time here?</b> Each event has its own gate criteria and its own application form. Open an event to edit it, or create a new one below.",hint_edit:"Tap the <b>?</b> next to any field to see what it does and why it matters. Nothing is saved until you press <b>Save</b>.",my_events:"My events",new_ev:"+ New selection event",back:"← Event list",ph_code:"Event code (e.g. CA26-EFDI-P4)",ph_title:"Title",ph_key:"field_key",ph_q:"Question text",clone_note:"When a new event is created, 29 core form fields are copied automatically.",s1:"1 · Event identity",s2:"2 · Eligibility gate",s3:"3 · Thresholds & portfolio",s4:"4 · Timeline",s5:"5 · Challenge areas",s6:"6 · Application form",l_code:"Code",l_host:"Host nation",l_domain:"Domain axis",l_title:"Title",l_start:"Start (DD.MM.YYYY)",l_end:"End (DD.MM.YYYY)",l_status:"Status",dom_ground:"Ground",dom_aerial:"Aerial",dom_maritime:"Maritime",dom_space:"Space",dom_cyber:"Cyber",dom_other:"Other",st_draft:"Draft — hidden",st_open:"Open — accepting applications",st_closed:"Closed — applications ended",st_assessed:"Assessed",st_published:"Published",elig_note:"These are eliminating filters, not scored. Leave the eligible list empty to apply no country restriction.",l_ok:"Eligible countries",l_no:"Excluded countries",add:"Add",c_partner:"Open to partner nations (AUS, JPN, NZL, KOR…)",c_foci:"Require foreign ownership (FOCI) declaration",l_mintrl:"Minimum TRL",l_floor:"Absolute TRL floor",l_slots:"Invite slots",l_reserve:"Reserve slots",l_minspec:"Min specialists per area",c_multi:"Board mode — multiple assessors",l_dl:"Application deadline",l_asd:"Assessment",l_inv:"Invitation",l_cfm:"Confirmation deadline",needs_note:"The most critical part. If a criterion is not concrete and numeric, the engine cannot score it.",add_need:"+ Add challenge area",form_note:"fields are the engine's inputs — they cannot be deleted or made optional. You can rename them, edit help text, reorder, and extend option lists. Add or remove custom fields freely.",ty_text:"Text",ty_textarea:"Long text",ty_number:"Number",ty_boolean:"Yes/No",ty_select:"Single choice",ty_multi:"Multi choice",ty_url:"Link",ty_file:"File",add_custom:"+ Custom field",saved:"Saved",unsaved:"Unsaved changes",preview:"Preview form",save:"Save",need_code:"Code",need_title:"Title",need_detail:"Description",need_crit:"Measurable criteria",add_crit:"+ Criterion",del_need:"Delete area",ph_critname:"Criterion name",ph_key2:"key",ph_val:"value",ph_unit:"unit",required:"Required",del:"Delete",order:"Order",help_ph:"Help text (optional)",no_restr:"No restriction",scored:"SCORED",
+   i_host:"The country hosting the exercise. Used for logistics context and to grant a small advantage to local companies.",i_domain:"The operational environment. Applications in a <b>different</b> axis (e.g. aerial when you need ground) lose the TRL-waiver and score lower.",i_status:"<b>Draft</b> hides the event. <b>Open</b> lets companies apply. Only switch to Open once the form and criteria are final.",i_elig:"Companies from ineligible countries are removed before scoring. This is where a national or export restriction is enforced.",i_foci:"Asks whether the company is owned or controlled by a non-allied entity. A 'German' firm can be foreign-controlled — this surfaces it.",i_thr:"The gate that decides who gets scored at all, plus the portfolio rules that shape the final invited set.",i_mintrl:"The maturity bar. Below it, a company still passes only if it has external validation <b>and</b> matches the domain axis.",i_floor:"The hard floor. Nothing below this is ever considered, whatever the validation. Set it below the minimum TRL.",i_reserve:"Backup companies ranked just under the invited set. If an invitee drops out, the top reserve moves up.",i_minspec:"Guarantees each challenge area has at least this many <b>specialists</b> — companies built primarily for that area — even if platforms outscore them.",i_needs:"Each challenge area is a capability the exercise wants to see. A company is matched to the areas it addresses.",i_form:"The exact questions companies answer. Core fields feed the engine and are locked; everything else is yours to shape."},
+ tr:{eng:"SEÇİM",eyebrow:"Convexus · Seçim Motoru",gate_h:'Giriş <em>gerekli</em>',gate_s:"Seçim motoru etkinlik organizatörlerine açıktır.",gate_b:"Giriş yap",list_h:'Seçim <em>Motoru</em>',list_s:"Etkinliğin eleme kriterlerini tanımla, başvuru formunu tasarla.",hint_list:"<b>İlk kez mi buradasın?</b> Her etkinliğin kendi eleme kriteri ve kendi başvuru formu vardır. Düzenlemek için bir etkinliğe gir veya aşağıdan yeni bir tane oluştur.",hint_edit:"Herhangi bir alanın yanındaki <b>?</b> işaretine dokunarak ne işe yaradığını ve neden önemli olduğunu gör. <b>Kaydet</b>'e basana kadar hiçbir şey kaydedilmez.",my_events:"Etkinliklerim",new_ev:"+ Yeni seçim etkinliği",back:"← Etkinlik listesi",ph_code:"Etkinlik kodu (ör. CA26-EFDI-P4)",ph_title:"Başlık",ph_key:"alan_anahtari",ph_q:"Soru metni",clone_note:"Yeni etkinlik açıldığında 29 çekirdek form alanı otomatik kopyalanır.",s1:"1 · Etkinlik kimliği",s2:"2 · Uygunluk kapısı",s3:"3 · Eşikler ve portföy",s4:"4 · Takvim",s5:"5 · Challenge alanları",s6:"6 · Başvuru formu",l_code:"Kod",l_host:"Ev sahibi ülke",l_domain:"Alan ekseni",l_title:"Başlık",l_start:"Başlangıç (GG.AA.YYYY)",l_end:"Bitiş (GG.AA.YYYY)",l_status:"Durum",dom_ground:"Kara",dom_aerial:"Hava",dom_maritime:"Deniz",dom_space:"Uzay",dom_cyber:"Siber",dom_other:"Diğer",st_draft:"Taslak — gizli",st_open:"Açık — başvuru alınıyor",st_closed:"Kapalı — başvuru bitti",st_assessed:"Değerlendirildi",st_published:"Yayınlandı",elig_note:"Bunlar eleyicidir, puanlanmaz. Uygun ülke listesi boş bırakılırsa ülke kısıtı uygulanmaz.",l_ok:"Uygun ülkeler",l_no:"Hariç tutulan ülkeler",add:"Ekle",c_partner:"Ortak ülkelere açık (AUS, JPN, NZL, KOR…)",c_foci:"Yabancı sermaye (FOCI) beyanı zorunlu",l_mintrl:"Minimum TRL",l_floor:"Mutlak taban TRL",l_slots:"Davet kontenjanı",l_reserve:"Yedek sayısı",l_minspec:"Alan başına asgari uzman",c_multi:"Board modu — birden fazla değerlendirici",l_dl:"Başvuru kapanış",l_asd:"Değerlendirme",l_inv:"Davet",l_cfm:"Teyit son tarih",needs_note:"İşin en kritik kısmı. Ölçüt somut ve sayısal değilse motor puanlayamaz.",add_need:"+ Challenge alanı ekle",form_note:"alanlar motorun girdisidir — silinemez, zorunluluğu kaldırılamaz. Etiketini, yardım metnini düzenleyebilir, sırasını değiştirebilir, seçenek listesini genişletebilirsin. Custom alanları serbestçe ekle/çıkar.",ty_text:"Metin",ty_textarea:"Uzun metin",ty_number:"Sayı",ty_boolean:"Evet/Hayır",ty_select:"Tekli seçim",ty_multi:"Çoklu seçim",ty_url:"Link",ty_file:"Dosya",add_custom:"+ Custom alan",saved:"Kaydedildi",unsaved:"Kaydedilmemiş değişiklik",preview:"Formu önizle",save:"Kaydet",need_code:"Kod",need_title:"Başlık",need_detail:"Açıklama",need_crit:"Ölçülebilir ölçütler",add_crit:"+ Ölçüt",del_need:"Alanı sil",ph_critname:"Ölçüt adı",ph_key2:"anahtar",ph_val:"değer",ph_unit:"birim",required:"Zorunlu",del:"Sil",order:"Sıra",help_ph:"Yardım metni (opsiyonel)",no_restr:"Kısıt yok",scored:"PUAN",
+   i_host:"Tatbikata ev sahipliği yapan ülke. Lojistik bağlam için kullanılır ve yerel firmalara küçük bir avantaj tanır.",i_domain:"Operasyonel ortam. <b>Farklı</b> eksendeki başvurular (ör. kara isterken hava) TRL muafiyetini kaybeder ve daha düşük puan alır.",i_status:"<b>Taslak</b> etkinliği gizler. <b>Açık</b> firmaların başvurmasını sağlar. Form ve kriter kesinleşmeden Açık'a alma.",i_elig:"Uygun olmayan ülkelerin firmaları puanlamadan önce elenir. Ulusal veya ihracat kısıtı burada uygulanır.",i_foci:"Firmanın müttefik olmayan bir kuruluşça sahiplenilip kontrol edilmediğini sorar. 'Alman' bir firma yabancı kontrollü olabilir — bu onu açığa çıkarır.",i_thr:"Kimin puanlanacağına karar veren kapı ve nihai davet kümesini şekillendiren portföy kuralları.",i_mintrl:"Olgunluk çıtası. Altında bir firma ancak harici doğrulaması <b>ve</b> alan uyumu varsa geçer.",i_floor:"Sert taban. Doğrulama ne olursa olsun bunun altı asla değerlendirilmez. Minimum TRL'nin altına ayarla.",i_reserve:"Davet kümesinin hemen altında sıralanan yedek firmalar. Davetli çekilirse ilk yedek yükselir.",i_minspec:"Her challenge alanında en az bu kadar <b>uzman</b> — o alan için özel yapılmış firma — bulunmasını garanti eder, platformlar onları geçse bile.",i_needs:"Her challenge alanı, tatbikatın görmek istediği bir yetenektir. Firma, cevap verdiği alanlarla eşleştirilir.",i_form:"Firmaların cevapladığı tam sorular. Çekirdek alanlar motoru besler ve kilitlidir; gerisi senin şekillendirmene açıktır."},
+ fr:{eng:"SÉLECTION",eyebrow:"Convexus · Moteur de sélection",gate_h:'Connexion <em>requise</em>',gate_s:"Le moteur de sélection est réservé aux organisateurs.",gate_b:"Se connecter",list_h:'Moteur de <em>sélection</em>',list_s:"Définissez les critères de filtrage et concevez le formulaire.",hint_list:"<b>Première visite ?</b> Chaque événement a ses propres critères et son propre formulaire. Ouvrez un événement ou créez-en un nouveau ci-dessous.",hint_edit:"Touchez le <b>?</b> à côté d'un champ pour comprendre son rôle. Rien n'est enregistré tant que vous n'appuyez pas sur <b>Enregistrer</b>.",my_events:"Mes événements",new_ev:"+ Nouvel événement",back:"← Liste des événements",ph_code:"Code (ex. CA26-EFDI-P4)",ph_title:"Titre",ph_key:"cle_champ",ph_q:"Texte de la question",clone_note:"À la création, 29 champs principaux sont copiés automatiquement.",s1:"1 · Identité",s2:"2 · Éligibilité",s3:"3 · Seuils & portefeuille",s4:"4 · Calendrier",s5:"5 · Domaines de défi",s6:"6 · Formulaire",l_code:"Code",l_host:"Nation hôte",l_domain:"Axe de domaine",l_title:"Titre",l_start:"Début (JJ.MM.AAAA)",l_end:"Fin (JJ.MM.AAAA)",l_status:"Statut",dom_ground:"Terrestre",dom_aerial:"Aérien",dom_maritime:"Maritime",dom_space:"Spatial",dom_cyber:"Cyber",dom_other:"Autre",st_draft:"Brouillon — masqué",st_open:"Ouvert — candidatures",st_closed:"Fermé",st_assessed:"Évalué",st_published:"Publié",elig_note:"Filtres éliminatoires, non notés. Laissez la liste vide pour aucune restriction de pays.",l_ok:"Pays éligibles",l_no:"Pays exclus",add:"Ajouter",c_partner:"Ouvert aux pays partenaires (AUS, JPN, NZL, KOR…)",c_foci:"Exiger la déclaration FOCI",l_mintrl:"TRL minimum",l_floor:"Plancher TRL absolu",l_slots:"Places d'invitation",l_reserve:"Places de réserve",l_minspec:"Spécialistes min. par domaine",c_multi:"Mode comité — plusieurs évaluateurs",l_dl:"Date limite",l_asd:"Évaluation",l_inv:"Invitation",l_cfm:"Date limite de confirmation",needs_note:"La partie la plus critique. Sans critère concret et numérique, le moteur ne peut pas noter.",add_need:"+ Ajouter un domaine",form_note:"champs sont les entrées du moteur — ni supprimables ni facultatifs. Vous pouvez les renommer, modifier l'aide, réordonner. Ajoutez/retirez les champs personnalisés librement.",ty_text:"Texte",ty_textarea:"Texte long",ty_number:"Nombre",ty_boolean:"Oui/Non",ty_select:"Choix unique",ty_multi:"Choix multiple",ty_url:"Lien",ty_file:"Fichier",add_custom:"+ Champ personnalisé",saved:"Enregistré",unsaved:"Non enregistré",preview:"Aperçu",save:"Enregistrer",need_code:"Code",need_title:"Titre",need_detail:"Description",need_crit:"Critères mesurables",add_crit:"+ Critère",del_need:"Supprimer",ph_critname:"Nom du critère",ph_key2:"clé",ph_val:"valeur",ph_unit:"unité",required:"Requis",del:"Suppr.",order:"Ordre",help_ph:"Texte d'aide (facultatif)",no_restr:"Aucune restriction",scored:"NOTÉ",
+   i_host:"Le pays hôte de l'exercice. Contexte logistique et léger avantage aux entreprises locales.",i_domain:"L'environnement opérationnel. Un axe <b>différent</b> (ex. aérien alors qu'il faut terrestre) perd la dérogation TRL et note moins.",i_status:"<b>Brouillon</b> masque. <b>Ouvert</b> permet les candidatures. Ne passez à Ouvert qu'une fois tout finalisé.",i_elig:"Les entreprises non éligibles sont retirées avant notation. Restriction nationale ou d'export appliquée ici.",i_foci:"Demande si l'entreprise est contrôlée par une entité non alliée. Une firme 'allemande' peut être sous contrôle étranger.",i_thr:"Le filtre qui décide qui est noté, plus les règles de portefeuille qui façonnent l'ensemble invité.",i_mintrl:"Le seuil de maturité. En dessous, une entreprise ne passe qu'avec validation externe <b>et</b> axe correspondant.",i_floor:"Le plancher dur. Rien en dessous n'est jamais considéré. À régler sous le TRL minimum.",i_reserve:"Entreprises de secours classées juste sous l'ensemble invité. Si un invité se retire, la première réserve monte.",i_minspec:"Garantit à chaque domaine au moins ce nombre de <b>spécialistes</b>, même si des plateformes les dépassent.",i_needs:"Chaque domaine est une capacité recherchée. L'entreprise est associée aux domaines qu'elle traite.",i_form:"Les questions exactes posées. Les champs principaux alimentent le moteur et sont verrouillés."},
+ de:{eng:"AUSWAHL",eyebrow:"Convexus · Auswahl-Engine",gate_h:'Anmeldung <em>erforderlich</em>',gate_s:"Die Auswahl-Engine ist für Veranstalter verfügbar.",gate_b:"Anmelden",list_h:'Auswahl-<em>Engine</em>',list_s:"Filterkriterien definieren und Bewerbungsformular gestalten.",hint_list:"<b>Zum ersten Mal hier?</b> Jede Veranstaltung hat eigene Kriterien und ein eigenes Formular. Öffnen Sie eine oder erstellen Sie unten eine neue.",hint_edit:"Tippen Sie auf das <b>?</b> neben einem Feld, um dessen Zweck zu sehen. Nichts wird gespeichert, bis Sie <b>Speichern</b> drücken.",my_events:"Meine Veranstaltungen",new_ev:"+ Neue Veranstaltung",back:"← Liste",ph_code:"Code (z.B. CA26-EFDI-P4)",ph_title:"Titel",ph_key:"feld_schluessel",ph_q:"Fragetext",clone_note:"Bei Erstellung werden 29 Kernfelder automatisch kopiert.",s1:"1 · Identität",s2:"2 · Zulässigkeit",s3:"3 · Schwellen & Portfolio",s4:"4 · Zeitplan",s5:"5 · Herausforderungsbereiche",s6:"6 · Formular",l_code:"Code",l_host:"Gastnation",l_domain:"Domänenachse",l_title:"Titel",l_start:"Beginn (TT.MM.JJJJ)",l_end:"Ende (TT.MM.JJJJ)",l_status:"Status",dom_ground:"Boden",dom_aerial:"Luft",dom_maritime:"See",dom_space:"Weltraum",dom_cyber:"Cyber",dom_other:"Andere",st_draft:"Entwurf — verborgen",st_open:"Offen — Bewerbungen",st_closed:"Geschlossen",st_assessed:"Bewertet",st_published:"Veröffentlicht",elig_note:"Ausschließende Filter, nicht bewertet. Leere Liste = keine Länderbeschränkung.",l_ok:"Zulässige Länder",l_no:"Ausgeschlossene Länder",add:"Hinzufügen",c_partner:"Für Partnernationen offen (AUS, JPN, NZL, KOR…)",c_foci:"FOCI-Erklärung erforderlich",l_mintrl:"Minimales TRL",l_floor:"Absolute TRL-Untergrenze",l_slots:"Einladungsplätze",l_reserve:"Reserveplätze",l_minspec:"Min. Spezialisten pro Bereich",c_multi:"Gremiummodus — mehrere Bewerter",l_dl:"Bewerbungsschluss",l_asd:"Bewertung",l_inv:"Einladung",l_cfm:"Bestätigungsfrist",needs_note:"Der kritischste Teil. Ohne konkretes, numerisches Kriterium kann die Engine nicht bewerten.",add_need:"+ Bereich hinzufügen",form_note:"Felder sind die Eingaben der Engine — nicht löschbar oder optional. Sie können sie umbenennen, Hilfe bearbeiten, umordnen. Eigene Felder frei hinzufügen/entfernen.",ty_text:"Text",ty_textarea:"Langtext",ty_number:"Zahl",ty_boolean:"Ja/Nein",ty_select:"Einzelauswahl",ty_multi:"Mehrfachauswahl",ty_url:"Link",ty_file:"Datei",add_custom:"+ Eigenes Feld",saved:"Gespeichert",unsaved:"Nicht gespeichert",preview:"Vorschau",save:"Speichern",need_code:"Code",need_title:"Titel",need_detail:"Beschreibung",need_crit:"Messbare Kriterien",add_crit:"+ Kriterium",del_need:"Löschen",ph_critname:"Kriteriumsname",ph_key2:"Schlüssel",ph_val:"Wert",ph_unit:"Einheit",required:"Pflicht",del:"Löschen",order:"Reihenf.",help_ph:"Hilfetext (optional)",no_restr:"Keine Beschränkung",scored:"WERTUNG",
+   i_host:"Das Gastland der Übung. Logistischer Kontext und kleiner Vorteil für lokale Firmen.",i_domain:"Die Einsatzumgebung. Eine <b>andere</b> Achse (z.B. Luft statt Boden) verliert die TRL-Ausnahme und wird niedriger bewertet.",i_status:"<b>Entwurf</b> verbirgt. <b>Offen</b> erlaubt Bewerbungen. Erst auf Offen stellen, wenn alles final ist.",i_elig:"Firmen aus nicht zulässigen Ländern werden vor der Bewertung entfernt. Nationale oder Exportbeschränkung hier.",i_foci:"Fragt, ob die Firma von einer nicht-alliierten Stelle kontrolliert wird. Eine 'deutsche' Firma kann fremdkontrolliert sein.",i_thr:"Das Tor, das entscheidet, wer überhaupt bewertet wird, plus die Portfolio-Regeln für die Einladung.",i_mintrl:"Die Reifeschwelle. Darunter passiert eine Firma nur mit externer Validierung <b>und</b> passender Achse.",i_floor:"Die harte Untergrenze. Nichts darunter wird je berücksichtigt. Unter das minimale TRL setzen.",i_reserve:"Ersatzfirmen direkt unter dem eingeladenen Satz. Fällt ein Eingeladener aus, rückt die erste Reserve nach.",i_minspec:"Garantiert jedem Bereich mindestens so viele <b>Spezialisten</b>, auch wenn Plattformen sie überpunkten.",i_needs:"Jeder Bereich ist eine gesuchte Fähigkeit. Die Firma wird den Bereichen zugeordnet, die sie adressiert.",i_form:"Die genauen Fragen. Kernfelder speisen die Engine und sind gesperrt."}
+};
+var LANG=localStorage.getItem('cv-lang')||'en';if(!I18N[LANG])LANG='en';
+function T(k){return (I18N[LANG]&&I18N[LANG][k]!=null)?I18N[LANG][k]:(I18N.en[k]||k);}
+function applyI18n(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-ph]').forEach(function(el){el.placeholder=T(el.getAttribute('data-ph'));});
+  document.querySelectorAll('.info[data-for]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-for'));});
+  document.querySelectorAll('.lg').forEach(function(b){b.classList.toggle('on',b.dataset.lg===LANG);});
+}
+var dark=localStorage.getItem('cn-dark')==='1';
+function applyDark(){document.body.toggleAttribute('data-dark',dark);document.getElementById('themeBtn').textContent=dark?'☀️':'🌙';}
+var SB_URL=window.__CV_SUPABASE_URL;
+var SB_KEY=window.__CV_ANON_KEY;
+var sb=window.cvClient();
+var $=function(id){return document.getElementById(id);};
+var EV=null,NEEDS=[],FIELDS=[],OKC=[],NOC=[],DIRTY=false,_DELNEEDS=[],_DELFIELDS=[];
+var COUNTRIES=['ALB','BEL','BGR','CAN','HRV','CZE','DNK','EST','FIN','FRA','DEU','GRC','HUN','ISL','ITA','LVA','LTU','LUX','MNE','NLD','MKD','NOR','POL','PRT','ROU','SVK','SVN','ESP','SWE','TUR','GBR','USA','AUS','JPN','NZL','KOR','UKR','CHE','AUT','IRL'];
+function toast(t,c){var m=$('msg');m.textContent=t;m.style.background=c||'var(--ink)';m.classList.add('on');clearTimeout(m._h);m._h=setTimeout(function(){m.classList.remove('on');},2600);}
+function dirty(){DIRTY=true;$('dirty').textContent=T('unsaved');$('dirty').style.color='var(--warn)';}
+function clean(){DIRTY=false;$('dirty').textContent=T('saved');$('dirty').style.color='';}
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+function maskDate(el){el.addEventListener('input',function(){var v=el.value.replace(/\D/g,'').slice(0,8),o='';if(v.length>0)o=v.slice(0,2);if(v.length>2)o+='.'+v.slice(2,4);if(v.length>4)o+='.'+v.slice(4,8);el.value=o;dirty();});}
+function trToIso(s){var m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((s||'').trim());return m?m[3]+'-'+m[2]+'-'+m[1]:null;}
+function isoToTr(s){if(!s)return'';var d=String(s).slice(0,10).split('-');return d.length===3?d[2]+'.'+d[1]+'.'+d[0]:'';}
+document.addEventListener('click',function(e){var q=e.target.closest('.iq');if(q){var key=q.dataset.info;var box=document.querySelector('.info[data-for="'+key+'"]');if(box){var open=box.classList.toggle('show');q.classList.toggle('on',open);}}});
+document.querySelectorAll('[data-hide]').forEach(function(x){x.onclick=function(){var el=$(x.dataset.hide);if(el)el.style.display='none';localStorage.setItem('cvsel-'+x.dataset.hide,'1');};});
+function fillPickers(){var o=COUNTRIES.map(function(c){return'<option value="'+c+'">'+c+'</option>';}).join('');$('okPick').innerHTML=o;$('noPick').innerHTML=o;}
+function renderChips(){
+  $('okChips').innerHTML=OKC.length?OKC.map(function(c,i){return'<span class="pill">'+c+' <b data-ok="'+i+'">×</b></span>';}).join(''):'<span style="font-size:12px;color:var(--muted)">'+T('no_restr')+'</span>';
+  $('noChips').innerHTML=NOC.length?NOC.map(function(c,i){return'<span class="pill">'+c+' <b data-no="'+i+'">×</b></span>';}).join(''):'<span style="font-size:12px;color:var(--muted)">—</span>';
+  document.querySelectorAll('[data-ok]').forEach(function(b){b.onclick=function(){OKC.splice(+b.dataset.ok,1);renderChips();dirty();};});
+  document.querySelectorAll('[data-no]').forEach(function(b){b.onclick=function(){NOC.splice(+b.dataset.no,1);renderChips();dirty();};});
+}
+function renderNeeds(){
+  $('needs').innerHTML=NEEDS.map(function(n,i){
+    var crits=(n.criteria||[]).map(function(c,j){
+      return '<div class="crit"><input type="text" data-n="'+i+'" data-c="'+j+'" data-k="label" value="'+esc(c.label)+'" placeholder="'+T('ph_critname')+'"><input type="text" data-n="'+i+'" data-c="'+j+'" data-k="key" value="'+esc(c.key)+'" placeholder="'+T('ph_key2')+'"><select data-n="'+i+'" data-c="'+j+'" data-k="op">'+['>=','<=','=','>','<'].map(function(o){return'<option'+(c.op===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select><input type="text" data-n="'+i+'" data-c="'+j+'" data-k="value" value="'+esc(c.value)+'" placeholder="'+T('ph_val')+'"><input type="text" data-n="'+i+'" data-c="'+j+'" data-k="unit" value="'+esc(c.unit||'')+'" placeholder="'+T('ph_unit')+'"><button class="btn sm dan" data-delc="'+i+'|'+j+'">×</button></div>';}).join('');
+    return '<div class="need"><div class="grid g3"><div><label>'+T('need_code')+'</label><input type="text" data-n="'+i+'" data-k="code" value="'+esc(n.code)+'" placeholder="EW"></div><div style="grid-column:span 2"><label>'+T('need_title')+'</label><input type="text" data-n="'+i+'" data-k="label" value="'+esc(n.label)+'"></div></div><div style="margin-top:.5rem"><label>'+T('need_detail')+'</label><input type="text" data-n="'+i+'" data-k="detail" value="'+esc(n.detail||'')+'"></div><div style="margin-top:.7rem"><label>'+T('need_crit')+'</label>'+crits+'</div><div class="row" style="margin-top:.4rem"><button class="btn sm ghost" data-addc="'+i+'">'+T('add_crit')+'</button><button class="btn sm dan" data-deln="'+i+'">'+T('del_need')+'</button></div></div>';
+  }).join('');
+  $('needs').querySelectorAll('input,select').forEach(function(el){el.oninput=function(){var i=+el.dataset.n,k=el.dataset.k;if(el.dataset.c!==undefined)NEEDS[i].criteria[+el.dataset.c][k]=el.value;else NEEDS[i][k]=el.value;dirty();};});
+  document.querySelectorAll('[data-addc]').forEach(function(b){b.onclick=function(){var i=+b.dataset.addc;NEEDS[i].criteria=NEEDS[i].criteria||[];NEEDS[i].criteria.push({key:'',label:'',op:'>=',value:'',unit:'',required:true});renderNeeds();dirty();};});
+  document.querySelectorAll('[data-delc]').forEach(function(b){b.onclick=function(){var p=b.dataset.delc.split('|');NEEDS[+p[0]].criteria.splice(+p[1],1);renderNeeds();dirty();};});
+  document.querySelectorAll('[data-deln]').forEach(function(b){b.onclick=function(){if(!confirm(T('del_need')+'?'))return;var idx=+b.dataset.deln,n=NEEDS[idx];if(n.id)_DELNEEDS.push(n.id);NEEDS.splice(idx,1);renderNeeds();dirty();};});
+}
+var SECTIONS={identity:{en:'Identity',tr:'Kimlik',fr:'Identité',de:'Identität'},system:{en:'System',tr:'Sistem',fr:'Système',de:'System'},evidence:{en:'Evidence',tr:'Kanıt',fr:'Preuve',de:'Nachweis'},logistics:{en:'Logistics',tr:'Lojistik',fr:'Logistique',de:'Logistik'},materials:{en:'Materials',tr:'Materyal',fr:'Documents',de:'Material'},custom:{en:'Custom',tr:'Custom',fr:'Personnalisé',de:'Eigene'}};
+function secName(s){return (SECTIONS[s]&&SECTIONS[s][LANG])||s;}
+function renderFields(){
+  var order=['identity','system','evidence','logistics','materials','custom'],html='';
+  order.forEach(function(sec){
+    var list=FIELDS.filter(function(f){return f.section===sec;}).sort(function(a,b){return a.sort_order-b.sort_order;});
+    if(!list.length)return;
+    html+='<div class="sec">'+secName(sec)+'</div>';
+    html+=list.map(function(f){var idx=FIELDS.indexOf(f);var tags='';
+      if(f.is_core)tags+='<span class="tag t-core">CORE</span> ';
+      if(f.is_scored)tags+='<span class="tag t-score">'+T('scored')+'</span> ';
+      if(!f.is_core)tags+='<span class="tag t-cust">CUSTOM</span> ';
+      return '<div class="ff'+(f.is_core?' core':'')+'"><div class="body"><div class="row" style="justify-content:space-between"><span class="k">'+esc(f.field_key)+' · '+esc(f.input_type)+'</span><span>'+tags+'</span></div><input type="text" data-f="'+idx+'" data-k="label_tr" value="'+esc(f.label_tr||f.label_en)+'" style="margin-top:.35rem;font-weight:600"><input type="text" data-f="'+idx+'" data-k="help_tr" value="'+esc(f.help_tr||'')+'" placeholder="'+T('help_ph')+'" style="margin-top:.3rem;font-size:12.5px"><div class="row" style="margin-top:.4rem"><label class="chk" style="font-size:12px"><input type="checkbox" data-f="'+idx+'" data-k="is_required"'+(f.is_required?' checked':'')+'> '+T('required')+'</label><span style="flex:1"></span><input type="number" data-f="'+idx+'" data-k="sort_order" value="'+f.sort_order+'" style="width:74px;font-size:12px" title="'+T('order')+'">'+(f.is_core?'':'<button class="btn sm dan" data-delf="'+idx+'">'+T('del')+'</button>')+'</div></div></div>';
+    }).join('');
+  });
+  $('fields').innerHTML=html;
+  $('fields').querySelectorAll('input').forEach(function(el){var h=function(){var f=FIELDS[+el.dataset.f],k=el.dataset.k;f[k]=el.type==='checkbox'?el.checked:(k==='sort_order'?+el.value:el.value);dirty();};if(el.type==='checkbox')el.onchange=h;else el.oninput=h;});
+  document.querySelectorAll('[data-delf]').forEach(function(b){b.onclick=function(){var f=FIELDS[+b.dataset.delf];if(f.is_core){toast('CORE','var(--err)');return;}if(!confirm((f.label_tr||f.field_key)+' ?'))return;if(f.id)_DELFIELDS.push(f.id);FIELDS.splice(+b.dataset.delf,1);renderFields();dirty();};});
+}
+async function loadList(){
+  var r=await sb.from('conventus_selection_events').select('id,event_code,title,status,host_nation,window_start').order('created_at',{ascending:false});
+  if(r.error){toast(r.error.message,'var(--err)');return;}
+  $('evList').innerHTML=(r.data||[]).length?r.data.map(function(e){return '<div class="evrow" data-ev="'+e.id+'"><div><div style="font-weight:700">'+esc(e.title)+'</div><div style="font:500 11px \'JetBrains Mono\';color:var(--muted)">'+esc(e.event_code)+(e.host_nation?' · '+esc(e.host_nation):'')+(e.window_start?' · '+isoToTr(e.window_start):'')+'</div></div><span class="st">'+esc(e.status).toUpperCase()+'</span></div>';}).join(''):'<p class="note">—</p>';
+  document.querySelectorAll('[data-ev]').forEach(function(r2){r2.onclick=function(){openEvent(r2.dataset.ev);};});
+}
+async function openEvent(id){
+  var e=await sb.from('conventus_selection_events').select('*').eq('id',id).single();
+  if(e.error){toast(e.error.message,'var(--err)');return;}EV=e.data;
+  var n=await sb.from('conventus_selection_needs').select('*').eq('event_id',id).order('sort_order');
+  NEEDS=(n.data||[]).map(function(x){x.criteria=x.criteria||[];return x;});
+  var f=await sb.from('conventus_selection_form_fields').select('*').eq('event_id',id).order('sort_order');
+  FIELDS=f.data||[];_DELNEEDS=[];_DELFIELDS=[];
+  $('listView').classList.add('hidden');$('editView').classList.remove('hidden');
+  $('evTitle').textContent=EV.title;$('evSub').textContent=EV.event_code+' · '+(EV.host_nation||'—')+' · '+NEEDS.length+' · '+FIELDS.length;
+  $('f_code').value=EV.event_code;$('f_title').value=EV.title||'';$('f_host').value=EV.host_nation||'';$('f_domain').value=EV.domain_axis||'ground';$('f_status').value=EV.status||'draft';
+  $('f_ws').value=isoToTr(EV.window_start);$('f_we').value=isoToTr(EV.window_end);
+  $('f_mintrl').value=EV.min_trl;$('f_floor').value=EV.absolute_trl_floor;$('f_slots').value=EV.slots||'';$('f_reserve').value=EV.reserve_slots||0;$('f_minspec').value=EV.min_specialists_per_need||0;
+  $('f_partner').checked=!!EV.allow_partner_nations;$('f_foci').checked=!!EV.foci_check_required;$('f_multi').checked=!!EV.multi_assessor;
+  $('f_dl').value=isoToTr(EV.application_deadline);$('f_asd').value=isoToTr(EV.assessment_date);$('f_inv').value=isoToTr(EV.invite_date);$('f_cfm').value=isoToTr(EV.confirm_deadline);
+  OKC=(EV.eligible_countries||[]).slice();NOC=(EV.excluded_countries||[]).slice();
+  renderChips();renderNeeds();renderFields();clean();window.scrollTo(0,0);
+}
+async function save(){
+  if(!EV)return;$('btnSave').disabled=true;toast('…');
+  var body={title:$('f_title').value.trim(),host_nation:$('f_host').value.trim().toUpperCase()||null,domain_axis:$('f_domain').value,status:$('f_status').value,window_start:trToIso($('f_ws').value),window_end:trToIso($('f_we').value),min_trl:+$('f_mintrl').value||6,absolute_trl_floor:+$('f_floor').value||5,slots:+$('f_slots').value||null,reserve_slots:+$('f_reserve').value||0,min_specialists_per_need:+$('f_minspec').value||0,allow_partner_nations:$('f_partner').checked,foci_check_required:$('f_foci').checked,multi_assessor:$('f_multi').checked,eligible_countries:OKC,excluded_countries:NOC,application_deadline:trToIso($('f_dl').value)?trToIso($('f_dl').value)+'T23:59:00Z':null,assessment_date:trToIso($('f_asd').value),invite_date:trToIso($('f_inv').value),confirm_deadline:trToIso($('f_cfm').value),updated_at:new Date().toISOString()};
+  var r=await sb.from('conventus_selection_events').update(body).eq('id',EV.id);
+  if(r.error){toast(r.error.message,'var(--err)');$('btnSave').disabled=false;return;}
+  for(var i=0;i<_DELNEEDS.length;i++)await sb.from('conventus_selection_needs').delete().eq('id',_DELNEEDS[i]);_DELNEEDS=[];
+  for(var j=0;j<NEEDS.length;j++){var n=NEEDS[j];var nb={event_id:EV.id,code:(n.code||'').trim().toUpperCase(),label:n.label||'',detail:n.detail||null,sort_order:j+1,criteria:(n.criteria||[]).filter(function(c){return c.key&&c.label;})};if(!nb.code)continue;var nr=n.id?await sb.from('conventus_selection_needs').update(nb).eq('id',n.id):await sb.from('conventus_selection_needs').insert(nb).select().single();if(nr.error){toast(nr.error.message,'var(--err)');$('btnSave').disabled=false;return;}if(!n.id&&nr.data)n.id=nr.data.id;}
+  for(var k=0;k<_DELFIELDS.length;k++)await sb.from('conventus_selection_form_fields').delete().eq('id',_DELFIELDS[k]);_DELFIELDS=[];
+  for(var m=0;m<FIELDS.length;m++){var f=FIELDS[m];var fb={label_tr:f.label_tr||null,help_tr:f.help_tr||null,sort_order:f.sort_order,is_required:f.is_required};if(!f.is_core){fb.label_en=f.label_tr||f.label_en;}var fr=f.id?await sb.from('conventus_selection_form_fields').update(fb).eq('id',f.id):await sb.from('conventus_selection_form_fields').insert({event_id:EV.id,field_key:f.field_key,section:'custom',label_en:f.label_tr,label_tr:f.label_tr,input_type:f.input_type,is_core:false,is_required:f.is_required,sort_order:f.sort_order}).select().single();if(fr.error){toast(fr.error.message,'var(--err)');$('btnSave').disabled=false;return;}if(!f.id&&fr.data)f.id=fr.data.id;}
+  clean();$('btnSave').disabled=false;toast('✓','var(--ok)');$('evSub').textContent=EV.event_code+' · '+(body.host_nation||'—')+' · '+NEEDS.length+' · '+FIELDS.length;
+}
+$('btnNew').onclick=async function(){var code=$('newCode').value.trim().toUpperCase(),title=$('newTitle').value.trim();if(!code||!title){toast('!','var(--warn)');return;}var u=(await sb.auth.getUser()).data.user;var r=await sb.from('conventus_selection_events').insert({event_code:code,title:title,organizer_id:u?u.id:null,status:'draft'}).select().single();if(r.error){toast(r.error.message,'var(--err)');return;}var c=await sb.rpc('conventus_sel_clone_default_form',{p_event_id:r.data.id});toast((c.data||0)+' ✓','var(--ok)');$('newCode').value='';$('newTitle').value='';openEvent(r.data.id);};
+$('backLink').onclick=function(ev){ev.preventDefault();if(DIRTY&&!confirm('?'))return;$('editView').classList.add('hidden');$('listView').classList.remove('hidden');loadList();};
+$('addNeed').onclick=function(){NEEDS.push({code:'',label:'',detail:'',criteria:[]});renderNeeds();dirty();};
+$('okAdd').onclick=function(){var v=$('okPick').value;if(OKC.indexOf(v)<0){OKC.push(v);renderChips();dirty();}};
+$('noAdd').onclick=function(){var v=$('noPick').value;if(NOC.indexOf(v)<0){NOC.push(v);renderChips();dirty();}};
+$('cfAdd').onclick=function(){var k=$('cfKey').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_'),l=$('cfLabel').value.trim();if(!k||!l){toast('!','var(--warn)');return;}if(FIELDS.some(function(f){return f.field_key===k;})){toast('!','var(--warn)');return;}FIELDS.push({field_key:k,section:'custom',label_tr:l,label_en:l,input_type:$('cfType').value,is_core:false,is_required:false,is_scored:false,sort_order:900+FIELDS.length,active:true,options:[]});$('cfKey').value='';$('cfLabel').value='';renderFields();dirty();};
+$('btnSave').onclick=save;
+$('btnPreview').onclick=function(){if(DIRTY){toast('!','var(--warn)');return;}window.open('/convexus-selection-apply.html?e='+encodeURIComponent(EV.event_code),'_blank');};
+$('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');applyDark();};
+document.querySelectorAll('.lg').forEach(function(b){b.onclick=function(){LANG=b.dataset.lg;localStorage.setItem('cv-lang',LANG);applyI18n();if(EV){renderNeeds();renderFields();renderChips();}if(DIRTY){$('dirty').textContent=T('unsaved');}else{$('dirty').textContent=T('saved');}};});
+(async function(){
+  applyDark();applyI18n();fillPickers();
+  ['hint1','hint2'].forEach(function(h){if(localStorage.getItem('cvsel-'+h)==='1'){var el=$(h);if(el)el.style.display='none';}});
+  document.querySelectorAll('.dt').forEach(maskDate);
+  var s=(await sb.auth.getSession()).data.session;
+  if(!s){$('gate').classList.remove('hidden');return;}
+  $('listView').classList.remove('hidden');loadList();
+})();
+})();
+</script>
+</body>
+</html>

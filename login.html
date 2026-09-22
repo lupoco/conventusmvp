@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in · Conventity</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/tokens.css" />
+  <link rel="stylesheet" href="/assets/base.css" />
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/cv-core.js"></script>
+  <script>
+    window.__cvSb = window.__cvSb || window.supabase.createClient(
+      window.__CV_SUPABASE_URL,
+      window.__CV_ANON_KEY,
+      { auth: { persistSession: true } }
+    );
+  </script>
+  <style>
+    body { min-height: 100vh; display: flex; overflow: hidden; }
+    .topbar { position: fixed; top: 0; right: 0; padding: var(--sp-4) var(--sp-5); z-index: 100; display: flex; gap: var(--sp-2); }
+    .theme-seg { display: flex; background: var(--paper-2); border: 1px solid var(--line-2); border-radius: var(--r-pill); overflow: hidden; }
+    .theme-seg button { padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; }
+    .theme-seg button.active { background: var(--pf); color: #fff; border-radius: var(--r-pill); }
+    .theme-seg button svg { width: 12px; height: 12px; }
+    .lang-btn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; padding: 0 12px;
+      background: var(--paper-2); color: var(--ink); border: 1px solid var(--line-2); border-radius: var(--r-pill); }
+
+    /* LEFT marketing panel */
+    .left { flex: 1; position: relative; overflow: hidden; background: var(--paper-2);
+      border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+    .left::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 40% at 50% 100%, var(--pf-glow) 0%, transparent 65%); }
+    canvas#net { position: absolute; inset: 0; opacity: .5; }
+    .left-top { position: relative; z-index: 2; padding: 2.5rem 3rem 1.5rem; }
+    .left-body { position: relative; z-index: 2; padding: 0 3rem; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .left-bottom { position: relative; z-index: 2; padding: 1.5rem 3rem 2.5rem; }
+    .logo { display: flex; align-items: center; gap: .85rem; text-decoration: none; }
+    .logo svg { width: 40px; height: 40px; }
+    .logo-name { font-family: var(--font-body); font-size: .9rem; font-weight: 700; letter-spacing: .2em; color: var(--ink); text-transform: uppercase; }
+    .logo-sub { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .left-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(2rem, 3vw, 3rem); color: var(--ink); line-height: 1.08; margin-bottom: .9rem; }
+    .left-headline em { color: var(--pf); font-style: italic; }
+    .left-sub-text { font-size: .9rem; color: var(--ink-2); line-height: 1.65; margin-bottom: 2rem; max-width: 400px; }
+    .vma-grid { display: flex; flex-direction: column; gap: .75rem; }
+    .vma-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 1.1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; }
+    .vma-icon { width: 38px; height: 38px; border-radius: var(--r-md); border: 1px solid color-mix(in srgb, var(--pf) 22%, transparent);
+      background: var(--pf-glow); display: grid; place-items: center; flex-shrink: 0; }
+    .vma-icon svg { width: 18px; height: 18px; color: var(--pf); }
+    .vma-label { font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
+    .vma-text { font-size: .8rem; color: var(--ink-2); line-height: 1.6; }
+    .vma-text em { font-style: italic; color: var(--ink); font-weight: 500; }
+    .platform-pills { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .platform-pills .pill { font-size: .6rem; }
+    .platform-pills .pill.live { border-color: var(--pf-convergens); color: var(--pf-convergens);
+      background: color-mix(in srgb, var(--pf-convergens) 10%, transparent); }
+
+    /* RIGHT form */
+    .right { width: 460px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; padding: 5rem 3.5rem 3rem; overflow-y: auto; background: var(--bg); }
+    .form-title { font-family: var(--font-display); font-weight: 400; font-size: 2.2rem; color: var(--ink); margin-bottom: .4rem; line-height: 1; }
+    .form-sub { font-size: .85rem; color: var(--ink-2); margin-bottom: 2rem; }
+    .form-sub a { color: var(--pf); font-weight: 600; }
+    .field { margin-bottom: 1rem; }
+    .pass-wrap { position: relative; }
+    .pass-wrap input { padding-right: 3rem; }
+    .eye-btn { position: absolute; right: .9rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); display: flex; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; margin: .2rem 0 1.5rem; }
+    .remember { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--ink-2); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; margin: 0; }
+    .remember input { width: auto; accent-color: var(--pf); }
+    .link-forgot { font-size: .8rem; color: var(--pf); font-weight: 600; }
+    .msg { font-size: .78rem; font-weight: 500; margin: .2rem 0 .6rem; display: none; }
+    .msg.show { display: block; }
+    .msg.err { color: var(--danger); }
+    .divider { display: flex; align-items: center; gap: .75rem; margin: 1.5rem 0; color: var(--muted);
+      font-family: var(--font-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; }
+    .divider span.line { flex: 1; height: 1px; background: var(--line); }
+    .social { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: 1.5rem; }
+    .social .btn { opacity: .5; cursor: not-allowed; }
+    .fineprint { font-size: .68rem; color: var(--muted); text-align: center; }
+    .fineprint a { color: var(--pf); }
+    .mt { margin-top: .6rem; }
+    @media (max-width: 860px) { .left { display: none; } .right { width: 100%; padding: 5rem 1.5rem 2.5rem; } body { overflow: auto; } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="theme-seg" id="themeSeg">
+    <button data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+    <button data-theme-set="system" aria-label="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    <button data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+  </div>
+  <button class="lang-btn" id="langBtn" aria-label="Language"></button>
+</div>
+
+<!-- LEFT -->
+<div class="left">
+  <canvas id="net"></canvas>
+  <div class="left-top">
+    <a href="/index.html" class="logo" aria-label="Conventity">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="var(--logo-inner)"/>
+      </svg>
+      <div>
+        <div class="logo-name" data-i="cs.brand">Conventity</div>
+        <div class="logo-sub" data-i="a.brand_sub">Ecosystem for Future</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="left-body">
+    <h2 class="left-headline"><span data-i="a.head1">Your identity.</span><br/><em data-i="a.head2">Six platforms.</em></h2>
+    <p class="left-sub-text" data-i="a.head_sub">One account. Full ecosystem access. Secure, interoperable, dual-use — built for what matters.</p>
+    <div class="vma-grid">
+      <div class="vma-card">
+        <div class="vma-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5l-8-3z"/></svg></div>
+        <div class="vma-content">
+          <div class="vma-label" data-i="a.vma1_label">Dual-Use · Secure</div>
+          <p class="vma-text" data-i="a.vma1_text">Civil &amp; military on one surface.</p>
+        </div>
+      </div>
+      <div class="vma-card">
+        <div class="vma-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M8 7l3 9M16 7l-3 9"/></svg></div>
+        <div class="vma-content">
+          <div class="vma-label" data-i="a.vma2_label">Interoperable · Always on</div>
+          <p class="vma-text" data-i="a.vma2_text">Six platforms, one backbone.</p>
+        </div>
+      </div>
+      <div class="vma-card">
+        <div class="vma-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+        <div class="vma-content">
+          <div class="vma-label" data-i="a.vma3_label">Admin-controlled · Access</div>
+          <p class="vma-text" data-i="a.vma3_text">Access granted by admins.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-bottom">
+    <div class="platform-pills">
+      <span class="pill live" data-i="a.pill_live">Convergens · Live</span>
+      <span class="pill" data-i="cs.pf_convexus">Convexus</span>
+      <span class="pill" data-i="cs.pf_conventus">Conventus</span>
+      <span class="pill" data-i="cs.pf_consultus">Consultus</span>
+      <span class="pill" data-i="cs.pf_connectus">Connectus</span>
+      <span class="pill" data-i="cs.pf_conventlab">ConventLab</span>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <h1 class="form-title" data-i="lg.title">Sign in</h1>
+  <p class="form-sub"><span data-i="lg.sub_pre">New to Conventity?</span> <a href="/register.html" data-i="lg.sub_link">Create an account</a></p>
+
+  <div class="field">
+    <label data-i="lg.lbl_id">Email or username</label>
+    <input type="text" id="email" data-ph="lg.ph_id" autocomplete="username" />
+  </div>
+
+  <div class="field">
+    <label data-i="lg.lbl_pass">Password</label>
+    <div class="pass-wrap">
+      <input type="password" id="password" data-ph="lg.ph_pass" autocomplete="current-password" />
+      <button id="togglePass" type="button" class="eye-btn" aria-label="Show password">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="row-between">
+    <label class="remember"><input type="checkbox" id="remember" /> <span data-i="lg.remember">Remember me</span></label>
+    <a href="/forgot-password.html" class="link-forgot" data-i="lg.forgot">Forgot password?</a>
+  </div>
+
+  <p class="msg err" id="errorMsg"></p>
+  <button class="btn btn-primary" style="width:100%" id="signinBtn" data-i="lg.btn">Sign in</button>
+
+  <a href="/index.html" class="btn mt" style="width:100%">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span data-i="a.back_home">Back to home</span>
+  </a>
+
+  <div class="divider"><span class="line"></span><span data-i="a.or_with">or continue with</span><span class="line"></span></div>
+
+  <div class="social">
+    <button class="btn" type="button" id="oauthGoogle" data-provider="google">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Google
+    </button>
+    <button class="btn" type="button" id="oauthLinkedin" data-provider="linkedin_oidc">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      LinkedIn
+    </button>
+  </div>
+
+  <p class="fineprint"><span data-i="a.terms_pre">By continuing you agree to the</span>
+    <a href="/legal/terms.html" data-i="a.terms">Terms of Service</a>
+    <span data-i="a.and">and</span>
+    <a href="/legal/data-protection.html" data-i="a.privacy">Privacy Policy</a>.</p>
+</div>
+
+<script src="/assets/i18n.js"></script>
+<script src="/assets/signin-log.js"></script>
+<script>
+(function(){
+  var P = window.CVPrefs, sb = window.__cvSb;
+
+  /* tema + dil kontrolleri */
+  function syncTheme(){ var cur = P ? P.getTheme() : 'system';
+    document.querySelectorAll('[data-theme-set]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-set')===cur); }); }
+  document.querySelectorAll('[data-theme-set]').forEach(function(b){
+    b.addEventListener('click', function(){ if(P) P.setTheme(b.getAttribute('data-theme-set')); syncTheme(); paintAccent(); }); });
+  function syncLang(){ var b=document.getElementById('langBtn'); if(b&&P) b.textContent = P.getLang()==='tr'?'EN':'TR'; }
+  document.getElementById('langBtn').addEventListener('click', function(){ if(P) P.toggleLang(); });
+  function setTitle(){ if(window.T) document.title = T('lg.meta'); }
+  if(P) P.onChange(function(w){ if(w==='lang'){ setTitle(); syncLang(); } if(w==='theme'){ syncTheme(); paintAccent(); } });
+  setTitle(); syncLang(); syncTheme();
+
+  /* dekoratif ağ — aksan rengi temadan okunur */
+  var cvs=document.getElementById('net'), cx=cvs.getContext('2d'), nodes=[], ACC='#004990';
+  function paintAccent(){ ACC = (getComputedStyle(document.documentElement).getPropertyValue('--pf')||'#004990').trim(); }
+  function resize(){ cvs.width=cvs.offsetWidth; cvs.height=cvs.offsetHeight; }
+  function initNodes(){ nodes=[]; var n=Math.min(Math.floor(cvs.width*cvs.height/16000),34);
+    for(var i=0;i<n;i++) nodes.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.2+.4}); }
+  function draw(){ cx.clearRect(0,0,cvs.width,cvs.height); var D=120;
+    cx.globalAlpha=.55; nodes.forEach(function(a){ a.x+=a.vx; a.y+=a.vy; if(a.x<0||a.x>cvs.width)a.vx*=-1; if(a.y<0||a.y>cvs.height)a.vy*=-1;
+      cx.beginPath(); cx.arc(a.x,a.y,a.r,0,Math.PI*2); cx.fillStyle=ACC; cx.fill(); });
+    for(var i=0;i<nodes.length;i++) for(var j=i+1;j<nodes.length;j++){ var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<D){ cx.globalAlpha=(1-d/D)*.28; cx.beginPath(); cx.moveTo(nodes[i].x,nodes[i].y); cx.lineTo(nodes[j].x,nodes[j].y); cx.strokeStyle=ACC; cx.lineWidth=.5; cx.stroke(); } }
+    requestAnimationFrame(draw); }
+  window.addEventListener('resize', function(){ resize(); initNodes(); });
+  paintAccent(); resize(); initNodes(); draw();
+
+  /* parola göster/gizle */
+  document.getElementById('togglePass').addEventListener('click', function(){
+    var inp=document.getElementById('password'); var show=inp.type==='password'; inp.type=show?'text':'password';
+    document.getElementById('eyeIcon').innerHTML = show
+      ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  });
+
+  /* Giriş sonrası hedef (S43):
+       1) güvenli ?next= (start.html kapı seçimini taşır) önceliklidir
+       2) yoksa rol -> CV.homeFor: yalnız net workspace rolleri (organizer /
+          event_manager / vendor); admin/owner ekosistem konsoluna (/index.html)
+          gider — homeFor('admin') Conventus'a yollardı, burada bilerek yapılmaz
+       Her dal fail-safe: hata/boş -> '/index.html' (mevcut davranış korunur).
+       Açık-redirect'e karşı next yalnız iç .html yolu regex'inden geçer. */
+  function cvSafeNext(){
+    try{
+      var raw=new URLSearchParams(window.location.search).get('next');
+      if(!raw) return null;
+      var p=decodeURIComponent(raw);
+      return /^\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.html$/.test(p) ? p : null;
+    }catch(_){ return null; }
+  }
+  async function cvDestAfterLogin(res){
+    var nx=cvSafeNext(); if(nx) return nx;
+    try{
+      var uid = res && res.data && res.data.user && res.data.user.id;
+      if(!uid) return '/index.html';
+      var q = await sb.from('conventity_roles').select('role').eq('auth_user_id', uid);
+      var set={}; (q && q.data || []).forEach(function(r){ set[r.role]=1; });
+      var role = set.organizer ? 'organizer' : set.event_manager ? 'event_manager' : set.vendor ? 'vendor' : null;
+      return (window.CV && window.CV.homeFor) ? window.CV.homeFor(role) : '/index.html';
+    }catch(_){ return '/index.html'; }
+  }
+
+  /* giriş akışı (korunur) */
+  var btn=document.getElementById('signinBtn'), errEl=document.getElementById('errorMsg');
+  async function doSignin(){
+    var input=document.getElementById('email').value.trim(), pass=document.getElementById('password').value;
+    errEl.classList.remove('show');
+    if(!input||!pass){ errEl.textContent=T('lg.err_empty'); errEl.classList.add('show'); return; }
+    btn.disabled=true; btn.textContent=T('lg.btn_wait');
+    var email=input;
+    if(input.indexOf('@')<0){
+      var pr=await sb.from('profiles').select('email').eq('username',input).single();
+      if(pr.error||!pr.data){ btn.disabled=false; btn.textContent=T('lg.btn'); errEl.textContent=T('lg.err_nouser'); errEl.classList.add('show'); return; }
+      email=pr.data.email;
+    }
+    var res=await sb.auth.signInWithPassword({ email:email, password:pass });
+    btn.disabled=false; btn.textContent=T('lg.btn');
+    if(res.error){ errEl.textContent=res.error.message; errEl.classList.add('show'); return; }
+    /* Üyelik kapısı (canlı, geçici): yalnız provizyonlanmış üyeler girebilir.
+       Hesabı olsa bile üye değilse oturumu kapat ve engelle. fail-closed:
+       RPC hata/boş dönerse de girişe izin verme. SQL RPC canlıya ÖNCE uygulanmalı. */
+    if(!(await window.cvIsMember(sb))){
+      try{ await sb.auth.signOut(); }catch(_){}
+      errEl.textContent=T('lg.err_notmember'); errEl.classList.add('show');
+      return;
+    }
+    if(window.cvSigninLog){ try{ await window.cvSigninLog('password'); }catch(_){} }
+    window.location.href = await cvDestAfterLogin(res);
+  }
+  btn.addEventListener('click', doSignin);
+  document.getElementById('password').addEventListener('keydown', function(e){ if(e.key==='Enter') doSignin(); });
+
+  /* index.html üyelik guard'ı üye-olmayan bir oturumu buraya geri yollarsa mesaj göster */
+  try{
+    if(new URLSearchParams(window.location.search).get('denied')==='1'){
+      errEl.textContent=T('lg.err_notmember'); errEl.classList.add('show');
+    }
+  }catch(_){}
+
+  /* sosyal giriş (Google / LinkedIn) — sağlayıcılar Supabase'te etkin olmalı */
+  function oauth(provider, srcBtn){
+    errEl.classList.remove('show');
+    if(srcBtn) srcBtn.disabled=true;
+    try{ localStorage.setItem('cv-signin-pending', provider); }catch(_){}
+    sb.auth.signInWithOAuth({ provider: provider, options: { redirectTo: window.location.origin + '/index.html' } })
+      .then(function(res){ if(res && res.error){ if(srcBtn) srcBtn.disabled=false; errEl.textContent=T('a.oauth_err'); errEl.classList.add('show'); } })
+      .catch(function(){ if(srcBtn) srcBtn.disabled=false; errEl.textContent=T('a.oauth_err'); errEl.classList.add('show'); });
+  }
+  document.querySelectorAll('[data-provider]').forEach(function(b){
+    b.addEventListener('click', function(){ oauth(b.getAttribute('data-provider'), b); });
+  });
+})();
+</script>
+</body>
+</html>

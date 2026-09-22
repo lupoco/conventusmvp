@@ -1,0 +1,1481 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-standalone="conventlab"
+      data-platform-title="Conventlab · Experimentation & Simulation Lab · Conventity">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conventlab · Experimentation & Simulation Lab · Conventity</title>
+<meta name="description" content="Conventlab — pilots, exercises, wargaming and the Eastern Flank civil-military resilience corridor (OSINT). Part of the Conventity ecosystem." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="/assets/js/cv-config.js"></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+<script defer src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+
+<link rel="stylesheet" href="/assets/shared.css" />
+</head>
+<body style="font-family: 'Manrope', system-ui, sans-serif;">
+
+<!-- ============== CONVENTLAB DETAIL OVERLAY ============== -->
+<div class="cvg-overlay" id="conventlabOverlay" data-platform="conventlab" aria-hidden="true" style="--pf-convergens: var(--pf-connovus);">
+  <div class="cvg-bar">
+    <div class="cvg-crumbs">
+      <span class="badge">CONVENTLAB</span>
+      <span class="sep">›</span>
+      <span>Experimentation Labs</span>
+    </div>
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control style="margin-right:6px;">
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+    <button class="cvg-close" data-plt-close aria-label="Close CONVENTLAB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="cvg-wrap">
+    <section class="cvg-hero">
+      <div class="cvg-hero-grid">
+        <div>
+          <span class="cvg-hero-eyebrow">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span>
+            CONVENTLAB · 06 / 06
+          </span>
+          <h1>Experiment · Validate · <em>Deploy.</em></h1>
+          <p class="cvg-hero-lead">Pilots, prototypes and operational impact pathways.</p>
+          <div class="cvg-hero-ai">
+            <span class="cvg-ai-badge"><span class="live-dot"></span> CONVENTLAB AI · LIVE</span>
+            <span class="cvg-hero-stamp" data-cvg-live>—</span>
+          </div>
+          <div class="cvg-hero-meta"><span class="pill on">ACTIVE PILOTS</span><span class="pill on">VALIDATION</span><span class="pill on">OUTCOMES</span><span class="pill on">INNOVATION</span></div>
+        </div>
+        <div class="cvg-hero-viz cl-hero-viz" aria-label="Conventlab labs map — select a node to jump to its section">
+          <svg viewBox="0 0 400 400">
+            <defs>
+              <radialGradient id="clCore" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="var(--pf-connovus)" stop-opacity=".85"/>
+                <stop offset="100%" stop-color="var(--pf-connovus)" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle class="cl-orbit" cx="200" cy="200" r="160" fill="none" stroke="var(--line)" stroke-dasharray="3 7"/>
+            <circle class="cl-orbit rev" cx="200" cy="200" r="100" fill="none" stroke="var(--line)" stroke-dasharray="3 7"/>
+            <g class="cl-links" stroke="var(--pf-connovus)" stroke-opacity=".4" stroke-width="1.4" stroke-dasharray="4 6">
+              <line x1="200" y1="140" x2="200" y2="52"/>
+              <line x1="257" y1="181" x2="341" y2="154"/>
+              <line x1="235" y1="249" x2="287" y2="320"/>
+              <line x1="165" y1="249" x2="113" y2="320"/>
+              <line x1="143" y1="181" x2="59" y2="154"/>
+            </g>
+            <g fill="var(--pf-connovus)" class="cl-dots">
+              <circle cx="318" cy="96" r="3.4" opacity=".5"/>
+              <circle cx="330" cy="262" r="3.4" opacity=".5"/>
+              <circle cx="150" cy="350" r="3.4" opacity=".5"/>
+              <circle cx="70" cy="262" r="3.4" opacity=".5"/>
+              <circle cx="82" cy="96" r="3.4" opacity=".5"/>
+            </g>
+            <circle class="cl-core-glow" cx="200" cy="200" r="50" fill="url(#clCore)"/>
+            <g class="cvg-core-logo" transform="translate(200 200) scale(0.94) translate(-50 -50)">
+              <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--pf-connovus)" stroke-width="4.5" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="3.4" fill="var(--pf-connovus)"/>
+            </g>
+            <g class="cl-vnode" data-cl-go="clSecPilots" tabindex="0" role="button" aria-label="Go to Active Pilots">
+              <circle class="hit" cx="200" cy="40" r="26" fill="transparent"/>
+              <circle class="pulse" cx="200" cy="40" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:0s"/>
+              <circle class="ring" cx="200" cy="40" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="200" y="20" text-anchor="middle">PILOTS</text>
+            </g>
+            <g class="cl-vnode" data-cl-go="clSecRegion" tabindex="0" role="button" aria-label="Go to Regional Focus">
+              <circle class="hit" cx="352" cy="151" r="26" fill="transparent"/>
+              <circle class="pulse" cx="352" cy="151" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:.6s"/>
+              <circle class="ring" cx="352" cy="151" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="352" y="133" text-anchor="middle">REGION</text>
+            </g>
+            <g class="cl-vnode" data-cl-go="clSecPathway" tabindex="0" role="button" aria-label="Go to Pilot Pathway">
+              <circle class="hit" cx="294" cy="329" r="26" fill="transparent"/>
+              <circle class="pulse" cx="294" cy="329" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:1.2s"/>
+              <circle class="ring" cx="294" cy="329" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="294" y="351" text-anchor="middle">PATHWAY</text>
+            </g>
+            <g class="cl-vnode" data-cl-go="clSecWarning" tabindex="0" role="button" aria-label="Go to Cascade &amp; Early Warning">
+              <circle class="hit" cx="106" cy="329" r="26" fill="transparent"/>
+              <circle class="pulse" cx="106" cy="329" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:1.8s"/>
+              <circle class="ring" cx="106" cy="329" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="106" y="351" text-anchor="middle">WARNING</text>
+            </g>
+            <!-- LOGIC CHAIN TTX nav node removed for now
+            <g class="cl-vnode" data-cl-go="clSecLogic" tabindex="0" role="button" aria-label="Go to Logic Chain TTX">
+              <circle class="hit" cx="106" cy="329" r="26" fill="transparent"/>
+              <circle class="pulse" cx="106" cy="329" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:1.8s"/>
+              <circle class="ring" cx="106" cy="329" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="106" y="351" text-anchor="middle">CHAIN</text>
+            </g>
+            -->
+            <g class="cl-vnode" data-cl-go="clSecAI" tabindex="0" role="button" aria-label="Go to Conventlab AI">
+              <circle class="hit" cx="48" cy="151" r="26" fill="transparent"/>
+              <circle class="pulse" cx="48" cy="151" r="9" fill="none" stroke="var(--pf-connovus)" stroke-width="1.6" style="animation-delay:2.4s"/>
+              <circle class="ring" cx="48" cy="151" r="9" fill="var(--paper)" stroke="var(--pf-connovus)" stroke-width="2.4"/>
+              <text x="48" y="133" text-anchor="middle">AI</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+    <section class="cvg-section" id="clSecPilots">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">01 · ACTIVE PILOTS</div><span class="cvg-ai-badge"><span class="live-dot"></span> LIVE</span></div>
+          <h2>42 active pilots. <em>17 operational outcomes.</em></h2>
+          <p>From sensor mesh to multinational simulation — concept to operational impact.</p>
+        </div>
+        <div class="right">42 ACTIVE · 17 OUTCOMES</div>
+      </div>
+      <div class="cvg-frames" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="cvg-frame"><div class="hd"><span class="nm">SENSOR MESH</span><span class="ix" style="color:#16A34A;">LIVE</span></div><h4>Distributed ISR</h4><p>Mission-grade sensor mesh integration.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">C2 BRIDGE</span><span class="ix" style="color:#EAB308;">PILOT</span></div><h4>Cross-domain C2</h4><p>Interoperability bridge across partner C2.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">EDGE ISR</span><span class="ix" style="color:#16A34A;">LIVE</span></div><h4>Edge processing</h4><p>On-edge ISR processing for low-latency ops.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">LOGISTICS AI</span><span class="ix" style="color:#EAB308;">PILOT</span></div><h4>AI logistics planner</h4><p>Multinational logistics optimisation pilot.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">PARTNER SIM</span><span class="ix" style="color:var(--muted);">DESIGN</span></div><h4>Multinational simulation</h4><p>Operational exercise simulation environment.</p></div>
+      </div>
+    </section>
+
+<!-- ============ REGIONAL FOCUS · EASTERN FLANK ============ -->
+    <section class="cvg-section" data-cvg-anchor="region" id="clSecRegion">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">02 · REGIONAL FOCUS</div><span class="cvg-ai-sub"><span class="d"></span>LIVE CORRIDOR</span></div>
+          <h2>Eastern Flank · <em>bilateral resilience corridor.</em></h2>
+          <p>Defensive. OSINT‑based. Bilateral civil‑military awareness — both sides of the line.</p>
+        </div>
+        <div class="right">
+          <div>7 + 3 NATIONS<br/>BLUE · RED · MONITORED</div>
+          <button class="cvg-intel-pack-btn" id="cvgIntelPackBtn" title="Export current operational picture as printable intel pack">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 3v6h6"/><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M8 13h8M8 17h8M8 9h2"/></svg>
+            EXPORT INTEL PACK
+          </button>
+        </div>
+      </div>
+
+      <div class="cvg-region-wrap">
+        <!-- LEFT: corridor map -->
+        <div class="cvg-region-map">
+          <span class="map-tag">EASTERN FLANK · BILATERAL CIVIL RESILIENCE CORRIDOR</span>
+          <span class="legend-pill">DEFENSIVE · OSINT · NON‑KINETIC</span>
+          <div class="cvg-mode-toggle" data-cvg-mode-toggle role="group" aria-label="PCC continuum · operating environment">
+            <span class="lbl">PCC</span>
+            <button data-cvg-mode="peace"    class="on" title="Peace · routine OSINT awareness">PEACE</button>
+            <button data-cvg-mode="crisis"            title="Crisis · heightened watch · alarms armed">CRISIS</button>
+            <button data-cvg-mode="conflict"          title="Conflict · all layers · NAI alarms hot">CONFLICT</button>
+          </div>
+          <div class="cvg-base-toggle" data-cvg-base-toggle role="group" aria-label="Basemap layer">
+            <span class="lbl">BASE</span>
+            <button data-cvg-base="map" class="on" title="Cartographic basemap">MAP</button>
+            <button data-cvg-base="sat"          title="Live satellite imagery · NASA GIBS MODIS Terra">SAT</button>
+          </div>
+          <span class="cvg-base-imagery-date" id="cvgBaseImageryDate"></span>
+          <div id="cvgLeafletRegion" class="cvg-leaflet"></div>
+          <div class="cvg-live-counter" id="cvgLiveCounter">
+            <span class="item air"><i></i><b id="cvgAirCount">0</b> aircraft</span>
+            <span class="sep"></span>
+            <span class="item radar"><i></i><b id="cvgRadarCount">0</b> radars</span>
+            <span class="sep"></span>
+            <span class="item sensor"><i></i><b id="cvgSensorCount">0</b> sensors</span>
+            <span class="sep"></span>
+            <span class="item field"><i></i><b id="cvgFieldCount">0</b> airfields</span>
+            <span class="sep"></span>
+            <span class="item shoot"><i></i><b id="cvgShootCount">0</b> AD sites</span>
+            <span class="sep"></span>
+            <span class="item dc"><i></i><b id="cvgDcCount">0</b> data ctrs</span>
+            <span class="sep"></span>
+            <span class="item net"><i></i><b id="cvgNetCount">0</b> network nodes</span>
+            <span class="sep"></span>
+            <span class="item sat"><i></i><b id="cvgSatCount">0</b> satellites</span>
+            <span class="sep"></span>
+            <span class="item mil"><i></i><b id="cvgMilCount">0</b> mil activity</span>
+          </div>
+          <div class="cvg-layers-toggle" data-cvg-layers-control role="group" aria-label="Live layer filters">
+            <button data-cvg-layer="air"     class="on" title="Civilian air traffic"><span class="ic"></span>Air</button>
+            <button data-cvg-layer="radar"   class="on" title="Air‑surveillance radars"><span class="ic"></span>Radar</button>
+            <button data-cvg-layer="sensor"  class="on" title="Maritime · Border · SIGINT sensors"><span class="ic"></span>Sensors</button>
+            <button data-cvg-layer="field"   class="on" title="Military &amp; key civil airfields (both sides)"><span class="ic"></span>Airfields</button>
+            <button data-cvg-layer="shoot"          title="Air‑defence / SAM sites — OSINT public"><span class="ic"></span>Shooters</button>
+            <button data-cvg-layer="dc"             title="Critical data centres incl. hyperscalers"><span class="ic"></span>Data Ctrs</button>
+            <button data-cvg-layer="net"            title="IXPs · submarine cable landings · backbone"><span class="ic"></span>Networks</button>
+            <button data-cvg-layer="nai"            title="Critical areas · NAI / TAI overlay"><span class="ic"></span>NAI / TAI</button>
+            <button data-cvg-layer="sat"     class="on" title="Satellites · military &amp; civilian"><span class="ic"></span>Satellites</button>
+            <button data-cvg-layer="mil"            title="Military activity · exercises · movements · engagements"><span class="ic"></span>Mil Activity</button>
+          </div>
+          <div class="cvg-map-ctl" data-cvg-map-ctl="region">
+            <button class="cvg-mc-btn" data-cvg-zoom="in"  data-cvg-map="region" title="Zoom in" aria-label="Zoom in">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <button class="cvg-mc-btn" data-cvg-zoom="out" data-cvg-map="region" title="Zoom out" aria-label="Zoom out">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>
+            </button>
+            <button class="cvg-mc-btn cvg-fs-btn" data-cvg-fs-target=".cvg-region-map" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+              <svg class="ico-enter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+              <svg class="ico-exit" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: framing + stats -->
+        <div class="cvg-region-side">
+          <style>
+            .cvg-region-side .framings{ display:flex; flex-direction:column; gap:8px; }
+            .cvg-region-side .framings .row{ display:block; padding:9px 11px; border:1px solid var(--line); border-left:3px solid var(--pf-connovus); border-radius:9px; background:var(--paper); }
+            .cvg-region-side .framings .row b{ display:block; font-size:12.5px; font-weight:700; color:var(--ink); letter-spacing:-.01em; }
+            .cvg-region-side .framings .row span{ display:block; font-size:11px; color:var(--muted); line-height:1.4; margin-top:2px; }
+          </style>
+          <div class="cvg-region-frame">
+            <h5>Strategic Framing</h5>
+            <div class="framings">
+              <div class="row"><b>Regional Civil Resilience Corridor</b><span>Civil‑military resilience across the Eastern Flank.</span></div>
+              <div class="row"><b>Operational Awareness Corridor</b><span>One shared OSINT picture — both sides of the line.</span></div>
+              <div class="row"><b>Multinational Resilience Ecosystem</b><span>7 allied + aligned nations, one fabric.</span></div>
+              <div class="row"><b>Cross‑Border Stability Environment</b><span>Defensive · OSINT‑based · non‑kinetic.</span></div>
+            </div>
+          </div>
+          <div class="cvg-region-frame">
+            <h5>Corridor Indicators</h5>
+            <div class="stats">
+              <div><div class="v">10</div><div class="k">Nations monitored · 7 + 3</div></div>
+              <div><div class="v">142</div><div class="k">Live signals · feed</div></div>
+              <div><div class="v">11</div><div class="k">7BLR functions tracked</div></div>
+              <div><div class="v">3<span style="font-size:14px;color:var(--muted);">/5</span></div><div class="k">Corridor risk · elevated</div></div>
+            </div>
+          </div>
+          <style>
+            .cvg-cascade-frame{ position:relative; overflow:hidden; }
+            .cvg-cascade-frame::before{ content:""; position:absolute; left:0; top:0; right:0; height:0;
+              background:linear-gradient(90deg,#F59E0B,#EA580C,#DC2626); transition:height .3s ease; }
+            .cvg-cascade-frame.active::before{ height:3px; }
+            .cvg-cascade-frame.active{ border-color:color-mix(in srgb,#DC2626 32%,var(--line));
+              box-shadow:0 18px 42px -26px color-mix(in srgb,#DC2626 55%,transparent); }
+            .cvg-cas-head .cas-ico{ color:#DC2626; font-size:10px; margin-right:4px; opacity:.45; }
+            .cvg-cascade-frame.active .cvg-cas-head .cas-ico{ opacity:1; animation:casPulse 1.4s ease-in-out infinite; }
+            @keyframes casPulse{ 0%,100%{opacity:.35} 50%{opacity:1} }
+            #cvgCasBadge.hot{ color:#B91C1C; border-color:color-mix(in srgb,#DC2626 45%,var(--line)); background:color-mix(in srgb,#DC2626 12%,transparent); }
+            #cvgCasBadge.hot .d{ background:#DC2626; box-shadow:0 0 0 0 rgba(220,38,38,.55); animation:casDot 1.3s ease-out infinite; }
+            @keyframes casDot{ 0%{box-shadow:0 0 0 0 rgba(220,38,38,.5)} 100%{box-shadow:0 0 0 7px rgba(220,38,38,0)} }
+            .cas-meter{ display:none; align-items:center; gap:9px; margin:10px 0 0; }
+            .cvg-cascade-frame.active .cas-meter{ display:flex; }
+            .cas-meter-k{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:.12em; color:var(--muted); white-space:nowrap; }
+            .cas-meter-bar{ display:inline-flex; gap:3px; flex:1; }
+            .cas-meter-bar i{ height:6px; flex:1; border-radius:2px; background:var(--line-2); transition:background .3s ease; }
+            .cas-meter-bar i.on{ background:linear-gradient(90deg,#F59E0B,#DC2626); }
+            .cas-meter-v{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:.1em; color:#DC2626; white-space:nowrap; }
+            .cvg-cas-tree{ display:block !important; }
+            .cas-flow{ display:flex; flex-direction:column; gap:8px; margin-top:2px; }
+            .cas-arrow{ display:flex; justify-content:center; align-items:center; color:#DC2626; opacity:.45; height:13px; }
+            .cas-arrow svg{ width:15px; height:15px; }
+            .cas-band{ display:flex; align-items:center; justify-content:space-between; }
+            .cas-band .lvl{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:.12em; padding:2px 9px; border-radius:5px; }
+            .cas-band.l2 .lvl{ color:#C2410C; background:color-mix(in srgb,#EA580C 13%,transparent); border:1px solid color-mix(in srgb,#EA580C 30%,transparent); }
+            .cas-band.l3 .lvl{ color:#B91C1C; background:color-mix(in srgb,#DC2626 13%,transparent); border:1px solid color-mix(in srgb,#DC2626 30%,transparent); }
+            .cas-band .cas-ct{ font-family:'JetBrains Mono',monospace; font-size:8.5px; color:var(--muted); letter-spacing:.06em; }
+            .cas-flow .effects{ display:flex; flex-direction:column; gap:5px; }
+            .cas-flow .eff{ display:flex; align-items:flex-start; gap:7px; padding:6px 9px; border-radius:7px;
+              background:var(--paper-2); border-left:2px solid var(--line-2); font-size:11.5px; line-height:1.4; color:var(--ink-2); animation:cvgFeedIn .35s ease-out; }
+            .cas-flow .eff.l2-eff{ border-left-color:#EA580C; }
+            .cas-flow .eff.l3-eff{ border-left-color:#DC2626; }
+            .cas-flow .eff .blr{ font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; letter-spacing:.08em;
+              padding:2px 5px; border-radius:4px; background:color-mix(in srgb,var(--ink) 8%,transparent); color:var(--ink-2); flex:none; margin-top:1px; }
+          </style>
+          <div class="cvg-region-frame cvg-cascade-frame" id="cvgCascadeFrame">
+            <div class="cvg-cas-head">
+              <h5><span class="cas-ico">▲</span>Cascade Prediction · <span class="ix">2ND / 3RD‑ORDER</span></h5>
+              <span class="cvg-ai-mini" id="cvgCasBadge"><span class="d"></span>STANDBY</span>
+            </div>
+            <div class="cvg-cas-trigger" id="cvgCasTrigger">
+              <span class="lbl">Trigger</span>
+              <span class="val" id="cvgCasTriggerName">No active fusion — pick a scenario</span>
+            </div>
+            <div class="cas-meter" id="cvgCasMeter">
+              <span class="cas-meter-k">ESCALATION POTENTIAL</span>
+              <span class="cas-meter-bar"><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="cas-meter-v" id="cvgCasMeterV">—</span>
+            </div>
+            <div class="cvg-cas-tree" id="cvgCasTree"></div>
+            <div class="cvg-cas-foot">
+              <div class="cvg-cas-scenarios">
+                <button data-cvg-cas-scn="cable"  >Cable cut</button>
+                <button data-cvg-cas-scn="kgd-sam">KGD SAM</button>
+                <button data-cvg-cas-scn="suwalki">Suwałki</button>
+                <button data-cvg-cas-scn="black-sea">Black Sea</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Country detail card (populates on click) -->
+          <div class="cvg-country-detail" id="cvgCountryDetail">
+            <div class="head">
+              <span class="iso" id="cvgCdIso">—</span>
+              <span class="cvg-ai-mini"><span class="d"></span>AI BRIEF</span>
+            </div>
+            <h4 id="cvgCdName">Country</h4>
+            <div class="role" id="cvgCdRole">—</div>
+            <div class="rows" id="cvgCdRows"></div>
+            <div class="actions">
+              <button data-cvg-cd-act="profile">Open profile</button>
+              <button class="primary" data-cvg-cd-act="ai">Ask AI</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>window.admTip=window.admTip||function(g){var L={A:'Completely reliable source',B:'Usually reliable source',C:'Fairly reliable source',D:'Not usually reliable source',E:'Unreliable source',F:'Reliability cannot be judged'},N={'1':'Confirmed by other sources','2':'Probably true','3':'Possibly true','4':'Doubtful','5':'Improbable','6':'Truth cannot be judged'};g=String(g||'');return g+' \u00b7 NATO Admiralty Code \u2014 '+(L[g[0]]||'?')+' \u00b7 '+(N[g[1]]||'?');};</script>
+
+      <!-- ============ LIVE INTEL FEED · Admiralty graded ============ -->
+      <div class="cvg-feed" id="cvgFeed">
+        <div class="cvg-feed-head">
+          <div class="cvg-feed-h-l">
+            <span class="cvg-feed-title">
+              <span class="live-dot"></span> LIVE INTEL FEED
+              <em>OSINT · Admiralty graded · multi‑source</em>
+            </span>
+            <span class="cvg-feed-clock" id="cvgFeedClock">—</span>
+          </div>
+          <div class="cvg-feed-h-r">
+            <div class="cvg-feed-filter" data-cvg-feed-filter role="group" aria-label="Feed filter">
+              <button data-cvg-feed-f="all"    class="on">ALL</button>
+              <button data-cvg-feed-f="armed">  ARMED</button>
+              <button data-cvg-feed-f="hybrid"> HYBRID</button>
+              <button data-cvg-feed-f="cyber">  CYBER</button>
+              <button data-cvg-feed-f="air">    AIR</button>
+              <button data-cvg-feed-f="mar">    MARITIME</button>
+              <button data-cvg-feed-f="infra">  INFRA</button>
+              <button data-cvg-feed-f="info">   INFO</button>
+              <button data-cvg-feed-f="mil">    MIL</button>
+            </div>
+            <button class="cvg-feed-pause" id="cvgFeedPause" title="Pause live stream">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              PAUSE
+            </button>
+          </div>
+        </div>
+        <div class="cvg-feed-stream" id="cvgFeedStream" role="log" aria-live="polite" aria-atomic="false">
+          <!-- entries injected by JS -->
+        </div>
+        <div class="cvg-feed-foot">
+          <span class="cvg-feed-foot-l">
+            <span class="src-pill src-acled">ACLED</span>
+            <span class="src-pill src-gdelt">GDELT</span>
+            <span class="src-pill src-opensky">OpenSky</span>
+            <span class="src-pill src-ais">AIS</span>
+            <span class="src-pill src-sat">Sentinel</span>
+            <span class="src-pill src-soc">Social</span>
+            <span class="src-pill src-tg">Telegram</span>
+          </span>
+          <span class="cvg-feed-foot-r">
+            Reliability scale <b>A1</b> highest → <b>F6</b> unconfirmed · NATO Admiralty code
+          </span>
+        </div>
+      </div>
+
+      <!-- Operational Board · Activity / Tasking / Critical Areas / Pattern of Life (combined, below the map) -->
+      <style>
+        .cvg-opboard{ border:1px solid var(--line); border-radius:16px; background:var(--paper); margin-bottom:18px; overflow:hidden; }
+        .cvg-opboard-bar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--paper-2); }
+        .cvg-opboard-bar .ttl{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; font-weight:700; color:var(--muted); }
+        .cvg-opboard-tabs{ display:inline-flex; gap:4px; flex-wrap:wrap; }
+        .cvg-opboard-tabs button{ appearance:none; cursor:pointer; border:1px solid var(--line); background:var(--paper); color:var(--ink-2); font:inherit; font-size:11.5px; font-weight:700; padding:6px 13px; border-radius:8px; transition:all .15s ease; }
+        .cvg-opboard-tabs button:hover{ border-color:var(--pf-connovus); color:var(--pf-connovus); }
+        .cvg-opboard-tabs button.on{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+        .cvg-opboard-body{ padding:16px 18px; }
+        .cvg-opboard-pane{ display:none; }
+        .cvg-opboard-pane.on{ display:block; }
+        .cvg-opboard .cvg-region-frame{ border:0; padding:0; background:transparent; border-radius:0; }
+        /* Readability: drop backdrop-filter on map overlay chips (Chromium rasterises their text soft over the moving map layer) */
+        .cvg-region-map .map-tag, .cvg-region-map .legend-pill, .cvg-region-map .cvg-mode-toggle, .cvg-region-map .cvg-base-toggle, .cvg-region-map .cvg-base-imagery-date, .cvg-region-map .cvg-live-counter, .cvg-region-map .cvg-layers-toggle, .cvg-region-map .cvg-map-ctl .cvg-mc-btn,
+        .cvg-worldmap .map-tag, .cvg-worldmap .map-meta, .cvg-worldmap .map-meta .b, .cvg-worldmap .legend, .cvg-worldmap .cvg-map-ctl .cvg-mc-btn{
+          -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+        }
+        .cvg-region-map .legend-pill{ background:rgba(8,16,34,.74) !important; }
+        .cvg-feed-row .grade{ cursor:help; }
+      </style>
+      <div class="cvg-opboard" id="cvgOpBoard">
+        <div class="cvg-opboard-bar">
+          <span class="ttl">OPERATIONAL BOARD</span>
+          <div class="cvg-opboard-tabs" id="cvgOpTabs">
+            <button data-op-tab="mil" class="on">Military Activity</button>
+            <button data-op-tab="task">Tasking</button>
+            <button data-op-tab="nai">Critical Areas</button>
+            <button data-op-tab="pol">Pattern of Life</button>
+          </div>
+        </div>
+        <div class="cvg-opboard-body">
+          <div class="cvg-opboard-pane on" data-op-pane="mil">
+            <div class="cvg-region-frame cvg-mil-frame">
+              <div class="cvg-mil-head">
+                <h5>Military Activity · <span class="ix">OSINT</span></h5>
+                <span class="cvg-ai-mini"><span class="d"></span>EXERCISES · MOVEMENTS</span>
+              </div>
+              <div class="cvg-mil-filter" data-cvg-mil-filter role="group" aria-label="Military activity filter">
+                <button data-cvg-mil-f="all"        class="on">ALL</button>
+                <button data-cvg-mil-f="exercise">  EXERCISE</button>
+                <button data-cvg-mil-f="movement">  MOVE</button>
+                <button data-cvg-mil-f="engagement">ENGAGE</button>
+                <button data-cvg-mil-f="announce">  ANNOUNCE</button>
+              </div>
+              <div class="cvg-mil-list" id="cvgMilList" role="list"></div>
+              <div class="cvg-mil-foot">
+                <span><b id="cvgMilBlue">0</b> blue · <b id="cvgMilRed">0</b> red</span>
+                <span class="cvg-mil-legend">
+                  <i class="mil-sw blue"></i> NATO+ <i class="mil-sw red"></i> RUS/BLR
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="cvg-opboard-pane" data-op-pane="task">
+            <div class="cvg-region-frame cvg-task-frame">
+              <div class="cvg-task-head">
+                <h5>Tasking · <span class="ix">COLLECTION PRIORITIES</span></h5>
+                <span class="cvg-ai-mini"><span class="d"></span>CONNECTUS LINKED</span>
+              </div>
+              <div class="cvg-task-list" id="cvgTaskList"></div>
+              <div class="cvg-task-foot">
+                <span><b id="cvgTaskActive">0</b> active · <b id="cvgTaskPending">0</b> pending</span>
+                <button class="ghost" id="cvgTaskAdd">+ New task</button>
+              </div>
+            </div>
+          </div>
+          <div class="cvg-opboard-pane" data-op-pane="nai">
+            <div class="cvg-region-frame cvg-nai-frame">
+              <div class="cvg-nai-head">
+                <h5>Critical Areas · <span class="ix">NAI / TAI</span></h5>
+                <span class="cvg-ai-mini"><span class="d"></span>WATCH ARMED</span>
+              </div>
+              <div class="cvg-nai-list" id="cvgNaiList" role="list">
+                <!-- populated by JS -->
+              </div>
+              <div class="cvg-nai-foot">
+                <span><b id="cvgNaiCountNai">0</b> NAI · <b id="cvgNaiCountTai">0</b> TAI</span>
+                <button class="ghost" data-cvg-nai-act="define">+ Define area</button>
+              </div>
+            </div>
+          </div>
+          <div class="cvg-opboard-pane" data-op-pane="pol">
+            <div class="cvg-region-frame cvg-pol-frame">
+              <div class="cvg-pol-head">
+                <h5>Pattern of Life · <span class="ix">7‑DAY BASELINE</span></h5>
+                <span class="cvg-ai-mini"><span class="d"></span>ANOMALY DETECT</span>
+              </div>
+              <div class="cvg-pol-list" id="cvgPolList"></div>
+              <div class="cvg-pol-foot">
+                <span><b id="cvgPolAnomCount">0</b> anomalies · last 24 h</span>
+                <span class="cvg-pol-legend"><i class="pol-bar"></i> baseline · <i class="pol-bar over"></i> spike</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+      (function(){
+        function initOp(){
+          var board=document.getElementById('cvgOpBoard'); if(!board||board.dataset.init) return; board.dataset.init='1';
+          var tabs=board.querySelectorAll('#cvgOpTabs [data-op-tab]');
+          var panes=board.querySelectorAll('[data-op-pane]');
+          tabs.forEach(function(t){ t.addEventListener('click',function(){
+            tabs.forEach(function(b){ b.classList.toggle('on', b===t); });
+            panes.forEach(function(p){ p.classList.toggle('on', p.dataset.opPane===t.dataset.opTab); });
+          });});
+        }
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initOp); else initOp();
+      })();
+      </script>
+
+      <!-- COUNTRY ROW -->
+      <div class="cvg-region-row-head">
+        <span class="lbl">BLUE FORCES · NATO eastern flank + aligned partners</span>
+        <span class="meta">7 nations · institutional partners</span>
+      </div>
+      <div class="cvg-region-countries blue7">
+        <div class="cvg-country-card s-yellow" data-cvg-cc-card="FIN">
+          <div class="row"><span class="iso">FIN</span><span class="st"></span></div>
+          <div class="nm">Finland</div>
+          <div class="rl">Northern flank anchor. Airspace &amp; border resilience.</div>
+        </div>
+        <div class="cvg-country-card s-orange" data-cvg-cc-card="EST">
+          <div class="row"><span class="iso">EST</span><span class="st"></span></div>
+          <div class="nm">Estonia</div>
+          <div class="rl">Cyber &amp; information resilience hub.</div>
+        </div>
+        <div class="cvg-country-card s-orange" data-cvg-cc-card="LVA">
+          <div class="row"><span class="iso">LVA</span><span class="st"></span></div>
+          <div class="nm">Latvia</div>
+          <div class="rl">Critical infrastructure stability node.</div>
+        </div>
+        <div class="cvg-country-card s-orange" data-cvg-cc-card="LTU">
+          <div class="row"><span class="iso">LTU</span><span class="st"></span></div>
+          <div class="nm">Lithuania</div>
+          <div class="rl">Energy interconnect &amp; transport corridor.</div>
+        </div>
+        <div class="cvg-country-card s-yellow" data-cvg-cc-card="POL">
+          <div class="row"><span class="iso">POL</span><span class="st"></span></div>
+          <div class="nm">Poland</div>
+          <div class="rl">Logistics &amp; humanitarian backbone.</div>
+        </div>
+        <div class="cvg-country-card s-orange" data-cvg-cc-card="ROU">
+          <div class="row"><span class="iso">ROU</span><span class="st"></span></div>
+          <div class="nm">Romania</div>
+          <div class="rl">Black Sea / Danube stability node.</div>
+        </div>
+        <div class="cvg-country-card s-red combat" data-cvg-cc-card="UKR">
+          <div class="row"><span class="iso">UKR</span><span class="st"></span></div>
+          <div class="nm">Ukraine <span class="combat-badge">ACTIVE COMBAT</span></div>
+          <div class="rl">Aligned partner · active defensive operations.</div>
+        </div>
+      </div>
+
+      <div class="cvg-region-row-head monitored">
+        <span class="lbl">RED FORCES · OSINT monitored</span>
+        <span class="meta">3 nations · non‑partner · awareness only</span>
+      </div>
+      <div class="cvg-region-countries monitored mon3">
+        <div class="cvg-country-card s-red mon" data-cvg-cc-card="RUS">
+          <div class="row"><span class="iso">RUS</span><span class="st"></span></div>
+          <div class="nm">Russia</div>
+          <div class="rl">Western MD · Kaliningrad · Leningrad oblast.</div>
+        </div>
+        <div class="cvg-country-card s-red mon" data-cvg-cc-card="BLR">
+          <div class="row"><span class="iso">BLR</span><span class="st"></span></div>
+          <div class="nm">Belarus</div>
+          <div class="rl">Forward staging · Suwałki adjacency.</div>
+        </div>
+        <div class="cvg-country-card s-orange mon" data-cvg-cc-card="MDA">
+          <div class="row"><span class="iso">MDA</span><span class="st"></span></div>
+          <div class="nm">Moldova</div>
+          <div class="rl">Hybrid pressure · Transnistria adjacency.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CASCADE & EARLY WARNING (REWCAB) ============ -->
+    <style>
+      #clSecWarning .cw-ew{ margin-top:6px; }
+      #clSecWarning .cw-ew-overall{ display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+      #clSecWarning .cw-ew-overall .k{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:var(--muted); font-weight:700; }
+      #clSecWarning .cw-ew-overall .v{ font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:.08em; padding:4px 12px; border-radius:6px; }
+      #clSecWarning .cw-ew-overall .v.low{ color:#16A34A; background:color-mix(in srgb,#16A34A 13%,transparent); }
+      #clSecWarning .cw-ew-overall .v.guarded{ color:#0E8C8B; background:color-mix(in srgb,#0E8C8B 13%,transparent); }
+      #clSecWarning .cw-ew-overall .v.elevated{ color:#CA8A04; background:color-mix(in srgb,#CA8A04 14%,transparent); }
+      #clSecWarning .cw-ew-overall .v.high{ color:#EA580C; background:color-mix(in srgb,#EA580C 14%,transparent); }
+      #clSecWarning .cw-ew-overall .v.critical{ color:#DC2626; background:color-mix(in srgb,#DC2626 14%,transparent); }
+      #clSecWarning .cw-ew-overall .cf{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--muted); }
+      #clSecWarning .cw-ew-cards{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+      #clSecWarning .cw-ew-card{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:13px 14px; border-top:3px solid var(--dc); }
+      #clSecWarning .cw-ew-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
+      #clSecWarning .cw-ew-top .dom{ font-size:13px; font-weight:800; color:var(--ink); letter-spacing:-.01em; }
+      #clSecWarning .cw-ew-top .st{ font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:800; letter-spacing:.1em; color:var(--sc); padding:2px 7px; border-radius:999px; background:color-mix(in srgb,var(--sc) 13%,transparent); border:1px solid color-mix(in srgb,var(--sc) 32%,transparent); }
+      #clSecWarning .cw-ew-lead{ font-size:11px; line-height:1.4; color:var(--muted); }
+      #clSecWarning .cw-scn{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:20px 0 16px; }
+      #clSecWarning .cw-scn-lbl{ font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.16em; color:var(--muted); font-weight:700; margin-right:4px; }
+      #clSecWarning .cw-scn button{ appearance:none; cursor:pointer; border:1px solid var(--line); background:var(--paper); color:var(--ink-2); font:inherit; font-size:12px; font-weight:600; padding:7px 13px; border-radius:8px; transition:all .15s ease; }
+      #clSecWarning .cw-scn button:hover{ border-color:var(--pf-connovus); color:var(--pf-connovus); }
+      #clSecWarning .cw-scn button.on{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+      #clSecWarning .cw-flow{ display:flex; flex-direction:column; gap:12px; }
+      #clSecWarning .cw-tier{ background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+      #clSecWarning .cw-tier-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+      #clSecWarning .cw-tier-k{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; font-weight:800; padding:3px 10px; border-radius:6px; }
+      #clSecWarning .cw-tier-k.o1{ color:#0E8C8B; background:color-mix(in srgb,#0E8C8B 12%,transparent); }
+      #clSecWarning .cw-tier-k.o2{ color:#C2410C; background:color-mix(in srgb,#EA580C 13%,transparent); }
+      #clSecWarning .cw-tier-k.o3{ color:#B91C1C; background:color-mix(in srgb,#DC2626 13%,transparent); }
+      #clSecWarning .cw-ct{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:.06em; }
+      #clSecWarning .cw-o1grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+      #clSecWarning .cw-dom-h{ display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.1em; font-weight:700; color:var(--dc); text-transform:uppercase; margin-bottom:7px; }
+      #clSecWarning .cw-dom-h .dot{ width:7px; height:7px; border-radius:50%; background:var(--dc); }
+      #clSecWarning .cw-dom ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+      #clSecWarning .cw-dom li{ font-size:11px; line-height:1.4; color:var(--ink-2); position:relative; padding-left:11px; }
+      #clSecWarning .cw-dom li::before{ content:""; position:absolute; left:0; top:6px; width:4px; height:4px; border-radius:50%; background:var(--dc); opacity:.7; }
+      #clSecWarning .cw-arrow{ display:flex; justify-content:center; align-items:center; color:var(--muted); opacity:.5; }
+      #clSecWarning .cw-arrow svg{ width:18px; height:18px; }
+      #clSecWarning .cw-trigger{ position:relative; background:color-mix(in srgb,#DC2626 8%,var(--paper)); border:1px solid color-mix(in srgb,#DC2626 32%,var(--line)); border-left:4px solid #DC2626; border-radius:12px; padding:14px 18px; }
+      #clSecWarning .cw-trigger .tk{ font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.16em; font-weight:800; color:#B91C1C; display:inline-flex; align-items:center; gap:7px; }
+      #clSecWarning .cw-trigger .tk .live-dot{ width:7px; height:7px; }
+      #clSecWarning .cw-trigger .tv{ font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-.01em; margin:5px 0 3px; }
+      #clSecWarning .cw-trigger .tm{ font-size:11.5px; color:var(--muted); line-height:1.45; }
+      #clSecWarning .cw-cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+      #clSecWarning .cw-card{ display:flex; align-items:flex-start; gap:9px; background:var(--paper-2); border:1px solid var(--line); border-radius:9px; padding:10px 12px; font-size:12px; line-height:1.45; color:var(--ink-2); }
+      #clSecWarning .cw-card .tg{ font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:800; letter-spacing:.08em; padding:2px 6px; border-radius:4px; flex:none; margin-top:1px; }
+      #clSecWarning .cw-tier.t2 .cw-card .tg{ color:#C2410C; background:color-mix(in srgb,#EA580C 14%,transparent); }
+      #clSecWarning .cw-tier.t3 .cw-card{ border-left:2px solid #DC2626; }
+      #clSecWarning .cw-tier.t3 .cw-card .tg{ color:#B91C1C; background:color-mix(in srgb,#DC2626 14%,transparent); }
+      #clSecWarning .cw-meter{ display:flex; align-items:center; gap:10px; margin-top:13px; padding-top:13px; border-top:1px dashed var(--line); }
+      #clSecWarning .cw-meter .k{ font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.12em; color:var(--muted); white-space:nowrap; }
+      #clSecWarning .cw-meter .bar{ display:inline-flex; gap:3px; flex:1; }
+      #clSecWarning .cw-meter .bar i{ height:6px; flex:1; border-radius:2px; background:var(--line-2); }
+      #clSecWarning .cw-meter .bar i.on{ background:linear-gradient(90deg,#F59E0B,#DC2626); }
+      #clSecWarning .cw-meter .v{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; letter-spacing:.1em; color:#DC2626; }
+      #clSecWarning .cw-src{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:16px; font-size:11px; color:var(--muted); }
+      #clSecWarning .cw-src .sl{ font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; font-weight:700; color:var(--muted); }
+      #clSecWarning .cw-src a{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:4px 10px; border:1px solid var(--line); border-radius:999px; background:var(--paper); }
+      #clSecWarning .cw-src a:hover{ border-color:var(--pf-connovus); color:var(--pf-connovus); }
+      #clSecWarning .cw-src a svg{ width:11px; height:11px; }
+      #clSecWarning .cw-brief-btn{ display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:12.5px; font-weight:700; padding:9px 15px; border-radius:10px; border:1px solid var(--pf-connovus); background:color-mix(in srgb,var(--pf-connovus) 12%,var(--paper)); color:var(--pf-connovus); cursor:pointer; transition:all .18s ease; }
+      #clSecWarning .cw-brief-btn:hover{ background:var(--pf-connovus); color:#fff; }
+      #clSecWarning .cw-brief-btn svg{ width:15px; height:15px; }
+      @media(max-width:980px){ #clSecWarning .cw-ew-cards, #clSecWarning .cw-o1grid{ grid-template-columns:1fr 1fr; } }
+      @media(max-width:620px){ #clSecWarning .cw-ew-cards, #clSecWarning .cw-o1grid, #clSecWarning .cw-cards{ grid-template-columns:1fr; } }
+    </style>
+    <section class="cvg-section" id="clSecWarning">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">04 · CASCADE &amp; EARLY WARNING</div><span class="cvg-ai-badge"><span class="live-dot"></span> I&amp;W · LIVE</span></div>
+          <h2>From indicator to <em>strategic consequence.</em></h2>
+          <p>Threat → trigger → cascade. Civil‑military hybrid‑threat awareness for the Eastern Flank — sourced, decision‑ready.</p>
+        </div>
+        <div class="right" style="display:flex;align-items:center;">
+          <button class="cw-brief-btn" id="cwBriefBtn" title="Generate a printable Regional Early Warning &amp; Cascade Assessment Brief">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h7l3 3v13H5V4z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+            Generate Daily Brief
+          </button>
+        </div>
+      </div>
+
+      <div class="cw-ew" id="cwEw"></div>
+
+      <div class="cw-scn" id="cwScn">
+        <span class="cw-scn-lbl">SCENARIO</span>
+        <button data-cw-scn="cable" class="on">C‑Lion1 cable</button>
+        <button data-cw-scn="kgd-sam">Kaliningrad SAM</button>
+        <button data-cw-scn="suwalki">Suwałki Gap</button>
+        <button data-cw-scn="black-sea">Black Sea</button>
+      </div>
+
+      <div class="cw-flow" id="cwFlow"></div>
+      <div class="cw-src" id="cwSrc"></div>
+    </section>
+    <script>
+    (function(){
+      function initCW(){
+        const ewEl = document.getElementById('cwEw');
+        const flowEl = document.getElementById('cwFlow');
+        const srcEl = document.getElementById('cwSrc');
+        if (!ewEl || ewEl.dataset.init) return;
+        ewEl.dataset.init = '1';
+
+        const EWLABEL = { maritime:'Maritime', cyber:'Cyber', info:'Information', infra:'Infrastructure', military:'Military' };
+        const EWCOL   = { maritime:'#0891B2', cyber:'#2563EB', info:'#7C3AED', infra:'#CA8A04', military:'#475569' };
+        const STAT    = { green:{t:'GREEN',c:'#16A34A'}, amber:{t:'AMBER',c:'#F59E0B'}, red:{t:'RED',c:'#DC2626'} };
+
+        const SCEN = {
+          cable: {
+            label:'C‑Lion1 cable', risk:'ELEVATED', conf:'MEDIUM', sev:{n:4,t:'HIGH'},
+            trigger:'C‑Lion1 submarine cable disturbance · Helsinki ↔ Rostock',
+            triggerMeta:'≈1,173 km · operator Cinia Oy (Finnish‑state majority) · only direct Finland–Central Europe link · fault zone east of Öland, Swedish EEZ',
+            ew:{ maritime:'red', cyber:'amber', info:'amber', infra:'red', military:'amber' },
+            o1:{
+              maritime:['Shadow‑fleet vessel loitering near cable corridor · AIS gaps','Anchored vessel over Öland EEZ cable bundle','Repeated slow transits / course anomalies'],
+              cyber:['ISP route reconnaissance','BGP path probing toward Nordic IXPs','Scanning of telecom operators'],
+              info:['"Accidental damage" narrative seeding','Amplification of attribution doubt','Infrastructure‑vulnerability messaging'],
+              infra:['Recent Baltic faults (BCS East‑West, Estlink 2)','Reduced redundancy on Nordic↔DE routes','Data‑centre failover alerts'],
+              military:['Elevated ISR over Gulf of Finland','Research / survey vessel presence','Kaliningrad posture signalling']
+            },
+            o2:[
+              {t:'COMMS', x:'FICIX ↔ DE‑CIX routing failover · +8–14 ms FIN↔DE latency'},
+              {t:'COMMS', x:'Traffic re‑homes via SE / DK · Tallinn IX load +35%'},
+              {t:'INFRA', x:'Reduced redundancy · congestion risk on a second fault'},
+              {t:'TRUST', x:'Attribution uncertainty · sabotage‑narrative amplification'}
+            ],
+            o3:[
+              {t:'GOV',  x:'Continuity‑of‑government dashboards flag degraded telework links'},
+              {t:'ECON', x:'Banking latency · payment‑settlement windows reschedule'},
+              {t:'STRAT',x:'NATO Baltic Sentry uplift · maritime patrol + naval drones'},
+              {t:'POL',  x:'Pressure for attribution · UNCLOS / 1884 Paris Convention debate · possible boarding & impound'}
+            ],
+            src:[
+              {n:'Cinia (operator)', u:'https://www.cinia.fi/en'},
+              {n:'NATO · Baltic Sentry', u:'https://www.nato.int/cps/en/natohq/news_232122.htm'},
+              {n:'UK JEF · Nordic Warden', u:'https://www.gov.uk/government/news/joint-expeditionary-force-activates-uk-led-reaction-system-to-track-threats-to-undersea-infrastructure-and-monitor-russian-shadow-fleet'}
+            ]
+          },
+          'kgd-sam': {
+            label:'Kaliningrad SAM', risk:'ELEVATED', conf:'MEDIUM', sev:{n:5,t:'SEVERE'},
+            trigger:'Kaliningrad S‑400 air‑defence ring activation · TAI‑A',
+            triggerMeta:'Kaliningrad Oblast · A2/AD node · Baltic civil air corridors adjacent',
+            ew:{ maritime:'amber', cyber:'amber', info:'amber', infra:'green', military:'red' },
+            o1:{
+              maritime:['Baltic navigation / exclusion notices','Patrol surge on KGD approaches','AIS irregularities near exercise box'],
+              cyber:['GNSS / GPS interference reports','Comms‑jamming indicators'],
+              info:['State‑media escalation framing','Exercise‑as‑deterrence messaging'],
+              infra:['Civil aviation NOTAM chatter'],
+              military:['AD radar emissions uptick','ISR sortie increase','Force‑posture signalling']
+            },
+            o2:[
+              {t:'AIR',  x:'Civil traffic NOTAM expanded · 2 corridors re‑routed southbound'},
+              {t:'GNSS', x:'GNSS interference advisories · Baltic civil aviation'},
+              {t:'INFO', x:'State‑media tonal shift · escalation framing'},
+              {t:'STRAT',x:'NATO eAP scramble posture raised · Ämari / Šiauliai / Powidz'}
+            ],
+            o3:[
+              {t:'ECON', x:'Airline fuel‑cost spike · Baltic regional carriers'},
+              {t:'POP',  x:'Public‑anxiety telemetry · Baltic capitals'},
+              {t:'GOV',  x:'EUCOM consult triggered · ambassadors briefed'},
+              {t:'STRAT',x:'Enhanced Air Policing reinforcement considered'}
+            ],
+            src:[
+              {n:'NATO · Air Policing', u:'https://www.nato.int/cps/en/natohq/topics_132072.htm'},
+              {n:'NATO News', u:'https://www.nato.int'}
+            ]
+          },
+          suwalki: {
+            label:'Suwałki Gap', risk:'ELEVATED', conf:'MEDIUM', sev:{n:4,t:'HIGH'},
+            trigger:'Suwałki Gap · cross‑border activity surge · NAI‑01',
+            triggerMeta:'≈65 km LT–PL land corridor between Belarus and Kaliningrad',
+            ew:{ maritime:'green', cyber:'amber', info:'red', infra:'amber', military:'amber' },
+            o1:{
+              maritime:['Limited maritime relevance · monitored'],
+              cyber:['Telecom probing · LT/PL border nodes'],
+              info:['Coordinated Telegram channel surge','Staged‑provocation framing'],
+              infra:['Rail / road chokepoint sensitivity','Energy interconnect exposure'],
+              military:['BLR forward staging','eFP readiness checks']
+            },
+            o2:[
+              {t:'TRANS', x:'Rail / road throughput stress · LT ↔ PL corridor'},
+              {t:'BORDER',x:'Irregular‑migration vector amplification · BLR push'},
+              {t:'INFO',  x:'Coordinated channels surge · staged provocation framing'},
+              {t:'TRUST', x:'Local‑population pressure · rumour cycles'}
+            ],
+            o3:[
+              {t:'GOV',  x:'Schengen consultations · interior ministers cluster call'},
+              {t:'STRAT',x:'NATO eFP rotational lift accelerated · POL & LT'},
+              {t:'POP',  x:'Displacement modelled · 12–18k over 72h'},
+              {t:'POL',  x:'Hybrid‑attribution & countermeasures debate'}
+            ],
+            src:[
+              {n:'NATO · eFP', u:'https://www.nato.int/cps/en/natohq/topics_136388.htm'},
+              {n:'Frontex', u:'https://www.frontex.europa.eu'}
+            ]
+          },
+          'black-sea': {
+            label:'Black Sea', risk:'ELEVATED', conf:'MEDIUM', sev:{n:3,t:'ELEVATED'},
+            trigger:'Black Sea AIS spoof cluster · TAI‑B vicinity',
+            triggerMeta:'Grain‑corridor approaches · Bosphorus exit lanes',
+            ew:{ maritime:'red', cyber:'green', info:'amber', infra:'amber', military:'amber' },
+            o1:{
+              maritime:['AIS spoofing / dark vessels','Anchor anomalies near routes','Shadow‑fleet port‑call irregularities'],
+              cyber:['AIS data‑integrity manipulation'],
+              info:['Grain‑weaponisation narratives'],
+              infra:['Port / grain‑terminal exposure'],
+              military:['BSF movements','ISR uptick · Constanța sector']
+            },
+            o2:[
+              {t:'MAR',  x:'Shipping‑insurance premium spike · Bosphorus exit lanes'},
+              {t:'GRAIN',x:'Grain‑corridor throughput drop · 20–30%'},
+              {t:'MIL',  x:'NATO E‑3 AWACS orbit · Constanța sector'},
+              {t:'INFO', x:'Multi‑language disinfo on grain weaponisation'}
+            ],
+            o3:[
+              {t:'ECON', x:'Global wheat futures +4–8% · MENA importers exposed'},
+              {t:'GOV',  x:'EU food‑security cell convenes'},
+              {t:'STRAT',x:'Black Sea maritime‑awareness uplift'},
+              {t:'POL',  x:'Freedom‑of‑navigation messaging'}
+            ],
+            src:[
+              {n:'NATO', u:'https://www.nato.int'},
+              {n:'EU · Food security', u:'https://agriculture.ec.europa.eu'}
+            ]
+          }
+        };
+
+        const LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M21 3l-9 9"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg>';
+        const ARROW = '<div class="cw-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>';
+        let current = 'cable';
+
+        function renderEW(s){
+          ewEl.innerHTML =
+            '<div class="cw-ew-overall"><span class="k">REGIONAL RISK</span><span class="v '+s.risk.toLowerCase()+'">'+s.risk+'</span><span class="cf">confidence · '+s.conf+'</span></div>' +
+            '<div class="cw-ew-cards">' + Object.keys(EWLABEL).map(function(d){
+              var st = STAT[s.ew[d]]; var lead = (s.o1[d] && s.o1[d][0]) || '';
+              return '<div class="cw-ew-card" style="--dc:'+EWCOL[d]+'"><div class="cw-ew-top"><span class="dom">'+EWLABEL[d]+'</span><span class="st" style="--sc:'+st.c+'">'+st.t+'</span></div><div class="cw-ew-lead">'+lead+'</div></div>';
+            }).join('') + '</div>';
+        }
+        function renderFlow(s){
+          var o1 = '<div class="cw-o1grid">' + Object.keys(EWLABEL).map(function(d){
+            return '<div class="cw-dom" style="--dc:'+EWCOL[d]+'"><div class="cw-dom-h"><span class="dot"></span>'+EWLABEL[d]+'</div><ul>'+ s.o1[d].map(function(t){return '<li>'+t+'</li>';}).join('') +'</ul></div>';
+          }).join('') + '</div>';
+          var o2 = '<div class="cw-cards">' + s.o2.map(function(e){return '<div class="cw-card"><span class="tg">'+e.t+'</span><span>'+e.x+'</span></div>';}).join('') + '</div>';
+          var o3 = '<div class="cw-cards">' + s.o3.map(function(e){return '<div class="cw-card"><span class="tg">'+e.t+'</span><span>'+e.x+'</span></div>';}).join('') + '</div>';
+          var meter = '<div class="cw-meter"><span class="k">ESCALATION POTENTIAL</span><span class="bar">' + [1,2,3,4,5].map(function(i){return '<i class="'+(i<=s.sev.n?'on':'')+'"></i>';}).join('') + '</span><span class="v">'+s.sev.t+'</span></div>';
+          flowEl.innerHTML =
+            '<div class="cw-tier t1"><div class="cw-tier-h"><span class="cw-tier-k o1">1ST ORDER · PRE‑INCIDENT INDICATORS</span><span class="cw-ct">5 domains</span></div>'+o1+'</div>' +
+            ARROW +
+            '<div class="cw-trigger"><span class="tk"><span class="live-dot"></span>TRIGGER EVENT</span><div class="tv">'+s.trigger+'</div><div class="tm">'+s.triggerMeta+'</div></div>' +
+            ARROW +
+            '<div class="cw-tier t2"><div class="cw-tier-h"><span class="cw-tier-k o2">2ND ORDER · OPERATIONAL IMPACTS</span><span class="cw-ct">'+s.o2.length+' effects</span></div>'+o2+'</div>' +
+            ARROW +
+            '<div class="cw-tier t3"><div class="cw-tier-h"><span class="cw-tier-k o3">3RD ORDER · STRATEGIC CONSEQUENCES</span><span class="cw-ct">'+s.o3.length+' effects</span></div>'+o3+meter+'</div>';
+        }
+        function renderSrc(s){
+          srcEl.innerHTML = '<span class="sl">SOURCES</span>' + s.src.map(function(r){return '<a href="'+r.u+'" target="_blank" rel="noopener">'+LINK+r.n+'</a>';}).join('');
+        }
+        function render(key){
+          var s = SCEN[key]; if (!s) return;
+          current = key;
+          renderEW(s); renderFlow(s); renderSrc(s);
+          document.querySelectorAll('#cwScn [data-cw-scn]').forEach(function(b){ b.classList.toggle('on', b.dataset.cwScn === key); });
+        }
+        document.querySelectorAll('#cwScn [data-cw-scn]').forEach(function(b){ b.addEventListener('click', function(){ render(b.dataset.cwScn); }); });
+        render('cable');
+
+        // ── Generate Daily Brief (REWCAB) — printable HTML ──
+        function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function buildBrief(s){
+          var now = new Date();
+          var ds = now.toISOString().slice(0,10);
+          var ts = now.toISOString().replace('T',' ').replace(/\..+/,'') + ' UTC';
+          var ewRows = Object.keys(EWLABEL).map(function(d){
+            var st = STAT[s.ew[d]];
+            return '<tr><td>'+EWLABEL[d]+'</td><td><span class="dot" style="background:'+st.c+'"></span>'+st.t+'</td><td>'+esc((s.o1[d]&&s.o1[d][0])||'')+'</td></tr>';
+          }).join('');
+          var o1Rows = Object.keys(EWLABEL).map(function(d){
+            return '<tr><td>'+EWLABEL[d]+'</td><td>'+ s.o1[d].map(esc).join(' · ') +'</td></tr>';
+          }).join('');
+          var o2Rows = s.o2.map(function(e){return '<tr><td>'+e.t+'</td><td>'+esc(e.x)+'</td></tr>';}).join('');
+          var o3Rows = s.o3.map(function(e){return '<tr><td>'+e.t+'</td><td>'+esc(e.x)+'</td></tr>';}).join('');
+          var judg = s.o3.slice(0,3).map(function(e){return '<li>'+esc(e.x)+'</li>';}).join('');
+          var srcList = s.src.map(function(r){return '<li>'+esc(r.n)+' — '+esc(r.u)+'</li>';}).join('');
+          return '<!doctype html><html><head><meta charset="utf-8"><title>REWCAB · '+esc(s.label)+' · '+ds+'</title><style>'+
+            '*{box-sizing:border-box}body{font-family:"Helvetica Neue",Arial,sans-serif;color:#111;margin:0;padding:22mm 18mm;font-size:10.5pt;line-height:1.5}'+
+            'h1{font-size:20pt;margin:0 0 2px;letter-spacing:-.01em}h2{font-size:11pt;text-transform:uppercase;letter-spacing:.12em;border-bottom:1.5px solid #111;padding-bottom:5px;margin:22px 0 9px}'+
+            '.ribbon{display:inline-block;font:700 8.5pt "Helvetica Neue";letter-spacing:.16em;text-transform:uppercase;background:#0e2148;color:#fff;padding:4px 10px;border-radius:3px;margin-bottom:12px}'+
+            '.meta{color:#555;font-size:8.5pt;letter-spacing:.04em;margin-bottom:4px}'+
+            '.risk{display:flex;gap:10px;align-items:center;margin:6px 0 0}.risk .b{font:800 11pt "Helvetica Neue";padding:4px 12px;border-radius:4px;background:#FEF3C7;color:#A16207}'+
+            'table{width:100%;border-collapse:collapse;margin-top:4px;font-size:9.5pt}th{text-align:left;background:#f3f4f6;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-bottom:1.5px solid #111}'+
+            'td{padding:5px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top}td:first-child{font-weight:700;white-space:nowrap;width:18%}'+
+            '.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}'+
+            '.trig{font-style:italic;color:#374151;padding:10px 14px;border-left:3px solid #DC2626;background:#fef2f2;margin:8px 0}'+
+            'ul{margin:6px 0;padding-left:18px}li{margin:3px 0}.foot{margin-top:26px;border-top:1px solid #d1d5db;padding-top:10px;font-size:8pt;color:#6b7280;letter-spacing:.06em}'+
+            '@media print{body{padding:16mm 14mm}h2{break-after:avoid}table{break-inside:avoid}}'+
+            '</style></head><body>'+
+            '<div class="ribbon">REWCAB · REGIONAL EARLY WARNING &amp; CASCADE ASSESSMENT BRIEF</div>'+
+            '<h1>'+esc(s.label)+' — Eastern Flank / Baltic</h1>'+
+            '<div class="meta">Generated '+ts+' · Convergens · Conventity ecosystem · Defensive · OSINT · non‑kinetic · For institutional briefing</div>'+
+            '<div class="risk"><span class="b">OVERALL RISK · '+s.risk+'</span><span style="font-size:9pt;color:#555">Confidence · '+s.conf+'</span></div>'+
+            '<h2>1 · Executive Summary</h2><div class="trig"><b>Headline / Trigger:</b> '+esc(s.trigger)+'<br>'+esc(s.triggerMeta)+'</div>'+
+            '<h2>2 · Early Warning Indicators</h2><table><thead><tr><th>Domain</th><th>Status</th><th>Lead indicator</th></tr></thead><tbody>'+ewRows+'</tbody></table>'+
+            '<h2>3 · Threat Assessment · 1st‑Order Indicators</h2><table><thead><tr><th>Domain</th><th>Pre‑incident indicators</th></tr></thead><tbody>'+o1Rows+'</tbody></table>'+
+            '<h2>4 · Cascade · 2nd‑Order Operational Impacts</h2><table><thead><tr><th>BLR</th><th>Effect</th></tr></thead><tbody>'+o2Rows+'</tbody></table>'+
+            '<h2>5 · Cascade · 3rd‑Order Strategic Consequences</h2><table><thead><tr><th>Pillar</th><th>Consequence</th></tr></thead><tbody>'+o3Rows+'</tbody></table>'+
+            '<h2>6 · Decision Support</h2><b>Key judgements</b><ul>'+judg+'</ul><b>Watch · next 72 h → 7 days</b><ul><li>Monitor for a second, near‑simultaneous fault / event (pattern indicator).</li><li>Track attribution signals and vessel‑of‑interest movement (AIS gaps · shadow fleet).</li><li>Confirm redundancy / failover headroom on affected routes and dependent services.</li></ul>'+
+            '<h2>7 · Sources</h2><ul>'+srcList+'</ul>'+
+            '<div class="foot">Convergens · Conventity · Civil‑Military Convergence Environment · Reliability per NATO Admiralty Code · This brief is a snapshot of the assessed picture at generation time.</div>'+
+            '<script>setTimeout(function(){window.focus();window.print();},350);<\/script>'+
+            '</body></html>';
+        }
+        var briefBtn = document.getElementById('cwBriefBtn');
+        if (briefBtn) briefBtn.addEventListener('click', function(){
+          var html = buildBrief(SCEN[current]);
+          var w = window.open('', '_blank', 'width=920,height=900');
+          if (!w){ var blob = new Blob([html], {type:'text/html'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='REWCAB-'+current+'.html'; a.click(); return; }
+          w.document.open(); w.document.write(html); w.document.close();
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCW);
+      else initCW();
+    })();
+    </script>
+
+    <section class="cvg-section" id="clSecPathway">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">03 · PILOT PATHWAY</div><span class="cvg-ai-sub"><span class="d"></span>STRUCTURED</span></div>
+          <h2>From sandbox <em>to operational impact.</em></h2>
+          <p>A clear pathway with milestones, outcomes and ecosystem feedback.</p>
+        </div>
+        <div class="right">3 STAGES</div>
+      </div>
+      <div class="cvg-frames">
+        <div class="cvg-frame"><div class="hd"><span class="nm">SANDBOX</span></div><h4>Operational sandbox</h4><p>Safe environment for experimentation with operational realism.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">PILOT</span></div><h4>Pilot lifecycle</h4><p>Structured pilot pathway with measurable outcomes.</p></div>
+        <div class="cvg-frame"><div class="hd"><span class="nm">OUTCOME</span></div><h4>Outcomes &amp; feedback</h4><p>Operational outcomes captured back into the ecosystem.</p></div>
+      </div>
+    </section>
+
+<!-- ============ ADOPTION PIPELINE · NATO ACT BEACON MODEL ============ -->
+    <style>
+      #clSecBeacon .bcn-cadence{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--paper); border:1px solid var(--line); border-radius:13px; padding:13px 17px; margin-bottom:16px; }
+      #clSecBeacon .bcn-cadence .ring{ width:40px; height:40px; flex:none; border-radius:50%; display:grid; place-items:center; background:conic-gradient(var(--pf-connovus) calc(var(--p,52)*1%), color-mix(in srgb,var(--pf-connovus) 16%,var(--paper-2)) 0); }
+      #clSecBeacon .bcn-cadence .ring i{ width:30px; height:30px; border-radius:50%; background:var(--paper); display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:10px; color:var(--pf-connovus); font-style:normal; }
+      #clSecBeacon .bcn-cadence .cad-txt{ font-size:12.5px; color:var(--ink-2); line-height:1.45; }
+      #clSecBeacon .bcn-cadence .cad-txt b{ color:var(--ink); }
+      #clSecBeacon .bcn-cadence .cad-steps{ margin-left:auto; display:flex; align-items:center; gap:7px; font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; letter-spacing:.04em; color:var(--muted); }
+      #clSecBeacon .bcn-cadence .cad-steps b{ color:var(--pf-connovus); }
+      #clSecBeacon .bcn-cadence .cad-steps .ar{ color:var(--line-2); }
+      #clSecBeacon .bcn-board{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:11px; }
+      #clSecBeacon .bcn-col{ background:var(--paper-2); border:1px solid var(--line); border-radius:13px; padding:11px 10px; display:flex; flex-direction:column; gap:9px; min-height:200px; }
+      #clSecBeacon .bcn-col-hd{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:1px 3px 8px; border-bottom:1px solid var(--line); }
+      #clSecBeacon .bcn-col-hd .st{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; letter-spacing:.05em; color:var(--ink-2); line-height:1.2; }
+      #clSecBeacon .bcn-col-hd .ct{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:800; color:var(--muted); background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:1px 7px; flex:none; }
+      #clSecBeacon .bcn-col[data-stage="scale"] .bcn-col-hd .st{ color:var(--pf-connovus); }
+      #clSecBeacon .bcn-card{ text-align:left; font:inherit; cursor:pointer; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:10px 11px; display:flex; flex-direction:column; gap:7px; transition:border-color .15s, box-shadow .15s, transform .15s; }
+      #clSecBeacon .bcn-card:hover{ border-color:color-mix(in srgb,var(--pf-connovus) 45%,var(--line)); transform:translateY(-2px); }
+      #clSecBeacon .bcn-card.active{ border-color:var(--pf-connovus); box-shadow:0 0 0 1px var(--pf-connovus), 0 14px 30px -20px color-mix(in srgb,var(--pf-connovus) 60%,transparent); }
+      #clSecBeacon .bcn-card .nm{ font-size:12px; font-weight:800; color:var(--ink); letter-spacing:-.01em; line-height:1.25; }
+      #clSecBeacon .bcn-card .dom{ font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; letter-spacing:.06em; color:var(--muted); }
+      #clSecBeacon .bcn-card .own{ display:inline-flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:7.5px; font-weight:700; letter-spacing:.05em; padding:2px 6px; border-radius:999px; align-self:flex-start; }
+      #clSecBeacon .bcn-card .own.act{ color:var(--pf-connovus); background:color-mix(in srgb,var(--pf-connovus) 13%,var(--paper)); border:1px solid color-mix(in srgb,var(--pf-connovus) 30%,var(--line)); }
+      #clSecBeacon .bcn-card .own.eco{ color:var(--ink-2); background:var(--paper-2); border:1px dashed var(--line-2); }
+      #clSecBeacon .bcn-detail{ margin-top:14px; background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:0; overflow:hidden; display:grid; grid-template-columns:1.35fr 1fr; }
+      #clSecBeacon .bcn-detail .dl-main{ padding:19px 22px; border-right:1px solid var(--line); }
+      #clSecBeacon .bcn-detail .dl-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:11px; }
+      #clSecBeacon .bcn-detail .dl-head h4{ margin:0; font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.015em; }
+      #clSecBeacon .bcn-detail .dl-stage{ font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:800; letter-spacing:.06em; color:#fff; background:var(--pf-connovus); border-radius:999px; padding:3px 9px; }
+      #clSecBeacon .bcn-detail .dl-obj{ font-size:13px; color:var(--ink-2); line-height:1.6; margin:0 0 14px; }
+      #clSecBeacon .bcn-detail .dl-loe{ font-size:11.5px; color:var(--muted); line-height:1.55; margin:0; }
+      #clSecBeacon .bcn-detail .dl-loe b{ color:var(--ink-2); }
+      #clSecBeacon .bcn-detail .dl-side{ padding:19px 20px; background:var(--paper-2); display:flex; flex-direction:column; gap:15px; }
+      #clSecBeacon .bcn-detail .dl-k{ font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:800; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+      #clSecBeacon .bcn-mile{ display:flex; flex-direction:column; gap:7px; }
+      #clSecBeacon .bcn-mile .m{ display:flex; align-items:baseline; gap:9px; font-size:11.5px; color:var(--ink-2); }
+      #clSecBeacon .bcn-mile .m .dt{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; color:var(--pf-connovus); flex:none; width:46px; }
+      #clSecBeacon .bcn-mile .m.done .dt{ color:var(--muted); }
+      #clSecBeacon .bcn-mile .m.done{ color:var(--muted); }
+      #clSecBeacon .bcn-part{ display:flex; flex-wrap:wrap; gap:5px; }
+      #clSecBeacon .bcn-part span{ font-size:10px; color:var(--ink-2); background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:2px 7px; }
+      @media(max-width:1000px){ #clSecBeacon .bcn-board{ grid-auto-flow:column; grid-template-columns:none; grid-auto-columns:200px; overflow-x:auto; padding-bottom:6px; } #clSecBeacon .bcn-detail{ grid-template-columns:1fr; } #clSecBeacon .bcn-detail .dl-main{ border-right:0; border-bottom:1px solid var(--line); } }
+    </style>
+    <section class="cvg-section" id="clSecBeacon" style="display:none;">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">ADOPTION PIPELINE · NATO ACT BEACON MODEL</div><span class="cvg-ai-badge"><span class="live-dot"></span> 90‑DAY CADENCE</span></div>
+          <h2>From experiment to <em>Alliance adoption.</em></h2>
+          <p>Proven ideas moved into NATO use at speed — concept to scale, selected through an Adoption Board and run in recurring 90‑day cycles.</p>
+        </div>
+        <div class="right">ADOPTION BOARD</div>
+      </div>
+
+      <div class="bcn-cadence">
+        <div class="ring" style="--p:52"><i>D47</i></div>
+        <div class="cad-txt"><b>Cycle 03 · day 47 / 90.</b> Every 90 days the pipeline tests, learns and improves — near‑term impact over long‑range experimentation.</div>
+        <div class="cad-steps"><b>TEST</b><span class="ar">→</span><b>LEARN</b><span class="ar">→</span><b>IMPROVE</b><span class="ar">↺</span></div>
+      </div>
+
+      <div class="bcn-board" id="bcnBoard">
+        <div class="bcn-col" data-stage="board">
+          <div class="bcn-col-hd"><span class="st">ADOPTION<br>BOARD</span><span class="ct">1</span></div>
+          <button class="bcn-card" data-bcn="edge"><span class="own eco">● ECOSYSTEM</span><span class="nm">Edge ISR Mesh</span><span class="dom">ISR · MULTI‑DOMAIN</span></button>
+        </div>
+        <div class="bcn-col" data-stage="concept">
+          <div class="bcn-col-hd"><span class="st">CONCEPT</span><span class="ct">1</span></div>
+          <button class="bcn-card" data-bcn="corridor"><span class="own eco">● ECOSYSTEM</span><span class="nm">Resilience Corridor OSINT</span><span class="dom">CIMIC · EASTERN FLANK</span></button>
+        </div>
+        <div class="bcn-col" data-stage="experiment">
+          <div class="bcn-col-hd"><span class="st">EXPERIMENT</span><span class="ct">2</span></div>
+          <button class="bcn-card" data-bcn="lcix"><span class="own act">★ BEACON</span><span class="nm">LCI‑X · Layered Counter‑UAS</span><span class="dom">C‑UAS · AIR</span></button>
+          <button class="bcn-card" data-bcn="ngt"><span class="own act">★ BEACON</span><span class="nm">Next Generation Targeting</span><span class="dom">TARGETING · MULTI‑DOMAIN</span></button>
+        </div>
+        <div class="bcn-col" data-stage="mvp">
+          <div class="bcn-col-hd"><span class="st">MVP</span><span class="ct">1</span></div>
+          <button class="bcn-card" data-bcn="ait"><span class="own act">★ BEACON</span><span class="nm">AI in Audacious Training</span><span class="dom">TRAINING · EXERCISE DESIGN</span></button>
+        </div>
+        <div class="bcn-col" data-stage="scale">
+          <div class="bcn-col-hd"><span class="st">ADOPT &amp;<br>SCALE</span><span class="ct">1</span></div>
+          <button class="bcn-card" data-bcn="tfx"><span class="own act">★ BEACON</span><span class="nm">Task Force X · Baltic</span><span class="dom">MARITIME · UNCREWED</span></button>
+        </div>
+      </div>
+
+      <div class="bcn-detail" id="bcnDetail"></div>
+    </section>
+    <script>
+    (function(){
+      var sec = document.getElementById('clSecBeacon');
+      if(!sec || sec.dataset.init) return; sec.dataset.init='1';
+      var STAGE={ board:'ADOPTION BOARD', concept:'CONCEPT', experiment:'EXPERIMENT', mvp:'MVP', scale:'ADOPT & SCALE' };
+      var DATA={
+        tfx:{ t:'Task Force X · Baltic', stage:'scale',
+          obj:'Commercially available, uncrewed maritime systems integrated into a shared, continuously‑updated maritime picture — proving off‑the‑shelf tech can deliver situational awareness without long development timelines.',
+          loe:'<b>ACT role:</b> facilitator &amp; integrator — connecting national efforts into a distributed sensor network. The first ACT Beacon Project; now a repeatable model.',
+          miles:[['DONE','Baltic Sea demonstrations — uncrewed systems integrated',1],['NOW','Replicating to Central Mediterranean at scale',0],['NEXT','North Sea common operational picture',0],['Q4','Arctic — early planning underway',0]],
+          part:['Baltic Sea nations','Industry (COTS)','NATO Command Structure'] },
+        ait:{ t:'AI in Audacious Training', stage:'mvp',
+          obj:'Artificial intelligence applied to exercise scenario design — automating the event &amp; incident injects (MEL/MIL) that drive exercise storylines, plus more responsive opposing‑force play.',
+          loe:'<b>NATO‑Maven Smart System.</b> Execution transferred to the Joint Warfare Centre (Stavanger); HQ SACT retains oversight for coherence and scalability. Pillar: “Embrace New Technologies and Innovation.”',
+          miles:[['JUL','Proof of concept at the NATO Summit',0],['OCT','MVP tested in STEADFAST DUEL 2026',0],['2027','Content generation for LOYAL LEDA 2027',0]],
+          part:['JWC Stavanger','JFTC','HQ SACT'] },
+        ngt:{ t:'Next Generation Targeting', stage:'experiment',
+          obj:'Reduces information‑to‑decision latency across the targeting cycle — connecting the fight to accelerate decisions in a multi‑domain environment, without replacing human judgement.',
+          loe:'<b>Leverages ACT’s annual experiments</b> to align work, reduce duplication and develop through real operational testing rather than in isolation.',
+          miles:[['JUN','CWIX — data‑sharing &amp; interoperability',0],['SEP','Bold Quest',0],['OCT','DiBaX — blended live/sim with LCI‑X',0]],
+          part:['HQ SACT','Allied commands','Industry'] },
+        lcix:{ t:'LCI‑X · Layered Counter‑UAS', stage:'experiment',
+          obj:'Integrating sensors, effectors and command‑and‑control into a coherent, layered defence against uncrewed aerial systems on the Eastern Flank — drawing lessons from Ukraine.',
+          loe:'<b>Recurring 90‑day cycles:</b> test, learn, adapt, retest. A trusted, threat‑informed experimentation network with a realistic “Red Air” adversary component.',
+          miles:[['NOW','Testing ranges &amp; national C‑UAS scan',0],['90d','Three‑month experimentation cycle',0],['OCT','DiBaX — defensive/offensive demo',0]],
+          part:['Allied Land Command','Allied Air Command','NCIA','JATEC','DIANA'] },
+        corridor:{ t:'Resilience Corridor OSINT', stage:'concept',
+          obj:'A bilateral civil‑military awareness corridor — an OSINT‑based indicator picture feeding Eastern Flank resilience, both sides of the line.',
+          loe:'<b>Ecosystem‑originated.</b> Fed by Convergens OSINT layers and the Conventlab regional map. Candidate for Beacon adoption.',
+          miles:[['NOW','Sandbox — indicator framework',0],['NEXT','Pilot with corridor partners',0],['→','Adoption Board review',0]],
+          part:['Convergens','Conventlab','Corridor partners'] },
+        edge:{ t:'Edge ISR Mesh', stage:'board',
+          obj:'Distributed edge‑ISR mesh candidate — low‑cost, attritable sensing nodes feeding a common picture. Under Adoption Board intake review.',
+          loe:'<b>Ecosystem‑originated.</b> Surfaced from Convexus capability catalog; assessed for near‑term operational relevance before entering experimentation.',
+          miles:[['INTAKE','Adoption Board screening',0],['→','Concept definition if selected',0]],
+          part:['Convexus','Conventlab'] },
+      };
+      var detail=document.getElementById('bcnDetail');
+      function render(key){
+        var d=DATA[key]; if(!d) return;
+        sec.querySelectorAll('.bcn-card').forEach(function(c){ c.classList.toggle('active', c.dataset.bcn===key); });
+        var miles=d.miles.map(function(m){ return '<div class="m'+(m[2]?' done':'')+'"><span class="dt">'+m[0]+'</span><span>'+m[1]+'</span></div>'; }).join('');
+        var part=d.part.map(function(p){ return '<span>'+p+'</span>'; }).join('');
+        detail.innerHTML=''+
+          '<div class="dl-main">'+
+            '<div class="dl-head"><h4>'+d.t+'</h4><span class="dl-stage">'+STAGE[d.stage]+'</span></div>'+
+            '<p class="dl-obj">'+d.obj+'</p>'+
+            '<p class="dl-loe">'+d.loe+'</p>'+
+          '</div>'+
+          '<div class="dl-side">'+
+            '<div><div class="dl-k">MILESTONES · 2026</div><div class="bcn-mile">'+miles+'</div></div>'+
+            '<div><div class="dl-k">PARTNERS</div><div class="bcn-part">'+part+'</div></div>'+
+          '</div>';
+      }
+      sec.querySelectorAll('.bcn-card').forEach(function(c){ c.addEventListener('click', function(){ render(c.dataset.bcn); }); });
+      render('tfx');
+    })();
+    </script>
+
+    <!-- ============ LOGIC CHAIN TTX · live tool promo ============ -->
+    <style>
+      #clSecLogic .ttxp{ display:grid; grid-template-columns:1.25fr 1fr; gap:18px; }
+      #clSecLogic .ttxp-card{ border:1px solid var(--line); border-radius:18px; background:var(--paper); padding:28px 28px 26px;
+        position:relative; overflow:hidden; }
+      #clSecLogic .ttxp-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+        background:linear-gradient(180deg,var(--pf-connovus),color-mix(in srgb,var(--pf-connovus) 25%,transparent)); }
+      #clSecLogic .ttxp-eyebrow{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.18em; font-weight:700;
+        color:var(--pf-connovus); text-transform:uppercase; }
+      #clSecLogic .ttxp-card h3{ font-size:24px; font-weight:800; letter-spacing:-.02em; margin:10px 0 8px; color:var(--ink); }
+      #clSecLogic .ttxp-card p{ font-size:13.5px; color:var(--muted); line-height:1.6; margin:0 0 18px; }
+      #clSecLogic .ttxp-vars{ display:flex; flex-direction:column; gap:8px; margin-bottom:22px; }
+      #clSecLogic .ttxp-var{ display:flex; align-items:center; gap:12px; padding:10px 13px; border:1px solid var(--line);
+        border-radius:11px; background:var(--paper-2); }
+      #clSecLogic .ttxp-var .vid{ width:30px; height:30px; flex:none; border-radius:8px; display:grid; place-items:center;
+        font-family:'Instrument Serif',serif; font-style:italic; font-size:18px; color:var(--pf-connovus);
+        background:color-mix(in srgb,var(--pf-connovus) 12%,var(--paper)); border:1px solid color-mix(in srgb,var(--pf-connovus) 26%,var(--line)); }
+      #clSecLogic .ttxp-var .vnm{ font-size:13px; font-weight:700; color:var(--ink); }
+      #clSecLogic .ttxp-var .vds{ font-size:11.5px; color:var(--muted); }
+      #clSecLogic .ttxp-cta{ display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono',monospace;
+        font-size:12px; letter-spacing:.08em; font-weight:700; text-transform:uppercase; color:#fff; background:var(--pf-connovus);
+        border:1px solid var(--pf-connovus); border-radius:11px; padding:13px 20px; transition:filter .15s ease; }
+      #clSecLogic .ttxp-cta:hover{ filter:brightness(1.07); }
+      #clSecLogic .ttxp-side{ border:1px solid var(--line); border-radius:18px; background:var(--paper); padding:24px 24px;
+        display:flex; flex-direction:column; }
+      #clSecLogic .ttxp-side h5{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; font-weight:700;
+        color:var(--muted); text-transform:uppercase; margin:0 0 16px; }
+      #clSecLogic .ttxp-chain{ display:flex; flex-wrap:wrap; gap:6px 4px; margin-bottom:20px; }
+      #clSecLogic .ttxp-chain .st{ display:flex; align-items:center; gap:4px; }
+      #clSecLogic .ttxp-chain .dot{ width:24px; height:24px; border-radius:50%; border:1.6px solid var(--line-2);
+        display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:700; color:var(--muted); }
+      #clSecLogic .ttxp-chain .dot.hi{ border-color:var(--pf-connovus); color:var(--pf-connovus);
+        background:color-mix(in srgb,var(--pf-connovus) 10%,var(--paper)); }
+      #clSecLogic .ttxp-chain .ar{ color:var(--line-2); font-size:9px; }
+      #clSecLogic .ttxp-stats{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:auto; }
+      #clSecLogic .ttxp-stats .v{ font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--ink); line-height:1; }
+      #clSecLogic .ttxp-stats .k{ font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--muted);
+        text-transform:uppercase; margin-top:6px; }
+      @media(max-width:860px){ #clSecLogic .ttxp{ grid-template-columns:1fr; } }
+    </style>
+    <section class="cvg-section" id="clSecLogic">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">04 · LOGIC CHAIN TTX</div><span class="cvg-ai-sub"><span class="d"></span>EFDI TTX · 10 JUN 26</span></div>
+          <h2>Detect to Notify — <em>the chain, stress-tested.</em></h2>
+          <p>The EFDI Data Backbone Accelerator tabletop, as a live analytic-wargaming console — eleven targeting stages, three variants, real-time friction logging and a senior-leader outbrief.</p>
+        </div>
+        <div class="right">11 STAGES · 3 VARIANTS</div>
+      </div>
+
+      <div class="ttxp">
+        <div class="ttxp-card">
+          <div class="ttxp-eyebrow">TTX Wargamer · Interactive console</div>
+          <h3>Run the cross-border sensor-to-shooter wargame</h3>
+          <p>An Appleget-method analytic wargame: inject the OWAD, walk the Find–Fix–Track–Target–Engage–Assess chain against a live decision window, capture every Essential Question and friction (Technical · Legal · Policy · Operational · Procedural), and let the Red Cell punish delay.</p>
+          <div class="ttxp-vars">
+            <div class="ttxp-var"><span class="vid">A</span><div><div class="vnm">National Incursion</div><div class="vds">LT detects &amp; engages within its own airspace — the baseline case.</div></div></div>
+            <div class="ttxp-var"><span class="vid">B</span><div><div class="vnm">Cross-Border Sensor-to-Shooter</div><div class="vds">LT detects → PL engages. Data releasability &amp; trust under Art. 18b.</div></div></div>
+            <div class="ttxp-var"><span class="vid">C</span><div><div class="vnm">Engage Back Into Initiating Nation</div><div class="vds">Allied shooter fires over LT soil — the dual-key consent stress case.</div></div></div>
+          </div>
+          <a class="ttxp-cta" href="/platforms/ttx-wargamer/index.html">Open TTX Wargamer
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="ttxp-side">
+          <h5>11-stage targeting chain · F2T2EA</h5>
+          <div class="ttxp-chain">
+            <span class="st"><span class="dot hi">01</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">02</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot hi">03</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">04</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot hi">05</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot hi">06</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">07</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">08</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot hi">09</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">10</span></span><span class="ar">›</span>
+            <span class="st"><span class="dot">11</span></span>
+          </div>
+          <div class="ttxp-stats">
+            <div><div class="v">22</div><div class="k">Essential Questions</div></div>
+            <div><div class="v">5</div><div class="k">Friction categories</div></div>
+            <div><div class="v">T+</div><div class="k">Live decision window</div></div>
+            <div><div class="v">90/180/365</div><div class="k">Day roadmap</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cvg-section" id="clSecAI">
+      <div class="cvg-section-head">
+        <div class="left">
+          <div class="badge-row"><div class="num">05 · AI ASSISTANCE</div><span class="cvg-ai-badge"><span class="live-dot"></span> Conventlab AI</span></div>
+          <h2>Ask Conventlab <em>anything.</em></h2>
+          <p>Institutional, calm, structured replies.</p>
+        </div>
+        <div class="right">INSTITUTIONAL TONE</div>
+      </div>
+      <div class="cvg-prompt" data-plt-persona="You are Conventlab AI — a calm experimentation pathway analyst. Help structure pilots, articulate outcomes and recommend next experiments. Tone: institutional, structured, operationally aware.">
+        <div class="cvg-prompt-head">
+          <div class="ttl"><span class="cvg-ai-badge" style="font-size:9px;padding:2px 7px;"><span class="live-dot"></span> AI</span> Ask Conventlab AI</div>
+          <div class="cvg-prompt-suggest">
+            <button data-plt-suggest="Status of all active pilots.">Status of all active pilots.</button><button data-plt-suggest="Top 3 outcomes ready for executive review.">Top 3 outcomes ready for executi…</button><button data-plt-suggest="Suggest next pilot for Eastern Flank corridor.">Suggest next pilot for Eastern F…</button>
+          </div>
+        </div>
+        <div class="cvg-prompt-input">
+          <textarea class="plt-prompt-text" rows="1" placeholder="Ask anything strategic — Conventlab AI replies institutionally."></textarea>
+          <button class="cvg-prompt-send plt-prompt-send">ASK<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="cvg-prompt-out plt-prompt-out"></div>
+      </div>
+    </section>
+
+<!-- ============== INCUBATION → CAPITAL (CONVENTLAB · CONVEDGE · CONVESTUS) ============== -->
+<style>
+  #incubation .inc-flow{height:2px;border-radius:2px;margin:30px 0 22px;
+    background:linear-gradient(90deg,var(--pf-connovus),#16A38C,var(--brand-gold))}
+  #incubation .inc-chain{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  #incubation .inc-step{position:relative;background:var(--paper);border:1px solid var(--line);
+    border-radius:18px;padding:26px 24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+  #incubation .inc-step:hover{transform:translateY(-4px);
+    border-color:color-mix(in srgb,var(--sc) 55%,var(--line));
+    box-shadow:0 26px 50px -28px color-mix(in srgb,var(--sc) 45%,transparent)}
+  #incubation .inc-step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc)}
+  #incubation .inc-k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--sc);text-transform:uppercase}
+  #incubation .inc-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    color:var(--sc);background:color-mix(in srgb,var(--sc) 13%,var(--paper));margin:16px 0}
+  #incubation .inc-ico svg{width:22px;height:22px}
+  #incubation .inc-nm{font-size:21px;font-weight:800;letter-spacing:.01em;color:var(--ink)}
+  #incubation .inc-tag{font-size:12.5px;color:var(--sc);font-weight:700;margin-top:3px}
+  #incubation .inc-ds{font-size:13.5px;color:var(--muted);line-height:1.55;margin-top:13px}
+  #incubation .inc-spot{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-top:18px}
+  #incubation .inc-card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:26px 24px}
+  #incubation .inc-card h3{margin:0;font-size:18px;font-weight:800;color:var(--ink)}
+  #incubation .inc-card .serif-lede{font-family:'Instrument Serif',serif;font-style:italic;
+    font-size:21px;line-height:1.3;color:var(--ink-2);margin:10px 0 0}
+  #incubation .inc-status{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#16A38C;
+    background:color-mix(in srgb,#16A38C 12%,var(--paper));border:1px solid color-mix(in srgb,#16A38C 30%,var(--line));
+    padding:5px 11px;border-radius:999px;margin-bottom:14px}
+  #incubation .inc-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#16A38C}
+  #incubation .inc-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  #incubation .inc-chip{font-size:12px;color:var(--ink-2);background:var(--chip);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px}
+  #incubation .inc-trust-k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  #incubation .inc-levels{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);font-weight:600}
+  #incubation .inc-levels span.sep{color:var(--muted);font-weight:400}
+  #incubation .inc-note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:16px}
+  #incubation .inc-note b{color:var(--ink-2)}
+  @media(max-width:860px){
+    #incubation .inc-chain{grid-template-columns:1fr}
+    #incubation .inc-spot{grid-template-columns:1fr}
+  }
+</style>
+<section class="cvg-section" id="incubation">
+  <div class="container">
+    <div class="section-head">
+      <h1 class="section-title"><em>From Concept to Capital</em></h1>
+      <div class="section-eyebrow section-eyebrow-after">Conventlab incubates. CONVEDGE proves it. Convestus funds it.</div>
+      <p class="section-sub">A gated innovation pathway that turns early concepts into de-risked, investment-ready dual-use capabilities — with honesty engineered in from day one.</p>
+    </div>
+
+    <div class="inc-flow" aria-hidden="true"></div>
+
+    <div class="inc-chain">
+      <!-- 01 INCUBATE · CONVENTLAB -->
+      <div class="inc-step" style="--sc:var(--pf-connovus);">
+        <div class="inc-k">01 · Incubate</div>
+        <div class="inc-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4l3.5 7a4.5 4.5 0 0 1-4.5 6H10a4.5 4.5 0 0 1-4.5-6L9 7z"/><line x1="9" y1="9" x2="15" y2="9"/></svg>
+        </div>
+        <div class="inc-nm">CONVENTLAB</div>
+        <div class="inc-tag">Experimentation &amp; Innovation</div>
+        <div class="inc-ds">Hypothesis → sandbox → pilot → fielding decision. The “fail-fast, learn-faster” engine where a concept matures safely — and gate-validated evidence is produced.</div>
+      </div>
+      <!-- 02 PROVE · CONVEDGE -->
+      <div class="inc-step" style="--sc:#16A38C;">
+        <div class="inc-k">02 · Prove</div>
+        <div class="inc-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8 12a4 4 0 0 1 8 0M5 12a7 7 0 0 1 14 0M2 12a10 10 0 0 1 20 0"/></svg>
+        </div>
+        <div class="inc-nm">CONVEDGE</div>
+        <div class="inc-tag">Passive EM Activity Intelligence</div>
+        <div class="inc-ds">The first worked demonstrator. Turns invisible RF activity into operational awareness — validated cheaply against a strict claims discipline before any scale.</div>
+      </div>
+      <!-- 03 FUND · CONVESTUS -->
+      <div class="inc-step" style="--sc:var(--brand-gold);">
+        <div class="inc-k">03 · Fund</div>
+        <div class="inc-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 6-7"/><path d="M16 8h5v5"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
+        </div>
+        <div class="inc-nm">CONVESTUS</div>
+        <div class="inc-tag">Accelerator &amp; Capital Bridge</div>
+        <div class="inc-ds">Bridges gate-validated projects to DIANA, the NATO Innovation Fund and dual-use capital — and acts as accelerator. Realised through Connectus (connection) and Consultus (competency).</div>
+      </div>
+    </div>
+
+    <div class="inc-spot">
+      <!-- CONVEDGE spotlight -->
+      <div class="inc-card">
+        <span class="inc-status">Phase 0 · Validation</span>
+        <h3>CONVEDGE — the first capability in the pathway</h3>
+        <p class="serif-lede">Turn invisible RF activity into actionable operational awareness.</p>
+        <div class="inc-chips">
+          <span class="inc-chip">Passive sensing</span>
+          <span class="inc-chip">Wi-Fi / CSI</span>
+          <span class="inc-chip">RF spectrum</span>
+          <span class="inc-chip">Sensor fusion</span>
+          <span class="inc-chip">Edge AI</span>
+          <span class="inc-chip">Risk scoring</span>
+        </div>
+      </div>
+      <!-- Honesty / claims discipline -->
+      <div class="inc-card">
+        <div class="inc-trust-k">Honesty by design</div>
+        <div class="inc-levels">
+          <span>Detection</span><span class="sep">≠</span>
+          <span>Inference</span><span class="sep">≠</span>
+          <span>Classification</span><span class="sep">≠</span>
+          <span>Identification</span>
+        </div>
+        <p class="inc-note">Every claim is disciplined by a written charter: presence, motion and occupancy are <b>inferred with confidence</b> — never personal identification, never “through-wall vision,” never covert surveillance. For Convestus, incubator and funder roles are kept under <b>separate governance</b>. De-risked evidence, stated honestly, is the moat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <div class="cvg-footer-cta">
+      <h3>Ready when <em>you are.</em></h3>
+      <p>Conventity ecosystem · purpose-built for governments and multinational partners.</p>
+      <div class="row">
+        <button class="btn btn-primary" >Open pilot portal<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+        <button class="btn btn-ghost" data-plt-close>Back to ecosystem</button>
+      </div>
+    </div></div>
+</div>
+
+<!-- Platform runtime: theme, close, AI prompts, standalone boot -->
+<script src="/assets/platform-shell.js"></script>
+<!-- Shared Convergens/Conventlab map + OSINT engine -->
+<script src="/assets/convergens-runtime.js"></script>
+
+<script>
+// ── CONVENTLAB · Logic Chain TTX — interactive 11-stage chain + heatmap ──
+(function(){
+  const rail = document.getElementById('clChainRail');
+  const detail = document.getElementById('clChainDetail');
+  const heat = document.getElementById('clHeat');
+  if (!rail || !detail || !heat) return;
+
+  const L = (s,items)=>({s,items});
+  const STAGES = [
+    { n:'01', name:'Detect', flow:'Sensor → C2 → CRC',
+      policy:L('live',[['Authorizes','National air-policing authority (NATINAMDS)'],['Classification','NATO RESTRICTED'],['Approval','Standing peacetime air-policing ROE']]),
+      technical:L('live',[['Sensor / system','Ground radar + passive RF + acoustic mesh'],['Format · protocol','ASTERIX CAT-048 / Link 16 J3.x'],['Network path','Sensor → local C2 node → CRC'],['Latency','< 2 s']]),
+      legal:L('live',[['Authority','Chicago Convention Art.1 · national air-defence act'],['Sovereignty','Detection within national airspace only']]),
+      friction:'Passive RF / acoustic sensors not yet fused with primary radar across all nodes.',
+      mitigation:'CONVENTLAB sensor-fusion pilot; standardise CAT-048 ingestion across nodes.' },
+    { n:'02', name:'Classify', flow:'CRC ID correlation',
+      policy:L('live',[['Authorizes','CRC duty controller'],['Classification','NATO SECRET (track identity)'],['Approval','Identity authority delegated to Regional Command']]),
+      technical:L('pilot',[['Sensor / system','Auto ID correlation + IFF Mode 5'],['Format · protocol','Link 16 J3.5 / STANAG 5516'],['Network path','CRC fusion engine'],['Latency','< 5 s']]),
+      legal:L('pilot',[['Authority','National identification rules · STANAG 4193'],['Sovereignty','Mode 5 crypto key-sharing requires bilateral agreement']]),
+      friction:'Non-cooperative / low-RCS UAS lack IFF — manual classification slows the chain.',
+      mitigation:'AI classifier pilot for low-RCS tracks; pre-shared Mode 5 keys.' },
+    { n:'03', name:'Share', flow:'National → FMN → partner',
+      policy:L('pilot',[['Authorizes','National disclosure authority'],['Classification','REL NATO / bilateral caveats'],['Approval','Releasability officer, per nation']]),
+      technical:L('pilot',[['Sensor / system','Link 16 / JCHAT / Federated Mission Networking'],['Format · protocol','NVG / MIP Block 4'],['Network path','National C2 → FMN gateway → partner C2'],['Latency','3 – 8 s']]),
+      legal:L('gap',[['Authority','Bilateral data-sharing MOUs'],['Sovereignty','Cross-border track release needs originating-nation consent']]),
+      friction:'Caveat handling is manual; releasability decided per track — a major delay point.',
+      mitigation:'Automated caveat-tagging pilot; pre-agreed release matrix held in CONVENTLAB.' },
+    { n:'04', name:'Validate', flow:'Cross-CRC correlation',
+      policy:L('pilot',[['Authorizes','Regional Air Command validation cell'],['Classification','NATO SECRET'],['Approval','Two-source confirmation rule']]),
+      technical:L('pilot',[['Sensor / system','Multi-sensor track correlation'],['Format · protocol','Link 16 J7.x track management'],['Network path','Cross-CRC track-number deconfliction'],['Latency','< 10 s']]),
+      legal:L('gap',[['Authority','National validation procedures'],['Sovereignty','Shared cross-border validation undefined']]),
+      friction:'No agreed cross-border track-validation standard — duplicate tracks appear.',
+      mitigation:'Common validation SOP pilot; shared track-numbering scheme.' },
+    { n:'05', name:'Trust', flow:'Zero-trust gateway',
+      policy:L('gap',[['Authorizes','CAOC trust framework'],['Classification','NATO SECRET'],['Approval','Accredited-node certification']]),
+      technical:L('gap',[['Sensor / system','PKI / cross-domain guard'],['Format · protocol','NPKI certificates'],['Network path','Zero-trust gateway between national domains'],['Latency','Session-based']]),
+      legal:L('gap',[['Authority','Information-assurance accreditation (national)'],['Sovereignty','Mutual recognition of accreditation lacking']]),
+      friction:'No mutual accreditation — each nation re-validates partner data integrity.',
+      mitigation:'Federated zero-trust pilot; mutual accreditation framework.' },
+    { n:'06', name:'Decide', flow:'CAOC → SNR consoles',
+      policy:L('live',[['Authorizes','Senior National Representative / CAOC director'],['Classification','NATO SECRET'],['Approval','National engagement authority retained']]),
+      technical:L('pilot',[['Sensor / system','Threat-evaluation & weapon-assignment (TEWA)'],['Format · protocol','Link 16 J12.x'],['Network path','CAOC → SNR consoles'],['Latency','Decision-paced']]),
+      legal:L('live',[['Authority','National command authority · UN Charter Art.51'],['Sovereignty','Engagement decision remains national']]),
+      friction:'TEWA recommendations not harmonised; SNR consoles can see different pictures.',
+      mitigation:'Common operating picture pilot; shared TEWA logic in CONVENTLAB.' },
+    { n:'07', name:'Clear Airspace', flow:'ACA ↔ civil ANSP',
+      policy:L('live',[['Authorizes','Airspace Control Authority (ACA)'],['Classification','NATO RESTRICTED'],['Approval','Airspace Control Order (ACO)']]),
+      technical:L('pilot',[['Sensor / system','Airspace management system'],['Format · protocol','ACO via NVG'],['Network path','ACA → civil ANSP coordination'],['Latency','Minutes']]),
+      legal:L('pilot',[['Authority','ICAO civil-aviation coordination · national airspace law'],['Sovereignty','Civil traffic separation in sovereign airspace']]),
+      friction:'Civil ANSP coordination is manual; deconfliction with commercial traffic is slow.',
+      mitigation:'Automated civil–military airspace deconfliction pilot (addresses 7.b(6)).' },
+    { n:'08', name:'Cue', flow:'C2 → fire control',
+      policy:L('live',[['Authorizes','Weapons controller'],['Classification','NATO SECRET'],['Approval','Engagement authority delegated']]),
+      technical:L('pilot',[['Sensor / system','Fire-control cueing / sensor-to-shooter'],['Format · protocol','Link 16 J3.7 / CEC'],['Network path','C2 → effector fire-control'],['Latency','< 3 s']]),
+      legal:L('pilot',[['Authority','National ROE'],['Sovereignty','Effector may be a partner-nation asset']]),
+      friction:'Cross-nation sensor-to-shooter (one nation’s sensor, another’s effector) is unproven.',
+      mitigation:'CEC interoperability pilot; cross-nation cueing trial in CONVENTLAB.' },
+    { n:'09', name:'Engage', flow:'Fire control → effector',
+      policy:L('live',[['Authorizes','National engagement authority'],['Classification','NATO SECRET'],['Approval','Positive ID + ROE satisfied']]),
+      technical:L('live',[['Sensor / system','Effector (SAM / C-UAS / interceptor)'],['Format · protocol','Link 16 J11.x'],['Network path','Fire-control → effector'],['Latency','Weapon-paced']]),
+      legal:L('gap',[['Authority','UN Charter Art.51 · national use-of-force law'],['Sovereignty','Cross-border effect prohibited without consent']]),
+      friction:'Cross-border interception (effect over a neighbour’s airspace) is legally unresolved.',
+      mitigation:'Pre-agreed cross-border engagement protocol; CONVENTLAB legal sandbox.' },
+    { n:'10', name:'Assess', flow:'Effector → CRC → CAOC',
+      policy:L('pilot',[['Authorizes','CAOC assessment cell'],['Classification','NATO SECRET'],['Approval','BDA reporting chain']]),
+      technical:L('pilot',[['Sensor / system','Sensor re-acquisition / BDA fusion'],['Format · protocol','Link 16 J7.x + ISR feed'],['Network path','Effector → CRC → CAOC'],['Latency','< 30 s']]),
+      legal:L('pilot',[['Authority','National reporting obligations'],['Sovereignty','Debris / collateral over sovereign territory']]),
+      friction:'BDA fusion across nations is slow; debris-liability ownership is unclear.',
+      mitigation:'Shared BDA pilot; pre-agreed liability framework.' },
+    { n:'11', name:'Notify', flow:'CAOC → civil → public',
+      policy:L('pilot',[['Authorizes','CAOC / national public affairs'],['Classification','REL public / NATO RESTRICTED'],['Approval','Strategic-communications clearance']]),
+      technical:L('pilot',[['Sensor / system','StratCom / alerting / NOTAM'],['Format · protocol','NOTAM / structured alert'],['Network path','CAOC → national authorities → civil ANSP → public'],['Latency','Minutes']]),
+      legal:L('pilot',[['Authority','ICAO civil-aviation notification · national disclosure law'],['Sovereignty','Cross-border notification protocols']]),
+      friction:'Notification sequencing across nations and to civil authorities is ad-hoc.',
+      mitigation:'Automated multi-nation notification cascade pilot.' }
+  ];
+
+  const LENS_ORDER = [['policy','POLICY'],['technical','TECHNICAL · DATA FLOW'],['legal','LEGAL']];
+  const SLABEL = { live:'Live', pilot:'In pilot', gap:'Gap' };
+  const worst = (st) => {
+    const rank = { live:0, pilot:1, gap:2 };
+    return [st.policy.s, st.technical.s, st.legal.s].reduce((a,b)=> rank[b]>rank[a]?b:a, 'live');
+  };
+  const esc = (s)=> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  let active = 0;
+
+  // build rail
+  STAGES.forEach((st, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'cl-node';
+    btn.type = 'button';
+    btn.setAttribute('role','tab');
+    btn.dataset.i = i;
+    btn.innerHTML = `<span class="cl-node-dot s-${worst(st)}"></span><span class="cl-node-n">${st.n}</span><span class="cl-node-nm">${esc(st.name)}</span>`;
+    btn.addEventListener('click', ()=> select(i));
+    rail.appendChild(btn);
+    if (i < STAGES.length - 1){
+      const ar = document.createElement('span');
+      ar.className = 'cl-arrow';
+      ar.setAttribute('aria-hidden','true');
+      ar.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>';
+      rail.appendChild(ar);
+    }
+  });
+
+  function lensCard(key, label, lens){
+    const rows = lens.items.map(([k,v]) =>
+      `<div class="cl-kv"><span class="cl-kv-k">${esc(k)}</span><span class="cl-kv-v">${esc(v)}</span></div>`).join('');
+    return `<div class="cl-lens">
+      <div class="cl-lens-head">
+        <span class="cl-lens-title">${label}</span>
+        <span class="cl-lens-chip ${lens.s}"><span class="d s-${lens.s}"></span>${SLABEL[lens.s]}</span>
+      </div>${rows}</div>`;
+  }
+
+  function renderDetail(i){
+    const st = STAGES[i];
+    detail.innerHTML = `
+      <div class="cl-detail-head">
+        <span class="cl-detail-n">STAGE ${st.n}</span>
+        <span class="cl-detail-nm">${esc(st.name)}</span>
+        <span class="cl-detail-flow">${esc(st.flow)}</span>
+      </div>
+      <div class="cl-lenses">
+        ${LENS_ORDER.map(([k,lbl])=> lensCard(k,lbl,st[k])).join('')}
+      </div>
+      <div class="cl-fm">
+        <div class="cl-fm-card fr">
+          <div class="cl-fm-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Friction point</div>
+          <div class="cl-fm-v">${esc(st.friction)}</div>
+        </div>
+        <div class="cl-fm-card mi">
+          <div class="cl-fm-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mitigation · CONVENTLAB</div>
+          <div class="cl-fm-v">${esc(st.mitigation)}</div>
+        </div>
+      </div>`;
+  }
+
+  function select(i){
+    active = i;
+    rail.querySelectorAll('.cl-node').forEach(n => n.classList.toggle('active', +n.dataset.i === i));
+    heat.querySelectorAll('.cl-heat-row').forEach(r => r.classList.toggle('sel', +r.dataset.i === i));
+    renderDetail(i);
+  }
+
+  // build heatmap
+  let hh = `<div class="cl-heat-hcell"></div>
+    <div class="cl-heat-hcell center">Policy</div>
+    <div class="cl-heat-hcell center">Technical</div>
+    <div class="cl-heat-hcell center">Legal</div>`;
+  STAGES.forEach((st, i) => {
+    hh += `<div class="cl-heat-row" data-i="${i}">
+      <div class="cl-heat-rowlbl" data-i="${i}"><span class="rn">${st.n}</span>${esc(st.name)}</div>
+      <div class="cl-heat-cell ${st.policy.s}" data-i="${i}" title="${esc(st.name)} · Policy — ${SLABEL[st.policy.s]}"></div>
+      <div class="cl-heat-cell ${st.technical.s}" data-i="${i}" title="${esc(st.name)} · Technical — ${SLABEL[st.technical.s]}"></div>
+      <div class="cl-heat-cell ${st.legal.s}" data-i="${i}" title="${esc(st.name)} · Legal — ${SLABEL[st.legal.s]}"></div>
+    </div>`;
+  });
+  heat.innerHTML = hh;
+  heat.querySelectorAll('[data-i]').forEach(el => {
+    el.addEventListener('click', ()=> select(+el.dataset.i));
+  });
+
+  select(0);
+})();
+</script>
+<script>
+// ── Conventlab hero-diagram node gliding + #hash deep-link (standalone) ──
+(function(){
+  var overlay = document.getElementById('conventlabOverlay');
+  if (!overlay) return;
+  function glideTo(anchorId){
+    var t = overlay.querySelector('#'+anchorId);
+    if (!t) return;
+    var top = Math.max(0, t.getBoundingClientRect().top - overlay.getBoundingClientRect().top + overlay.scrollTop - 64);
+    overlay.scrollTo({ top: top, behavior:'smooth' });
+    setTimeout(function(){ if (Math.abs(overlay.scrollTop - top) > 60) overlay.scrollTo({ top: top, behavior:'auto' }); }, 650);
+  }
+  document.querySelectorAll('.cl-hero-viz .cl-vnode').forEach(function(node){
+    node.addEventListener('click', function(){ glideTo(node.dataset.clGo); });
+    node.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); glideTo(node.dataset.clGo); } });
+  });
+  var hash = (location.hash||'').replace('#','').trim();
+  if (hash) setTimeout(function(){ glideTo(hash); }, 400);
+})();
+</script>
+</body>
+</html>

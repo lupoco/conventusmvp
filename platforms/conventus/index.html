@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Conventus · Event & Protocol Management · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-glow:rgba(0,73,144,0.15);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --logo-outer:#0E2148; --logo-inner:#2A6FDB;
+}
+[data-dark]{
+  --bg:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+  --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+  --line:#243456; --line2:#2A3A5E;
+  --logo-outer:#EEF1F7; --logo-inner:#5BC0FF;
+  --pf:#4B92DB;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
+
+/* BAR */
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font-size:10px;letter-spacing:.1em;font-weight:700}
+.bar-right{display:flex;align-items:center;gap:8px}
+.theme-btn{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);font-family:inherit;transition:all .15s}
+.theme-btn:hover{border-color:var(--pf);color:var(--pf)}
+.close-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--paper2);border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink2);font-family:inherit;transition:all .15s}
+.close-btn:hover{border-color:var(--pf);color:var(--pf)}
+.close-btn svg{width:13px;height:13px}
+
+/* WRAP */
+.wrap{max-width:1100px;margin:0 auto;padding:0 2rem 6rem}
+
+/* HERO */
+.hero{padding:3rem 0 2rem}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pf);margin-bottom:1rem}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:400;line-height:1.1;color:var(--ink);margin:0 0 1rem}
+h1 em{font-style:normal;color:var(--pf)}
+.lead{font-size:.95rem;color:var(--muted);line-height:1.65;margin-bottom:1.2rem}
+.ai-row{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:100px;background:rgba(0,73,144,.1);border:1px solid rgba(0,73,144,.3);color:var(--pf);font-weight:700}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.25)}50%{box-shadow:0 0 0 4px rgba(34,197,94,.1)}}
+.stamp{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:100px;border:1px solid var(--line);color:var(--muted);background:var(--paper2)}
+.pill.on{border-color:rgba(0,73,144,.35);color:var(--pf);background:rgba(0,73,144,.08)}
+
+/* SVG VIZ */
+.viz svg{width:100%;max-width:380px;display:block;margin:0 auto}
+.orbit{animation:spin 30s linear infinite;transform-origin:200px 200px}
+.orbit.rev{animation-direction:reverse;animation-duration:20s}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.node-chip{fill:var(--paper);stroke:var(--pf);stroke-width:1.5}
+.node-pulse{fill:none;stroke:var(--pf);stroke-width:1;opacity:0;animation:npulse 3s ease-out infinite}
+@keyframes npulse{0%{opacity:.6}100%{opacity:0;r:34}}
+.node-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;fill:var(--muted);font-weight:700}
+.cn-link{stroke:var(--pf);stroke-opacity:.35;stroke-width:1.3;stroke-dasharray:4 6;animation:dash 20s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-200}}
+
+/* SECTIONS */
+.section{padding:3rem 0;border-top:1px solid var(--line)}
+.door:hover{border-color:var(--pf) !important;transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,33,72,.08)}
+.sec-head{display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start;margin-bottom:2rem}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sec-badge-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+h2{font-family:'Instrument Serif',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;color:var(--ink);margin:0 0 .75rem;line-height:1.15}
+h2 em{font-style:normal;color:var(--pf)}
+.sec-desc{font-size:.88rem;color:var(--muted);line-height:1.65;max-width:520px}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--pf);font-weight:700;white-space:nowrap}
+
+/* FRAMES */
+.frames{display:grid;gap:1rem}
+.frame{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.4rem}
+.frame-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.frame-nm{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--pf);font-weight:700}
+.frame-ix{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.frame h4{font-size:.88rem;font-weight:700;color:var(--ink);margin:0 0 .4rem}
+.frame p{font-size:.78rem;color:var(--muted);line-height:1.6;margin:0}
+
+/* AI PROMPT */
+.prompt{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.prompt-head{padding:1rem 1.2rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.prompt-title{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;color:var(--ink)}
+.suggest{display:flex;gap:6px;flex-wrap:wrap}
+.suggest button{font-size:.7rem;padding:4px 10px;border-radius:100px;border:1px solid var(--line);background:var(--paper2);color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s}
+.suggest button:hover{border-color:var(--pf);color:var(--pf)}
+.prompt-input{display:flex;gap:8px;padding:1rem 1.2rem;border-bottom:1px solid var(--line)}
+.prompt-ta{flex:1;background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:.6rem .9rem;font-size:.85rem;font-family:inherit;color:var(--ink);resize:none;min-height:40px;outline:none;transition:border-color .15s}
+.prompt-ta:focus{border-color:var(--pf)}
+.prompt-send{display:flex;align-items:center;gap:6px;padding:0 1.2rem;background:var(--pf);border:none;border-radius:10px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.prompt-send:hover{opacity:.85}
+.prompt-send svg{width:13px;height:13px}
+.prompt-out{padding:1rem 1.2rem;font-size:.82rem;color:var(--ink2);line-height:1.7;min-height:48px;white-space:pre-wrap}
+.prompt-out.loading{color:var(--muted);font-style:italic}
+
+/* TIMELINE */
+.tl{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.tl-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-bottom:1px solid var(--line);gap:1rem;flex-wrap:wrap}
+.tl-brand{display:flex;align-items:center;gap:10px}
+.tl-brand svg{width:32px;height:32px}
+.tl-brand-t{display:block;font-size:.72rem;font-weight:800;letter-spacing:.12em;color:var(--ink);text-transform:uppercase}
+.tl-brand-s{font-size:.68rem;color:var(--muted)}
+.tl-filters{display:flex;gap:6px;flex-wrap:wrap}
+.tl-filt{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;border:1px solid;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.08em;cursor:pointer;transition:opacity .15s}
+.tl-filt.off{opacity:.35}
+.tl-year{padding:1rem 1.4rem;border-bottom:1px solid var(--line)}
+.tl-track{position:relative;height:32px}
+.tl-line{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.tl-mtick{position:absolute;top:50%;transform:translateY(-50%);width:1px;height:8px;background:var(--line2)}
+.tl-mlbl{position:absolute;top:0;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)}
+.tl-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;border:2px solid var(--paper);cursor:pointer;padding:0;transition:transform .15s}
+.tl-dot:hover,.tl-dot.active{transform:translate(-50%,-50%) scale(1.6)}
+.tl-now{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;transform:translateX(-50%);border-radius:2px}
+.tl-stream{padding:1.2rem 1.4rem;max-height:400px;overflow-y:auto}
+.tl-qhead{display:flex;align-items:center;gap:10px;margin:1rem 0 .5rem}
+.tl-qhead .q{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.tl-qhead .ln{flex:1;height:1px;background:var(--line)}
+.tl-qhead .cnt{font-size:10px;color:var(--muted)}
+.tl-row{display:grid;grid-template-columns:48px 20px 1fr;gap:0 12px;align-items:start;position:relative;margin-bottom:2px}
+.tl-row:not(.last)::before{content:'';position:absolute;left:54px;top:22px;bottom:-4px;width:1px;background:var(--line)}
+.tl-date{text-align:right;padding-top:4px}
+.tl-date .dd{font-size:.85rem;font-weight:800;color:var(--ink);line-height:1}
+.tl-date .mo{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--muted);letter-spacing:.08em}
+.tl-node{display:flex;flex-direction:column;align-items:center;padding-top:6px}
+.tl-node .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--paper);flex-shrink:0}
+.tl-card{background:var(--paper2);border:1px solid var(--line);border-left:3px solid;border-radius:10px;padding:.8rem 1rem;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.tl-card:hover{background:var(--paper)}
+.tl-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.tl-nm{font-size:.82rem;font-weight:700;color:var(--ink)}
+.tl-cat{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;padding:2px 7px;border-radius:100px;white-space:nowrap}
+.tl-meta{display:flex;gap:12px;flex-wrap:wrap}
+.tl-meta .it{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted)}
+.tl-tbc{font-family:'JetBrains Mono',monospace;font-size:8px;background:rgba(239,68,68,.1);color:#ef4444;padding:1px 6px;border-radius:4px;letter-spacing:.08em}
+.tl-desc{font-size:.75rem;color:var(--muted);line-height:1.6;margin-top:6px;display:none}
+.tl-card.open .tl-desc{display:block}
+
+/* TIMELINE — quarter accordion */
+.tl-qbody{overflow:hidden}
+.tl-q:not(.open) .tl-qbody{display:none}
+.tl-qhead{cursor:pointer;user-select:none}
+.tl-qhead .chev{margin-left:.6rem;color:var(--muted);transition:transform .2s;font-size:.8rem}
+.tl-q.open .tl-qhead .chev{transform:rotate(180deg)}
+.tl-qempty{color:var(--muted);font-size:.8rem;padding:.4rem 0 1rem 0}
+/* WHAT IS CONVENTUS */
+.whatis{display:flex;flex-direction:column;gap:1.3rem;margin-top:1.4rem}
+.wi-statement{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.7rem 1.9rem;font-family:'Instrument Serif',serif;font-size:clamp(1.2rem,2.5vw,1.8rem);line-height:1.25;color:var(--ink);display:flex;flex-wrap:wrap;align-items:baseline;gap:.35rem .75rem}
+.wi-op{font-family:'JetBrains Mono',monospace;font-size:.62em;color:var(--pf);transform:translateY(-2px)}
+.wi-term{color:var(--pf)}
+.wi-sub{flex-basis:100%;margin-top:.7rem;font-family:'Manrope',sans-serif;font-size:.82rem;color:var(--muted);line-height:1.6;max-width:680px}
+.wi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.wi-tile{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.3rem;transition:border-color .15s,transform .15s}
+.wi-tile:hover{border-color:var(--pf);transform:translateY(-2px)}
+.wi-ic{width:40px;height:40px;border-radius:11px;background:var(--pf-glow);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--pf);margin-bottom:.95rem}
+.wi-ic svg{width:21px;height:21px}
+.wi-kw{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;color:var(--pf);font-weight:700;display:block;margin-bottom:.45rem}
+.wi-tile p{font-size:.82rem;color:var(--muted);line-height:1.55;margin:0}
+.wi-tile p b{color:var(--ink2);font-weight:700}
+.wi-output{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;background:var(--pf-glow);border:1px dashed var(--pf);border-radius:14px;padding:1.05rem 1.3rem}
+.wi-out-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.wi-out-doc{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--pf)}
+.wi-out-tag{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--pf);border:1px solid var(--line2);border-radius:100px;padding:4px 10px;font-weight:700}
+@media(max-width:880px){.wi-grid{grid-template-columns:repeat(2,1fr)}.wi-output{align-items:flex-start;flex-direction:column;gap:.5rem}.wi-out-tag{margin-left:0}}
+@media(max-width:480px){.wi-grid{grid-template-columns:1fr}}
+/* PACKAGES */
+.pkg{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:2rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
+h3{font-family:'Instrument Serif',serif;font-size:1.7rem;font-weight:400;color:var(--ink);margin:0 0 .5rem}
+h3 em{font-style:normal;color:var(--pf)}
+.pkg-desc{font-size:.85rem;color:var(--muted);line-height:1.65;max-width:440px;margin:0 0 1.2rem}
+.tiers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.4rem}
+.tier{font-size:10px;font-weight:700;padding:4px 11px;border-radius:100px;border:1px solid var(--line);color:var(--muted);background:var(--paper2)}
+.tier.gold{border-color:#C8A24B;color:#C8A24B;background:rgba(200,162,75,.08)}
+.tier.blue{border-color:var(--pf);color:var(--pf);background:var(--pf-glow)}
+.tier.teal{border-color:#0EA5A4;color:#0EA5A4;background:rgba(14,165,164,.08)}
+.tier.red{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.08)}
+.doc{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:1.2rem;min-width:230px}
+.doc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted)}
+.doc-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:.78rem}
+.doc-row:last-child{border:none}
+.doc-row span{color:var(--muted)}
+.doc-row b{color:var(--ink2);font-weight:600}
+
+/* FOOTER */
+.footer-cta{text-align:center;padding:4rem 0 2rem;border-top:1px solid var(--line);margin-top:2rem}
+.footer-cta h3{margin:0 0 .5rem;font-size:2rem}
+.footer-cta p{font-size:.9rem;color:var(--muted);margin:0 0 1.5rem}
+.btn-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:11px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;border:none;text-decoration:none;transition:opacity .15s}
+.btn-primary{background:var(--pf);color:#fff}
+.btn-primary:hover{opacity:.85}
+.btn-ghost{background:var(--paper2);color:var(--ink2);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--pf);color:var(--pf)}
+
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr}
+  .viz{display:none}
+  .frames{grid-template-columns:1fr 1fr !important}
+  .pkg{grid-template-columns:1fr}
+  .doc{display:none}
+  .sec-head{grid-template-columns:1fr}
+}
+/* CONVENTUS STUDIO */
+.lock-badge{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 9px;border-radius:100px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444;font-weight:700}
+.lock-badge svg{width:11px;height:11px}
+.frame-link{display:block;text-decoration:none;color:inherit;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+.frame-link:hover{border-color:var(--pf);transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,33,72,.08)}
+.frame-go{color:var(--pf);font-weight:800;font-size:1rem;line-height:1;opacity:.45;transition:opacity .15s}
+.frame-link:hover .frame-go{opacity:1}
+.soon-surface{opacity:.6;pointer-events:none;cursor:default}
+.soon-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;padding:2px 7px;border:1px dashed var(--line2);border-radius:100px;color:var(--muted);vertical-align:2px}
+.cs-cards{display:grid;gap:1rem;grid-template-columns:repeat(2,1fr)}
+@media(max-width:560px){.cs-cards{grid-template-columns:1fr}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<div class="bar">
+  <div class="crumbs">
+    <span class="badge">CONVENTUS</span>
+    <span style="opacity:.4">›</span>
+    <span>Event & Protocol Management</span>
+  </div>
+  <div class="bar-right" style="position:relative">
+    <button class="close-btn" id="cvSetBtn" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+    <div id="cvSetPop" style="display:none;position:absolute;top:120%;right:0;z-index:200;width:270px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px rgba(14,33,72,.14);padding:1rem 1.1rem;text-align:left">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:.5rem">THEME</div>
+      <div style="display:flex;gap:6px;margin-bottom:1rem">
+        <button class="cvSetTh" data-th="light" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;font-size:15px">☀️</button>
+        <button class="cvSetTh" data-th="dark" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;font-size:15px">🌙</button>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:.5rem">LANGUAGE</div>
+      <div style="display:flex;gap:6px;margin-bottom:1rem">
+        <button class="cvSetLg" data-lg="en" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;font-size:12px;font-weight:700;color:var(--ink)">English <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">EN</span></button>
+        <button class="cvSetLg" data-lg="tr" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;font-size:12px;font-weight:700;color:var(--ink)">Türkçe <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">TR</span></button>
+      </div>
+      <div style="border-top:1px solid var(--line);padding-top:.7rem;display:flex;gap:8px">
+        <a href="/login.html" id="cvAuthLink" style="flex:1;text-align:center;padding:7px;border:1px solid var(--line);border-radius:9px;font-size:12px;font-weight:700;color:var(--ink);text-decoration:none"><span id="cvAuthTxt">Sign in</span></a>
+        <a href="/register.html" style="flex:1;text-align:center;padding:7px;background:var(--pf);border-radius:9px;font-size:12px;font-weight:700;color:#fff;text-decoration:none">Create account</a>
+      </div>
+      <a href="/settings.html" style="display:block;text-align:center;margin-top:.65rem;font-size:11px;font-weight:700;color:var(--muted);text-decoration:none">⚙ Full settings &amp; account →</a>
+    </div>
+    <button class="theme-btn" id="theme-btn">🌙 Dark</button>
+    <button class="close-btn" onclick="window.location.href='/'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      Back to ecosystem
+    </button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+          CONVENTUS · 02 / 06
+        </div>
+        <h1>Plan · Manage · <em>Execute.</em></h1>
+        <p class="lead">Conferences, summits and multinational coordination — end-to-end on one secure surface.</p>
+        <div class="ai-row">
+          <span class="ai-badge"><span class="live-dot"></span> CONVENTUS AI · LIVE</span>
+          <span class="stamp" id="live-clock">—</span>
+        </div>
+        <div class="pills">
+          <span class="pill on">LIVE EVENTS</span>
+          <span class="pill on">WORKSPACE</span>
+          <span class="pill on">REGISTRATION</span>
+          <span class="pill on">GO &amp; TEST</span>
+          <span class="pill on">ACCESS CONTROL</span>
+        </div>
+        <div class="btn-row" style="justify-content:flex-start;margin-top:1.3rem">
+          <a class="btn btn-primary" href="start.html">Get started <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          <a class="btn btn-primary" href="go-and-test.html">Go &amp; Test <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          <span class="lock-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> MEMBERS &amp; AUTHORIZED ONLY</span>
+        </div>
+      </div>
+      <div class="viz">
+        <svg viewBox="0 0 400 400">
+          <defs>
+            <radialGradient id="cg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--pf)" stop-opacity=".7"/>
+              <stop offset="100%" stop-color="var(--pf)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle class="orbit" cx="200" cy="200" r="160" fill="none" stroke="var(--line)" stroke-dasharray="3 7"/>
+          <circle class="orbit rev" cx="200" cy="200" r="100" fill="none" stroke="var(--line)" stroke-dasharray="3 7"/>
+          <line class="cn-link" x1="200" y1="130" x2="200" y2="72"/>
+          <line class="cn-link" x1="261" y1="165" x2="311" y2="136"/>
+          <line class="cn-link" x1="261" y1="235" x2="311" y2="264"/>
+          <line class="cn-link" x1="200" y1="270" x2="200" y2="328"/>
+          <line class="cn-link" x1="139" y1="235" x2="89" y2="264"/>
+          <line class="cn-link" x1="139" y1="165" x2="89" y2="136"/>
+          <circle cx="200" cy="200" r="50" fill="url(#cg)"/>
+          <g transform="translate(200 200) scale(0.94) translate(-50 -50)">
+            <path d="M76.2 68.4 A32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M64.7 60.3 A18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--pf)" stroke-width="4.5" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="3.4" fill="var(--pf)"/>
+          </g>
+          <!-- EVENTS -->
+          <g><circle class="node-pulse" cx="200" cy="50" r="22" style="animation-delay:0s"/><circle class="node-chip" cx="200" cy="50" r="22"/><text class="node-lbl" x="200" y="20" text-anchor="middle">EVENTS</text><text x="200" y="54" text-anchor="middle" font-size="14" fill="var(--pf)">🗂</text></g>
+          <!-- AGENDA -->
+          <g><circle class="node-pulse" cx="330" cy="125" r="22" style="animation-delay:.5s"/><circle class="node-chip" cx="330" cy="125" r="22"/><text class="node-lbl" x="330" y="167" text-anchor="middle">AGENDA</text><text x="330" y="129" text-anchor="middle" font-size="14" fill="var(--pf)">📅</text></g>
+          <!-- PROVIDERS -->
+          <g><circle class="node-pulse" cx="330" cy="275" r="22" style="animation-delay:1s"/><circle class="node-chip" cx="330" cy="275" r="22"/><text class="node-lbl" x="330" y="317" text-anchor="middle">PROVIDERS</text><text x="330" y="279" text-anchor="middle" font-size="14" fill="var(--pf)">🤝</text></g>
+          <!-- REGISTER -->
+          <g><circle class="node-pulse" cx="200" cy="350" r="22" style="animation-delay:1.5s"/><circle class="node-chip" cx="200" cy="350" r="22"/><text class="node-lbl" x="200" y="386" text-anchor="middle">REGISTER</text><text x="200" y="354" text-anchor="middle" font-size="14" fill="var(--pf)">✍</text></g>
+          <!-- GO & MEET -->
+          <g><circle class="node-pulse" cx="70" cy="275" r="22" style="animation-delay:2s"/><circle class="node-chip" cx="70" cy="275" r="22"/><text class="node-lbl" x="70" y="317" text-anchor="middle">GO &amp; MEET</text><text x="70" y="279" text-anchor="middle" font-size="14" fill="var(--pf)">🌍</text></g>
+          <!-- ACCESS -->
+          <g><circle class="node-pulse" cx="70" cy="125" r="22" style="animation-delay:2.5s"/><circle class="node-chip" cx="70" cy="125" r="22"/><text class="node-lbl" x="70" y="167" text-anchor="middle">ACCESS</text><text x="70" y="129" text-anchor="middle" font-size="14" fill="var(--pf)">🔑</text></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUR DOORS — role-based access menu -->
+  <section class="section" id="access" style="padding-top:2.2rem">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:1rem">Access · Choose your role</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:.9rem">
+      <a href="/platforms/conventus/communities.html" class="door" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🏛</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Communities</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Institutional host communities (LANDCOM, SACT…) &mdash; their events, sub-communities and how to join.</div>
+        <div style="font-size:.72rem;color:var(--pf);font-weight:700;margin-top:.6rem">Browse communities &rarr;</div>
+      </a>
+      <a href="go-and-test.html" class="door" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🌍</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Go &amp; Test <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.08em;padding:2px 7px;border:1px solid var(--pf);color:var(--pf);border-radius:100px;vertical-align:2px">MVP</span></div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Browse open events, register in a couple of steps, and track your status in My Events.</div>
+        <div style="font-size:.72rem;color:var(--pf);font-weight:700;margin-top:.6rem">Open Go &amp; Test &rarr;</div>
+      </a>
+      <a href="/platforms/conventus/my-events.html" class="door" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🎟</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Participant / Invitee</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Your personal event home &mdash; registrations, programme, services and travel plan.</div>
+        <div style="font-size:.72rem;color:var(--pf);font-weight:700;margin-top:.6rem">My Event Home &rarr;</div>
+      </a>
+      <a href="/platforms/conventus/event-studio.html" class="door" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🗂</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Event Manager</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Create &amp; run your community's events &mdash; details, registration form, launch and manage.</div>
+        <div style="font-size:.72rem;color:var(--pf);font-weight:700;margin-top:.6rem">Open Event Studio &rarr;</div>
+      </a>
+      <div class="door soon-surface" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🤝</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Service Provider <span class="soon-tag">Soon</span></div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Hotels, transfer &amp; car companies, tour agencies &mdash; apply and manage listings.</div>
+      </div>
+      <a href="/sel-event-setup.html" class="door" style="display:block;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;text-decoration:none;color:var(--ink);transition:all .18s">
+        <div style="font-size:1.3rem;margin-bottom:.45rem">🎯</div>
+        <div style="font-weight:800;font-size:.92rem;margin-bottom:3px">Selection Engine</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.55">Set up selection criteria and applications for your event &mdash; organizer access.</div>
+        <div style="font-size:.72rem;color:var(--pf);font-weight:700;margin-top:.6rem">Open Selection &rarr;</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- CONVENTUS STUDIO (gated workspace) -->
+  <section class="section" id="studio">
+    <div class="sec-head">
+      <div>
+        <div class="sec-badge-row">
+          <span class="sec-num">WORKSPACE · CONVENTUS STUDIO</span>
+        </div>
+        <h2>Conventus <em>Studio.</em></h2>
+        <p class="sec-desc">Plan, manage and run events end-to-end — event setup, registration, program, logistics and services.</p>
+      </div>
+    </div>
+    <div class="cs-cards">
+      <a class="frame frame-link" href="event-studio.html"><div class="frame-head"><span class="frame-nm">EVENT STUDIO</span><span class="frame-go">→</span></div><h4>Create &amp; run events</h4><p>Event setup, registration, program &amp; schedule — opens the Events workspace.</p></a>
+      <div class="frame soon-surface"><div class="frame-head"><span class="frame-nm">PRODUCT STUDIO</span><span class="soon-tag">Soon</span></div><h4>Build &amp; manage products</h4><p>Design and configure the platform's product modules.</p></div>
+      <a class="frame frame-link" href="#access"><div class="frame-head"><span class="frame-nm">ACCESS &amp; ROLES</span><span class="frame-go">→</span></div><h4>Role-based control</h4><p>Permission matrix, team directory and authorized email domains.</p></a>
+      <a class="frame frame-link" href="event-studio.html"><div class="frame-head"><span class="frame-nm">LOGISTICS &amp; SERVICES</span><span class="frame-go">→</span></div><h4>Services &amp; providers</h4><p>Accommodation, transfers, car rental and cultural tours via partner firms.</p></a>
+    </div>
+  </section>
+
+  <!-- EVENT TIMELINE -->
+  <section class="section">
+    <div class="sec-head">
+      <div>
+        <div class="sec-badge-row"><span class="sec-num">01 · EVENT CALENDAR</span><span class="ai-badge"><span class="live-dot"></span> LIVE</span></div>
+        <h2>Conventus event <em>management — live.</em></h2>
+        <p class="sec-desc">Plan, coordinate and run every engagement across the 2026 NATO & allied defence ecosystem.</p>
+      </div>
+      <div class="sec-label">2026 EVENTS</div>
+    </div>
+    <div class="tl">
+      <div class="tl-head">
+        <div class="tl-brand">
+          <svg viewBox="0 0 100 100"><path d="M76.2 68.4 A32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="7" stroke-linecap="round"/><path d="M64.7 60.3 A18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--pf)" stroke-width="5.5" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="var(--pf)"/></svg>
+          <div><span class="tl-brand-t">CONVENTUS</span><span class="tl-brand-s">Event Management System</span></div>
+        </div>
+        <div class="tl-filters" id="tlFilters"></div>
+      </div>
+      <div class="tl-year"><div class="tl-track" id="tlTrack"></div></div>
+      <div class="tl-stream" id="tlStream"></div>
+    </div>
+  </section>
+
+  <!-- BACKBONE -->
+  <section class="section">
+    <div class="sec-head">
+      <div>
+        <div class="sec-badge-row"><span class="sec-num">02 · BUILT FOR</span></div>
+        <h2>Dual-use <em>by design.</em></h2>
+        <p class="sec-desc">One secure surface for government, enterprise and institutional events alike.</p>
+      </div>
+      <div class="sec-label">DUAL-USE</div>
+    </div>
+    <div class="frames" style="grid-template-columns:repeat(4,1fr)">
+      <div class="frame"><div class="frame-head"><span class="frame-nm">GOVERNMENT</span></div><h4>Summits &amp; delegations</h4><p>Ministerial meetings, official visits and inter-governmental forums.</p></div>
+      <div class="frame"><div class="frame-head"><span class="frame-nm">ENTERPRISE</span></div><h4>Corporate &amp; partner events</h4><p>Conventions, expos, sponsor programmes and partner gatherings.</p></div>
+      <div class="frame"><div class="frame-head"><span class="frame-nm">INSTITUTIONAL</span></div><h4>Ceremonies &amp; forums</h4><p>High-level visits, signings and recurring standing bodies.</p></div>
+      <div class="frame"><div class="frame-head"><span class="frame-nm">DISCREET</span></div><h4>By default</h4><p>Need-to-know access and a clean record, every time, at any scale.</p></div>
+    </div>
+  </section>
+
+  <!-- WHAT IS CONVENTUS -->
+  <section class="section">
+    <div class="sec-head">
+      <div>
+        <div class="sec-badge-row"><span class="sec-num">03 · WHAT IS CONVENTUS</span></div>
+        <h2>One platform. <em>The whole event.</em></h2>
+        <p class="sec-desc">Registration to certificates, hotel blocks to cultural tours — if it happens around the event, Conventus runs it.</p>
+      </div>
+      <div class="sec-label">END TO END</div>
+    </div>
+    <div class="whatis">
+      <div class="wi-statement">
+        <span>Conventus</span>
+        <span class="wi-op">=</span>
+        <span class="wi-term">the entire event, end to end</span>
+        <span class="wi-op">·</span>
+        <span class="wi-term">civil &middot; industrial &middot; defence</span>
+        <span class="wi-sub">From the first invitation to the final brief — registration, protocol, accommodation, transfers, cultural programme, certificates and AI — orchestrated by one team on one surface, and consolidated into a single exportable record.</span>
+      </div>
+      <div class="wi-grid">
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M8.5 12l2 2 4-4"/></svg></div>
+          <span class="wi-kw">REGISTRATION</span>
+          <p><b>Invite to badge</b> — accreditation and delegation profiles, public or invite-only.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M9 13l-1.5 7L12 18l4.5 2L15 13"/></svg></div>
+          <span class="wi-kw">PROTOCOL SERVICES</span>
+          <p><b>Done right</b> — precedence, seniority and Guest-of-Honour handling, host briefs.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5"/><path d="M3 18h18M5 11V8a1 1 0 0 1 1-1h5v4"/></svg></div>
+          <span class="wi-kw">ACCOMMODATION</span>
+          <p><b>Booked for you</b> — partner-hotel blocks, room allocation and VIP suites.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5A2 2 0 0 1 8.4 9.6h7.2a2 2 0 0 1 1.9 1.4L19 16"/><rect x="3" y="16" width="18" height="4" rx="1"/><circle cx="7" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg></div>
+          <span class="wi-kw">TRANSFER</span>
+          <p><b>To the minute</b> — airport meet-and-greet, fleet and driver coordination.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M5 21V10l7-4 7 4v11M9 21v-5h6v5"/></svg></div>
+          <span class="wi-kw">CULTURAL TOURS</span>
+          <p><b>Beyond the agenda</b> — curated city programmes for guests and partners.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></div>
+          <span class="wi-kw">PRODUCT STUDIO</span>
+          <p><b>Your event, your way</b> — configure modules, branding and content.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5L7 21l5-2.5L17 21l-1.5-7.5"/></svg></div>
+          <span class="wi-kw">CERTIFICATES</span>
+          <p><b>Auto-issued</b> — participation, appreciation and speaker, QR-verified.</p>
+        </div>
+        <div class="wi-tile">
+          <div class="wi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 15l.7 1.6L21 17l-1.3.4-.7 1.6-.7-1.6L17 17l1.3-.4z"/></svg></div>
+          <span class="wi-kw">AI ASSISTANCE</span>
+          <p><b>Always on</b> — Conventus AI drafts invitations, briefs and answers.</p>
+        </div>
+      </div>
+      <div class="wi-output">
+        <span class="wi-out-lbl">EVERYTHING FEEDS →</span>
+        <span class="wi-out-doc">a single Information Brief</span>
+        <span class="wi-out-tag">EXPORTABLE MASTER RECORD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI PROMPT -->
+  <section class="section">
+    <div class="sec-head">
+      <div>
+        <div class="sec-badge-row"><span class="sec-num">04 · AI ASSISTANCE</span><span class="ai-badge"><span class="live-dot"></span> Conventus AI</span></div>
+        <h2>Ask Conventus <em>anything.</em></h2>
+        <p class="sec-desc">Institutional, calm, structured replies about events, delegations and protocol.</p>
+      </div>
+      <div class="sec-label">INSTITUTIONAL TONE</div>
+    </div>
+    <div class="prompt">
+      <div class="prompt-head">
+        <div class="prompt-title"><span class="ai-badge" style="font-size:9px;padding:2px 7px"><span class="live-dot"></span> AI</span> Ask Conventus AI</div>
+        <div class="suggest">
+          <button data-q="Brief me on today's forum status.">Forum status brief…</button>
+          <button data-q="List open coordination items across rooms.">Open coordination items…</button>
+          <button data-q="Suggest the next working group agenda.">WG agenda suggestion…</button>
+        </div>
+      </div>
+      <div class="prompt-input">
+        <textarea class="prompt-ta" id="prompt-ta" rows="1" placeholder="Ask anything strategic — Conventus AI replies institutionally."></textarea>
+        <button class="prompt-send" id="prompt-send">ASK <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="prompt-out" id="prompt-out">Ask a question above to get an institutional AI response.</div>
+    </div>
+  </section>
+
+  <!-- PACKAGES -->
+  <section class="section">
+    <div class="pkg">
+      <div>
+        <div class="sec-badge-row" style="margin-bottom:10px"><span class="sec-num" style="color:var(--pf)">ANNEX · COMMERCIAL</span></div>
+        <h3>Subscription <em>Packages.</em></h3>
+        <p class="pkg-desc">Four tiers — Standard, Premium and Enterprise, up to Sovereign for on-premise, data-sovereign deployment.</p>
+        <div class="tiers">
+          <span class="tier">Tier 1 · Standard</span>
+          <span class="tier blue">Tier 2 · Premium</span>
+          <span class="tier gold">Tier 3 · Enterprise</span>
+          <span class="tier red">Tier 4 · Sovereign</span>
+        </div>
+        <a class="btn btn-primary" href="/cdn-cgi/l/email-protection#462f28202906252928302328322f323f6825292b793533242c2325327b0529283023283233356374761627252d2721236374760f2837332f343f">Contact for details <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+      <div class="doc">
+        <div class="doc-head"><span>DOC · CVS-PKG-2026.05</span><span class="ai-badge" style="font-size:9px;padding:2px 7px"><span class="live-dot"></span> 2026</span></div>
+        <div class="doc-row"><span>Module</span><b>Conventus</b></div>
+        <div class="doc-row"><span>Currency</span><b>EUR · excl. VAT</b></div>
+        <div class="doc-row"><span>Tiers</span><b>04 · Standard → Sovereign</b></div>
+        <div class="doc-row"><span>Validity</span><b>12 months from issue</b></div>
+        <div class="doc-row"><span>Add-ons</span><b>12 annex modules</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="footer-cta">
+    <h3>Ready when <em>you are.</em></h3>
+    <p>Conventity ecosystem · purpose-built for governments and multinational partners.</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="window.location.href='/'">Back to ecosystem</button>
+    </div>
+  </div>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// THEME
+var dark = localStorage.getItem('cn-dark') === '1';
+function applyDark() {
+  document.body.toggleAttribute('data-dark', dark);
+  document.getElementById('theme-btn').textContent = dark ? '☀️ Light' : '🌙 Dark';
+}
+applyDark();
+document.getElementById('theme-btn').addEventListener('click', function() {
+  dark = !dark; localStorage.setItem('cn-dark', dark ? '1' : '0'); applyDark();
+});
+
+// --- Settings popup (ecosystem-style) ---
+(function(){
+  var btn=document.getElementById('cvSetBtn'), pop=document.getElementById('cvSetPop');
+  if(!btn||!pop) return;
+  btn.addEventListener('click', function(e){ e.stopPropagation(); pop.style.display = pop.style.display==='block'?'none':'block'; paint(); });
+  document.addEventListener('click', function(e){ if(!pop.contains(e.target) && e.target!==btn) pop.style.display='none'; });
+  function paint(){
+    document.querySelectorAll('.cvSetTh').forEach(function(b){ b.style.borderColor = (b.dataset.th===(dark?'dark':'light'))?'var(--pf)':'var(--line)'; });
+    var lang=localStorage.getItem('cv-lang')||'en';
+    document.querySelectorAll('.cvSetLg').forEach(function(b){ b.style.borderColor = (b.dataset.lg===lang)?'var(--pf)':'var(--line)'; });
+  }
+  document.querySelectorAll('.cvSetTh').forEach(function(b){ b.addEventListener('click', function(){
+    dark = b.dataset.th==='dark'; localStorage.setItem('cn-dark', dark?'1':'0'); applyDark(); paint();
+  });});
+  document.querySelectorAll('.cvSetLg').forEach(function(b){ b.addEventListener('click', function(){
+    localStorage.setItem('cv-lang', b.dataset.lg); paint();
+  });});
+  // auth state
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYnd5bHJ3cGlvcXlwYmRoamduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjEzMTIsImV4cCI6MjA5Nzk5NzMxMn0.2bZSj_is-oDq_AfZ-llAHFwXCsgRVXrmLw9PoS54qlk';
+  var raw=null; try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+    if(k&&k.indexOf('sb-')===0&&k.indexOf('-auth-token')>0){ raw=localStorage.getItem(k); break; } } }catch(e){}
+  if(raw){ var tok=null; try{ var o=JSON.parse(raw); tok=o.access_token||(o.currentSession&&o.currentSession.access_token)||null; }catch(e){}
+    if(tok) fetch(SB_URL+'/auth/v1/user',{headers:{apikey:SB_ANON,Authorization:'Bearer '+tok}})
+      .then(function(r){ if(r.ok){ var l=document.getElementById('cvAuthLink'), t=document.getElementById('cvAuthTxt'); if(l) l.setAttribute('href','#'); if(t) t.textContent='Account'; } }).catch(function(){});
+  }
+})();
+
+// LIVE CLOCK
+function tickClock() {
+  var now = new Date();
+  var t = String(now.getUTCHours()).padStart(2,'0') + ':' + String(now.getUTCMinutes()).padStart(2,'0') + ' UTC';
+  document.getElementById('live-clock').textContent = t;
+}
+tickClock(); setInterval(tickClock, 30000);
+
+// AI PROMPT
+var ta = document.getElementById('prompt-ta');
+var out = document.getElementById('prompt-out');
+var sendBtn = document.getElementById('prompt-send');
+var PERSONA = "You are Conventus AI — an institutional events & operations analyst for the Conventity ecosystem. Help with agendas, delegations, protocol, room coordination and live event operations. Tone: institutional, calm, structured with bullet points.";
+
+async function askAI(q) {
+  if (!q.trim()) return;
+  out.className = 'prompt-out loading'; out.textContent = 'Thinking…'; sendBtn.disabled = true;
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, system: PERSONA, messages: [{ role: 'user', content: q }] })
+    });
+    var data = await res.json();
+    var text = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('\n');
+    out.className = 'prompt-out'; out.textContent = text || 'No response received.';
+  } catch(e) { out.className = 'prompt-out'; out.textContent = 'AI temporarily unavailable. Please try again.'; }
+  sendBtn.disabled = false;
+}
+
+sendBtn.addEventListener('click', function() { askAI(ta.value); });
+ta.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askAI(ta.value); }});
+ta.addEventListener('input', function() { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
+document.querySelectorAll('.suggest button').forEach(function(b) {
+  b.addEventListener('click', function() { ta.value = b.dataset.q; askAI(b.dataset.q); });
+});
+
+// EVENT TIMELINE
+(function() {
+  var CATS = {
+    summit: { label: 'Summit · High-level', c: '#4C5BD4' },
+    continuum: { label: 'Interoperability', c: '#004990' },
+    innovation: { label: 'Innovation', c: '#0E8C8B' },
+    ncia: { label: 'Digital & Cyber', c: '#C8A24B' },
+    industry: { label: 'Industry · Expo', c: '#D97757' }
+  };
+  var TODAY = '2026-06-30';
+  var EVENTS = [
+    { d:'2026-01-21', ed:'2026-01-22', t:"DIANA 2026 Regional Kick-offs", cat:'innovation', loc:"16 regional sites", desc:"Launch of NATO DIANA’s 2026 programme — its largest-ever cohort of 150 innovators from 24 nations begins acceleration across the Alliance." },
+    { d:'2026-02-11', ed:'2026-02-12', t:"NATO Defence Ministers Meeting (Feb)", cat:'summit', loc:"Brussels, Belgium · NATO HQ", desc:"Meeting of NATO Ministers of Defence — North Atlantic Council in Defence Ministers’ session, chaired by the Secretary General." },
+    { d:'2026-05-21', ed:'2026-05-22', t:"NATO Foreign Ministers Meeting", cat:'summit', loc:"Helsingborg, Sweden", desc:"Meeting of NATO Ministers of Foreign Affairs — Allied foreign ministers and the NATO–Ukraine Council, laying the groundwork for the Ankara Summit." },
+    { d:'2026-06-18', t:"NATO Defence Ministers Meeting (Jun)", cat:'summit', loc:"Brussels, Belgium · NATO HQ", desc:"Meeting of NATO Ministers of Defence at NATO Headquarters, chaired by Secretary General Mark Rutte." },
+    { d:'2026-02-10', ed:'2026-02-12', t:"DIANA Defence & Security Days", cat:'innovation', loc:"Munich, Germany", desc:"First global DIANA event of the year — 1,000+ attendees from 34 nations, with demos, reverse pitches and rapid-adoption panels." },
+    { d:'2026-02-13', ed:'2026-02-15', t:"Munich Security Conference 2026", cat:'summit', loc:"Munich, Germany · Hotel Bayerischer Hof", desc:"62nd MSC — the leading forum for international security policy, gathering 450+ senior decision-makers and 40+ heads of state and government." },
+    { d:'2026-02-23', ed:'2026-02-25', t:"Enforce Tac 2026", cat:'industry', loc:"Nuremberg, Germany", desc:"International exhibition & conference for law-enforcement and defence operational equipment." },
+    { d:'2026-03-24', ed:'2026-03-26', t:"XPONENTIAL Europe 2026", cat:'industry', loc:"Düsseldorf, Germany", desc:"Europe’s leading event for uncrewed, autonomous and robotic systems across defence and civil domains." },
+    { d:'2026-05-04', ed:'2026-05-08', t:"TIDE Sprint 2026", cat:'continuum', loc:"Istanbul, Türkiye", desc:"ACT’s interoperability think-tank, restructured around two streams — Digital Transformation and Artificial Intelligence." },
+    { d:'2026-06-01', ed:'2026-06-19', t:"CWIX 2026", cat:'continuum', loc:"Bydgoszcz, Poland · JFTC", tbc:true, desc:"Coalition Warrior Interoperability eXercise — NATO’s flagship annual interoperability test, part of the Interoperability Continuum." },
+    { d:'2026-06-15', ed:'2026-06-18', t:"ICUAS 2026", cat:'industry', loc:"Corfu, Greece", desc:"International Conference on Unmanned Aircraft Systems — academia and industry advancing UAV autonomy." },
+    { d:'2026-06-15', ed:'2026-06-19', t:"Eurosatory 2026", cat:'industry', loc:"Paris, France", desc:"World land & air-land defence and security exhibition — 2,000+ exhibitors across drones, C2 and autonomy." },
+    { d:'2026-07-07', ed:'2026-07-08', t:"NATO Summit 2026 — Ankara", cat:'summit', loc:"Ankara, Türkiye · Beştepe Presidential Complex", desc:"36th NATO Summit — heads of state and government of all 32 Allies, with invited partners, meet to set Alliance direction. Second summit hosted by Türkiye after Istanbul 2004." },
+    { d:'2026-10-07', ed:'2026-10-09', t:"UAV Show 2026", cat:'industry', loc:"Bordeaux, France", desc:"Professional civil & defence drone exhibition with live flight demonstrations." },
+    { d:'2026-10-21', ed:'2026-10-23', t:"Future Forces Forum 2026", cat:'industry', loc:"Prague, Czechia", desc:"Central European defence & security technology exhibition and expert forum." },
+    { d:'2026-11-17', ed:'2026-11-19', t:"NATO Industry Forum (NIF)", cat:'continuum', loc:"Europe · TBC", tbc:true, desc:"Senior NATO–industry dialogue on capability priorities, innovation adoption and the Alliance’s industrial base." },
+    { d:'2026-11-30', ed:'2026-12-03', t:"TIDE Hackathon 2026", cat:'continuum', loc:"Hybrid", tbc:true, desc:"Teams from NATO/partner government, industry and academia demonstrate how EDTs improve multi-domain C2 interoperability." },
+    { d:'2026-12-08', ed:'2026-12-10', t:"NATO Edge 2026", cat:'ncia', loc:"The Hague, Netherlands · TBC", tbc:true, desc:"NCI Agency’s flagship technology & cyber conference connecting NATO, nations and industry on digital capability." }
+  ];
+  var sorted = [];
+  function reindex(){ EVENTS.forEach(function(e,i){ e._i=i; }); sorted = EVENTS.slice().sort(function(a,b){ return a.d.localeCompare(b.d); }); }
+  reindex();
+  var active = new Set(Object.keys(CATS));
+  var openId = null;
+  var openQ = new Set([Math.floor(parse(TODAY).getMonth()/3)]);
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var QN = ['Q1','Q2','Q3','Q4'];
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function parse(s) { var p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  var Y0=parse('2026-01-01').getTime(), Y1=parse('2026-12-31').getTime();
+  function posOf(s) { return ((parse(s).getTime()-Y0)/(Y1-Y0))*100; }
+  function dateLabel(e) {
+    var s=parse(e.d), en=parse(e.ed||e.d);
+    if (e.ed && e.ed!==e.d) {
+      if (s.getMonth()===en.getMonth()) return {dd:s.getDate()+'–'+en.getDate(), mo:MON[s.getMonth()]};
+      return {dd:s.getDate()+' '+MON[s.getMonth()]+'–'+en.getDate(), mo:MON[en.getMonth()]};
+    }
+    return {dd:''+s.getDate(), mo:MON[s.getMonth()]};
+  }
+  function draw() {
+    var filtEl=document.getElementById('tlFilters');
+    var trackEl=document.getElementById('tlTrack');
+    var streamEl=document.getElementById('tlStream');
+    // filters
+    filtEl.innerHTML = Object.entries(CATS).map(function(e) {
+      var k=e[0], c=e[1];
+      return '<button class="tl-filt'+(active.has(k)?'':' off')+'" data-cat="'+k+'" style="border-color:'+c.c+';color:'+c.c+';background:'+c.c+'18"><span style="width:6px;height:6px;border-radius:50%;background:'+c.c+';display:inline-block"></span> '+c.label+'</button>';
+    }).join('');
+    filtEl.querySelectorAll('.tl-filt').forEach(function(b) {
+      b.addEventListener('click', function() {
+        var k=b.dataset.cat; active.has(k)?active.delete(k):active.add(k);
+        if(!active.size) active=new Set(Object.keys(CATS)); draw();
+      });
+    });
+    // track
+    var th='<div class="tl-line"></div>';
+    for(var m=0;m<12;m++){var l=posOf('2026-'+(m+1<10?'0':'')+(m+1)+'-01');th+='<div class="tl-mtick" style="left:'+l+'%"></div><div class="tl-mlbl" style="left:'+l+'%">'+MON[m]+'</div>';}
+    sorted.filter(function(e){return active.has(e.cat);}).forEach(function(e){
+      var cc=CATS[e.cat].c;
+      th+='<button class="tl-dot'+(openId===e._i?' active':'')+'" data-ev="'+e._i+'" style="left:'+posOf(e.d)+'%;background:'+cc+'" title="'+esc(e.t)+'"></button>';
+    });
+    th+='<div class="tl-now" style="left:'+posOf(TODAY)+'%"></div>';
+    trackEl.innerHTML=th;
+    trackEl.querySelectorAll('.tl-dot').forEach(function(d){d.addEventListener('click',function(){openId=+d.dataset.ev;draw();});});
+    // stream — collapsible by quarter (Q1–Q4)
+    var list=sorted.filter(function(e){return active.has(e.cat);});
+    var sh='';
+    for(var qi=0; qi<4; qi++){
+      var qs=list.filter(function(e){return Math.floor(parse(e.d).getMonth()/3)===qi;});
+      var op=openQ.has(qi);
+      sh+='<div class="tl-q'+(op?' open':'')+'">';
+      sh+='<div class="tl-qhead" data-q="'+qi+'"><span class="q">'+QN[qi]+' 2026</span><span class="ln"></span><span class="cnt">'+qs.length+' event'+(qs.length===1?'':'s')+'</span><span class="chev">▾</span></div>';
+      sh+='<div class="tl-qbody">';
+      if(qs.length){
+        qs.forEach(function(e){
+          var dl=dateLabel(e); var cc=CATS[e.cat].c;
+          sh+='<div class="tl-row" style="--cc:'+cc+'"><div class="tl-date"><div class="dd">'+dl.dd+'</div><div class="mo">'+dl.mo+'</div></div><div class="tl-node"><span class="dot" style="background:'+cc+'"></span></div><div class="tl-card'+(openId===e._i?' open':'')+'" data-card="'+e._i+'" style="border-left-color:'+cc+'"><div class="tl-card-top"><span class="tl-nm">'+esc(e.t)+'</span><span class="tl-cat" style="color:'+cc+';background:'+cc+'18">'+esc(CATS[e.cat].label)+'</span></div><div class="tl-meta"><span class="it">📅 '+dl.dd+' '+dl.mo+' 2026</span><span class="it">📍 '+esc(e.loc)+'</span>'+(e.tbc?'<span class="tl-tbc">DATE TBC</span>':'')+'</div><div class="tl-desc">'+esc(e.desc)+'</div></div></div>';
+        });
+      } else {
+        sh+='<div class="tl-qempty">No events scheduled.</div>';
+      }
+      sh+='</div></div>';
+    }
+    streamEl.innerHTML=sh;
+    streamEl.querySelectorAll('.tl-qhead').forEach(function(h){h.addEventListener('click',function(){var q=+h.dataset.q; openQ.has(q)?openQ.delete(q):openQ.add(q); draw();});});
+    streamEl.querySelectorAll('.tl-card').forEach(function(c){c.addEventListener('click',function(ev){ev.stopPropagation();var id=+c.dataset.card;openId=openId===id?null:id;draw();});});
+  }
+  draw();
+
+  // live calendar from Supabase (built-in list above is the fallback)
+  (function(){
+    var SB_URL=window.__CV_SUPABASE_URL;
+    var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYnd5bHJ3cGlvcXlwYmRoamduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjEzMTIsImV4cCI6MjA5Nzk5NzMxMn0.2bZSj_is-oDq_AfZ-llAHFwXCsgRVXrmLw9PoS54qlk';
+    if(!/^https:\/\//i.test(SB_URL)||!SB_ANON) return;
+    fetch(SB_URL+'/rest/v1/conventus_events?select=*&order=start_date.asc',{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(rows){
+        if(!Array.isArray(rows)||!rows.length) return;
+        EVENTS=rows.map(function(x){ return { d:x.start_date, ed:(x.end_date&&x.end_date!==x.start_date)?x.end_date:undefined, t:x.title, cat:(CATS[x.category]?x.category:'industry'), loc:x.location||'', desc:x.description||'', tbc:!!x.tbc }; });
+        openId=null; reindex(); draw();
+      })
+      .catch(function(){ console.warn('Conventus: live calendar unavailable, using built-in list.'); });
+  })();
+})();
+</script>
+
+</body>
+</html>

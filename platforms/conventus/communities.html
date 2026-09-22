@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-platform="conventus">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Communities · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/tokens.css"/>
+<link rel="stylesheet" href="/assets/base.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+  .strip{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    text-align:center;padding:5px;color:var(--muted);background:var(--paper-2);border-bottom:1px solid var(--line)}
+  .bar{position:sticky;top:0;z-index:var(--z-nav);display:flex;align-items:center;gap:12px;padding:0 16px;
+    height:56px;border-bottom:1px solid var(--line);background:var(--nav-bg)}
+  .bar .back{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .bar .sp{flex:1}
+  .tbtn{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);
+    background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r-pill);padding:6px 12px}
+  .tbtn:hover{color:var(--pf);border-color:var(--pf)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:30px 16px 90px}
+  .head h1{font-size:clamp(2rem,5vw,3rem)}
+  .head p{color:var(--muted);max-width:60ch;margin-top:6px}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .tools input{max-width:320px}
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .cc{display:block;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:18px;text-decoration:none;color:inherit;box-shadow:var(--shadow-1);transition:transform .18s var(--ease),border-color .18s var(--ease)}
+  .cc:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pf) 40%,var(--line));text-decoration:none}
+  .cc .eyebrow{margin-bottom:6px}
+  .cc h3{font-family:var(--font-display);font-weight:400;font-size:1.4rem;color:var(--ink);margin-bottom:4px}
+  .cc .short{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+  .cc .tl{color:var(--ink-2);font-size:13px;margin-top:8px}
+  .cc .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+  .cc .tag{font-family:var(--font-mono);font-size:9.5px;color:var(--muted);border:1px solid var(--line-2);border-radius:var(--r-pill);padding:2px 8px}
+  .cc .cnt{font-family:var(--font-mono);font-size:10px;color:var(--pf);margin-top:10px}
+  .empty{padding:36px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-md)}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--paper);
+    border:1px solid var(--pf);color:var(--ink);padding:10px 18px;border-radius:var(--r-md);font-size:13px;box-shadow:var(--shadow-2);opacity:0;transition:opacity .25s;pointer-events:none;z-index:1200}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="strip">Unclassified · Conventity · Conventus</div>
+<div class="bar">
+  <a class="back" href="/platforms/conventus/index.html">← Conventus</a>
+  <div class="sp"></div>
+  <button class="tbtn" id="langBtn">TR/EN</button>
+  <button class="tbtn" id="themeBtn">◐</button>
+</div>
+<div class="wrap">
+  <div class="head"><div class="eyebrow">conventus_communities</div>
+    <h1 id="hTitle">Communities</h1><p id="hDesc"></p></div>
+  <div class="tools"><input id="q" type="text"/></div>
+  <div id="list"><div class="empty">…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  'use strict';
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_KEY=window.__CV_ANON_KEY;
+  var sb=window.cvClient();
+  window.__cvSb=sb;
+
+  var I18N={
+   tr:{ title:'Topluluklar', desc:'NATO inovasyon ekosisteminin kurumsal ev sahibi toplulukları. Bir topluluğa girip etkinliklerini ve alt topluluklarını gör.',
+     search:'Ara: ad, kısa ad, ülke…', empty:'Görüntülenecek topluluk yok.', subs:'alt topluluk', lvl1:'ANA' },
+   en:{ title:'Communities', desc:'Institutional host communities of the NATO innovation ecosystem. Open a community to see its events and sub-communities.',
+     search:'Search: name, short name, country…', empty:'No communities to show.', subs:'sub-communities', lvl1:'MAIN' }
+  };
+  function lang(){ return (window.CVPrefs&&CVPrefs.getLang&&CVPrefs.getLang())||'en'; }
+  function T(k){ var d=I18N[lang()]||I18N.en; return d[k]!=null?d[k]:(I18N.en[k]!=null?I18N.en[k]:k); }
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  var ROWS=[], SUBCOUNT={};
+  boot();
+  async function boot(){
+    var r=await sb.from('conventus_communities').select('id,name,short_name,slug,tagline,country,domain,focus_area,level,parent_id,is_active')
+      .eq('level',1).eq('is_active',true).order('name');
+    if(r.error){ $('#list').innerHTML='<div class="empty">'+esc(r.error.message)+'</div>'; ROWS=[]; }
+    else ROWS=r.data||[];
+    // alt topluluk sayıları (görünürlüğe göre RLS filtreler)
+    var sr=await sb.from('conventus_communities').select('parent_id').eq('level',2);
+    (sr.data||[]).forEach(function(x){ if(x.parent_id) SUBCOUNT[x.parent_id]=(SUBCOUNT[x.parent_id]||0)+1; });
+    applyLang(); draw();
+  }
+  function applyLang(){ $('#hTitle').textContent=T('title'); $('#hDesc').textContent=T('desc'); $('#q').placeholder=T('search'); }
+  function draw(){
+    var q=($('#q').value||'').toLowerCase().trim();
+    var list=ROWS.filter(function(c){ return !q||((c.name||'')+' '+(c.short_name||'')+' '+(c.country||'')).toLowerCase().indexOf(q)>-1; });
+    if(!list.length){ $('#list').innerHTML='<div class="empty">'+esc(T('empty'))+'</div>'; return; }
+    $('#list').innerHTML='<div class="grid-cards">'+list.map(function(c){
+      var tags=[].concat(c.domain||[]).concat(c.focus_area||[]).slice(0,4);
+      var n=SUBCOUNT[c.id]||0;
+      return '<a class="cc" href="/platforms/conventus/community.html?slug='+encodeURIComponent(c.slug)+'">'+
+        '<div class="eyebrow">'+esc(T('lvl1'))+(c.country?' · '+esc(c.country):'')+'</div>'+
+        '<h3>'+esc(c.name)+'</h3>'+(c.short_name?'<div class="short">'+esc(c.short_name)+'</div>':'')+
+        (c.tagline?'<div class="tl">'+esc(c.tagline)+'</div>':'')+
+        (tags.length?'<div class="chips">'+tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join('')+'</div>':'')+
+        (n?'<div class="cnt">'+n+' '+esc(T('subs'))+'</div>':'')+
+      '</a>';
+    }).join('')+'</div>';
+  }
+  $('#q').addEventListener('input',draw);
+  $('#langBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleLang(); });
+  $('#themeBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleTheme(); });
+  if(window.CVPrefs&&CVPrefs.onChange) CVPrefs.onChange(function(w){ if(w==='lang'){ applyLang(); draw(); } });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-title="Convexus · Dual-Use Capability Pool · Conventity">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Convexus · Dual-Use Capability Pool · Conventity</title>
+<meta name="description" content="Convexus — a living pool of dual-use capability across civil, industrial and defence domains. AI matchmaking, operational tags, interoperability." />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Live standard fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- Shared design system (defines --pf-convexus, --brand-gold, --ink, etc.) -->
+<link rel="stylesheet" href="/assets/shared.css" />
+<!-- Convexus capability-catalog screen styles (live standard) -->
+<link rel="stylesheet" href="/assets/convexus-catalog.css" />
+
+<style>
+  /* ============================================================
+     Convexus homepage — component styles only.
+     Core tokens come from shared.css; every var() below carries a
+     fallback so the page still renders if shared.css is missing.
+     ============================================================ */
+  :root{
+    --cvx: var(--pf-convexus, #6366F1);
+    --gold: var(--brand-gold, #C8A24B);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:'Manrope', system-ui, sans-serif;
+    background:var(--bg, #f5f6f9);
+    color:var(--ink, #0e1726);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Instrument Serif', Georgia, serif; letter-spacing:-.02em; }
+  em{ font-style:normal; color:var(--cvx); }
+  .wrap{ max-width:1240px; margin:0 auto; padding:0 28px; }
+
+  /* ---------- Topbar ---------- */
+  .cvx-topbar{
+    display:flex; align-items:center; gap:20px;
+    padding:14px 28px;
+    background:var(--paper, #fff);
+    border-bottom:1px solid var(--line, #e4e7ee);
+    position:sticky; top:0; z-index:40;
+  }
+  .cvx-brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
+  .cvx-brand svg{ width:34px; height:34px; flex:none; }
+  .cvx-brand .bn{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:700; font-size:15px; letter-spacing:.14em; color:var(--ink,#0e1726); line-height:1; }
+  .cvx-brand .bt{ display:block; font-size:8.5px; font-weight:600; letter-spacing:.22em; color:var(--muted,#8a93a5); margin-top:3px; }
+  .cvx-crumb{ display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted,#8a93a5); }
+  .cvx-crumb a{ color:var(--muted,#8a93a5); text-decoration:none; }
+  .cvx-crumb a:hover{ color:var(--ink,#0e1726); }
+  .cvx-crumb b{ color:var(--ink,#0e1726); font-weight:600; }
+  .cvx-top-sp{ margin-left:auto; }
+  .cvx-top-actions{ display:flex; align-items:center; gap:10px; }
+  .theme-seg{ display:inline-flex; gap:2px; background:var(--paper-2,#f3f4f7); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:3px; }
+  .theme-seg button{ display:grid; place-items:center; width:26px; height:26px; border:0; background:none; border-radius:999px; color:var(--muted,#8a93a5); cursor:pointer; }
+  .theme-seg button svg{ width:14px; height:14px; }
+  .theme-seg button.on{ background:var(--paper,#fff); color:var(--gold); box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .cvx-user{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2,#3a4252); }
+  .cvx-user .av{ width:26px; height:26px; border-radius:999px; display:grid; place-items:center; font-weight:700; font-size:12px; color:var(--cvx); background:color-mix(in srgb,var(--cvx) 14%, var(--paper,#fff)); }
+  .cvx-btn{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13px; font-weight:600; border-radius:999px; padding:8px 15px; cursor:pointer; border:1px solid var(--line,#e4e7ee); background:var(--paper,#fff); color:var(--ink-2,#3a4252); text-decoration:none; }
+  .cvx-btn:hover{ border-color:var(--cvx); color:var(--cvx); }
+  .cvx-btn svg{ width:14px; height:14px; }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding:54px 0 40px; }
+  .hero-card{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:22px; padding:40px 44px; position:relative; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns:1.4fr .9fr; gap:30px; align-items:center; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.18em; color:var(--cvx); margin-bottom:16px; }
+  .eyebrow .ln{ width:26px; height:2px; background:var(--cvx); border-radius:2px; }
+  .hero h1{ font-size:clamp(30px,4.6vw,50px); font-weight:700; line-height:1.04; margin:0 0 16px; color:var(--ink,#0e1726); }
+  .hero-lead{ font-size:16px; line-height:1.62; color:var(--ink-2,#3a4252); max-width:54ch; margin:0 0 22px; }
+  .hero-pills{ display:flex; flex-wrap:wrap; gap:7px; }
+  .pill{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.08em; color:var(--cvx); background:color-mix(in srgb,var(--cvx) 10%, var(--paper,#fff)); border:1px solid color-mix(in srgb,var(--cvx) 26%, var(--line,#e4e7ee)); border-radius:999px; padding:5px 11px; }
+  .hero-viz{ display:grid; place-items:center; }
+  .hero-viz svg{ width:100%; max-width:320px; height:auto; }
+  /* pill live dot */
+  .pill .pdot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--cvx); margin-right:6px; box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 22%, transparent); animation:pillPulse 1.8s infinite; vertical-align:middle; }
+  @keyframes pillPulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+  /* orbit rings slow spin */
+  .hero-orb .orb-ring{ transform-origin:200px 200px; animation:orbSpin 60s linear infinite; }
+  .hero-orb .orb-ring-2{ animation-duration:44s; animation-direction:reverse; }
+  @keyframes orbSpin{ to{ transform:rotate(360deg); } }
+  /* nodes breathe, staggered */
+  .hero-orb .node{ fill:var(--cvx); transform-origin:center; animation:nodePulse 3s ease-in-out infinite; animation-delay:var(--d,0s); }
+  @keyframes nodePulse{ 0%,100%{ opacity:.55; r:5; } 50%{ opacity:1; r:7; } }
+  /* spokes shimmer as pulse passes */
+  .hero-orb .spoke{ animation:spokeGlow 3s ease-in-out infinite; animation-delay:var(--d,0s); }
+  @keyframes spokeGlow{ 0%,100%{ stroke-opacity:.16; } 50%{ stroke-opacity:.5; } }
+  /* core ring pulse */
+  .hero-orb .core-pulse{ transform-origin:200px 200px; animation:corePulse 3s ease-in-out infinite; }
+  @keyframes corePulse{ 0%,100%{ transform:scale(1); stroke-opacity:.35; } 50%{ transform:scale(1.12); stroke-opacity:.12; } }
+  html.motion-off .hero-orb *{ animation:none !important; }
+  @media(prefers-reduced-motion:reduce){ .hero-orb *{ animation:none !important; } }
+
+  /* ---------- Section frame ---------- */
+  .sec{ padding:30px 0; }
+  .sec-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:22px; }
+  .sec-num{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.16em; color:var(--cvx); margin-bottom:10px; }
+  .sec-head h2{ font-size:clamp(22px,2.8vw,30px); font-weight:700; margin:0 0 8px; color:var(--ink,#0e1726); }
+  .sec-head p{ font-size:14.5px; line-height:1.6; color:var(--ink-2,#3a4252); max-width:62ch; margin:0; }
+  .sec-tag{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.12em; color:var(--muted,#8a93a5); text-align:right; line-height:1.5; flex:none; }
+  .live-dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--cvx); margin-right:5px; box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 22%, transparent); animation:pulse 2s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.4} }
+  html.motion-off .live-dot{ animation:none; }
+
+  /* ---------- Pool (01) ---------- */
+  .pool-bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+  .pool-count{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--muted,#8a93a5); }
+  .filters{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:16px; padding:20px 22px; margin-bottom:18px; }
+  .filters-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
+  .fld{ display:flex; flex-direction:column; gap:7px; }
+  .fld label{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.12em; color:var(--muted,#8a93a5); }
+  .fld select, .fld input{ font:inherit; font-size:13.5px; color:var(--ink,#0e1726); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:10px; padding:10px 12px; cursor:pointer; width:100%; }
+  .fld select:focus, .fld input:focus{ outline:none; border-color:var(--cvx); box-shadow:0 0 0 3px color-mix(in srgb,var(--cvx) 14%, transparent); }
+  .filters-foot{ display:flex; align-items:center; gap:14px; margin-top:16px; }
+  .filters-foot .search{ flex:1; }
+  .filters-foot .search input{ width:100%; cursor:text; }
+  .reset{ font:inherit; font-size:12.5px; font-weight:600; color:var(--cvx); background:none; border:0; cursor:pointer; padding:6px 2px; white-space:nowrap; }
+  .reset:hover{ text-decoration:underline; }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:15px; }
+  .card{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:11px; transition:transform .16s, border-color .16s, box-shadow .16s; }
+  .card:hover{ transform:translateY(-3px); border-color:color-mix(in srgb,var(--cvx) 45%, var(--line,#e4e7ee)); box-shadow:0 20px 40px -28px color-mix(in srgb,var(--cvx) 60%, transparent); }
+
+  /* head: name + use-profile badge */
+  .c-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .c-nm{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:15px; font-weight:700; color:var(--ink,#0e1726); line-height:1.25; }
+  .c-use{ flex:none; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:999px; border:1px solid; white-space:nowrap; margin-top:1px; }
+  .c-use-defence{ color:#B4623A; background:color-mix(in srgb,#B4623A 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#B4623A 28%, var(--line,#e4e7ee)); }
+  .c-use-dualuse{ color:var(--cvx); background:color-mix(in srgb,var(--cvx) 9%, var(--paper,#fff)); border-color:color-mix(in srgb,var(--cvx) 28%, var(--line,#e4e7ee)); }
+  .c-use-civil{ color:#2E8B6E; background:color-mix(in srgb,#2E8B6E 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#2E8B6E 28%, var(--line,#e4e7ee)); }
+
+  /* summary — clamp to 2 lines so cards stay level */
+  .c-sm{ font-size:13px; line-height:1.5; color:var(--ink-2,#3a4252); margin:0;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* tags: focus (primary highlighted) + domains */
+  .c-tags{ display:flex; flex-wrap:wrap; gap:5px; }
+  .c-tag{ font-size:10.5px; font-weight:600; color:var(--ink-2,#3a4252); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:6px; padding:2px 8px; white-space:nowrap; }
+  .c-tag-primary{ color:#fff; background:var(--cvx); border-color:var(--cvx); }
+  .c-tag-more{ color:var(--muted,#8a93a5); background:transparent; }
+
+  /* footer: TRL · country · website */
+  .c-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:11px; border-top:1px solid var(--line,#e4e7ee); }
+  .c-foot-l{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11px; }
+  .c-trl{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:600; letter-spacing:.05em; color:var(--gold); }
+  .c-cost{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:600; font-size:9.5px; letter-spacing:.05em; text-transform:capitalize; padding:2px 7px; border-radius:5px; border:1px solid; }
+  .c-cost-survivable{ color:#2E6BB4; background:color-mix(in srgb,#2E6BB4 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#2E6BB4 28%, var(--line,#e4e7ee)); }
+  .c-cost-attritable{ color:#2E8B6E; background:color-mix(in srgb,#2E8B6E 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#2E8B6E 28%, var(--line,#e4e7ee)); }
+  .c-cost-consumable{ color:#B4623A; background:color-mix(in srgb,#B4623A 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#B4623A 28%, var(--line,#e4e7ee)); }
+  .c-country{ color:var(--muted,#8a93a5); font-weight:500; }
+  .c-dot{ color:var(--muted,#c3c8d4); }
+  .c-web{ flex:none; display:grid; place-items:center; width:26px; height:26px; border-radius:8px; color:var(--muted,#8a93a5); border:1px solid var(--line,#e4e7ee); transition:all .14s; }
+  .c-web:hover{ color:var(--cvx); border-color:var(--cvx); }
+  .c-web svg{ width:13px; height:13px; }
+
+  .empty{ text-align:center; padding:56px 24px; border:1px dashed var(--line,#e4e7ee); border-radius:16px; background:var(--paper,#fff); }
+  .empty svg{ width:46px; height:46px; color:var(--muted,#8a93a5); opacity:.55; margin-bottom:14px; }
+  .empty h3{ font-size:18px; font-weight:700; margin:0 0 8px; color:var(--ink,#0e1726); }
+  .empty p{ font-size:13.5px; line-height:1.55; color:var(--muted,#8a93a5); max-width:42ch; margin:0 auto 18px; }
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:13.5px; font-weight:600; color:#fff; background:var(--cvx); border:0; border-radius:999px; padding:11px 20px; cursor:pointer; text-decoration:none; }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-primary svg{ width:15px; height:15px; }
+
+  /* ---------- Stats ---------- */
+  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:16px; }
+  .stat{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:14px; padding:18px 20px; }
+  .stat b{ display:block; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:28px; font-weight:700; color:var(--ink,#0e1726); line-height:1; }
+  .stat span{ display:block; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:9.5px; font-weight:600; letter-spacing:.1em; color:var(--muted,#8a93a5); margin-top:8px; }
+
+  /* ---------- Launchers ---------- */
+  .launchers{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:26px; }
+  .launch{ text-align:left; font:inherit; display:flex; flex-direction:column; gap:8px; background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:16px; padding:20px 22px; cursor:pointer; transition:border-color .16s, transform .16s; }
+  .launch:hover{ border-color:color-mix(in srgb,var(--cvx) 45%, var(--line,#e4e7ee)); transform:translateY(-2px); }
+  .launch .k{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10.5px; font-weight:600; letter-spacing:.1em; color:var(--cvx); }
+  .launch .t{ font-size:14.5px; color:var(--ink,#0e1726); }
+  .launch .t b{ color:var(--cvx); font-weight:600; }
+  .launch .go{ font-size:12.5px; font-weight:600; color:var(--cvx); }
+
+  /* ---------- Expo pavilions ---------- */
+  .pavilions{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .pav{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:16px; padding:18px; }
+  .pav-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .pav-h .nm{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:14px; font-weight:700; color:var(--ink,#0e1726); }
+  .pav-h .ct{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.06em; color:var(--cvx); background:color-mix(in srgb,var(--cvx) 10%, var(--paper,#fff)); border:1px solid color-mix(in srgb,var(--cvx) 24%, var(--line,#e4e7ee)); border-radius:999px; padding:2px 9px; }
+  .pav-booths{ display:flex; flex-direction:column; gap:6px; }
+  .booth{ font-size:12.5px; color:var(--ink-2,#3a4252); padding:7px 10px; background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:8px; }
+  .pav-empty{ font-size:12px; color:var(--muted,#8a93a5); font-style:italic; }
+
+  .band-label{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10.5px; font-weight:600; letter-spacing:.1em; color:var(--muted,#5A6486); margin:0 0 12px; }
+  .band-label.band-pool{ color:var(--cvx); margin-top:30px; }
+
+  /* ---- Pool table (recent activity) ---- */
+  .pool-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+  .pool-head-l{ display:flex; flex-direction:column; gap:3px; }
+  .pool-count{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:15px; font-weight:700; color:var(--ink,#0e1726); }
+  .pool-sub{ font-size:12px; color:var(--muted,#8a93a5); }
+  .pool-head-r{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pool-search{ display:flex; align-items:center; gap:8px; background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:8px 14px; min-width:240px; }
+  .pool-search svg{ width:15px; height:15px; color:var(--muted,#8a93a5); flex:none; }
+  .pool-search input{ font:inherit; font-size:13.5px; border:0; background:none; outline:none; color:var(--ink,#0e1726); width:100%; }
+
+  .pool-table-wrap{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:14px; overflow:hidden; max-height:360px; overflow-y:auto; }
+  .pool-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .pool-table thead th{ position:sticky; top:0; z-index:1; background:var(--paper-2,#f7f8fb); text-align:left; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.1em; color:var(--muted,#8a93a5); text-transform:uppercase; padding:12px 14px; border-bottom:1px solid var(--line,#e4e7ee); }
+  .pool-table tbody td{ padding:12px 14px; border-bottom:1px solid var(--line,#e4e7ee); color:var(--ink-2,#3a4252); vertical-align:middle; }
+  .pool-table tbody tr:last-child td{ border-bottom:0; }
+  .pool-table tbody tr{ transition:background .12s; }
+  .pool-table tbody tr:hover{ background:var(--paper-2,#f7f8fb); }
+  .pool-table tbody tr.updated{ background:color-mix(in srgb,var(--cvx) 4%, var(--paper,#fff)); }
+  .col-no{ width:44px; color:var(--muted,#8a93a5); font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+  .col-name .nm{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:600; color:var(--ink,#0e1726); }
+  .col-name .fresh{ display:inline-block; margin-left:7px; font-size:9px; font-weight:700; letter-spacing:.06em; color:var(--cvx); background:color-mix(in srgb,var(--cvx) 12%, var(--paper,#fff)); border:1px solid color-mix(in srgb,var(--cvx) 30%, transparent); border-radius:4px; padding:1px 5px; vertical-align:middle; }
+  .col-trl{ font-family:'JetBrains Mono', ui-monospace, monospace; font-weight:600; color:var(--gold); white-space:nowrap; }
+  .col-sector{ color:var(--ink-2,#3a4252); }
+  .t-tier{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:capitalize; padding:2px 8px; border-radius:5px; border:1px solid; }
+  .t-tier-basic{ color:var(--muted,#8a93a5); background:var(--paper-2,#f7f8fb); border-color:var(--line,#e4e7ee); }
+  .t-tier-bronze{ color:#A5682A; background:color-mix(in srgb,#A5682A 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#A5682A 28%, var(--line)); }
+  .t-tier-silver{ color:#5B6472; background:color-mix(in srgb,#5B6472 9%, var(--paper,#fff)); border-color:color-mix(in srgb,#5B6472 28%, var(--line)); }
+  .t-tier-gold{ color:#9A7A1E; background:color-mix(in srgb,#C8A24B 14%, var(--paper,#fff)); border-color:color-mix(in srgb,#C8A24B 40%, var(--line)); }
+  .col-act{ width:78px; text-align:right; white-space:nowrap; }
+  .col-chev{ width:34px; text-align:right; }
+  .col-chev svg{ width:15px; height:15px; color:var(--muted,#c3c8d4); }
+  .pool-table tbody tr.prow{ cursor:pointer; }
+  .pool-table tbody tr.prow:hover .col-chev svg{ color:var(--cvx); }
+
+  /* read-only detail panel */
+  .pool-detail{ position:fixed; inset:0; z-index:120; display:none; }
+  .pool-detail.show{ display:block; }
+  .pd-scrim{ position:absolute; inset:0; background:color-mix(in srgb, #0A1B33 42%, transparent); backdrop-filter:blur(2px); }
+  .pd-card{ position:absolute; top:0; right:0; height:100%; width:min(440px,92vw); background:var(--paper,#fff); border-left:1px solid var(--line,#e4e7ee); box-shadow:-20px 0 60px -30px rgba(10,27,51,.5); padding:26px 26px 40px; overflow-y:auto; animation:pdIn .22s ease; }
+  @keyframes pdIn{ from{ transform:translateX(24px); opacity:.4 } to{ transform:none; opacity:1 } }
+  .pd-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .pd-name{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:20px; font-weight:700; color:var(--ink,#0e1726); line-height:1.2; }
+  .pd-country{ font-size:13px; color:var(--muted,#8a93a5); margin-top:4px; }
+  .pd-x{ flex:none; display:grid; place-items:center; width:32px; height:32px; border-radius:9px; border:1px solid var(--line,#e4e7ee); background:var(--paper,#fff); color:var(--muted,#8a93a5); cursor:pointer; }
+  .pd-x:hover{ color:var(--cvx); border-color:var(--cvx); }
+  .pd-x svg{ width:16px; height:16px; }
+  .pd-meta{ display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-bottom:18px; }
+  .pd-trl{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:700; letter-spacing:.05em; color:var(--gold); }
+  .pd-summary{ font-size:14px; line-height:1.62; color:var(--ink-2,#3a4252); margin:0 0 18px; }
+  .pd-tags{ margin-bottom:20px; }
+  .pd-web{ display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:#fff; background:var(--cvx); border-radius:999px; padding:10px 18px; text-decoration:none; }
+  .pd-web:hover{ filter:brightness(1.06); }
+  .pd-web svg{ width:15px; height:15px; }
+
+  .pool-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; flex-wrap:wrap; }
+  .pool-note{ font-size:12px; color:var(--muted,#8a93a5); }
+  .pool-all{ font:inherit; font-size:13px; font-weight:600; color:var(--cvx); background:none; border:0; cursor:pointer; padding:6px 2px; }
+  .pool-all:hover{ text-decoration:underline; }
+
+  @media(max-width:640px){
+    .col-sector, .col-tier{ display:none; }
+    .pool-search{ min-width:0; flex:1; }
+    .pool-head-r{ width:100%; }
+  }
+
+  /* ---------- Magazine (02) ---------- */
+  .mag-card{ width:100%; display:flex; flex-direction:column; gap:7px; text-align:left; background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:16px; padding:22px 24px; cursor:pointer; transition:border-color .16s, transform .16s; }
+  .mag-card:hover{ border-color:color-mix(in srgb,var(--cvx) 45%, var(--line,#e4e7ee)); transform:translateY(-2px); }
+  .mag-card .k{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:.1em; color:var(--cvx); }
+  .mag-card .t{ font-size:16px; font-weight:600; color:var(--ink,#0e1726); }
+  .mag-card .go{ font-size:13px; font-weight:600; color:var(--cvx); }
+
+  /* ---------- AI (03) ---------- */
+  .ai-box{ background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:18px; padding:22px; position:relative; overflow:hidden; }
+  .ai-box::before{ content:""; position:absolute; inset:0; background:radial-gradient(120% 100% at 100% 0%, color-mix(in srgb,var(--cvx) 9%, transparent), transparent 56%); pointer-events:none; }
+  .ai-box > *{ position:relative; z-index:1; }
+  .ai-tag{ display:inline-flex; align-items:center; font-family:'JetBrains Mono', ui-monospace, monospace; font-size:10px; font-weight:600; letter-spacing:.1em; color:var(--cvx); margin-bottom:12px; }
+  .ai-sugg{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+  .ai-sugg button{ font:inherit; font-size:12px; font-weight:500; color:var(--ink-2,#3a4252); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:6px 13px; cursor:pointer; }
+  .ai-sugg button:hover{ border-color:var(--cvx); color:var(--cvx); }
+  .ai-input{ display:flex; gap:10px; align-items:flex-end; }
+  .ai-input textarea{ flex:1; font:inherit; font-size:14px; color:var(--ink,#0e1726); background:var(--paper-2,#f7f8fb); border:1px solid var(--line,#e4e7ee); border-radius:12px; padding:12px 14px; resize:none; min-height:46px; }
+  .ai-input textarea:focus{ outline:none; border-color:var(--cvx); }
+  .ai-send{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13px; font-weight:600; color:#fff; background:var(--cvx); border:0; border-radius:12px; padding:13px 18px; cursor:pointer; white-space:nowrap; }
+  .ai-send svg{ width:15px; height:15px; }
+  .ai-out{ margin-top:14px; font-size:13.5px; line-height:1.6; color:var(--ink-2,#3a4252); }
+  .ai-out:empty{ display:none; }
+
+  /* ---------- Footer CTA ---------- */
+  .foot-cta{ text-align:center; padding:56px 0 70px; }
+  .foot-cta h3{ font-size:clamp(22px,3vw,30px); font-weight:700; margin:0 0 10px; color:var(--ink,#0e1726); }
+  .foot-cta p{ font-size:14px; color:var(--muted,#8a93a5); margin:0 0 22px; }
+  .foot-cta .row{ display:flex; gap:11px; justify-content:center; flex-wrap:wrap; }
+  .btn-ghost{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13.5px; font-weight:600; color:var(--ink-2,#3a4252); background:var(--paper,#fff); border:1px solid var(--line,#e4e7ee); border-radius:999px; padding:11px 20px; cursor:pointer; text-decoration:none; }
+  .btn-ghost:hover{ border-color:var(--cvx); color:var(--cvx); }
+
+  @media(max-width:860px){
+    .hero-grid{ grid-template-columns:1fr; } .hero-viz{ display:none; }
+    .filters-row{ grid-template-columns:1fr 1fr; }
+    .stats{ grid-template-columns:1fr 1fr; } .launchers{ grid-template-columns:1fr; }
+    .sec-head{ flex-direction:column; align-items:flex-start; } .sec-tag{ text-align:left; }
+    .hero-card{ padding:30px 24px; }
+  }
+  @media(max-width:520px){ .filters-row{ grid-template-columns:1fr; } .wrap{ padding:0 18px; } }
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<!-- ============== TOPBAR ============== -->
+<header class="cvx-topbar">
+  <a class="cvx-brand" href="/index.html" aria-label="Conventity home">
+    <svg viewBox="0 0 100 100" fill="none"><path d="M 81.1 71.8 A 38 38 0 1 1 81.1 28.2" stroke="var(--logo-outer,#0E2148)" stroke-width="8" stroke-linecap="round"/><path d="M 66.4 61.5 A 20 20 0 1 1 66.4 38.5" stroke="var(--logo-inner,#2A6FDB)" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="4.5" fill="var(--logo-inner,#2A6FDB)"/></svg>
+    <span><span class="bn">CONVENTITY</span><span class="bt">ECOSYSTEM FOR FUTURE</span></span>
+  </a>
+  <nav class="cvx-crumb" aria-label="Breadcrumb">
+    <a href="/index.html">Conventity</a><span>›</span><b>Convexus</b>
+  </nav>
+  <span class="cvx-top-sp"></span>
+  <div class="cvx-top-actions">
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control>
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+    <span class="cvx-user" id="cvxUser"><span class="av" id="cvxAv">·</span><span id="cvxUserName">Account</span></span>
+    <a class="cvx-btn" href="/platforms/convexus/convexus-engagement.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>Engagement</a>
+    <a class="cvx-btn" href="/convexus-selection-setup.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Selection</a>
+    <a class="cvx-btn" href="/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Conventity</a>
+    <a class="cvx-btn" href="/settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+    <button class="cvx-btn" id="cvxSignOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
+  </div>
+</header>
+
+<main>
+  <!-- ============== HERO ============== -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-card">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow"><span class="ln"></span> CONVEXUS · DUAL-USE CAPABILITY POOL</span>
+            <h1>A living capability <em>pool.</em></h1>
+            <p class="hero-lead">Convexus maintains a persistent pool of dual-use capability rather than a static directory. Register a profile once; matching engines continuously align it with demand across civil, industrial and defence domains — so opportunities are met from a standing pool, not repeated open calls.</p>
+            <div class="hero-pills">
+              <span class="pill"><span class="pdot"></span>LIVE MATCHMAKING</span>
+              <span class="pill">OPERATIONAL TAGS</span>
+              <span class="pill">INTEROPERABILITY</span>
+              <span class="pill">CIVIL · INDUSTRIAL · DEFENCE</span>
+            </div>
+          </div>
+          <div class="hero-viz" aria-hidden="true">
+            <svg class="hero-orb" viewBox="0 0 400 400" role="img" aria-label="Capabilities converging on the Conventity core">
+              <defs>
+                <radialGradient id="cvxCore" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="var(--cvx)" stop-opacity="0.30"/>
+                  <stop offset="60%" stop-color="var(--cvx)" stop-opacity="0.08"/>
+                  <stop offset="100%" stop-color="var(--cvx)" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- orbit rings -->
+              <circle class="orb-ring" cx="200" cy="200" r="162" fill="none" stroke="var(--line,#e4e7ee)" stroke-dasharray="2 7"/>
+              <circle class="orb-ring orb-ring-2" cx="200" cy="200" r="112" fill="none" stroke="var(--line,#e4e7ee)" stroke-dasharray="2 7"/>
+
+              <!-- spokes from each node to core -->
+              <g stroke="var(--cvx)" stroke-width="1.2" stroke-opacity="0.28">
+                <line class="spoke" x1="200" y1="38"  x2="200" y2="200" style="--d:0s"/>
+                <line class="spoke" x1="341" y1="119" x2="200" y2="200" style="--d:.5s"/>
+                <line class="spoke" x1="341" y1="281" x2="200" y2="200" style="--d:1s"/>
+                <line class="spoke" x1="200" y1="362" x2="200" y2="200" style="--d:1.5s"/>
+                <line class="spoke" x1="59"  y1="281" x2="200" y2="200" style="--d:2s"/>
+                <line class="spoke" x1="59"  y1="119" x2="200" y2="200" style="--d:2.5s"/>
+              </g>
+
+              <!-- pulses travelling inward along each spoke -->
+              <g fill="var(--cvx)">
+                <circle r="3.4"><animateMotion dur="3s" begin="0s"   repeatCount="indefinite" path="M200,38 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="0s"   repeatCount="indefinite"/></circle>
+                <circle r="3.4"><animateMotion dur="3s" begin=".5s"  repeatCount="indefinite" path="M341,119 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin=".5s"  repeatCount="indefinite"/></circle>
+                <circle r="3.4"><animateMotion dur="3s" begin="1s"   repeatCount="indefinite" path="M341,281 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="1s"   repeatCount="indefinite"/></circle>
+                <circle r="3.4"><animateMotion dur="3s" begin="1.5s" repeatCount="indefinite" path="M200,362 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+                <circle r="3.4"><animateMotion dur="3s" begin="2s"   repeatCount="indefinite" path="M59,281 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="2s"   repeatCount="indefinite"/></circle>
+                <circle r="3.4"><animateMotion dur="3s" begin="2.5s" repeatCount="indefinite" path="M59,119 L200,200"/><animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="2.5s" repeatCount="indefinite"/></circle>
+              </g>
+
+              <!-- capability nodes -->
+              <g class="orb-nodes">
+                <circle class="node" cx="200" cy="38"  r="6" style="--d:0s"/>
+                <circle class="node" cx="341" cy="119" r="6" style="--d:.5s"/>
+                <circle class="node" cx="341" cy="281" r="6" style="--d:1s"/>
+                <circle class="node" cx="200" cy="362" r="6" style="--d:1.5s"/>
+                <circle class="node" cx="59"  cy="281" r="6" style="--d:2s"/>
+                <circle class="node" cx="59"  cy="119" r="6" style="--d:2.5s"/>
+              </g>
+
+              <!-- core glow + Conventity logo -->
+              <circle cx="200" cy="200" r="70" fill="url(#cvxCore)"/>
+              <circle class="core-pulse" cx="200" cy="200" r="46" fill="none" stroke="var(--cvx)" stroke-opacity="0.35"/>
+              <g transform="translate(200,200)">
+                <path d="M 24.9 21.0 A 32 32 0 1 1 24.9 -21.0" fill="none" stroke="var(--logo-outer,#0E2148)" stroke-width="7" stroke-linecap="round"/>
+                <path d="M 13.4 11.3 A 18 18 0 1 1 13.4 -11.3" fill="none" stroke="var(--logo-inner,#2A6FDB)" stroke-width="5.5" stroke-linecap="round"/>
+                <circle cx="0" cy="0" r="4" fill="var(--logo-inner,#2A6FDB)"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 01 · CAPABILITY CATALOG & EXPO ============== -->
+  <section class="sec" id="pool">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="sec-num">01 · CAPABILITY CATALOG &amp; EXPO</div>
+          <h2>The capability <em>catalog.</em></h2>
+          <p>Technology, innovation and industry providers across civil, industrial and defence domains — searchable, filterable and match-ready.</p>
+        </div>
+        <div class="sec-tag"><span class="live-dot"></span>LIVE · <span id="cvxPoolCount">0</span> PROVIDERS</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b id="stProviders">0</b><span>PROVIDERS</span></div>
+        <div class="stat"><b id="stDomains">0</b><span>TECHNOLOGY DOMAINS</span></div>
+        <div class="stat"><b id="stFocus">0</b><span>FOCUS AREAS</span></div>
+        <div class="stat"><b id="stTrl">—</b><span>AVG READINESS (TRL)</span></div>
+      </div>
+
+      <div class="band-label">◇ REPRESENTATIVE SHOWCASE — explore the full experience</div>
+      <div class="launchers">
+        <button class="launch" id="cvxCatBtn">
+          <span class="k">◇ CAPABILITY CATALOG</span>
+          <span class="t">Browse <b id="cvxLaunchCount">28</b> representative providers — search, filter &amp; AI-match</span>
+          <span class="go">Open catalog →</span>
+        </button>
+        <button class="launch" id="cvxExpoBtn">
+          <span class="k">◇ CONVEXUS EXPO · ALWAYS-ON</span>
+          <span class="t">The living digital fair — pavilions, live demos &amp; booths</span>
+          <span class="go">Enter the expo →</span>
+        </button>
+      </div>
+
+      <div class="band-label band-pool">● YOUR LIVE POOL — recently added &amp; updated</div>
+
+      <div class="pool-head">
+        <div class="pool-head-l">
+          <span class="pool-count" id="cvxResultLine">The pool is empty</span>
+          <span class="pool-sub" id="poolSub"></span>
+        </div>
+        <div class="pool-head-r">
+          <div class="pool-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="fSearch" type="text" placeholder="Quick search the pool…" />
+          </div>
+          <a class="btn-primary" href="new.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add profile</a>
+        </div>
+      </div>
+
+      <div class="pool-table-wrap" id="poolTableWrap">
+        <table class="pool-table" id="poolTable">
+          <thead>
+            <tr>
+              <th class="col-no">#</th>
+              <th class="col-name">Organisation</th>
+              <th class="col-trl">TRL</th>
+              <th class="col-nation">Nation</th>
+              <th class="col-sector">Sector</th>
+              <th class="col-tier">Tier</th>
+              <th class="col-act"></th>
+            </tr>
+          </thead>
+          <tbody id="poolTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pool-foot">
+        <span class="pool-note" id="poolNote"></span>
+        <button class="pool-all" id="poolAllBtn">View all in the catalog →</button>
+      </div>
+
+      <div class="empty" id="poolEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>
+        <h3>The pool is empty</h3>
+        <p>No capability profiles yet. Create the first one — it becomes part of a permanent pool the demand side can draw from.</p>
+        <a class="btn-primary" href="new.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create the first profile</a>
+      </div>
+
+      <!-- Read-only profile detail (opens when a pool row is clicked) -->
+      <div class="pool-detail" id="poolDetail" aria-hidden="true">
+        <div class="pd-scrim" onclick="closePoolDetail()"></div>
+        <div class="pd-card" role="dialog" aria-modal="true">
+          <div id="pdBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 02 · MAGAZINE ============== -->
+  <section class="sec" id="magazine">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="sec-num">02 · THE CONVEXUS MAGAZINE</div>
+          <h2>The Convexus <em>Magazine.</em></h2>
+          <p>A weekly open-source brief on dual-use technology &amp; innovation — developments, events and expert analysis, synthesised from open sources and cleared for public release.</p>
+        </div>
+        <div class="sec-tag">OPEN-SOURCE<br/>CLEARED FOR RELEASE</div>
+      </div>
+      <button class="mag-card" id="cvxMagBtn" data-open-brief>
+        <span class="k">◇ THE CONVEXUS MAGAZINE · LATEST ISSUE</span>
+        <span class="t">This week — layered counter-UAS, edge AI at the tactical edge, the interoperability season &amp; more</span>
+        <span class="go">Read the latest issue →</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============== 03 · AI ASSISTANCE ============== -->
+  <section class="sec" id="ai">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="sec-num">03 · AI ASSISTANCE</div>
+          <h2>Ask Convexus <em>anything.</em></h2>
+          <p>Institutional, calm, structured replies.</p>
+        </div>
+        <div class="sec-tag">INSTITUTIONAL TONE</div>
+      </div>
+      <div class="ai-box" data-plt-persona="You are Convexus AI — a calm, institutional capability-matchmaker for a dual-use ecosystem. Recommend matches across civil, industrial and defence capabilities, with provenance and operational fit. Tone: institutional, precise, structured.">
+        <span class="ai-tag"><span class="live-dot"></span>CONVEXUS AI · LIVE</span>
+        <div class="ai-sugg">
+          <button data-plt-suggest="Top capability matches today.">Top capability matches today.</button>
+          <button data-plt-suggest="Edge sensing for critical-infrastructure monitoring.">Edge sensing for critical infrastructure.</button>
+          <button data-plt-suggest="Counter-UAS for perimeter and airport security.">Counter-UAS for perimeter &amp; airports.</button>
+          <button data-plt-suggest="Secure comms for distributed operations.">Secure comms for distributed ops.</button>
+        </div>
+        <div class="ai-input">
+          <textarea class="plt-prompt-text" rows="1" placeholder="Ask anything strategic — Convexus AI replies institutionally."></textarea>
+          <button class="ai-send plt-prompt-send">ASK<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="ai-out plt-prompt-out"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER CTA ============== -->
+  <section class="foot-cta">
+    <div class="wrap">
+      <h3>Ready when <em>you are.</em></h3>
+      <p>Conventity ecosystem · built for civil, industrial and government partners.</p>
+      <div class="row">
+        <a class="btn-primary" href="new.html">Create a profile<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        <a class="btn-ghost" href="/index.html">Back to ecosystem</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     CAPABILITY CATALOG · full-screen showcase (convexus-catalog.js attaches here)
+     ============================================================ -->
+<div id="convexusCatalog" aria-hidden="true">
+  <div id="convexusOverlay">
+    <div class="cvx-screen-bar">
+      <span class="cvx-screen-brand">◇ CONVEXUS · CAPABILITY CATALOG <span class="cvx-rep">representative showcase</span></span>
+      <span class="cvx-screen-meta" id="cvxScreenMeta"></span>
+      <button class="cvx-screen-x" data-cat-close aria-label="Close catalog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="cvx-screen-scroll">
+      <div class="cvx-stats" id="cvxStats"></div>
+
+      <div class="cvx-need">
+        <div class="cvx-need-row">
+          <input id="cvxNeed" type="text" placeholder="Describe an operational need — e.g. ‘edge sensing for critical-infrastructure monitoring’" />
+          <button id="cvxNeedRun">AI match</button>
+          <button id="cvxNeedClear" hidden>Clear</button>
+        </div>
+        <div class="cvx-sugg" id="cvxSugg">
+          <button data-need="Edge sensing for critical-infrastructure monitoring">Edge sensing for critical infrastructure</button>
+          <button data-need="Counter-UAS for perimeter and airport security">Counter-UAS for perimeter &amp; airports</button>
+          <button data-need="Resilient energy for remote sites">Resilient energy for remote sites</button>
+          <button data-need="Secure cross-domain data sharing">Secure cross-domain data sharing</button>
+        </div>
+        <div class="cvx-insight" id="cvxInsight" hidden></div>
+      </div>
+
+      <div class="cvx-toolbar">
+        <input id="cvxSearch" type="text" placeholder="Search providers, technology, location…" />
+        <select id="cvxfDomain" class="cvx-sel"></select>
+        <select id="cvxfType" class="cvx-sel"></select>
+        <select id="cvxfTrl" class="cvx-sel"></select>
+        <select id="cvxfPath" class="cvx-sel"></select>
+        <select id="cvxfCountry" class="cvx-sel"></select>
+        <select id="cvxSort" class="cvx-sel">
+          <option value="match">Sort · AI match</option>
+          <option value="trl">Sort · Readiness</option>
+          <option value="name">Sort · Name</option>
+          <option value="added">Sort · Recently added</option>
+        </select>
+        <button id="cvxDensity">Compact</button>
+        <button id="cvxReset">Clear filters</button>
+      </div>
+
+      <div class="cvx-results"><span id="cvxResults">— providers</span> · <span id="cvxCount">0</span> in catalog</div>
+
+      <div class="cvx-grid" id="cvxGrid"></div>
+      <div class="cvx-empty" id="cvxEmpty" hidden>No providers match the current filters.</div>
+    </div>
+
+    <aside class="cvx-detail" id="cvxDetail" aria-label="Provider detail"></aside>
+
+    <div class="cvx-tray" id="cvxTray">
+      <span class="cvx-tray-k">Shortlist · <b id="cvxTrayCount">0</b></span>
+      <div class="cvx-tray-names" id="cvxTrayNames"></div>
+      <button id="cvxTrayView">Compare</button>
+      <button id="cvxTrayClear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supabase client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+/* =================================================================
+   CONVEXUS POOL — Supabase wiring
+   -----------------------------------------------------------------
+   ① Paste your FULL publishable key on the line marked  ← KEY HERE
+   ② Column names are read defensively (label||name||title), so the
+      page renders even before convexus_profiles is seeded.
+   ================================================================= */
+const SB_URL = window.__CV_SUPABASE_URL;
+const SB_KEY = window.__CV_ANON_KEY;
+
+// client named `sb` (NOT `supabase`) to avoid the "already declared" clash
+const sb = window.cvClient();
+
+const pick = (o, ...keys) => { for (const k of keys) if (o && o[k] != null && o[k] !== '') return o[k]; return ''; };
+const $ = (id) => document.getElementById(id);
+
+let PROFILES = [], DOMAINS = [], FOCUS = [], USES = [], PROFILE_DOMAINS = [], PROFILE_FOCUS = [];
+// code → display-name lookups, built once taxonomy loads
+const DOMAIN_NAME = {}, FOCUS_NAME = {}, USE_NAME = {};
+
+async function loadTaxonomy(){
+  // Populate the taxonomy dropdowns.
+  // Tables use: code (PK/value) · name (label) · sort_order — there is NO `id`
+  // column, so we order by sort_order and use code as the option value.
+  const fill = (sel, rows, allLabel) => {
+    if (!sel || !rows) return;
+    rows.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = pick(r, 'code', 'slug', 'name');
+      opt.textContent = pick(r, 'name', 'label', 'title', 'code');
+      sel.appendChild(opt);
+    });
+  };
+  try {
+    const [focus, domains, uses] = await Promise.all([
+      sb.from('convexus_focus_areas').select('*').order('sort_order', { ascending: true }),
+      sb.from('convexus_domains').select('*').order('sort_order', { ascending: true }),
+      sb.from('convexus_use_profiles').select('*').order('sort_order', { ascending: true }),
+    ]);
+    if (focus.error || domains.error || uses.error) console.warn('Taxonomy load:', focus.error || domains.error || uses.error);
+    FOCUS = focus.data || []; DOMAINS = domains.data || []; USES = uses.data || [];
+    DOMAINS.forEach(d => { DOMAIN_NAME[pick(d,'code')] = pick(d,'name','code'); });
+    FOCUS.forEach(f => { FOCUS_NAME[pick(f,'code')] = pick(f,'name','code'); });
+    USES.forEach(u => { USE_NAME[pick(u,'code')] = pick(u,'name','code'); });
+    fill($('fFocus'), FOCUS);
+    fill($('fDomain'), DOMAINS);
+    fill($('fUse'), USES);
+  } catch (e) { console.error('Taxonomy fetch failed:', e); }
+
+  // TRL is a static scale (only if a TRL filter select exists)
+  const trl = $('fTrl');
+  if (trl) {
+    for (let i = 1; i <= 9; i++) {
+      const o = document.createElement('option'); o.value = i; o.textContent = 'TRL ' + i + '+'; trl.appendChild(o);
+    }
+  }
+  computeStats();
+}
+
+async function loadProfiles(){
+  try {
+    const [prof, pd, pf] = await Promise.all([
+      sb.from('convexus_profiles').select('*'),
+      sb.from('convexus_profile_domains').select('*'),
+      sb.from('convexus_profile_focus_areas').select('*'),
+    ]);
+    if (prof.error) { console.warn('Profiles load:', prof.error); PROFILES = []; }
+    else PROFILES = prof.data || [];
+    PROFILE_DOMAINS = (pd && pd.data) || [];
+    PROFILE_FOCUS = (pf && pf.data) || [];
+  } catch (e) { console.error('Profiles fetch failed:', e); PROFILES = []; }
+  render(); computeStats();
+}
+
+// Junction lookups for one profile id
+function domainsFor(pid){ return PROFILE_DOMAINS.filter(r => r.profile_id === pid).map(r => r.domain_code); }
+function focusFor(pid){
+  return PROFILE_FOCUS
+    .filter(r => r.profile_id === pid)
+    .sort((a,b) => (b.is_primary === true) - (a.is_primary === true)) // primary first
+    .map(r => ({ code: r.focus_code, primary: r.is_primary === true }));
+}
+
+// Is the current visitor allowed to manage (edit/delete)?
+// Interim rule: any signed-in user. Tighten to role-based admin when the
+// admin panel + role RLS land.
+let CAN_MANAGE = false;
+
+// How many recent rows to show by default
+const POOL_RECENT_LIMIT = 5;
+
+function sectorOf(p){
+  // primary focus label = sector; fallback to first domain
+  const f = focusFor(p.id);
+  if (f.length) return FOCUS_NAME[f[0].code] || f[0].code;
+  const d = domainsFor(p.id);
+  if (d.length) return DOMAIN_NAME[d[0]] || d[0];
+  return '—';
+}
+
+function tsOf(p){
+  // most recent of updated_at / created_at
+  const u = p.updated_at ? Date.parse(p.updated_at) : 0;
+  const c = p.created_at ? Date.parse(p.created_at) : 0;
+  return Math.max(u || 0, c || 0);
+}
+function isUpdated(p){
+  // updated after creation (and both present) → show "updated"
+  if (!p.updated_at || !p.created_at) return false;
+  return Date.parse(p.updated_at) - Date.parse(p.created_at) > 60000; // >1 min apart
+}
+function isFresh(p){
+  // added or updated within the last 24h
+  return tsOf(p) && (Date.now() - tsOf(p) < 24*60*60*1000);
+}
+
+function poolQuery(){ return (($('fSearch') && $('fSearch').value) || '').trim().toLowerCase(); }
+
+function poolRows(){
+  const q = poolQuery();
+  let rows = PROFILES.slice();
+  if (q){
+    rows = rows.filter(p => {
+      const hay = (pick(p,'org_name','name') + ' ' + pick(p,'org_country') + ' ' + sectorOf(p)).toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  // sort by most-recent activity (updated/created) desc
+  rows.sort((a,b) => tsOf(b) - tsOf(a));
+  // when NOT searching, cap to the recent N; when searching, show all matches (scrolls)
+  if (!q) rows = rows.slice(0, POOL_RECENT_LIMIT);
+  return rows;
+}
+
+function render(){
+  const tbody = $('poolTbody'), empty = $('poolEmpty'), wrap = $('poolTableWrap');
+  const total = PROFILES.length;
+  if ($('cvxPoolCount')) $('cvxPoolCount').textContent = total ? (total + (total===1?' provider in the pool':' providers in the pool')) : 'The pool is empty';
+
+  if (!total){
+    if (wrap) wrap.style.display = 'none';
+    if ($('poolFoot')) $('poolFoot').style.display = 'none';
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+  if (wrap) wrap.style.display = '';
+
+  const rows = poolRows();
+  const q = poolQuery();
+  if ($('poolSub')) $('poolSub').textContent = q
+    ? (rows.length + ' match' + (rows.length===1?'':'es'))
+    : ('Showing the ' + Math.min(POOL_RECENT_LIMIT, total) + ' most recent · updated daily');
+  if ($('poolNote')) $('poolNote').textContent = q
+    ? 'Searching the full pool of ' + total
+    : total + ' total in the pool';
+
+  tbody.innerHTML = rows.map((p, i) => {
+    const nm = pick(p,'org_name','name') || 'Untitled';
+    const trl = pick(p,'trl','min_trl');
+    const nation = pick(p,'org_country') || '—';
+    const sector = sectorOf(p);
+    const tier = (pick(p,'membership_tier') || 'basic').toLowerCase();
+    const code = String(p.id).slice(0,6).toUpperCase();
+    const fresh = isFresh(p) ? '<span class="fresh">NEW</span>' : '';
+    const updRow = isUpdated(p) ? ' updated' : '';
+    return `<tr class="prow${updRow}" onclick="openPoolDetail('${p.id}')" title="View ${esc(nm).replace(/"/g,'&quot;')}">
+      <td class="col-no">${code}</td>
+      <td class="col-name"><span class="nm">${esc(nm)}</span>${fresh}</td>
+      <td class="col-trl">${trl ? 'TRL '+esc(String(trl)) : '—'}</td>
+      <td class="col-nation">${esc(nation)}</td>
+      <td class="col-sector">${esc(sector)}</td>
+      <td class="col-tier"><span class="t-tier t-tier-${esc(tier)}">${esc(tier)}</span></td>
+      <td class="col-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- Read-only detail panel (click a pool row) ----
+function openPoolDetail(id){
+  const p = PROFILES.find(x => x.id === id);
+  if (!p) return;
+  const nm = pick(p,'org_name','name') || 'Untitled';
+  const summary = pick(p,'summary','description') || '';
+  const trl = pick(p,'trl','min_trl');
+  const use = pick(p,'use_profile');
+  const cost = pick(p,'cost_class');
+  const country = pick(p,'org_country');
+  const website = pick(p,'website');
+  const tier = (pick(p,'membership_tier')||'basic').toLowerCase();
+
+  const focs = focusFor(p.id).map(x => ({ label: FOCUS_NAME[x.code] || x.code, primary:x.primary }));
+  const doms = domainsFor(p.id).map(c => DOMAIN_NAME[c] || c);
+  const tags = [
+    ...focs.map(f => `<span class="c-tag${f.primary?' c-tag-primary':''}">${esc(f.label)}</span>`),
+    ...doms.map(d => `<span class="c-tag">${esc(d)}</span>`)
+  ].join('');
+
+  const meta = [];
+  if (trl) meta.push(`<span class="pd-trl">TRL ${esc(String(trl))}</span>`);
+  if (use) meta.push(`<span class="c-use c-use-${esc(use)}">${esc(USE_NAME[use]||use)}</span>`);
+  if (cost) meta.push(`<span class="c-cost c-cost-${esc(cost)}">${esc(cost)}</span>`);
+  meta.push(`<span class="t-tier t-tier-${esc(tier)}">${esc(tier)}</span>`);
+
+  $('pdBody').innerHTML = `
+    <div class="pd-head">
+      <div>
+        <div class="pd-name">${esc(nm)}</div>
+        ${country ? `<div class="pd-country">${esc(country)}</div>` : ''}
+      </div>
+      <button class="pd-x" onclick="closePoolDetail()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="pd-meta">${meta.join('')}</div>
+    ${summary ? `<p class="pd-summary">${esc(summary)}</p>` : ''}
+    ${tags ? `<div class="c-tags pd-tags">${tags}</div>` : ''}
+    ${website ? `<a class="pd-web" href="${esc(website.startsWith('http')?website:'https://'+website)}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+      Visit website</a>` : ''}
+  `;
+  $('poolDetail').classList.add('show');
+}
+function closePoolDetail(){ $('poolDetail').classList.remove('show'); }
+window.openPoolDetail = openPoolDetail;
+window.closePoolDetail = closePoolDetail;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePoolDetail(); });
+
+// ---- Admin/owner actions (RESERVED) ----
+// These are intentionally NOT wired to the public homepage table.
+// They will be attached to the ecosystem admin panel (admin manages all)
+// and the signed-in firm's own profile area (firm manages its own profile).
+// Kept here, ready to bind, with interim RLS already in place.
+function editProfile(id){ location.href = 'new.html?edit=' + encodeURIComponent(id); }
+
+async function deleteProfile(id, name){
+  if (!CAN_MANAGE){ alert('Sign in to manage profiles.'); return; }
+  if (!confirm('Delete "' + name + '"? This removes the profile and its domain/focus links. This cannot be undone.')) return;
+  try {
+    await sb.from('convexus_profile_domains').delete().eq('profile_id', id);
+    await sb.from('convexus_profile_focus_areas').delete().eq('profile_id', id);
+    const { error } = await sb.from('convexus_profiles').delete().eq('id', id);
+    if (error) throw error;
+    PROFILES = PROFILES.filter(p => p.id !== id);
+    PROFILE_DOMAINS = PROFILE_DOMAINS.filter(r => r.profile_id !== id);
+    PROFILE_FOCUS = PROFILE_FOCUS.filter(r => r.profile_id !== id);
+    render(); computeStats();
+    if (typeof buildCatalogData === 'function') buildCatalogData();
+  } catch (err) {
+    console.error('Delete failed:', err);
+    alert('Could not delete: ' + (err.message || err.details || 'unknown error'));
+  }
+}
+window.editProfile = editProfile;
+window.deleteProfile = deleteProfile;
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function computeStats(){
+  const providers = PROFILES.length;
+  $('stProviders').textContent = providers;
+  $('stDomains').textContent = DOMAINS.length;
+  $('stFocus').textContent = FOCUS.length;
+  const trls = PROFILES.map(p => Number(pick(p,'trl','min_trl'))).filter(n => n > 0);
+  $('stTrl').textContent = trls.length ? (trls.reduce((a,b)=>a+b,0)/trls.length).toFixed(1) : '—';
+}
+
+// Quick search + "view all"
+if ($('fSearch')) $('fSearch').addEventListener('input', render);
+if ($('poolAllBtn')) $('poolAllBtn').addEventListener('click', () => {
+  const b = document.getElementById('cvxCatBtn'); if (b) b.click();
+});
+
+// Auth header (tolerant — adjust if your auth differs)
+async function loadUser(){
+  try {
+    const { data } = await sb.auth.getUser();
+    const u = data && data.user;
+    if (u){
+      const name = (u.user_metadata && (u.user_metadata.full_name || u.user_metadata.name)) || (u.email ? u.email.split('@')[0] : 'Account');
+      $('cvxUserName').textContent = name;
+      $('cvxAv').textContent = (name[0] || '·').toUpperCase();
+      CAN_MANAGE = true;   // reserved for admin/profile areas (not the public table)
+    }
+  } catch (e) { /* not logged in or auth not wired — leave default */ }
+}
+$('cvxSignOut').addEventListener('click', async () => {
+  try { await sb.auth.signOut(); } catch (e) {}
+  location.href = '/login.html';
+});
+
+// ============================================================
+// RUBRIC + CATALOG/EXPO ADAPTER
+// Turns Supabase pool profiles into the shape catalog.js/expo.js
+// expect (window.CVX_DATA), computes a 0-100 rubric score, then
+// loads the showcase modules so Catalog & Expo run on live data.
+// ============================================================
+const TIER_BOOST = { basic:0, bronze:3, silver:5, gold:8 };
+
+// map your domain codes → a human label the catalog shows
+const DOMAIN_LABEL_FOR_CATALOG = {
+  land:'Land', air:'Air', maritime:'Maritime', space:'Space',
+  cyberspace:'Cyber', multidomain:'Multi-Domain'
+};
+
+function rubricScore(p){
+  let s = 0;
+  // Maturity / TRL — 35
+  const trl = Number(pick(p,'trl','min_trl') || 0);
+  if (trl > 0) s += Math.round((trl / 9) * 35);
+  // Profile completeness — 30
+  if (pick(p,'summary','description')) s += 8;
+  if (pick(p,'website')) s += 5;
+  if (pick(p,'contact_email')) s += 4;
+  if (domainsFor(p.id).length) s += 5;
+  if (focusFor(p.id).length) s += 5;
+  if (pick(p,'org_country')) s += 3;
+  // Classification clarity — 10
+  if (pick(p,'use_profile')) s += 5;
+  if (pick(p,'cost_class')) s += 5;
+  // Future components (references 15 + certification 10) — 0 for now.
+  // trl_verified already exists; give partial credit if present.
+  const tv = Number(pick(p,'trl_verified') || 0);
+  if (tv > 0) s += Math.min(10, Math.round((tv/9)*10));
+  return Math.max(0, Math.min(100, s));
+}
+
+// Build the catalog/expo record shape from a pool profile
+function toCatalogShape(p){
+  const domCodes = domainsFor(p.id);
+  const focObjs = focusFor(p.id);
+  const primaryFocus = focObjs.find(f => f.primary) || focObjs[0];
+  const domainLabel = domCodes.length
+    ? (DOMAIN_LABEL_FOR_CATALOG[domCodes[0]] || domCodes[0]) : 'Multi-Domain';
+  const focusLabel = primaryFocus ? (FOCUS_NAME[primaryFocus.code] || primaryFocus.code) : '';
+  const caps = focObjs.map(f => FOCUS_NAME[f.code] || f.code).slice(0,4);
+  const tier = pick(p,'membership_tier') || 'basic';
+  const score = rubricScore(p);
+  const trl = Number(pick(p,'trl','min_trl') || 0);
+  return {
+    id: p.id,
+    name: pick(p,'org_name','name','title') || 'Untitled',
+    type: 'diana',                       // all 147 are DIANA cohort
+    country: pick(p,'org_country') || '—',
+    city: '',
+    domain: domainLabel,
+    challenge: focusLabel || domainLabel,
+    trl: trl || 4,
+    stage: '',
+    dual: true,
+    verified: Number(pick(p,'trl_verified')||0) > 0,
+    tested: trl >= 6,
+    cohort: '2026',
+    site: '',
+    desc: pick(p,'summary','description') || '',
+    caps: caps.length ? caps : [domainLabel],
+    // Convexus-specific extras
+    cost_class: pick(p,'cost_class') || null,
+    membership_tier: tier,
+    rubric: score,
+    expo_rank: score + (TIER_BOOST[tier] || 0),
+    website: pick(p,'website') || ''
+  };
+}
+
+function buildCatalogData(){
+  // Catalog: full pool sorted by rubric DESC (no cutoff)
+  const shaped = PROFILES.map(toCatalogShape);
+  shaped.sort((a,b) => b.rubric - a.rubric);
+  window.CVX_DATA = shaped;      // catalog.js reads this as its DATA
+  // update the launcher count on the homepage
+  const lc = document.getElementById('cvxLaunchCount');
+  if (lc) lc.textContent = shaped.length;
+  return shaped;
+}
+
+// Dynamically load a script and return a promise
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const el = document.createElement('script');
+    el.src = src; el.onload = res; el.onerror = rej;
+    document.body.appendChild(el);
+  });
+}
+
+async function bootShowcase(){
+  // profiles + junctions are already loaded by loadProfiles()
+  buildCatalogData();
+  // load modules IN ORDER now that CVX_DATA is ready
+  await loadScript('/assets/image-slot.js').catch(()=>{});
+  await loadScript('/assets/convexus-catalog.js').catch(()=>{});   // sets window.CVX from CVX_DATA
+  await loadScript('/assets/convexus-expo.js').catch(()=>{});      // reads window.CVX
+  await loadScript('/assets/magazine.js').catch(()=>{});
+}
+
+// Boot
+loadTaxonomy()
+  .then(loadProfiles)
+  .then(bootShowcase);
+loadUser();
+</script>
+
+<!-- Shared platform runtime: theme toggle + Convexus AI prompt wiring -->
+<script src="/assets/platform-shell.js"></script>
+
+<!-- Showcase modules (image-slot, catalog, expo, magazine) are loaded
+     dynamically from the boot script above, AFTER window.CVX_DATA is set,
+     so Catalog & Expo render the live Supabase pool (147 DIANA firms),
+     not the hardcoded sample. -->
+</body>
+</html>

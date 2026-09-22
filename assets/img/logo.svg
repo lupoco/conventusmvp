@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Conventity">
+  <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none"
+        stroke="var(--logo-outer, #0E2148)" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none"
+        stroke="var(--logo-inner, #2A6FDB)" stroke-width="5.5" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="4" fill="var(--logo-inner, #2A6FDB)"/>
+</svg>

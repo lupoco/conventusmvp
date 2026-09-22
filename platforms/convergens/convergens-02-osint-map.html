@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergens · OSINT Map &amp; Live Intel Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* ============ 02 · OSINT MAP — page styles ============ */
+  .intro-row{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px;margin-bottom:18px}
+  .intro .lede{margin-top:9px}
+  .intro-meta{font-family:var(--f-mono);font-size:11px;color:var(--mute);text-align:right;line-height:1.9}
+  .intro-meta b{color:var(--ink);font-weight:500}
+
+  /* signal bar — live summary of the data in view (not filler: derived counts) */
+  .sigbar{display:flex;align-items:stretch;gap:0;border:1px solid var(--panel-line);border-radius:var(--r-md);
+    background:linear-gradient(180deg,var(--panel),var(--navy-2));box-shadow:var(--sh-card);overflow:hidden;margin-bottom:18px}
+  .sig{padding:13px 18px;border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:3px;min-width:0}
+  .sig:last-child{border-right:0;margin-left:auto;align-items:flex-end;text-align:right}
+  .sig .k{font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .sig .v{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1;display:flex;align-items:baseline;gap:7px}
+  .sig .v small{font-family:var(--f-mono);font-size:11px;color:var(--mute);font-weight:400}
+  .sig.cats{flex-direction:row;align-items:center;gap:16px;flex-wrap:wrap;padding-top:0;padding-bottom:0}
+  .catstat{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim)}
+  .catstat i{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
+  .catstat b{font-family:var(--f-mono);color:var(--ink);font-weight:500}
+
+  .layout{display:grid;grid-template-columns:1fr 348px;gap:18px;align-items:start}
+
+  /* map card */
+  .mapcard{background:linear-gradient(180deg,var(--panel),var(--navy-2));border:1px solid var(--panel-line);
+    border-radius:var(--r-lg);padding:16px;position:relative;box-shadow:var(--sh-card)}
+  .maptop{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+  .maptop .t{font-family:var(--f-display);font-size:17px;font-weight:600;display:flex;align-items:baseline;gap:10px}
+  .maptop .t .shown{font-family:var(--f-mono);font-size:11px;color:var(--cyan);font-weight:400;letter-spacing:.04em}
+
+  .mapbox{position:relative;border-radius:11px;overflow:hidden;
+    background:radial-gradient(120% 90% at 50% 0%, #0c2848, #081830 70%, #06122a);
+    box-shadow:inset 0 0 0 1px rgba(39,176,230,.08), inset 0 30px 80px -40px rgba(39,176,230,.25), inset 0 -40px 90px -50px #000}
+  svg.map{display:block;width:100%;height:auto}
+  .graticule{stroke:rgba(139,163,196,.12);stroke-width:1}
+  .graticule.major{stroke:rgba(139,163,196,.20)}
+  .map.nogrid .graticule{display:none}
+  .glabel{fill:rgba(139,163,196,.40);font-size:9px;font-family:var(--f-mono);letter-spacing:.08em}
+  .land{fill:url(#landFill);stroke:rgba(39,176,230,.40);stroke-width:.8;
+    filter:drop-shadow(0 0 8px rgba(39,176,230,.18))}
+  .map.outline .land{fill:transparent}
+  .rlabel{fill:rgba(139,163,196,.45);font-size:11px;font-family:var(--f-mono);letter-spacing:.1em}
+
+  /* points */
+  .pt{cursor:pointer}
+  .pt .dot{filter:drop-shadow(0 0 var(--pt-glow,10px) currentColor);transition:r .15s ease}
+  .pt .ring{fill:none;stroke:currentColor;stroke-width:1.5;opacity:0;transition:opacity .15s,r .15s}
+  .pt:hover .ring,.pt.sel .ring{opacity:.85}
+  .pt:hover .dot,.pt.sel .dot{r:6.4}
+  .pt .pulse{fill:none;stroke:currentColor;stroke-width:1.5;transform-origin:center;transform-box:fill-box}
+  .pt.fresh .pulse{animation:ptpulse 2.6s ease-out infinite}
+  .map.nopulse .pt.fresh .pulse{animation:none;opacity:0}
+  @keyframes ptpulse{0%{opacity:.7;r:5}70%{opacity:0;r:20}100%{opacity:0;r:20}}
+  .pt-enter{opacity:0;transform:scale(.3);transform-origin:center;transform-box:fill-box}
+
+  /* tooltip */
+  .tip{position:absolute;pointer-events:none;background:rgba(7,20,40,.97);border:1px solid var(--line-strong);
+    border-radius:9px;padding:9px 12px;font-size:12.5px;max-width:230px;opacity:0;transition:opacity .12s;
+    z-index:6;line-height:1.45;box-shadow:var(--sh-pop)}
+  .tip.pinned{pointer-events:auto}
+  .tip .cat{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .tip .cat i{width:8px;height:8px;border-radius:50%}
+  .tip .src{color:var(--mute);font-size:11px;margin-top:5px;font-family:var(--f-mono)}
+
+  /* legend (interactive category filters) */
+  .maplegend{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
+  .legtog{display:inline-flex;align-items:center;gap:8px;background:rgba(8,24,47,.45);border:1px solid var(--panel-line);
+    border-radius:8px;padding:6px 11px;font-size:12px;color:var(--ink-dim);cursor:pointer;transition:opacity .15s,border-color .15s,background .15s}
+  .legtog:hover{border-color:var(--line-strong)}
+  .legtog i{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 8px -1px currentColor}
+  .legtog .n{font-family:var(--f-mono);color:var(--mute);font-size:11px}
+  .legtog.off{opacity:.4}
+  .legtog.off i{box-shadow:none;filter:grayscale(.7)}
+  .mapnote{font-size:10.5px;color:var(--mute);font-family:var(--f-mono);margin-top:11px;opacity:.82;line-height:1.6}
+
+  /* loading / empty overlays */
+  .mapstate{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+    background:rgba(8,24,47,.55);backdrop-filter:blur(2px);z-index:4;font-family:var(--f-mono);font-size:12px;color:var(--mute);text-align:center}
+  .mapstate.on{display:flex}
+  .spinner{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--panel-line);border-top-color:var(--cyan);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* feed */
+  .feed{background:linear-gradient(180deg,var(--panel),var(--navy-2));border:1px solid var(--panel-line);
+    border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;box-shadow:var(--sh-card);max-height:640px}
+  .feed h3{font-family:var(--f-display);font-size:17px;font-weight:600;display:flex;align-items:center;gap:9px}
+  .feed h3 .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(94,197,168,.6);animation:pulse 2s infinite}
+  .feed .hint{font-size:11.5px;color:var(--mute);font-family:var(--f-mono);margin:5px 0 8px}
+  .feedscroll{overflow-y:auto;margin:0 -4px;padding:0 4px}
+  .feedscroll::-webkit-scrollbar{width:6px}
+  .feedscroll::-webkit-scrollbar-thumb{background:var(--panel-line);border-radius:3px}
+  .feeditem{position:relative;border-top:1px solid var(--line-soft);padding:12px 0 12px 13px;transition:transform .15s}
+  .feeditem::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:2px;background:var(--cyan);opacity:.5}
+  .feeditem:first-of-type{border-top:0}
+  .feeditem:hover{transform:translateX(3px)}
+  .feeditem:hover::before{opacity:1}
+  .feeditem .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:10px}
+  .tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:var(--cyan);border:1px solid rgba(39,176,230,.4);border-radius:5px;padding:1px 7px;white-space:nowrap}
+  .feeditem .time{font-size:11px;color:var(--mute);font-family:var(--f-mono);white-space:nowrap}
+  .feeditem .head{font-size:13.5px;line-height:1.46;color:var(--ink-dim)}
+
+  /* light-theme: legend pills adapt; the map itself stays atmospheric-dark by design */
+  html[data-theme="light"] .legtog{background:rgba(14,33,72,.04)}
+
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .feed{max-height:none}
+    .sig.cats{order:3}
+  }
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<div id="shell-nav"></div>
+
+<div class="wrap">
+  <div class="banner sample"><span class="gem">◆</span> Sample events — <b>UI prototype; replace osint.json with a live, source-attributed feed before operational use</b></div>
+
+  <div class="intro intro-row">
+    <div>
+      <div class="eyebrow">02 — OSINT Map &amp; Live Intel Feed</div>
+      <h1>Global Situational <span>Overview</span></h1>
+      <p class="lede">Evaluated, open-source civil &amp; humanitarian signals plotted on a world basemap. The feed aggregates sources for awareness and is deliberately <b style="color:var(--ink-dim);font-weight:500">not</b> plotted on the map.</p>
+    </div>
+    <div class="intro-meta">
+      Scope: <b id="scope">—</b><br>
+      Compiled: <b id="gendate">—</b><br>
+      <span class="srcpill" id="srcpill" style="margin-top:6px"><span class="dot"></span><span id="srctxt">data source</span></span>
+    </div>
+  </div>
+
+  <!-- live summary of what's currently in view -->
+  <div class="sigbar" id="sigbar">
+    <div class="sig">
+      <span class="k">Active events</span>
+      <span class="v"><span id="statTotal">—</span> <small id="statWin">in window</small></span>
+    </div>
+    <div class="sig cats" id="statCats"></div>
+    <div class="sig">
+      <span class="k">Retention</span>
+      <span class="v" style="font-size:18px"><span id="statAge">14</span><small>day auto-expiry</small></span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- MAP -->
+    <div class="mapcard">
+      <div class="maptop">
+        <div class="t">World Map · evaluated intel <span class="shown" id="shownCount"></span></div>
+        <div class="seg" id="timefilter" role="group" aria-label="Time window">
+          <button data-h="6">6h</button>
+          <button data-h="24">24h</button>
+          <button data-h="48">48h</button>
+          <button data-h="168" class="on">7d</button>
+        </div>
+      </div>
+      <div class="mapbox" id="mapbox">
+        <svg class="map" id="map" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" aria-label="World situational map">
+          <defs>
+            <linearGradient id="landFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(39,176,230,.20)"/>
+              <stop offset="100%" stop-color="rgba(39,176,230,.05)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="tip" id="tip"></div>
+        <div class="mapstate on" id="maploading"><div class="spinner"></div><div>Loading situational data…</div></div>
+        <div class="mapstate" id="mapempty"><div>No events in the selected window.</div><div style="opacity:.7">Widen the time filter to see older signals.</div></div>
+      </div>
+      <div class="maplegend" id="maplegend"></div>
+      <div class="mapnote" id="mapnote"></div>
+    </div>
+
+    <!-- FEED -->
+    <aside class="feed">
+      <h3><span class="pulse"></span>Live Intel Feed</h3>
+      <div class="hint">aggregated sources · not plotted on map</div>
+      <div class="feedscroll"><div id="feedlist"></div></div>
+    </aside>
+  </div>
+</div>
+
+<div id="shell-footer"></div>
+
+<script src="world-basemap.js"></script>
+<script src="shell.js"></script>
+<script>
+/* ============================================================
+   02 · OSINT Map — embedded fallback mirrors osint.json.
+   Behavior locked: feed NOT plotted; time filter 6h/24h/48h/7d;
+   points expire at max_age_hours (2 weeks); civil-only; no
+   Add Note / Open Profile / Export Brief; no Telegram source.
+   ============================================================ */
+const FALLBACK = {
+  meta:{scope:"Global · Civil/Humanitarian",generated:"2026-06-03",max_age_hours:336,note:"Sample/placeholder events for UI prototype. Map points auto-expire after 336h (2 weeks)."},
+  categories:[
+    {key:"conflict",label:"Conflict / Security",c:"var(--danger)"},
+    {key:"displacement",label:"Displacement",c:"var(--gold)"},
+    {key:"climate",label:"Climate / Disaster",c:"var(--cyan)"},
+    {key:"health",label:"Health",c:"var(--ok)"}
+  ],
+  points:[
+    {lat:36.2,lon:37.2,title:"NW Syria — new displacement reported",cat:"displacement",age:4,src:"OCHA"},
+    {lat:31.5,lon:34.5,title:"Shelter needs rising",cat:"displacement",age:2,src:"ReliefWeb"},
+    {lat:49.0,lon:32.0,title:"Civilian infrastructure damage",cat:"conflict",age:15,src:"AFP"},
+    {lat:15.5,lon:32.5,title:"Aid access constrained",cat:"conflict",age:9,src:"ACAPS"},
+    {lat:5.0,lon:46.0,title:"Drought worsens food security",cat:"climate",age:30,src:"FEWS NET"},
+    {lat:-2.0,lon:23.0,title:"Population movement observed",cat:"displacement",age:50,src:"IOM DTM"},
+    {lat:21.0,lon:96.0,title:"Flood displacement",cat:"climate",age:70,src:"ReliefWeb"},
+    {lat:18.5,lon:-72.0,title:"Cholera risk elevated",cat:"health",age:100,src:"WHO"},
+    {lat:34.0,lon:66.0,title:"Returnee influx at border",cat:"displacement",age:180,src:"UNHCR"},
+    {lat:21.0,lon:92.0,title:"Camp WASH gap reported",cat:"health",age:250,src:"UNICEF"},
+    {lat:15.0,lon:44.0,title:"Funding shortfall impact",cat:"conflict",age:320,src:"OCHA"}
+  ],
+  feed:[
+    {src:"ReliefWeb",time:"12m ago",head:"Humanitarian partners scale up winterization response amid funding gap"},
+    {src:"OCHA",time:"38m ago",head:"Flash update: localized displacement following renewed hostilities"},
+    {src:"Reuters",time:"1h ago",head:"Aid convoy reaches isolated communities after access negotiation"},
+    {src:"ACAPS",time:"2h ago",head:"Severity scan: deteriorating conditions in drought-affected zones"},
+    {src:"AP",time:"3h ago",head:"Cross-border returns continue; reintegration services strained"},
+    {src:"AFP",time:"5h ago",head:"Explosive ordnance incidents raise civilian protection concerns"},
+    {src:"WHO",time:"6h ago",head:"Immunization campaign reaches millions of children nationwide"}
+  ]
+};
+
+const {el, css, resolve} = CONV;
+const MAPW=1000, MAPH=500;
+const proj=(lat,lon)=>[ (lon+180)/360*MAPW, (90-lat)/180*MAPH ];
+
+let DATA=null, CURRENT=168, ACTIVE=new Set(), catColor={}, pinned=null;
+
+/* ---------- basemap ---------- */
+function buildMap(){
+  const svg=document.getElementById('map');
+  // graticule + edge degree labels
+  for(let lon=-180;lon<=180;lon+=30){
+    const x=(lon+180)/360*MAPW, major=(lon===0);
+    svg.appendChild(el('line',{x1:x,y1:0,x2:x,y2:MAPH,class:'graticule'+(major?' major':'')}));
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const y=(90-lat)/180*MAPH, major=(lat===0);
+    svg.appendChild(el('line',{x1:0,y1:y,x2:MAPW,y2:y,class:'graticule'+(major?' major':'')}));
+    const lab=lat===0?'0°':Math.abs(lat)+'°'+(lat>0?'N':'S');
+    svg.appendChild(el('text',{x:6,y:y-4,class:'glabel'})).textContent=lab;
+  }
+  [['90°W',-90],['0°',0],['90°E',90]].forEach(([t,lon])=>{
+    const x=(lon+180)/360*MAPW;
+    svg.appendChild(el('text',{x:x+4,y:MAPH-6,class:'glabel'})).textContent=t;
+  });
+  // real world basemap (1000×500 equirectangular)
+  if(window.WORLD_PATH){
+    svg.appendChild(el('path',{d:window.WORLD_PATH,class:'land','fill-rule':'evenodd'}));
+  }
+  drawPoints();
+}
+
+/* ---------- points ---------- */
+function freshness(age){ // 0..1, 1 = newest within window
+  return Math.max(0, Math.min(1, 1-(age/CURRENT)));
+}
+function drawPoints(animate){
+  const svg=document.getElementById('map');
+  svg.querySelectorAll('.pt').forEach(n=>n.remove());
+  clearPin();
+  const tip=document.getElementById('tip'), box=document.getElementById('mapbox');
+  const visible=DATA.points.filter(p=>p.age<=CURRENT && p.age<=DATA.meta.max_age_hours && ACTIVE.has(p.cat));
+  let i=0;
+  visible.forEach(p=>{
+    const [x,y]=proj(p.lat,p.lon), col=catColor[p.cat]||resolve('--cyan');
+    const f=freshness(p.age);
+    const g=el('g',{class:'pt'+(f>0.6?' fresh':''), style:`color:${col}`});
+    g.appendChild(el('circle',{cx:x,cy:y,r:5,class:'pulse'}));
+    g.appendChild(el('circle',{cx:x,cy:y,r:11,class:'ring'}));
+    g.appendChild(el('circle',{cx:x,cy:y,r:5,fill:col,stroke:'#06122a','stroke-width':1.5,class:'dot',
+      style:`opacity:${(0.55+0.45*f).toFixed(2)}`}));
+    const show=ev=>{
+      const r=box.getBoundingClientRect();
+      const lab=(DATA.categories.find(c=>c.key===p.cat)||{}).label||p.cat;
+      tip.innerHTML=`<div class="cat"><i style="background:${col}"></i>${lab} · ${CONV.relAge(p.age)} ago</div>${p.title}<div class="src">Source: ${p.src}</div>`;
+      const tx=Math.min((ev.clientX-r.left)+14, r.width-238), ty=Math.min((ev.clientY-r.top)+12, r.height-90);
+      tip.style.left=Math.max(8,tx)+'px'; tip.style.top=Math.max(8,ty)+'px'; tip.style.opacity=1;
+    };
+    g.addEventListener('mousemove',e=>{ if(!pinned) show(e); });
+    g.addEventListener('mouseleave',()=>{ if(!pinned) tip.style.opacity=0; });
+    g.addEventListener('click',e=>{
+      e.stopPropagation();
+      svg.querySelectorAll('.pt.sel').forEach(n=>n.classList.remove('sel'));
+      g.classList.add('sel'); pinned=g; tip.classList.add('pinned'); show(e);
+    });
+    if(animate){ g.classList.add('pt-enter'); setTimeout(()=>{ g.style.transition='opacity .4s ease, transform .4s cubic-bezier(.2,.8,.2,1)'; g.classList.remove('pt-enter'); }, 30+i*22); }
+    svg.appendChild(g); i++;
+  });
+  document.getElementById('shownCount').textContent=visible.length?('· '+visible.length+' shown'):'';
+  document.getElementById('mapempty').classList.toggle('on', visible.length===0 && DATA);
+  updateStats(visible);
+}
+function clearPin(){ pinned=null; const t=document.getElementById('tip'); t.classList.remove('pinned'); t.style.opacity=0; document.querySelectorAll('.pt.sel').forEach(n=>n.classList.remove('sel')); }
+
+/* ---------- signal bar ---------- */
+function updateStats(visible){
+  document.getElementById('statTotal').textContent=visible.length;
+  document.getElementById('statWin').textContent='in last '+(CURRENT<24?CURRENT+'h':(CURRENT/24)+'d');
+  const box=document.getElementById('statCats'); box.innerHTML='';
+  DATA.categories.forEach(c=>{
+    const n=visible.filter(p=>p.cat===c.key).length;
+    box.insertAdjacentHTML('beforeend',
+      `<span class="catstat" style="color:${resolve(c.c)}"><i></i><span style="color:var(--ink-dim)">${c.label.split(' / ')[0]}</span> <b>${n}</b></span>`);
+  });
+}
+
+/* ---------- legend (interactive filters) ---------- */
+function buildLegend(){
+  const lg=document.getElementById('maplegend'); lg.innerHTML='';
+  DATA.categories.forEach(c=>{
+    catColor[c.key]=resolve(c.c); ACTIVE.add(c.key);
+    const total=DATA.points.filter(p=>p.cat===c.key && p.age<=DATA.meta.max_age_hours).length;
+    const b=document.createElement('button');
+    b.className='legtog'; b.style.color=resolve(c.c); b.dataset.cat=c.key;
+    b.innerHTML=`<i></i><span style="color:var(--ink-dim)">${c.label}</span><span class="n">${total}</span>`;
+    b.addEventListener('click',()=>{
+      if(ACTIVE.has(c.key)){ ACTIVE.delete(c.key); b.classList.add('off'); } else { ACTIVE.add(c.key); b.classList.remove('off'); }
+      drawPoints(true);
+    });
+    lg.appendChild(b);
+  });
+}
+
+/* ---------- feed (not plotted) ---------- */
+function buildFeed(){
+  const wrap=document.getElementById('feedlist'); wrap.innerHTML='';
+  DATA.feed.forEach(f=>wrap.insertAdjacentHTML('beforeend',
+    `<div class="feeditem"><div class="topline"><span class="tag">${f.src}</span><span class="time">${f.time}</span></div><div class="head">${f.head}</div></div>`));
+}
+
+/* ---------- time filter ---------- */
+function wireFilter(){
+  document.querySelectorAll('#timefilter button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#timefilter button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); CURRENT=+b.dataset.h; drawPoints(true);
+    });
+  });
+  document.getElementById('mapbox').addEventListener('click',clearPin);
+}
+
+/* ---------- init ---------- */
+(async function init(){
+  CONV.mount('osint','Map points auto-expire after 2 weeks. No covert collection.');
+  const {data, live}=await CONV.loadData('./osint.json', FALLBACK);
+  DATA=data;
+  document.getElementById('scope').textContent=DATA.meta.scope||'Global';
+  document.getElementById('gendate').textContent=DATA.meta.generated||'—';
+  document.getElementById('statAge').textContent=Math.round((DATA.meta.max_age_hours||336)/24);
+  const pill=document.getElementById('srcpill'), txt=document.getElementById('srctxt');
+  if(live){ txt.textContent='live · osint.json'; } else { pill.classList.add('fallback'); txt.textContent='embedded sample'; }
+  document.getElementById('mapnote').textContent='Filter shows points within the selected window. Data older than '+((DATA.meta.max_age_hours||336)/24)+' days is auto-deleted. '+(DATA.meta.note||'');
+  buildLegend(); buildMap(); buildFeed(); wireFilter();
+  document.getElementById('maploading').classList.remove('on');
+  drawPoints(true);
+})();
+</script>
+
+</body>
+</html>

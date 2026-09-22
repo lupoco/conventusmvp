@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en" data-theme="light"
+      data-platform-standalone="ttxwargamer"
+      data-platform-title="TTX Wargamer · EFDI Data Backbone Accelerator · Conventlab">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TTX Wargamer · EFDI Data Backbone Accelerator · Conventlab</title>
+<meta name="description" content="EFDI Data Backbone Accelerator TTX — an interactive analytic-wargaming console: 11-stage targeting chain, three variants, live DCMP friction logging and outbrief outputs. Part of Conventlab." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="/assets/shared.css" />
+
+<style>
+/* ============================================================
+   TTX WARGAMER — console styling. Scoped to .ttx-* ;
+   inherits tokens + .cvg-overlay shell from shared.css.
+   Conventlab signature colour = --pf-connovus (orange).
+   ============================================================ */
+#ttxOverlay { --tc: var(--pf-connovus); }
+.ttx-wrap { max-width: 1400px; margin: 0 auto; padding: 0 28px 80px; }
+
+/* ---- top bar extras ---- */
+.ttx-bar-status {
+  display: flex; align-items: center; gap: 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em;
+  color: var(--muted); flex: 1; justify-content: center;
+}
+.ttx-bar-status .clk { color: var(--tc); font-weight: 700; font-size: 13px; letter-spacing: .12em; }
+.ttx-bar-status .vt { padding: 3px 9px; border-radius: 5px; border: 1px solid color-mix(in srgb,var(--tc) 30%,var(--line));
+  color: var(--tc); font-weight: 700; }
+.ttx-back {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; color: var(--muted);
+  background: transparent; border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 11px;
+  transition: all .15s ease; text-transform: uppercase;
+}
+.ttx-back:hover { color: var(--tc); border-color: var(--tc); }
+
+/* ---- section tab nav ---- */
+.ttx-tabs {
+  position: sticky; top: 0; z-index: 4;
+  display: flex; gap: 4px; padding: 14px 28px; max-width: 1400px; margin: 0 auto;
+  flex-wrap: wrap;
+}
+.ttx-tabs button {
+  appearance: none; cursor: pointer; font: inherit; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase;
+  padding: 9px 16px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--muted); transition: all .15s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.ttx-tabs button:hover { color: var(--ink); border-color: var(--line-2); }
+.ttx-tabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.ttx-tabs button .cnt {
+  font-size: 9px; padding: 1px 6px; border-radius: 999px;
+  background: color-mix(in srgb,var(--tc) 18%,transparent); color: var(--tc);
+}
+.ttx-tabs button.on .cnt { background: color-mix(in srgb,#fff 22%,transparent); color: #fff; }
+
+.ttx-pane { display: none; }
+.ttx-pane.on { display: block; animation: ttxFade .3s ease; }
+@keyframes ttxFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ============== BRIEF ============== */
+.ttx-hero {
+  border: 1px solid var(--line); border-radius: 20px; background: var(--paper);
+  padding: 34px 34px 30px; margin-top: 8px; position: relative; overflow: hidden;
+}
+.ttx-hero::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--tc), color-mix(in srgb,var(--tc) 30%,transparent)); }
+.ttx-hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; font-weight: 700;
+  color: var(--tc); text-transform: uppercase; display: inline-flex; align-items: center; gap: 9px;
+}
+.ttx-hero h1 { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+  font-size: clamp(30px, 4vw, 50px); letter-spacing: -.02em; margin: 14px 0 4px; color: var(--ink); }
+.ttx-hero .kind { font-size: 14px; color: var(--muted); }
+.ttx-rq {
+  margin: 22px 0 4px; padding: 20px 22px; border-radius: 14px;
+  background: color-mix(in srgb,var(--tc) 6%,var(--paper-2));
+  border: 1px solid color-mix(in srgb,var(--tc) 22%,var(--line));
+}
+.ttx-rq .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em;
+  color: var(--tc); font-weight: 700; text-transform: uppercase; }
+.ttx-rq p { margin: 8px 0 0; font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: 21px; line-height: 1.42; color: var(--ink-2); }
+.ttx-meta-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 0;
+  margin-top: 24px; border-top: 1px solid var(--line);
+}
+.ttx-meta-grid > div { padding: 14px 18px 14px 0; border-right: 1px solid var(--line); }
+.ttx-meta-grid > div:last-child { border-right: 0; }
+.ttx-meta-grid .k { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em;
+  color: var(--muted); text-transform: uppercase; }
+.ttx-meta-grid .v { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-top: 5px; line-height: 1.4; }
+
+.ttx-h { display: flex; align-items: baseline; gap: 12px; margin: 44px 0 18px; }
+.ttx-h .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em;
+  color: var(--tc); font-weight: 700; }
+.ttx-h h2 { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+  font-size: clamp(24px,2.6vw,34px); letter-spacing: -.02em; margin: 0; color: var(--ink); }
+.ttx-h .sub { font-size: 13px; color: var(--muted); margin-left: auto; font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .08em; }
+
+/* variant select cards */
+.ttx-variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.ttx-vcard {
+  position: relative; text-align: left; cursor: pointer; font: inherit;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 22px 22px 20px;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; overflow: hidden;
+}
+.ttx-vcard:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--tc) 50%,var(--line));
+  box-shadow: 0 26px 50px -30px color-mix(in srgb,var(--tc) 50%,transparent); }
+.ttx-vcard.active { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc) inset; }
+.ttx-vcard .vid {
+  width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center;
+  font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px; color: var(--tc);
+  background: color-mix(in srgb,var(--tc) 12%,var(--paper)); border: 1px solid color-mix(in srgb,var(--tc) 28%,var(--line));
+}
+.ttx-vcard .vtag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em;
+  color: var(--muted); text-transform: uppercase; margin-top: 16px; }
+.ttx-vcard h3 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; margin: 4px 0 0; color: var(--ink); }
+.ttx-vcard p { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 10px 0 14px; }
+.ttx-vcard .vflow { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 16px; }
+.ttx-vcard .vflow .node { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .04em;
+  padding: 3px 7px; border-radius: 5px; background: var(--chip); color: var(--ink-2); }
+.ttx-vcard .vflow .ar { color: var(--tc); font-size: 10px; }
+.ttx-vcard .vload {
+  display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: .12em; font-weight: 700; text-transform: uppercase;
+  color: var(--tc);
+}
+.ttx-vcard .vload svg { width: 13px; height: 13px; }
+
+/* lanes */
+.ttx-lanes { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.ttx-lane { border: 1px solid var(--line); border-radius: 14px; background: var(--paper); padding: 18px 20px;
+  border-left: 3px solid var(--lc); }
+.ttx-lane .ln { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; font-weight: 700;
+  text-transform: uppercase; color: var(--lc); }
+.ttx-lane h4 { font-size: 16px; font-weight: 700; margin: 6px 0 7px; color: var(--ink); }
+.ttx-lane p { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+/* agenda */
+.ttx-agenda { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--paper); }
+.ttx-agenda .row { display: grid; grid-template-columns: 78px 1fr; gap: 16px; padding: 13px 20px;
+  border-bottom: 1px solid var(--line); align-items: baseline; }
+.ttx-agenda .row:last-child { border-bottom: 0; }
+.ttx-agenda .row.var { background: color-mix(in srgb,var(--tc) 5%,var(--paper)); }
+.ttx-agenda .tm { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--tc); }
+.ttx-agenda .ti { font-size: 14px; font-weight: 700; color: var(--ink); }
+.ttx-agenda .td { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ============== PLAY · control bar ============== */
+.ttx-control {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 16px 20px; margin-top: 8px;
+}
+.ttx-clock { display: flex; flex-direction: column; gap: 2px; }
+.ttx-clock .big { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700;
+  letter-spacing: .04em; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.ttx-clock .big.run { color: var(--tc); }
+.ttx-clock .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .16em;
+  color: var(--muted); text-transform: uppercase; }
+.ttx-ctr-mid { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.ttx-ctr-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.ttx-ctr-flow .vt { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; font-weight: 700;
+  color: var(--tc); padding: 3px 8px; border-radius: 5px; border: 1px solid color-mix(in srgb,var(--tc) 30%,var(--line)); }
+.ttx-ctr-flow .node { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; padding: 3px 7px; border-radius: 5px;
+  background: var(--chip); color: var(--ink-2); }
+.ttx-ctr-flow .ar { color: var(--tc); }
+/* decision window meter */
+.ttx-window { display: flex; align-items: center; gap: 10px; }
+.ttx-window .wk { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; color: var(--muted);
+  text-transform: uppercase; white-space: nowrap; }
+.ttx-window .bar { position: relative; flex: 1; height: 8px; border-radius: 5px; background: var(--line-2); overflow: hidden; }
+.ttx-window .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: linear-gradient(90deg,#16A34A,#EAB308 65%,#DC2626); transition: width .4s linear; }
+.ttx-window .bar .mk { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink);
+  opacity: .5; }
+.ttx-window .wv { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--ink);
+  white-space: nowrap; }
+.ttx-ctr-actions { display: flex; align-items: center; gap: 8px; }
+.ttx-btn {
+  appearance: none; cursor: pointer; font: inherit; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .1em; font-weight: 700; text-transform: uppercase;
+  padding: 10px 15px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper);
+  color: var(--ink); transition: all .15s ease; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+}
+.ttx-btn svg { width: 13px; height: 13px; }
+.ttx-btn:hover { border-color: var(--tc); color: var(--tc); }
+.ttx-btn.primary { background: var(--tc); color: #fff; border-color: var(--tc); }
+.ttx-btn.primary:hover { filter: brightness(1.06); color: #fff; }
+.ttx-btn.danger:hover { border-color: #DC2626; color: #DC2626; }
+.ttx-btn.sm { padding: 7px 11px; font-size: 10px; }
+.ttx-speed { display: inline-flex; border: 1px solid var(--line-2); border-radius: 9px; overflow: hidden; }
+.ttx-speed button { appearance: none; cursor: pointer; font: inherit; font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; padding: 8px 10px; border: 0; background: var(--paper); color: var(--muted);
+  border-right: 1px solid var(--line); }
+.ttx-speed button:last-child { border-right: 0; }
+.ttx-speed button.on { background: var(--ink); color: var(--paper); }
+
+/* red cell banner */
+.ttx-redcell { display: none; align-items: center; gap: 12px; margin-top: 14px;
+  border: 1px solid color-mix(in srgb,#DC2626 40%,var(--line)); border-radius: 12px;
+  background: color-mix(in srgb,#DC2626 9%,var(--paper)); padding: 12px 16px; }
+.ttx-redcell.on { display: flex; animation: ttxFade .3s ease; }
+.ttx-redcell .rc-ic { color: #DC2626; flex: none; animation: casPulse 1.3s ease-in-out infinite; }
+.ttx-redcell .rc-t { font-size: 13px; color: var(--ink); font-weight: 700; }
+.ttx-redcell .rc-t span { display: block; font-size: 11.5px; font-weight: 500; color: var(--ink-2); margin-top: 2px; }
+.ttx-redcell .rc-pill { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+  letter-spacing: .14em; font-weight: 700; color: #DC2626; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid color-mix(in srgb,#DC2626 35%,var(--line)); text-transform: uppercase; }
+
+/* ---- stage rail ---- */
+.ttx-rail { display: flex; gap: 0; overflow-x: auto; padding: 18px 4px 6px; margin-top: 18px;
+  scrollbar-width: thin; }
+.ttx-node { appearance: none; cursor: pointer; font: inherit; background: transparent; border: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 0; flex: none; min-width: 86px;
+  position: relative; }
+.ttx-node .dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line-2);
+  display: grid; place-items: center; background: var(--paper); font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; color: var(--muted); transition: all .2s ease; position: relative; z-index: 2; }
+.ttx-node .nm { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .04em;
+  color: var(--muted); text-align: center; line-height: 1.2; max-width: 80px; }
+.ttx-node::after { content: ""; position: absolute; top: 17px; left: 50%; width: 100%; height: 2px;
+  background: var(--line); z-index: 1; }
+.ttx-node:last-child::after { display: none; }
+.ttx-node.done .dot { background: color-mix(in srgb,var(--tc) 16%,var(--paper)); border-color: var(--tc); color: var(--tc); }
+.ttx-node.done::after { background: var(--tc); }
+.ttx-node.active .dot { background: var(--tc); border-color: var(--tc); color: #fff;
+  box-shadow: 0 0 0 5px color-mix(in srgb,var(--tc) 18%,transparent); }
+.ttx-node.active .nm { color: var(--ink); font-weight: 700; }
+.ttx-node .stamp { position: absolute; top: -14px; font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+  font-weight: 700; color: var(--tc); white-space: nowrap; }
+
+/* ---- play grid ---- */
+.ttx-play-grid { display: grid; grid-template-columns: 1.45fr 1fr; gap: 18px; margin-top: 14px; }
+
+/* stage detail card */
+.ttx-stage { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 22px 24px; }
+.ttx-stage-hd { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 16px;
+  border-bottom: 1px solid var(--line); }
+.ttx-stage-hd .sn { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em;
+  color: var(--muted); }
+.ttx-stage-hd h3 { font-size: 23px; font-weight: 800; letter-spacing: -.02em; margin: 0; color: var(--ink); }
+.ttx-stage-hd .ph { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; font-weight: 700;
+  padding: 3px 8px; border-radius: 5px; background: var(--chip); color: var(--ink-2); text-transform: uppercase; }
+.ttx-stage-hd .fl { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  color: var(--tc); letter-spacing: .04em; }
+.ttx-stage-hd .lane { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; font-weight: 700;
+  padding: 3px 8px; border-radius: 5px; text-transform: uppercase; }
+
+/* facilitator prompt */
+.ttx-prompt { margin: 18px 0; padding: 16px 18px; border-radius: 12px;
+  background: color-mix(in srgb,var(--tc) 7%,var(--paper-2)); border: 1px solid color-mix(in srgb,var(--tc) 22%,var(--line));
+  position: relative; }
+.ttx-prompt .pk { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em; font-weight: 700;
+  color: var(--tc); text-transform: uppercase; display: flex; align-items: center; gap: 7px; }
+.ttx-prompt p { margin: 9px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 17.5px;
+  line-height: 1.45; color: var(--ink); }
+.ttx-prompt.empty { background: var(--paper-2); border-style: dashed; }
+.ttx-prompt.empty p { font-style: normal; font-family: 'Manrope'; font-size: 13px; color: var(--muted); }
+
+/* EQ blocks */
+.ttx-eq { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.ttx-eq-hd { display: flex; align-items: flex-start; gap: 10px; padding: 13px 15px; background: var(--paper-2); }
+.ttx-eq-hd .id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--tc);
+  flex: none; padding-top: 1px; }
+.ttx-eq-hd .q { font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.ttx-eq-bd { padding: 13px 15px; }
+.ttx-eq-bd .metric { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .04em;
+  color: var(--muted); margin-bottom: 9px; display: flex; align-items: center; gap: 6px; }
+.ttx-eq-bd .metric b { color: var(--ink-2); font-weight: 700; }
+.ttx-eq-row { display: flex; gap: 8px; align-items: stretch; }
+.ttx-eq-row textarea {
+  flex: 1; resize: vertical; min-height: 38px; font: inherit; font-size: 13px; line-height: 1.45;
+  border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 11px; background: var(--paper); color: var(--ink);
+}
+.ttx-eq-row textarea:focus { outline: none; border-color: var(--tc); }
+.ttx-eq-row textarea::placeholder { color: var(--muted); }
+.ttx-eq.logged .ttx-eq-hd { background: color-mix(in srgb,var(--tc) 7%,var(--paper-2)); }
+.ttx-eq-stamp { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--tc);
+  margin-top: 8px; display: none; }
+.ttx-eq.logged .ttx-eq-stamp { display: block; }
+
+.ttx-stage-foot { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; padding-top: 18px;
+  border-top: 1px solid var(--line); }
+
+/* ---- side col ---- */
+.ttx-side { display: flex; flex-direction: column; gap: 18px; }
+.ttx-board-wrap { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); overflow: hidden; }
+.ttx-board-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+.ttx-board-hd .t { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; }
+.ttx-board-hd .st { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; padding: 3px 9px;
+  border-radius: 6px; letter-spacing: .08em; }
+.ttx-board-hd .st.live { color: #16A34A; background: color-mix(in srgb,#16A34A 12%,transparent); }
+.ttx-board-hd .st.hit  { color: #DC2626; background: color-mix(in srgb,#DC2626 12%,transparent); }
+.ttx-board-hd .st.kill { color: var(--tc); background: color-mix(in srgb,var(--tc) 14%,transparent); }
+.ttx-board { display: block; width: 100%; background:
+  linear-gradient(180deg, color-mix(in srgb,#2A6FDB 5%,var(--paper)) 0%, var(--paper) 60%); }
+
+/* event log */
+.ttx-events { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); display: flex;
+  flex-direction: column; max-height: 360px; }
+.ttx-events-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;
+  border-bottom: 1px solid var(--line); }
+.ttx-events-hd .t { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; }
+.ttx-events-list { overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ttx-ev { display: grid; grid-template-columns: 58px 1fr; gap: 9px; padding: 7px 8px; border-radius: 8px;
+  align-items: baseline; animation: cvgFeedIn .3s ease; }
+.ttx-ev:hover { background: var(--paper-2); }
+.ttx-ev .tt { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--tc); }
+.ttx-ev .tx { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.ttx-ev .tx b { color: var(--ink); font-weight: 700; }
+.ttx-ev.fr .tx b { color: #DC2626; }
+.ttx-ev-empty { padding: 22px 16px; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* ============== REGISTER ============== */
+.ttx-reg-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 18px; }
+.ttx-reg-stat { display: flex; gap: 16px; flex-wrap: wrap; }
+.ttx-reg-stat .s { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.ttx-reg-stat .s b { color: var(--ink); font-size: 15px; }
+.ttx-reg-table { width: 100%; border-collapse: collapse; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.ttx-reg-table thead th { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); text-align: left; padding: 12px 14px; background: var(--paper-2);
+  border-bottom: 1px solid var(--line); font-weight: 700; }
+.ttx-reg-table tbody td { padding: 13px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
+  color: var(--ink-2); vertical-align: top; line-height: 1.45; background: var(--paper); }
+.ttx-reg-table tbody tr:last-child td { border-bottom: 0; }
+.ttx-reg-table tbody tr:hover td { background: var(--paper-2); }
+.ttx-reg-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.ttx-reg-id .seed { display: block; font-size: 8.5px; color: var(--muted); font-weight: 400; letter-spacing: .1em; margin-top: 2px; }
+.ttx-tag { display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; white-space: nowrap; }
+.ttx-tag .d { width: 7px; height: 7px; border-radius: 50%; }
+.ttx-sev { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  padding: 4px 10px; border-radius: 999px; text-transform: uppercase; white-space: nowrap; }
+.ttx-reg-mit { font-size: 12px; color: var(--muted); }
+.ttx-reg-empty { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+.ttx-reg-del { appearance: none; cursor: pointer; background: transparent; border: 0; color: var(--muted);
+  padding: 4px; border-radius: 6px; }
+.ttx-reg-del:hover { color: #DC2626; background: color-mix(in srgb,#DC2626 10%,transparent); }
+
+/* ============== OUTPUTS ============== */
+.ttx-out-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+.ttx-card { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 22px 24px; }
+.ttx-card-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.ttx-card-hd h3 { font-size: 16px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -.01em; }
+.ttx-card-hd .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--tc);
+  background: color-mix(in srgb,var(--tc) 12%,var(--paper)); flex: none; }
+.ttx-card-hd .ic svg { width: 16px; height: 16px; }
+.ttx-ql { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.ttx-ql .stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.ttx-ql .stat { flex: 1; min-width: 110px; border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px;
+  background: var(--paper-2); }
+.ttx-ql .stat .v { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--ink);
+  line-height: 1; }
+.ttx-ql .stat .v.tc { color: var(--tc); }
+.ttx-ql .stat .v.bad { color: #DC2626; }
+.ttx-ql .stat .v.good { color: #16A34A; }
+.ttx-ql .stat .k { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; color: var(--muted);
+  text-transform: uppercase; margin-top: 7px; }
+.ttx-ql ul { margin: 10px 0 0; padding-left: 0; list-style: none; }
+.ttx-ql li { padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
+.ttx-ql li:last-child { border-bottom: 0; }
+.ttx-ql li .lt { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--tc); font-weight: 700; flex: none; }
+
+/* timeline analysis */
+.ttx-tl { display: flex; flex-direction: column; gap: 7px; }
+.ttx-tl-row { display: grid; grid-template-columns: 96px 1fr 60px; gap: 12px; align-items: center; }
+.ttx-tl-row .nm { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-2); }
+.ttx-tl-row .nm .n { color: var(--muted); margin-right: 5px; }
+.ttx-tl-bar { height: 16px; border-radius: 4px; background: var(--paper-2); border: 1px solid var(--line); overflow: hidden; position: relative; }
+.ttx-tl-bar i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb,var(--tc) 55%,transparent), var(--tc)); }
+.ttx-tl-bar.pending i { background: repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 4px,transparent 4px,transparent 8px); }
+.ttx-tl-row .vv { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; color: var(--ink); text-align: right; }
+.ttx-tl-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--line); }
+.ttx-tl-total .k { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+.ttx-tl-total .v { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 700; color: var(--tc); }
+.ttx-tl-note { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+.ttx-tl-note.bad { color: #DC2626; }
+
+/* roadmap */
+.ttx-road { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.ttx-road .step { border: 1px solid var(--line); border-radius: 14px; background: var(--paper); padding: 18px 20px;
+  border-top: 3px solid var(--rc); }
+.ttx-road .step .hz { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ink); }
+.ttx-road .step .tg { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em; color: var(--rc);
+  text-transform: uppercase; margin-top: 3px; }
+.ttx-road .step p { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 12px 0 0; }
+
+/* ============== modal (friction capture) ============== */
+.ttx-modal-bg { position: fixed; inset: 0; z-index: 50; background: color-mix(in srgb,#05070D 55%,transparent);
+  display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(3px); }
+.ttx-modal-bg.on { display: flex; animation: ttxFade .2s ease; }
+.ttx-modal { width: min(560px,100%); background: var(--paper); border: 1px solid var(--line-2); border-radius: 18px;
+  padding: 26px 28px; box-shadow: 0 40px 90px -30px rgba(0,0,0,.55); max-height: 90vh; overflow-y: auto; }
+.ttx-modal h3 { font-size: 19px; font-weight: 800; margin: 0 0 4px; color: var(--ink); }
+.ttx-modal .msub { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
+.ttx-field { margin-bottom: 16px; }
+.ttx-field label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.ttx-field textarea, .ttx-field input { width: 100%; font: inherit; font-size: 13.5px; border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 11px 13px; background: var(--paper); color: var(--ink); resize: vertical; }
+.ttx-field textarea:focus, .ttx-field input:focus { outline: none; border-color: var(--tc); }
+.ttx-chipset { display: flex; flex-wrap: wrap; gap: 7px; }
+.ttx-chipset button { appearance: none; cursor: pointer; font: inherit; font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em; padding: 8px 13px; border-radius: 8px;
+  border: 1px solid var(--line-2); background: var(--paper); color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+.ttx-chipset button .d { width: 8px; height: 8px; border-radius: 50%; }
+.ttx-chipset button.on { border-color: var(--cc); background: color-mix(in srgb,var(--cc) 12%,var(--paper)); color: var(--cc); }
+.ttx-modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+/* ---- AI console (reuse cvg-prompt look from shared but ensure spacing) ---- */
+.ttx-ai-wrap { margin-top: 14px; }
+
+/* ---- responsive ---- */
+@media (max-width: 1100px) {
+  .ttx-play-grid { grid-template-columns: 1fr; }
+  .ttx-out-grid { grid-template-columns: 1fr; }
+  .ttx-control { grid-template-columns: 1fr; gap: 14px; }
+  .ttx-ctr-actions { flex-wrap: wrap; }
+}
+@media (max-width: 760px) {
+  .ttx-wrap { padding: 0 16px 60px; }
+  .ttx-tabs { padding: 12px 16px; }
+  .ttx-variants, .ttx-lanes, .ttx-road { grid-template-columns: 1fr; }
+  .ttx-reg-table { font-size: 11px; }
+  .ttx-bar-status { display: none; }
+}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body style="font-family: 'Manrope', system-ui, sans-serif;">
+
+<!-- ============== TTX WARGAMER OVERLAY ============== -->
+<div class="cvg-overlay" id="ttxOverlay" data-platform="ttxwargamer" aria-hidden="true" style="--pf-convergens: var(--pf-connovus);">
+  <div class="cvg-bar">
+    <div class="cvg-crumbs">
+      <span class="badge">CONVENTLAB</span>
+      <span class="sep">›</span>
+      <span>TTX Wargamer</span>
+    </div>
+    <div class="ttx-bar-status" id="ttxBarStatus">
+      <span class="vt" id="ttxBarVariant">NO VARIANT</span>
+      <span class="clk" id="ttxBarClock">T+00:00:00</span>
+    </div>
+    <div class="theme-seg" role="group" aria-label="Theme" data-theme-control style="margin-right:6px;">
+      <button data-theme-pref="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      <button data-theme-pref="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button data-theme-pref="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+    </div>
+    <a class="ttx-back" href="conventlab.html"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Conventlab</a>
+  </div>
+
+  <!-- section tabs -->
+  <div class="ttx-tabs" id="ttxTabs">
+    <button data-ttx-tab="brief" class="on"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Brief</button>
+    <button data-ttx-tab="play"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play</button>
+    <button data-ttx-tab="register">Friction Register <span class="cnt" id="ttxRegCnt">0</span></button>
+    <button data-ttx-tab="outputs">Outputs</button>
+  </div>
+
+  <div class="ttx-wrap">
+    <!-- ===== BRIEF ===== -->
+    <section class="ttx-pane on" id="ttxPaneBrief"></section>
+    <!-- ===== PLAY ===== -->
+    <section class="ttx-pane" id="ttxPanePlay"></section>
+    <!-- ===== REGISTER ===== -->
+    <section class="ttx-pane" id="ttxPaneRegister"></section>
+    <!-- ===== OUTPUTS ===== -->
+    <section class="ttx-pane" id="ttxPaneOutputs"></section>
+  </div>
+</div>
+
+<!-- friction capture modal -->
+<div class="ttx-modal-bg" id="ttxModalBg">
+  <div class="ttx-modal" role="dialog" aria-modal="true" aria-label="Log friction">
+    <h3>Log friction</h3>
+    <div class="msub" id="ttxModalSub">Capture against the current stage · timestamped from inject.</div>
+    <div class="ttx-field">
+      <label>Category</label>
+      <div class="ttx-chipset" id="ttxModalCats"></div>
+    </div>
+    <div class="ttx-field">
+      <label>Severity</label>
+      <div class="ttx-chipset" id="ttxModalSevs"></div>
+    </div>
+    <div class="ttx-field">
+      <label>Description &amp; root cause</label>
+      <textarea id="ttxModalDesc" rows="3" placeholder="What broke, and why? e.g. Release Authority could not locate the LT↔PL data-sharing matrix for raw radar plots."></textarea>
+    </div>
+    <div class="ttx-field">
+      <label>Proposed LIVEX mitigation</label>
+      <textarea id="ttxModalMit" rows="2" placeholder="Optional — what to test or pre-agree before September."></textarea>
+    </div>
+    <div class="ttx-modal-foot">
+      <button class="ttx-btn" id="ttxModalCancel">Cancel</button>
+      <button class="ttx-btn primary" id="ttxModalSave">Log friction</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/platform-shell.js"></script>
+<script src="/assets/ttx-data.js"></script>
+<script src="/assets/ttx-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Conventity</title>
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/cv-core.js"></script>
+  <script>
+    const _sb = window.cvClient();
+    (async()=>{
+      const{data:{session}}=await _sb.auth.getSession();
+      if(!session){ window.location.href='/login.html'; return; }
+      // Üyelik guard'ı cv-core.js'te (fail-closed; üye değilse signOut + denied).
+      if(!(await window.cvGuardMember(_sb))) return;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold: #C9973A; --gold-light: #E8B84B; --gold-dim: rgba(201,151,58,0.12); --r: 14px; --ease: 0.2s ease; }
+    [data-resolved-theme="dark"] {
+      --bg: #060810; --panel: #0A0D1A; --surface: rgba(255,255,255,0.035);
+      --surface-hover: rgba(255,255,255,0.055); --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(201,151,58,0.2); --text: #EEE9E2; --sub: #8B95A8;
+      --muted: #525C6B; --btn-fg: #060810; --logo-outer: #1C3060; --logo-inner: #4F88C8;
+    }
+    [data-resolved-theme="light"] {
+      --bg: #F2F1EE; --panel: #FFFFFF; --surface: rgba(0,0,0,0.025);
+      --surface-hover: rgba(0,0,0,0.045); --border: rgba(0,0,0,0.07);
+      --border-accent: rgba(201,151,58,0.25); --text: #111318; --sub: #555E6E;
+      --muted: #9CA3AF; --btn-fg: #060810; --logo-outer: #1C3060; --logo-inner: #3A72B0;
+    }
+    body { min-height: 100vh; background: var(--bg); font-family: 'Manrope', system-ui, sans-serif; color: var(--text); transition: background var(--ease), color var(--ease); }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: var(--panel); border-bottom: 1px solid var(--border-accent); padding: 0 2.5rem; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
+    .nav-logo-icon { width: 34px; height: 34px; }
+    .nav-logo-name { font-family: 'Manrope', system-ui, sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.22em; color: var(--text); text-transform: uppercase; }
+    .nav-logo-sub { font-size: 0.52rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .nav-right { display: flex; align-items: center; gap: 0.8rem; }
+    .nav-user { display: flex; align-items: center; gap: 0.55rem; font-size: 0.78rem; color: var(--sub); }
+    .nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--border-accent); display: grid; place-items: center; font-size: 0.7rem; font-weight: 600; color: var(--gold); }
+    .theme-seg { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; overflow: hidden; }
+    .theme-seg button { padding: 0.28rem 0.55rem; background: transparent; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; transition: background var(--ease); }
+    .theme-seg button.active { background: var(--gold); color: #060810; border-radius: 100px; }
+    .theme-seg button svg { width: 11px; height: 11px; }
+    .btn-nav { display: flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; background: transparent; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; font-family: 'Manrope', system-ui, sans-serif; font-size: 0.72rem; font-weight: 500; color: var(--sub); text-decoration: none; transition: border-color var(--ease), color var(--ease); }
+    .btn-nav:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-nav.danger:hover { border-color: #F87171; color: #F87171; }
+    .btn-nav svg { width: 12px; height: 12px; }
+
+    /* MAIN */
+    main { max-width: 1180px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+    /* HERO */
+    .hero { background: var(--panel); border: 1px solid var(--border-accent); border-radius: 18px; padding: 2.5rem 3rem; margin-bottom: 2.5rem; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 100% at 100% 50%, rgba(201,151,58,0.06) 0%, transparent 60%), radial-gradient(ellipse 50% 80% at 0% 50%, rgba(28,48,96,0.18) 0%, transparent 60%); pointer-events: none; }
+    .hero-text { position: relative; z-index: 1; }
+    .hero-eyebrow { font-size: 0.67rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .hero-eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--gold); }
+    .hero-title { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(1.8rem, 2.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.025em; color: var(--text); line-height: 1.08; margin-bottom: 0.75rem; }
+    .hero-title em { color: var(--gold); font-style: normal; }
+    .hero-sub { font-size: 0.83rem; color: var(--sub); line-height: 1.65; max-width: 420px; }
+    .hero-visual { position: relative; z-index: 1; flex-shrink: 0; }
+
+    /* SECTION LABEL */
+    .section-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* PLATFORM GRID */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+
+    .card { border-radius: var(--r); border: 1px solid var(--border); padding: 1.6rem; background: var(--panel); transition: border-color var(--ease), transform 0.18s, box-shadow 0.18s; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 0.9rem; }
+    .card.active { cursor: pointer; }
+    .card.active:hover { border-color: var(--card-color, var(--gold)); transform: translateY(-3px); box-shadow: 0 12px 40px -16px color-mix(in srgb, var(--card-color, var(--gold)) 35%, transparent); }
+    .card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--card-color, transparent); border-radius: 3px 0 0 3px; }
+    .card.locked { opacity: 0.55; }
+    .card.locked::before { background: var(--border); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+    .card-icon-wrap { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; border: 1px solid; flex-shrink: 0; }
+    .card-icon-wrap svg { width: 22px; height: 22px; }
+    .card-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 100px; border: 1px solid; }
+
+    .card-num { font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; }
+    .card-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em; }
+    .card-tag { font-size: 0.72rem; font-weight: 500; color: var(--sub); }
+    .card-desc { font-size: 0.78rem; color: var(--sub); line-height: 1.65; flex: 1; }
+    .card-kw { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .card-kw span { font-size: 0.62rem; font-weight: 500; padding: 0.2rem 0.55rem; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; color: var(--muted); }
+    .card-link { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; text-decoration: none; margin-top: auto; }
+    .card-link svg { width: 13px; height: 13px; transition: transform 0.15s; }
+    .card.active:hover .card-link svg { transform: translateX(3px); }
+    .card-link.muted { color: var(--muted); cursor: default; }
+
+    .lock-icon { position: absolute; top: 1rem; right: 1rem; color: var(--muted); opacity: 0.35; }
+    .lock-icon svg { width: 14px; height: 14px; }
+
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } nav { padding: 0 1rem; } main { padding: 1.5rem 1rem 4rem; } .hero { padding: 1.8rem; } .hero-visual { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/dashboard/index.html" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 56 56" fill="none">
+      <line x1="28" y1="4" x2="28" y2="52" stroke="var(--logo-inner)" stroke-width="0.5" opacity="0.2"/>
+      <line x1="4" y1="28" x2="52" y2="28" stroke="var(--logo-inner)" stroke-width="0.5" opacity="0.2"/>
+      <circle cx="28" cy="28" r="23" stroke="var(--logo-inner)" stroke-width="0.5" opacity="0.15"/>
+      <path d="M 47 21 A 21 21 0 1 0 47 35" stroke="var(--logo-outer)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <path d="M 39 23 A 13 13 0 1 0 39 33" stroke="var(--logo-inner)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <circle cx="28" cy="28" r="3" fill="var(--logo-outer)"/>
+      <circle cx="28" cy="28" r="1.4" fill="var(--logo-inner)"/>
+    </svg>
+    <div>
+      <div class="nav-logo-name">Conventity</div>
+      <div class="nav-logo-sub">Ecosystem for Future</div>
+    </div>
+  </a>
+
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar" id="user-avatar">?</div>
+      <span id="user-name" style="font-size:0.78rem;color:var(--sub);"></span>
+    </div>
+    <div class="theme-seg" id="theme-seg">
+      <button id="tl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+      <button id="ts" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+      <button id="td"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    </div>
+    <a href="/settings.html" class="btn-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </a>
+    <button class="btn-nav danger" onclick="handleLogout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Sign out
+    </button>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Conventity Ecosystem</p>
+      <h1 class="hero-title">The Conventity<br/><em>Ecosystem.</em></h1>
+      <p class="hero-sub">Six interoperable platforms. One living operational ecosystem. Select a platform to continue — access is managed by your admin.</p>
+    </div>
+    <div class="hero-visual">
+      <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="80" y1="8" x2="80" y2="152" stroke="var(--gold)" stroke-width="0.6" opacity="0.18"/>
+        <line x1="8" y1="80" x2="152" y2="80" stroke="var(--gold)" stroke-width="0.6" opacity="0.18"/>
+        <line x1="22" y1="22" x2="138" y2="138" stroke="var(--gold)" stroke-width="0.4" opacity="0.1"/>
+        <line x1="138" y1="22" x2="22" y2="138" stroke="var(--gold)" stroke-width="0.4" opacity="0.1"/>
+        <circle cx="80" cy="80" r="66" stroke="var(--gold)" stroke-width="0.6" opacity="0.12"/>
+        <circle cx="80" cy="80" r="44" stroke="var(--gold)" stroke-width="0.6" opacity="0.15"/>
+        <circle cx="80" cy="80" r="22" stroke="var(--gold)" stroke-width="0.6" opacity="0.2"/>
+        <!-- Outer C -->
+        <path d="M 131 58 A 59 59 0 1 0 131 102" stroke="var(--logo-outer)" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- Inner C -->
+        <path d="M 111 64 A 37 37 0 1 0 111 96" stroke="var(--logo-inner)" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <!-- Center -->
+        <circle cx="80" cy="80" r="7" fill="var(--logo-outer)"/>
+        <circle cx="80" cy="80" r="3.5" fill="var(--logo-inner)"/>
+        <!-- Scatter dots -->
+        <circle cx="126" cy="33" r="4" fill="var(--logo-inner)" opacity="0.55"/>
+        <circle cx="137" cy="46" r="2.8" fill="var(--logo-inner)" opacity="0.38"/>
+        <circle cx="115" cy="24" r="2" fill="var(--logo-inner)" opacity="0.25"/>
+        <circle cx="143" cy="58" r="1.5" fill="var(--logo-inner)" opacity="0.18"/>
+      </svg>
+    </div>
+  </div>
+
+  <p class="section-label">Platforms</p>
+
+  <div class="grid">
+
+    <!-- CONVERGENS — ACTIVE -->
+    <div class="card active" style="--card-color:#A05CE6;" onclick="window.location.href='/platforms/convergens/index.html'">
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(160,92,230,0.1);border-color:rgba(160,92,230,0.3);color:#A05CE6;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>
+        </div>
+        <span class="card-badge" style="background:rgba(74,222,128,0.1);color:#4ADE80;border-color:rgba(74,222,128,0.25);">Live</span>
+      </div>
+      <div>
+        <div class="card-num">05 · 06</div>
+        <div class="card-name" style="color:#A05CE6;">CONVERGENS</div>
+        <div class="card-tag">CIMIC Integration Layer</div>
+      </div>
+      <div class="card-desc">The bridge connecting civil–military cooperation to the ecosystem's identity, data and AI backbone — civil and military on one secure surface, authority boundaries preserved.</div>
+      <div class="card-kw"><span>Civil–Military</span><span>CIMIC</span><span>Crisis Coordination</span></div>
+      <a class="card-link" style="color:#A05CE6;" href="/platforms/convergens/index.html">
+        Open platform <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+<!-- CONVEXUS — ACTIVE -->
+    <div class="card active" style="--card-color:#818CF8;" onclick="window.location.href='/platforms/convexus/index.html'">
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(129,140,248,0.1);border-color:rgba(129,140,248,0.3);color:#818CF8;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8 22 16 12 22 2 16 2 8"/><polyline points="2 8 12 14 22 8"/><line x1="12" y1="14" x2="12" y2="22"/></svg>
+        </div>
+        <span class="card-badge" style="background:rgba(74,222,128,0.1);color:#4ADE80;border-color:rgba(74,222,128,0.25);">Live</span>
+      </div>
+      <div>
+        <div class="card-num">01 · 06</div>
+        <div class="card-name" style="color:#818CF8;">CONVEXUS</div>
+        <div class="card-tag">Innovation & Solution Catalog</div>
+      </div>
+      <div class="card-desc">A trusted solution marketplace where defense-tech is judged by real-world track record — matching nations with innovators on proven evidence, not marketing claims.</div>
+      <div class="card-kw"><span>Marketplace</span><span>Track Record</span><span>AI Matchmaking</span></div>
+      <a class="card-link" style="color:#818CF8;" href="/platforms/convexus/index.html">
+        Open platform <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- CONVENTUS — ACTIVE -->
+    <div class="card active" style="--card-color:#F472B6;" onclick="window.location.href='/platforms/conventus/index.html'">
+      <div class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(244,114,182,0.1);border-color:rgba(244,114,182,0.3);color:#F472B6;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        </div>
+        <span class="card-badge" style="background:rgba(201,151,58,0.1);color:var(--gold);border-color:rgba(201,151,58,0.25);">Approval</span>
+      </div>
+      <div>
+        <div class="card-num">02 · 06</div>
+        <div class="card-name" style="color:#F472B6;">CONVENTUS</div>
+        <div class="card-tag">Event & Protocol Management</div>
+      </div>
+      <div class="card-desc">The ecosystem's flagship — run multinational conferences, exercises and summits end-to-end on one secure surface: invite, accredit, execute and archive.</div>
+      <div class="card-kw"><span>Summits</span><span>Accreditation</span><span>Protocol</span></div>
+      <span class="card-link muted">Awaiting approval</span>
+    </div>
+
+    <!-- CONSULTUS — SOON -->
+    <div class="card locked" style="--card-color:#22D3DB;">
+      <div class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(34,211,219,0.1);border-color:rgba(34,211,219,0.3);color:#22D3DB;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21v-2a5 5 0 015-5h2a5 5 0 015 5v2"/><path d="M14 14h2a5 5 0 015 5v2"/></svg>
+        </div>
+        <span class="card-badge" style="background:var(--surface);color:var(--muted);border-color:var(--border);">Coming soon</span>
+      </div>
+      <div>
+        <div class="card-num">03 · 06</div>
+        <div class="card-name" style="color:#22D3DB;">CONSULTUS</div>
+        <div class="card-tag">Advisory, Training & Certification</div>
+      </div>
+      <div class="card-desc">The human layer — digital-transformation, procurement and infrastructure advisory, plus training and ISO/IEC 17024-aligned certification.</div>
+      <div class="card-kw"><span>Advisory</span><span>Training</span><span>Certification</span></div>
+      <span class="card-link muted">Not yet available</span>
+    </div>
+
+    <!-- CONNECTUS — SOON -->
+    <div class="card locked" style="--card-color:#4ADE80;">
+      <div class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.3);color:#4ADE80;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="12" cy="12" r="2.5"/><line x1="8" y1="7.5" x2="11" y2="11"/><line x1="16" y1="7.5" x2="13" y2="11"/><line x1="12" y1="14.5" x2="12" y2="15.5"/></svg>
+        </div>
+        <span class="card-badge" style="background:var(--surface);color:var(--muted);border-color:var(--border);">Coming soon</span>
+      </div>
+      <div>
+        <div class="card-num">04 · 06</div>
+        <div class="card-name" style="color:#4ADE80;">CONNECTUS</div>
+        <div class="card-tag">Purpose-Locked Network</div>
+      </div>
+      <div class="card-desc">A purpose-locked professional network for the defense and innovation community — provenance-backed profiles, noise-free, fed automatically by events.</div>
+      <div class="card-kw"><span>Verified Profiles</span><span>Expert Discovery</span><span>Trusted Network</span></div>
+      <span class="card-link muted">Not yet available</span>
+    </div>
+
+    <!-- CONVENTLAB — SOON -->
+    <div class="card locked" style="--card-color:#E8A07C;">
+      <div class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="card-top">
+        <div class="card-icon-wrap" style="background:rgba(232,160,124,0.1);border-color:rgba(232,160,124,0.3);color:#E8A07C;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4l3 6a5 5 0 01-5 5h-2a5 5 0 01-5-5l3-6V3z"/><line x1="9" y1="9" x2="15" y2="9"/></svg>
+        </div>
+        <span class="card-badge" style="background:var(--surface);color:var(--muted);border-color:var(--border);">Coming soon</span>
+      </div>
+      <div>
+        <div class="card-num">06 · 06</div>
+        <div class="card-name" style="color:#E8A07C;">CONVENTLAB</div>
+        <div class="card-tag">Experimentation & Simulation Lab</div>
+      </div>
+      <div class="card-desc">Where solutions are proven before real decisions — face-to-face, digital TTX, MapEx and wargaming. Every experiment leaves a lesson the ecosystem learns from.</div>
+      <div class="card-kw"><span>Wargaming</span><span>Simulation</span><span>Pilots</span></div>
+      <span class="card-link muted">Not yet available</span>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  var theme=localStorage.getItem('cv-theme')||'system';
+  function resolveTheme(t){return t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;}
+  function applyTheme(){document.documentElement.setAttribute('data-resolved-theme',resolveTheme(theme));document.getElementById('tl').classList.toggle('active',theme==='light');document.getElementById('ts').classList.toggle('active',theme==='system');document.getElementById('td').classList.toggle('active',theme==='dark');}
+  function setTheme(t){theme=t;localStorage.setItem('cv-theme',t);applyTheme();}
+  document.getElementById('tl').addEventListener('click',function(){setTheme('light');});
+  document.getElementById('ts').addEventListener('click',function(){setTheme('system');});
+  document.getElementById('td').addEventListener('click',function(){setTheme('dark');});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(theme==='system')applyTheme();});
+  applyTheme();
+
+  async function handleLogout(){await _sb.auth.signOut();window.location.href='/login.html';}
+
+  (async()=>{
+    var result=await _sb.auth.getSession();
+    var session=result.data.session;
+    if(!session) return;
+    var user=session.user;
+    var meta=user.user_metadata||{};
+    var name=meta.username||user.email.split('@')[0];
+    document.getElementById('user-avatar').textContent=name.charAt(0).toUpperCase();
+    document.getElementById('user-name').textContent=name;
+  })();
+</script>
+</body>
+</html>

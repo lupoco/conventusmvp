@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Convexus · Exercise Observations</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990;--pf-soft:rgba(0,73,144,.08);--pf-line:rgba(0,73,144,.3);
+  --bg:#F5F2EC;--paper:#fff;--paper2:#FAF7F1;
+  --ink:#0E2148;--ink2:#1F2D55;--muted:#5A6486;
+  --line:#E5DFD2;--line2:#D6CFBE;--gold:#E2B65E;
+  --ach:#1E8E5A;--jump:#06488A;--hit:#C0392B;--obs:#5A6486;
+  --ok:#1E8E5A;--warn:#B7791F;--err:#C0392B;
+}
+body[data-dark]{
+  --pf:#5B92D6;--pf-soft:rgba(91,146,214,.12);--pf-line:rgba(91,146,214,.35);
+  --bg:#141B2B;--paper:#1C2436;--paper2:#212A3E;
+  --ink:#E8ECF5;--ink2:#C4CCDE;--muted:#8B97B4;
+  --line:#2C3650;--line2:#38435F;
+  --ach:#3FBE7E;--jump:#5B92D6;--hit:#E06A5C;--obs:#8B97B4;
+  --ok:#3FBE7E;--warn:#D9A441;--err:#E06A5C;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh;-webkit-text-size-adjust:100%}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 .9rem;height:50px;background:var(--paper);border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:6px;font:600 11.5px 'Manrope';color:var(--muted);min-width:0}
+.crumbs a{color:var(--pf);text-decoration:none;white-space:nowrap}
+.badge{background:var(--pf);color:#fff;padding:2px 8px;border-radius:100px;font:700 9.5px 'JetBrains Mono';letter-spacing:.1em}
+.ver{font:700 9px 'JetBrains Mono';color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:1px 6px}
+.bar-right{display:flex;align-items:center;gap:4px}
+.mini{padding:5px 8px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font:700 10.5px 'Manrope';color:var(--muted)}
+.mini.on{border-color:var(--pf);color:var(--pf);background:var(--pf-soft)}
+.wrap{max-width:620px;margin:0 auto;padding:1rem .8rem 6rem}
+.eyebrow{font:700 10px 'Manrope';letter-spacing:.16em;text-transform:uppercase;color:var(--pf)}
+h1{font:400 26px 'Instrument Serif',serif;margin:.15rem 0 .1rem}
+h1 em{font-style:italic;color:var(--pf)}
+.sub{color:var(--muted);font-size:12.5px;margin-bottom:.9rem;line-height:1.55}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:.9rem;margin-bottom:.8rem}
+label{display:flex;align-items:center;gap:.3rem;font:600 10px 'JetBrains Mono';letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.iq{width:15px;height:15px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font:700 10px 'Manrope';display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.iq.on{background:var(--pf);color:#fff;border-color:var(--pf)}
+.info{display:none;margin:0 0 .5rem;padding:.5rem .65rem;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:9px;font-size:11.5px;line-height:1.5;color:var(--ink2)}
+.info.show{display:block}
+input[type=text],select,textarea{width:100%;padding:.7rem .7rem;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:400 15px 'Manrope',sans-serif}
+body[data-dark] input,body[data-dark] select,body[data-dark] textarea{background:var(--paper2)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pf)}
+textarea{min-height:62px;resize:vertical;font-size:14px}
+.fl{margin-bottom:.75rem}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+.kb{padding:.75rem .5rem;border:1.5px solid var(--line);border-radius:11px;background:var(--paper);cursor:pointer;text-align:left;transition:.12s}
+body[data-dark] .kb{background:var(--paper2)}
+.kb .kt{font:700 12.5px 'Manrope';color:var(--ink);display:block}
+.kb .kd{font:500 10px 'Manrope';color:var(--muted);display:block;margin-top:1px}
+.kb.on.achievement{border-color:var(--ach);background:rgba(30,142,90,.1)}
+.kb.on.hurdle_jumped{border-color:var(--jump);background:rgba(6,72,138,.1)}
+.kb.on.hurdle_hit{border-color:var(--hit);background:rgba(192,57,43,.1)}
+.kb.on.observation{border-color:var(--obs);background:rgba(90,100,134,.1)}
+.chips{display:flex;gap:.35rem;flex-wrap:wrap}
+.chip{padding:.42rem .75rem;border:1px solid var(--line);border-radius:100px;background:var(--paper);color:var(--muted);font:600 12px 'Manrope';cursor:pointer}
+body[data-dark] .chip{background:var(--paper2)}
+.chip.on{border-color:var(--pf);background:var(--pf-soft);color:var(--pf)}
+.chip.on.blocking{border-color:var(--hit);background:rgba(192,57,43,.1);color:var(--hit)}
+.btn{background:var(--pf);color:#fff;border:none;border-radius:11px;padding:.85rem 1.2rem;font:700 14px 'Manrope';cursor:pointer;width:100%}
+.btn:disabled{opacity:.45}
+.btn.ghost{background:transparent;color:var(--pf);border:1px solid var(--pf);width:auto;padding:.4rem .8rem;font-size:12px;border-radius:9px}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.logrow{display:flex;gap:.55rem;align-items:flex-start;padding:.55rem .1rem;border-bottom:1px solid var(--line)}
+.logrow:last-child{border-bottom:none}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;margin-top:5px}
+.dot.achievement{background:var(--ach)}.dot.hurdle_jumped{background:var(--jump)}
+.dot.hurdle_hit{background:var(--hit)}.dot.observation{background:var(--obs)}
+.lgh{font-weight:600;font-size:13px;line-height:1.4}
+.lgm{font:500 10.5px 'JetBrains Mono';color:var(--muted);margin-top:2px}
+.tally{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
+.tl{font:700 11px 'JetBrains Mono';border-radius:100px;padding:.25rem .7rem;border:1px solid}
+.tl.a{color:var(--ach);border-color:var(--ach)}.tl.j{color:var(--jump);border-color:var(--jump)}
+.tl.h{color:var(--hit);border-color:var(--hit)}.tl.o{color:var(--obs);border-color:var(--line)}
+.lock{font:500 10.5px 'Manrope';color:var(--muted);display:flex;gap:.35rem;align-items:center;margin-top:.6rem}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.9rem}
+.mb{padding:.6rem;border:1.5px solid var(--line);border-radius:11px;background:var(--paper);cursor:pointer;font:700 13px 'Manrope';color:var(--muted)}
+body[data-dark] .mb{background:var(--paper2)}
+.mb.on{border-color:var(--pf);background:var(--pf-soft);color:var(--pf)}
+.dim{border-bottom:1px solid var(--line);padding:.7rem 0}
+.dim:last-child{border-bottom:none}
+.dimh{font:600 13px 'Manrope';color:var(--ink);margin-bottom:.15rem;display:flex;align-items:center;gap:.35rem}
+.dimd{font:500 10.5px 'Manrope';color:var(--muted);margin-bottom:.45rem;line-height:1.45}
+.rscale{display:grid;grid-template-columns:repeat(5,1fr);gap:.25rem}
+.rb{padding:.5rem .1rem;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);cursor:pointer;font:700 10px 'Manrope';color:var(--muted);text-align:center;line-height:1.2}
+body[data-dark] .rb{background:var(--paper2)}
+.rb.on.did_not_meet{border-color:var(--hit);background:rgba(192,57,43,.12);color:var(--hit)}
+.rb.on.partial{border-color:var(--warn);background:rgba(183,121,31,.12);color:var(--warn)}
+.rb.on.met{border-color:var(--jump);background:rgba(6,72,138,.12);color:var(--jump)}
+.rb.on.excelled{border-color:var(--ach);background:rgba(30,142,90,.12);color:var(--ach)}
+.rb.on.not_assessed{border-color:var(--line2);background:var(--bg);color:var(--muted)}
+.overall{display:flex;align-items:center;gap:.6rem;padding:.7rem .8rem;border:1px solid var(--line);border-radius:11px;background:var(--bg);margin-bottom:.8rem}
+.ovv{font:700 22px 'JetBrains Mono';color:var(--pf)}
+.ovl{font:600 11px 'Manrope';color:var(--muted);flex:1}
+.ovb{font:700 11px 'JetBrains Mono';border-radius:100px;padding:.25rem .7rem;border:1px solid}
+.ovb.excelled{color:var(--ach);border-color:var(--ach)}.ovb.met{color:var(--jump);border-color:var(--jump)}
+.ovb.partial{color:var(--warn);border-color:var(--warn)}.ovb.did_not_meet{color:var(--hit);border-color:var(--hit)}
+.ovb.not_assessed{color:var(--muted);border-color:var(--line)}
+.mediabar{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:.75rem}
+.cambtn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem .9rem;border:1.5px dashed var(--pf-line);border-radius:11px;background:var(--pf-soft);color:var(--pf);font:700 12.5px 'Manrope';cursor:pointer}
+.thumb{position:relative;width:58px;height:58px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--bg);flex:0 0 auto}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .vid{display:flex;align-items:center;justify-content:center;height:100%;font-size:20px}
+.thumb .rm{position:absolute;top:1px;right:1px;background:var(--err);color:#fff;border-radius:50%;width:17px;height:17px;font:700 11px 'Manrope';display:flex;align-items:center;justify-content:center;cursor:pointer}
+.thumb .sz{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font:600 8px 'JetBrains Mono';text-align:center}
+.msg{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.65rem 1.1rem;border-radius:11px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:92vw}
+.msg.on{opacity:1}
+.hidden{display:none!important}
+.state{max-width:460px;margin:4rem auto;text-align:center}
+.state .big{font:400 38px 'Instrument Serif',serif;color:var(--pf)}
+.hintbar{display:flex;gap:.5rem;align-items:flex-start;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:11px;padding:.6rem .75rem;margin-bottom:.8rem;font-size:11.5px;color:var(--ink2);line-height:1.55}
+.hintbar b{color:var(--pf)}
+.hintbar .x{margin-left:auto;cursor:pointer;color:var(--muted);font-weight:700;padding:0 .2rem}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="crumbs"><a href="/convexus-selection-console.html">← Console</a><span class="badge">OBS</span><span class="ver" id="verBadge">v1.0</span></div>
+  <div class="bar-right">
+    <button class="mini lg" data-lg="en">EN</button><button class="mini lg" data-lg="tr">TR</button>
+    <button class="mini lg" data-lg="fr">FR</button><button class="mini lg" data-lg="de">DE</button>
+    <button class="mini" id="themeBtn">🌙</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="gate" class="state hidden"><div class="big">🔒</div><p class="sub" data-i18n="gate_s">Organiser sign-in required.</p><a class="btn ghost" href="/login.html" data-i18n="gate_b">Sign in</a></div>
+
+  <div id="main" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrow">Convexus · Field log</div>
+    <h1 data-i18n="h1">Exercise <em>observations</em></h1>
+    <p class="sub" data-i18n="sub">Capture what happened, as it happens. These records become the evidence behind any recognition issued after the exercise.</p>
+
+    <div class="hintbar" id="hint1"><span>💡</span><span data-i18n="hint"><b>Closeout session:</b> log achievements, hurdles jumped and hurdles hit for each vendor. Short headline is enough — detail is optional. Entries cannot be edited afterwards, so a correction is a new entry.</span><span class="x" data-hide="hint1">✕</span></div>
+
+    <div class="modes">
+      <button class="mb on" id="mLog" data-i18n="m_log">Log observations</button>
+      <button class="mb" id="mAssess" data-i18n="m_assess">Assess performance</button>
+    </div>
+
+    <div class="card">
+      <div class="g2">
+        <div class="fl"><label data-i18n="l_event">Exercise</label><select id="evPick"></select></div>
+        <div class="fl"><label data-i18n="l_date">Date (DD.MM.YYYY)</label><input type="text" id="obsDate" class="dt" maxlength="10" inputmode="numeric"></div>
+      </div>
+      <div class="g2">
+        <div class="fl"><label data-i18n="l_session">Session</label><select id="obsSession">
+          <option value="closeout" data-i18n="s_closeout">Closeout (1500)</option>
+          <option value="standup" data-i18n="s_standup">Stand-up (0900)</option>
+          <option value="adhoc" data-i18n="s_adhoc">Ad-hoc</option>
+          <option value="wash_up" data-i18n="s_washup">Tech wash-up</option>
+        </select></div>
+        <div class="fl"><label data-i18n="l_area">Challenge area</label><select id="obsNeed"></select></div>
+      </div>
+      <div class="fl"><label><span data-i18n="l_vendor">Vendor</span> <span class="iq" data-info="i_vendor">?</span></label>
+        <div class="info" data-for="i_vendor"></div>
+        <select id="obsApp"></select>
+        <div class="row" style="margin-top:.4rem"><button class="btn ghost" id="allToggle" data-i18n="show_all">Show all applicants</button></div>
+      </div>
+    </div>
+
+    <div class="card" id="logCard">
+      <label><span data-i18n="l_kind">What are you recording?</span> <span class="iq" data-info="i_kind">?</span></label>
+      <div class="info" data-for="i_kind"></div>
+      <div class="kinds" id="kinds"></div>
+
+      <div class="fl" style="margin-top:.8rem"><label data-i18n="l_head">Headline</label>
+        <input type="text" id="obsHead" data-ph="ph_head" maxlength="160"></div>
+      <div class="fl"><label data-i18n="l_detail">Detail (optional)</label><textarea id="obsDetail"></textarea></div>
+
+      <div class="fl" id="impactWrap"><label data-i18n="l_impact">Impact</label>
+        <div class="chips" id="impacts"></div></div>
+
+      <div class="g2">
+        <div class="fl"><label data-i18n="l_witness">Witnessed by (optional)</label><input type="text" id="obsWitness" data-ph="ph_witness"></div>
+        <div class="fl"><label data-i18n="l_evidence">Evidence link (optional)</label><input type="text" id="obsEvidence" placeholder="https://"></div>
+      </div>
+
+      <div class="mediabar" id="mediabar"></div>
+      <input type="file" id="mediaIn" accept="image/*,video/*" capture="environment" multiple style="display:none">
+
+      <button class="btn" id="saveBtn" data-i18n="save">Record observation</button>
+      <div class="lock">🔒 <span data-i18n="lock">Append-only — entries cannot be edited or deleted.</span></div>
+    </div>
+
+    <div class="card hidden" id="assessCard">
+      <label><span data-i18n="l_assess">Performance assessment</span> <span class="iq" data-info="i_assess">?</span></label>
+      <div class="info" data-for="i_assess"></div>
+      <div class="overall" id="overall"></div>
+      <div id="dims"></div>
+      <button class="btn" id="saveRating" style="margin-top:.8rem" data-i18n="save_rating">Save assessment</button>
+      <div class="lock">🔒 <span data-i18n="lock_r">Append-only — a change is recorded as a new assessment.</span></div>
+    </div>
+
+    <div class="card" id="logCard2">
+      <label data-i18n="l_today">Logged today</label>
+      <div class="tally" id="tally"></div>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+<div class="msg" id="msg"></div>
+
+<script>
+(function(){
+'use strict';
+var I18N={
+ en:{eyebrow:"Convexus · Field log",h1:'Exercise <em>observations</em>',sub:"Capture what happened, as it happens. These records become the evidence behind any recognition issued after the exercise.",gate_s:"Organiser sign-in required.",gate_b:"Sign in",
+  hint:"<b>Closeout session:</b> log achievements, hurdles jumped and hurdles hit for each vendor. Short headline is enough — detail is optional. Entries cannot be edited afterwards, so a correction is a new entry.",
+  l_event:"Exercise",l_date:"Date (DD.MM.YYYY)",l_session:"Session",l_area:"Challenge area",l_vendor:"Vendor",l_kind:"What are you recording?",l_head:"Headline",l_detail:"Detail (optional)",l_impact:"Impact",l_witness:"Witnessed by (optional)",l_evidence:"Evidence link (optional)",l_today:"Logged today",
+  s_closeout:"Closeout (1500)",s_standup:"Stand-up (0900)",s_adhoc:"Ad-hoc",s_washup:"Tech wash-up",
+  k_achievement:"Achievement",k_achievement_d:"Something worked",k_hurdle_jumped:"Hurdle jumped",k_hurdle_jumped_d:"Obstacle overcome",
+  k_hurdle_hit:"Hurdle hit",k_hurdle_hit_d:"Obstacle remaining",k_observation:"Observation",k_observation_d:"Neutral note",
+  i_minor:"Minor",i_moderate:"Moderate",i_significant:"Significant",i_blocking:"Blocking",
+  ph_head:"One line — what happened",ph_witness:"Unit or authority",save:"Record observation",saving:"Recording…",saved:"Recorded",
+  lock:"Append-only — entries cannot be edited or deleted.",show_all:"Show all applicants",show_attending:"Show attending only",
+  need_head:"Headline is required",no_app:"Select a vendor",none_today:"Nothing logged yet today.",all_areas:"— all areas —",no_vendors:"— no applicants in this exercise —",m_log:"Log observations",m_assess:"Assess performance",l_assess:"Performance assessment",save_rating:"Save assessment",lock_r:"Append-only — a change is recorded as a new assessment.",r_did_not_meet:"Did not meet",r_partial:"Partial",r_met:"Met",r_excelled:"Excelled",r_not_assessed:"N/A",ov_none:"Not assessed yet",ov_of:"assessed",add_media:"📷 Photo / video",media_big:"File too large (max 50 MB)",uploading:"Uploading evidence…",rating_saved:"Assessment saved",no_dims:"No rating dimensions defined for this exercise.",i_assess:"Same four-level scale used everywhere in the system. Today's result becomes this vendor's activity record for the next call — so rate what you actually observed, not what you hope.",
+  i_vendor:"Only vendors invited to or present at the exercise are listed. Switch to all applicants if someone is missing.",
+  i_kind:"This is the exercise's own vocabulary: <b>achievements</b>, <b>hurdles jumped</b> and <b>hurdles hit</b>. It feeds the daily close-out and the DV Day brief directly."},
+ tr:{eyebrow:"Convexus · Saha kaydı",h1:'Tatbikat <em>gözlemleri</em>',sub:"Olan biteni olduğu anda kaydet. Bu kayıtlar, tatbikat sonrası düzenlenecek tanıma belgesinin dayanağı olur.",gate_s:"Organizatör girişi gerekli.",gate_b:"Giriş yap",
+  hint:"<b>Kapanış oturumu:</b> her tedarikçi için başarıları, aşılan ve karşılaşılan engelleri kaydet. Kısa bir başlık yeterli — detay isteğe bağlı. Kayıtlar sonradan düzenlenemez; düzeltme yeni bir kayıttır.",
+  l_event:"Tatbikat",l_date:"Tarih (GG.AA.YYYY)",l_session:"Oturum",l_area:"Challenge alanı",l_vendor:"Tedarikçi",l_kind:"Ne kaydediyorsun?",l_head:"Başlık",l_detail:"Detay (isteğe bağlı)",l_impact:"Etki",l_witness:"Tanık (isteğe bağlı)",l_evidence:"Kanıt linki (isteğe bağlı)",l_today:"Bugün kaydedilenler",
+  s_closeout:"Kapanış (1500)",s_standup:"Sabah toplantısı (0900)",s_adhoc:"Anlık",s_washup:"Teknik değerlendirme",
+  k_achievement:"Başarı",k_achievement_d:"Bir şey çalıştı",k_hurdle_jumped:"Aşılan engel",k_hurdle_jumped_d:"Engel aşıldı",
+  k_hurdle_hit:"Karşılaşılan engel",k_hurdle_hit_d:"Engel duruyor",k_observation:"Gözlem",k_observation_d:"Nötr not",
+  i_minor:"Az",i_moderate:"Orta",i_significant:"Önemli",i_blocking:"Durduran",
+  ph_head:"Tek satır — ne oldu",ph_witness:"Birlik veya makam",save:"Gözlemi kaydet",saving:"Kaydediliyor…",saved:"Kaydedildi",
+  lock:"Append-only — kayıtlar düzenlenemez veya silinemez.",show_all:"Tüm başvuranları göster",show_attending:"Sadece katılanları göster",
+  need_head:"Başlık zorunlu",no_app:"Tedarikçi seç",none_today:"Bugün henüz kayıt yok.",all_areas:"— tüm alanlar —",no_vendors:"— bu tatbikatta başvuran yok —",m_log:"Gözlem kaydet",m_assess:"Performans değerlendir",l_assess:"Performans değerlendirmesi",save_rating:"Değerlendirmeyi kaydet",lock_r:"Append-only — değişiklik yeni değerlendirme olarak kaydedilir.",r_did_not_meet:"Karşılamadı",r_partial:"Kısmen",r_met:"Karşıladı",r_excelled:"Üstün",r_not_assessed:"Yok",ov_none:"Henüz değerlendirilmedi",ov_of:"boyut",add_media:"📷 Fotoğraf / video",media_big:"Dosya çok büyük (en fazla 50 MB)",uploading:"Kanıt yükleniyor…",rating_saved:"Değerlendirme kaydedildi",no_dims:"Bu tatbikat için değerlendirme boyutu tanımlı değil.",i_assess:"Sistemin her yerinde kullanılan aynı dört kademeli ölçek. Bugünkü sonuç, bu tedarikçinin bir sonraki çağrıdaki faaliyet kaydı olur — umduğunu değil, gözlediğini işaretle.",
+  i_vendor:"Yalnızca tatbikata davet edilmiş veya katılan tedarikçiler listelenir. Biri eksikse tüm başvuranlara geç.",
+  i_kind:"Bu, tatbikatın kendi sözlüğü: <b>başarılar</b>, <b>aşılan engeller</b>, <b>karşılaşılan engeller</b>. Günlük kapanışı ve DV Day brifingini doğrudan besler."},
+ fr:{eyebrow:"Convexus · Journal de terrain",h1:"Observations <em>d\u2019exercice</em>",sub:"Consignez ce qui se passe, au moment où cela se passe. Ces enregistrements constituent la preuve derrière toute reconnaissance délivrée après l'exercice.",gate_s:"Connexion organisateur requise.",gate_b:"Se connecter",
+  hint:"<b>Séance de clôture :</b> consignez les réussites, les obstacles franchis et les obstacles rencontrés pour chaque fournisseur. Un titre court suffit. Les entrées ne sont pas modifiables ; une correction est une nouvelle entrée.",
+  l_event:"Exercice",l_date:"Date (JJ.MM.AAAA)",l_session:"Séance",l_area:"Domaine de défi",l_vendor:"Fournisseur",l_kind:"Que consignez-vous ?",l_head:"Titre",l_detail:"Détail (facultatif)",l_impact:"Impact",l_witness:"Témoin (facultatif)",l_evidence:"Lien de preuve (facultatif)",l_today:"Consigné aujourd'hui",
+  s_closeout:"Clôture (1500)",s_standup:"Point du matin (0900)",s_adhoc:"Ponctuel",s_washup:"Débriefing technique",
+  k_achievement:"Réussite",k_achievement_d:"Quelque chose a fonctionné",k_hurdle_jumped:"Obstacle franchi",k_hurdle_jumped_d:"Obstacle surmonté",
+  k_hurdle_hit:"Obstacle rencontré",k_hurdle_hit_d:"Obstacle persistant",k_observation:"Observation",k_observation_d:"Note neutre",
+  i_minor:"Mineur",i_moderate:"Modéré",i_significant:"Important",i_blocking:"Bloquant",
+  ph_head:"Une ligne — ce qui s'est passé",ph_witness:"Unité ou autorité",save:"Enregistrer l'observation",saving:"Enregistrement…",saved:"Enregistré",
+  lock:"Append-only — les entrées ne peuvent être ni modifiées ni supprimées.",show_all:"Tous les candidats",show_attending:"Participants seulement",
+  need_head:"Le titre est obligatoire",no_app:"Sélectionnez un fournisseur",none_today:"Rien de consigné aujourd'hui.",all_areas:"— tous les domaines —",no_vendors:"— aucun candidat pour cet exercice —",m_log:"Consigner",m_assess:"Évaluer la performance",l_assess:"Évaluation de la performance",save_rating:"Enregistrer l'évaluation",lock_r:"Append-only — une modification est enregistrée comme nouvelle évaluation.",r_did_not_meet:"Insuffisant",r_partial:"Partiel",r_met:"Atteint",r_excelled:"Excellent",r_not_assessed:"N/A",ov_none:"Pas encore évalué",ov_of:"évalués",add_media:"📷 Photo / vidéo",media_big:"Fichier trop volumineux (max 50 Mo)",uploading:"Téléversement des preuves…",rating_saved:"Évaluation enregistrée",no_dims:"Aucune dimension définie pour cet exercice.",i_assess:"La même échelle à quatre niveaux utilisée partout. Le résultat d'aujourd'hui devient l'historique de ce fournisseur pour le prochain appel — évaluez ce que vous avez observé.",
+  i_vendor:"Seuls les fournisseurs invités ou présents sont listés. Passez à tous les candidats si quelqu'un manque.",
+  i_kind:"C'est le vocabulaire propre à l'exercice : <b>réussites</b>, <b>obstacles franchis</b>, <b>obstacles rencontrés</b>. Il alimente directement la clôture quotidienne et le briefing DV Day."},
+ de:{eyebrow:"Convexus · Feldprotokoll",h1:'Übungs<em>beobachtungen</em>',sub:"Halten Sie fest, was geschieht, während es geschieht. Diese Einträge bilden den Nachweis hinter jeder nach der Übung erteilten Anerkennung.",gate_s:"Anmeldung als Veranstalter erforderlich.",gate_b:"Anmelden",
+  hint:"<b>Abschlussbesprechung:</b> Erfolge, überwundene und bestehende Hürden je Anbieter erfassen. Eine kurze Überschrift genügt. Einträge sind nicht änderbar; eine Korrektur ist ein neuer Eintrag.",
+  l_event:"Übung",l_date:"Datum (TT.MM.JJJJ)",l_session:"Sitzung",l_area:"Herausforderungsbereich",l_vendor:"Anbieter",l_kind:"Was erfassen Sie?",l_head:"Überschrift",l_detail:"Details (optional)",l_impact:"Auswirkung",l_witness:"Bezeugt von (optional)",l_evidence:"Nachweis-Link (optional)",l_today:"Heute erfasst",
+  s_closeout:"Abschluss (1500)",s_standup:"Lagebesprechung (0900)",s_adhoc:"Ad-hoc",s_washup:"Technische Auswertung",
+  k_achievement:"Erfolg",k_achievement_d:"Etwas hat funktioniert",k_hurdle_jumped:"Hürde überwunden",k_hurdle_jumped_d:"Hindernis gemeistert",
+  k_hurdle_hit:"Hürde aufgetreten",k_hurdle_hit_d:"Hindernis besteht",k_observation:"Beobachtung",k_observation_d:"Neutrale Notiz",
+  i_minor:"Gering",i_moderate:"Mittel",i_significant:"Erheblich",i_blocking:"Blockierend",
+  ph_head:"Eine Zeile — was geschah",ph_witness:"Einheit oder Behörde",save:"Beobachtung erfassen",saving:"Wird erfasst…",saved:"Erfasst",
+  lock:"Append-only — Einträge können weder geändert noch gelöscht werden.",show_all:"Alle Bewerber anzeigen",show_attending:"Nur Teilnehmende",
+  need_head:"Überschrift erforderlich",no_app:"Anbieter wählen",none_today:"Heute noch nichts erfasst.",all_areas:"— alle Bereiche —",no_vendors:"— keine Bewerber in dieser Übung —",m_log:"Beobachtungen erfassen",m_assess:"Leistung bewerten",l_assess:"Leistungsbewertung",save_rating:"Bewertung speichern",lock_r:"Append-only — eine Änderung wird als neue Bewertung erfasst.",r_did_not_meet:"Nicht erfüllt",r_partial:"Teilweise",r_met:"Erfüllt",r_excelled:"Herausragend",r_not_assessed:"k.A.",ov_none:"Noch nicht bewertet",ov_of:"bewertet",add_media:"📷 Foto / Video",media_big:"Datei zu groß (max. 50 MB)",uploading:"Nachweise werden hochgeladen…",rating_saved:"Bewertung gespeichert",no_dims:"Keine Bewertungsdimensionen definiert.",i_assess:"Dieselbe vierstufige Skala wie überall im System. Das heutige Ergebnis wird zum Aktivitätsnachweis für den nächsten Aufruf — bewerten Sie, was Sie beobachtet haben.",
+  i_vendor:"Nur eingeladene oder anwesende Anbieter werden gelistet. Wechseln Sie zu allen Bewerbern, falls jemand fehlt.",
+  i_kind:"Dies ist das Vokabular der Übung selbst: <b>Erfolge</b>, <b>überwundene Hürden</b>, <b>bestehende Hürden</b>. Es speist direkt den täglichen Abschluss und das DV-Day-Briefing."}
+};
+var LANG=localStorage.getItem('cv-lang')||'en';if(!I18N[LANG])LANG='en';
+function T(k){return (I18N[LANG]&&I18N[LANG][k]!=null)?I18N[LANG][k]:(I18N.en[k]||k);}
+var dark=localStorage.getItem('cn-dark')==='1';
+function applyDark(){document.body.toggleAttribute('data-dark',dark);document.getElementById('themeBtn').textContent=dark?'☀️':'🌙';}
+
+var SB_URL=window.__CV_SUPABASE_URL;
+var SB_KEY=window.__CV_ANON_KEY;
+var sb=window.cvClient();
+var $=function(id){return document.getElementById(id);};
+
+var EV=null,NEEDS=[],APPS=[],LOG=[],KIND='achievement',IMPACT='moderate',SHOWALL=false;
+var KINDS=['achievement','hurdle_jumped','hurdle_hit','observation'];
+var MODE='log', DIMS=[], RATINGS={}, MEDIA=[];
+var RSCALE=['did_not_meet','partial','met','excelled','not_assessed'];
+var RVAL={did_not_meet:0,partial:1,met:2,excelled:3};
+var IMPACTS=['minor','moderate','significant','blocking'];
+var ATTENDING=['invited','confirmed','demonstrated','evidence_captured','recognised','pathway_identified','contracted'];
+
+function toast(t,c){var m=$('msg');m.textContent=t;m.style.background=c||'var(--ink)';m.classList.add('on');clearTimeout(m._h);m._h=setTimeout(function(){m.classList.remove('on');},2400);}
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+function maskDate(el){el.addEventListener('input',function(){var v=el.value.replace(/\D/g,'').slice(0,8),o='';if(v.length>0)o=v.slice(0,2);if(v.length>2)o+='.'+v.slice(2,4);if(v.length>4)o+='.'+v.slice(4,8);el.value=o;});}
+function trToIso(s){var m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((s||'').trim());return m?m[3]+'-'+m[2]+'-'+m[1]:null;}
+function isoToTr(s){if(!s)return'';var d=String(s).slice(0,10).split('-');return d.length===3?d[2]+'.'+d[1]+'.'+d[0]:'';}
+function todayTr(){var d=new Date();function p(n){return(n<10?'0':'')+n;}return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear();}
+
+document.addEventListener('click',function(e){var q=e.target.closest('.iq');if(q){var box=q.closest('label').nextElementSibling;if(box&&box.classList.contains('info')){var o=box.classList.toggle('show');q.classList.toggle('on',o);}}});
+document.querySelectorAll('[data-hide]').forEach(function(x){x.onclick=function(){var el=$(x.dataset.hide);if(el)el.style.display='none';localStorage.setItem('cvobs-'+x.dataset.hide,'1');};});
+
+function renderKinds(){
+  $('kinds').innerHTML=KINDS.map(function(k){
+    return '<button type="button" class="kb '+k+(KIND===k?' on':'')+'" data-k="'+k+'">'+
+      '<span class="kt">'+T('k_'+k)+'</span><span class="kd">'+T('k_'+k+'_d')+'</span></button>';}).join('');
+  $('kinds').querySelectorAll('[data-k]').forEach(function(b){b.onclick=function(){KIND=b.dataset.k;renderKinds();syncImpact();};});
+}
+function renderImpacts(){
+  $('impacts').innerHTML=IMPACTS.map(function(i){
+    return '<span class="chip'+(IMPACT===i?' on':'')+(i==='blocking'?' blocking':'')+'" data-i="'+i+'">'+T('i_'+i)+'</span>';}).join('');
+  $('impacts').querySelectorAll('[data-i]').forEach(function(c){c.onclick=function(){IMPACT=c.dataset.i;renderImpacts();};});
+}
+function syncImpact(){ $('impactWrap').style.display=(KIND==='hurdle_hit'||KIND==='hurdle_jumped')?'':'none'; }
+
+function renderApps(){
+  var list=SHOWALL?APPS:APPS.filter(function(a){return ATTENDING.indexOf(a.state)>=0;});
+  if(!list.length){list=APPS;SHOWALL=true;}
+  if(!list.length){
+    $('obsApp').innerHTML='<option value="">'+T('no_vendors')+'</option>';
+    $('allToggle').textContent=T('show_all');
+    return;
+  }
+  $('obsApp').innerHTML=list.map(function(a){
+    return '<option value="'+a.id+'">'+esc(a.company_name)+(a.registration_country||a.country?' ('+esc(a.registration_country||a.country)+')':'')+'</option>';}).join('');
+  $('allToggle').textContent=SHOWALL?T('show_attending'):T('show_all');
+}
+function renderNeeds(){
+  $('obsNeed').innerHTML='<option value="">'+T('all_areas')+'</option>'+
+    NEEDS.map(function(n){return '<option value="'+n.id+'">'+esc(n.code)+' · '+esc(n.label)+'</option>';}).join('');
+}
+function renderLog(){
+  var t={achievement:0,hurdle_jumped:0,hurdle_hit:0,observation:0};
+  LOG.forEach(function(o){t[o.kind]=(t[o.kind]||0)+1;});
+  $('tally').innerHTML=
+    '<span class="tl a">'+T('k_achievement')+' '+t.achievement+'</span>'+
+    '<span class="tl j">'+T('k_hurdle_jumped')+' '+t.hurdle_jumped+'</span>'+
+    '<span class="tl h">'+T('k_hurdle_hit')+' '+t.hurdle_hit+'</span>'+
+    '<span class="tl o">'+T('k_observation')+' '+t.observation+'</span>';
+  var byId={};APPS.forEach(function(a){byId[a.id]=a.company_name;});
+  var nById={};NEEDS.forEach(function(n){nById[n.id]=n.code;});
+  $('log').innerHTML=LOG.length?LOG.map(function(o){
+    return '<div class="logrow"><span class="dot '+o.kind+'"></span><div style="flex:1;min-width:0">'+
+      '<div class="lgh">'+esc(o.headline)+'</div>'+
+      '<div class="lgm">'+esc(byId[o.application_id]||'—')+(o.need_id?' · '+esc(nById[o.need_id]||''):'')+
+      ' · '+T('k_'+o.kind)+(o.impact&&o.kind!=='achievement'&&o.kind!=='observation'?' · '+T('i_'+o.impact):'')+'</div>'+
+      '</div></div>';}).join(''):'<p class="sub" style="margin:.4rem 0 0">'+T('none_today')+'</p>';
+}
+
+/* ---------- mod ---------- */
+function setMode(m){
+  MODE=m;
+  $('mLog').classList.toggle('on',m==='log');
+  $('mAssess').classList.toggle('on',m==='assess');
+  $('logCard').classList.toggle('hidden',m!=='log');
+  $('logCard2').classList.toggle('hidden',m!=='log');
+  $('assessCard').classList.toggle('hidden',m!=='assess');
+  if(m==='assess')loadRatings();
+}
+
+/* ---------- değerlendirme ---------- */
+function overallCalc(){
+  var vals=DIMS.map(function(d){return RATINGS[d.code];})
+    .filter(function(v){return v&&v!=='not_assessed';}).map(function(v){return RVAL[v];});
+  if(!vals.length)return {n:0,avg:null,outcome:'not_assessed'};
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var oc = avg>=2.5?'excelled': avg>=1.5?'met': avg>=0.5?'partial':'did_not_meet';
+  return {n:vals.length,avg:Math.round(avg*100)/100,outcome:oc};
+}
+function renderOverall(){
+  var o=overallCalc();
+  $('overall').innerHTML= o.n
+    ? '<span class="ovv">'+o.avg+'</span><span class="ovl">'+o.n+'/'+DIMS.length+' '+T('ov_of')+'</span>'+
+      '<span class="ovb '+o.outcome+'">'+T('r_'+o.outcome)+'</span>'
+    : '<span class="ovl">'+T('ov_none')+'</span>';
+}
+function dimLabel(d){
+  return (LANG==='tr'&&d.label_tr)||(LANG==='fr'&&d.label_fr)||(LANG==='de'&&d.label_de)||d.label_en;
+}
+function dimHelp(d){ return (LANG==='tr'?(d.help_tr||d.help_en):d.help_en)||''; }
+function renderDims(){
+  if(!DIMS.length){$('dims').innerHTML='<p class="sub">'+T('no_dims')+'</p>';renderOverall();return;}
+  $('dims').innerHTML=DIMS.map(function(d){
+    return '<div class="dim"><div class="dimh">'+esc(dimLabel(d))+'</div>'+
+      (dimHelp(d)?'<div class="dimd">'+esc(dimHelp(d))+'</div>':'')+
+      '<div class="rscale">'+RSCALE.map(function(v){
+        return '<button type="button" class="rb '+v+(RATINGS[d.code]===v?' on':'')+'" data-rd="'+d.code+'" data-rv="'+v+'">'+T('r_'+v)+'</button>';
+      }).join('')+'</div></div>';
+  }).join('');
+  $('dims').querySelectorAll('[data-rd]').forEach(function(b){
+    b.onclick=function(){RATINGS[b.dataset.rd]=b.dataset.rv;renderDims();};});
+  renderOverall();
+}
+async function loadDims(){
+  if(!EV)return;
+  var r=await sb.from('conventus_rating_dimensions').select('*')
+    .eq('event_id',EV.id).eq('active',true).order('sort_order');
+  DIMS=r.error?[]:(r.data||[]);
+  renderDims();
+}
+async function loadRatings(){
+  if(!EV||!$('obsApp').value)return;
+  var r=await sb.from('conventus_exercise_rating_latest').select('dimension_code,rating')
+    .eq('application_id',$('obsApp').value).eq('event_id',EV.id);
+  RATINGS={};
+  if(!r.error)(r.data||[]).forEach(function(x){RATINGS[x.dimension_code]=x.rating;});
+  renderDims();
+}
+async function saveRatings(){
+  var appId=$('obsApp').value;
+  if(!appId){toast(T('no_app'),'var(--warn)');return;}
+  var codes=Object.keys(RATINGS);
+  if(!codes.length){toast(T('ov_none'),'var(--warn)');return;}
+  $('saveRating').disabled=true;toast(T('saving'));
+  var u=(await sb.auth.getUser()).data.user;
+  var rows=codes.map(function(c){return {
+    event_id:EV.id, application_id:appId, need_id:$('obsNeed').value||null,
+    dimension_code:c, rating:RATINGS[c], rater_id:u?u.id:null};});
+  var ins=await sb.from('conventus_exercise_ratings').insert(rows);
+  $('saveRating').disabled=false;
+  if(ins.error){toast(ins.error.message,'var(--err)');return;}
+  toast('✓ '+T('rating_saved'),'var(--ok)');
+}
+
+/* ---------- görsel kanıt ---------- */
+function renderMedia(){
+  var html='<span class="cambtn" id="camBtn">'+T('add_media')+'</span>';
+  MEDIA.forEach(function(m,i){
+    var kb=Math.round(m.file.size/1024);
+    var sz=kb>1024?(Math.round(kb/102.4)/10)+'MB':kb+'KB';
+    html+='<div class="thumb">'+(m.url?'<img src="'+m.url+'">':'<div class="vid">🎬</div>')+
+      '<span class="rm" data-rm="'+i+'">×</span><span class="sz">'+sz+'</span></div>';
+  });
+  $('mediabar').innerHTML=html;
+  $('camBtn').onclick=function(){$('mediaIn').click();};
+  $('mediabar').querySelectorAll('[data-rm]').forEach(function(b){
+    b.onclick=function(){var i=+b.dataset.rm;if(MEDIA[i].url)URL.revokeObjectURL(MEDIA[i].url);MEDIA.splice(i,1);renderMedia();};});
+}
+async function uploadMedia(obsId,appId){
+  if(!MEDIA.length)return;
+  toast(T('uploading'));
+  for(var i=0;i<MEDIA.length;i++){
+    var f=MEDIA[i].file;
+    var safe=f.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    var path=EV.event_code+'/'+appId+'/'+Date.now()+'_'+i+'_'+safe;
+    var up=await sb.storage.from('exercise-evidence').upload(path,f,{contentType:f.type});
+    if(up.error){toast(up.error.message,'var(--err)');continue;}
+    await sb.from('conventus_exercise_media').insert({
+      event_id:EV.id, application_id:appId, observation_id:obsId,
+      need_id:$('obsNeed').value||null,
+      kind:f.type.indexOf('video')===0?'video':(f.type.indexOf('image')===0?'photo':'document'),
+      storage_path:path, file_name:f.name, mime_type:f.type, size_bytes:f.size,
+      uploaded_by:(await sb.auth.getUser()).data.user?.id||null});
+  }
+  MEDIA.forEach(function(m){if(m.url)URL.revokeObjectURL(m.url);});
+  MEDIA=[];renderMedia();
+}
+
+async function loadLog(){
+  if(!EV)return;
+  var iso=trToIso($('obsDate').value)||new Date().toISOString().slice(0,10);
+  var r=await sb.from('conventus_exercise_observations').select('*')
+    .eq('event_id',EV.id).eq('obs_date',iso).order('created_at',{ascending:false});
+  LOG=r.error?[]:(r.data||[]);
+  renderLog();
+}
+async function openEvent(id){
+  var e=await sb.from('conventus_selection_events').select('*').eq('id',id).single();
+  if(e.error){toast(e.error.message,'var(--err)');return;}
+  EV=e.data;
+  var n=await sb.from('conventus_selection_needs').select('id,code,label').eq('event_id',id).order('sort_order');
+  NEEDS=n.data||[];
+  var a=await sb.from('conventus_selection_applications').select('id,company_name,country,registration_country,state')
+    .eq('event_id',id).order('company_name');
+  APPS=a.data||[];
+  renderNeeds();renderApps();loadLog();loadDims();
+}
+async function loadEvents(){
+  var r=await sb.from('conventus_selection_events')
+    .select('id,event_code,title,conventus_selection_applications(count)')
+    .order('created_at',{ascending:false});
+  if(r.error){  // gömülü sayım desteklenmiyorsa sade listeye düş
+    r=await sb.from('conventus_selection_events').select('id,event_code,title').order('created_at',{ascending:false});
+    if(r.error){toast(r.error.message,'var(--err)');return;}
+  }
+  var evs=(r.data||[]).map(function(e){
+    var c=e.conventus_selection_applications;
+    e._n=Array.isArray(c)&&c.length?(c[0].count||0):null;
+    return e;});
+  $('evPick').innerHTML=evs.map(function(e){
+    return '<option value="'+e.id+'">'+esc(e.title)+(e._n!=null?'  ('+e._n+')':'')+'</option>';}).join('');
+  // Başvurusu olan ilk etkinliği aç — boş etkinlikle açılıp "tedarikçi yok" durumuna düşmeyelim
+  var pick=evs.filter(function(e){return e._n;})[0]||evs[0];
+  if(pick){$('evPick').value=pick.id;openEvent(pick.id);}
+}
+
+async function save(){
+  var head=$('obsHead').value.trim();
+  if(!head){toast(T('need_head'),'var(--warn)');$('obsHead').focus();return;}
+  var appId=$('obsApp').value;
+  if(!appId){toast(T('no_app'),'var(--warn)');return;}
+  $('saveBtn').disabled=true;toast(T('saving'));
+  var u=(await sb.auth.getUser()).data.user;
+  var rec={
+    event_id:EV.id, application_id:appId,
+    need_id:$('obsNeed').value||null,
+    obs_date:trToIso($('obsDate').value)||new Date().toISOString().slice(0,10),
+    obs_session:$('obsSession').value,
+    kind:KIND, headline:head,
+    detail:$('obsDetail').value.trim()||null,
+    impact:(KIND==='hurdle_hit'||KIND==='hurdle_jumped')?IMPACT:'moderate',
+    witnessed_by:$('obsWitness').value.trim()||null,
+    evidence_url:$('obsEvidence').value.trim()||null,
+    observer_id:u?u.id:null
+  };
+  var ins=await sb.from('conventus_exercise_observations').insert(rec).select().single();
+  if(ins.error){$('saveBtn').disabled=false;toast(ins.error.message,'var(--err)');return;}
+  await uploadMedia(ins.data?ins.data.id:null, appId);
+  $('saveBtn').disabled=false;
+  $('obsHead').value='';$('obsDetail').value='';$('obsEvidence').value='';
+  toast('✓ '+T('saved'),'var(--ok)');
+  loadLog();$('obsHead').focus();
+}
+
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-ph]').forEach(function(el){el.placeholder=T(el.getAttribute('data-ph'));});
+  document.querySelectorAll('.info[data-for]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-for'));});
+  document.querySelectorAll('.lg').forEach(function(b){b.classList.toggle('on',b.dataset.lg===LANG);});
+  renderKinds();renderImpacts();syncImpact();renderMedia();if(DIMS.length)renderDims();
+  if(EV){renderNeeds();renderApps();renderLog();}
+}
+document.querySelectorAll('.lg').forEach(function(b){b.onclick=function(){LANG=b.dataset.lg;localStorage.setItem('cv-lang',LANG);applyStatic();};});
+$('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');applyDark();};
+$('evPick').onchange=function(){openEvent($('evPick').value);};
+$('obsDate').addEventListener('change',loadLog);
+$('allToggle').onclick=function(){SHOWALL=!SHOWALL;renderApps();};
+$('saveBtn').onclick=save;
+$('saveRating').onclick=saveRatings;
+$('mLog').onclick=function(){setMode('log');};
+$('mAssess').onclick=function(){setMode('assess');};
+$('obsApp').addEventListener('change',function(){if(MODE==='assess')loadRatings();});
+$('mediaIn').onchange=function(){
+  [].forEach.call($('mediaIn').files,function(f){
+    if(f.size>52428800){toast(T('media_big'),'var(--err)');return;}
+    MEDIA.push({file:f,url:f.type.indexOf('image')===0?URL.createObjectURL(f):null});});
+  $('mediaIn').value='';renderMedia();};
+
+(async function(){
+  applyDark();
+  $('obsDate').value=todayTr();
+  document.querySelectorAll('.dt').forEach(maskDate);
+  ['hint1'].forEach(function(h){if(localStorage.getItem('cvobs-'+h)==='1'){var el=$(h);if(el)el.style.display='none';}});
+  applyStatic();renderMedia();
+  var s=(await sb.auth.getSession()).data.session;
+  if(!s){$('gate').classList.remove('hidden');return;}
+  $('main').classList.remove('hidden');
+  loadEvents();
+})();
+})();
+</script>
+</body>
+</html>

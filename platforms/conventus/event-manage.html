@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en" data-platform="conventus">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Event Management · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/tokens.css"/>
+<link rel="stylesheet" href="/assets/base.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+  .strip{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;text-align:center;
+    padding:5px;color:var(--muted);background:var(--paper-2);border-bottom:1px solid var(--line)}
+  .bar{position:sticky;top:0;z-index:var(--z-nav);display:flex;align-items:center;gap:12px;padding:0 16px;height:56px;
+    border-bottom:1px solid var(--line);background:var(--nav-bg)}
+  .bar .back{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .bar .title{font-family:var(--font-display);font-size:1.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .sp{flex:1}
+  .tbtn{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);background:var(--paper-2);
+    border:1px solid var(--line-2);border-radius:var(--r-pill);padding:6px 12px}
+  .tbtn:hover{color:var(--pf);border-color:var(--pf)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:20px 16px 80px}
+  .head h1{font-size:clamp(1.8rem,4vw,2.6rem)}
+  .subline{color:var(--muted);font-size:13px;margin:4px 0 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .subline .mono{font-family:var(--font-mono)}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .tab{font-family:var(--font-mono);font-size:12px;font-weight:700;padding:9px 14px;color:var(--muted);background:none;
+    border:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.on{color:var(--pf);border-bottom-color:var(--pf)} .tab:hover{color:var(--ink)}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar h3{font-family:var(--font-display);font-weight:400;font-size:1.3rem;margin:0}
+  .toolbar .sp{flex:1}
+  .fbar{display:flex;gap:5px;flex-wrap:wrap}
+  .fchip{font-family:var(--font-mono);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);
+    border:1px solid var(--line-2);color:var(--muted);background:var(--paper-2);cursor:pointer}
+  .fchip.on{color:#fff;background:var(--pf);border-color:var(--pf)}
+  .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-md);font-size:13px}
+  .kv{display:grid;grid-template-columns:180px 1fr;gap:8px 16px;font-size:14px}
+  .kv dt{color:var(--muted);font-size:12px} .kv dd{margin:0;color:var(--ink)}
+  .gate{max-width:460px;margin:12vh auto;text-align:center}
+  .gate h2{font-family:var(--font-display);font-weight:400;font-size:1.8rem;margin-bottom:8px}
+  .gate p{color:var(--muted);margin-bottom:18px}
+  .st{font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:var(--r-pill);border:1px solid;white-space:nowrap}
+  .st.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+  .st.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+  .st.bad{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+  .st.n{color:var(--muted);border-color:var(--line-2)}
+  .row-acts{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
+  .ans{font-size:12px;color:var(--muted);max-width:360px}
+  .ans b{color:var(--ink-2);font-weight:600}
+  .soon{padding:34px;text-align:center;color:var(--muted);font-size:13px}
+  .dbg{position:fixed;inset:0;background:rgba(6,12,24,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:1100}
+  .dbg.on{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(460px,94vw);background:var(--paper);border-left:1px solid var(--line);
+    box-shadow:var(--shadow-3);transform:translateX(102%);transition:transform .22s var(--ease);z-index:1101;display:flex;flex-direction:column}
+  .drawer.on{transform:none}
+  .drawer h3{font-family:var(--font-display);font-weight:400;font-size:1.4rem;padding:18px 20px 0}
+  .dbody{padding:16px 20px;overflow-y:auto;flex:1;display:grid;gap:12px}
+  .dbody label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .dfoot{display:flex;gap:8px;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
+  .dfoot .sp{flex:1}
+  .ferr{color:var(--danger);font-size:12.5px;min-height:16px}
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r-pill);overflow:hidden}
+  .seg button{padding:6px 14px;border:none;background:transparent;color:var(--muted);font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer}
+  .seg button.on{background:var(--pf);color:#fff}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--pf);
+    color:var(--ink);padding:10px 18px;border-radius:var(--r-md);font-size:13px;box-shadow:var(--shadow-2);opacity:0;
+    transition:opacity .25s;pointer-events:none;z-index:1200}
+  .toast.on{opacity:1}.toast.bad{border-color:var(--danger)}
+  .card label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .card input,.card textarea,.card select{width:100%;background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r-md);padding:9px 11px;color:var(--ink);font-family:inherit;font-size:14px;outline:none;transition:border-color .15s}
+  .card input:focus,.card textarea:focus,.card select:focus{border-color:var(--pf)}
+  .card select{cursor:pointer}
+  .card textarea{resize:vertical;min-height:52px}
+  @media(max-width:640px){.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="strip">Unclassified · Conventity · Conventus</div>
+<div class="bar">
+  <a class="back" href="/platforms/conventus/my-events.html">← <span id="backLbl">My events</span></a>
+  <div class="title" id="barTitle">—</div>
+  <div class="sp"></div>
+  <button class="tbtn" id="langBtn">TR/EN</button>
+  <button class="tbtn" id="themeBtn">◐</button>
+</div>
+<div class="wrap" id="wrap"><div class="empty" id="boot">…</div></div>
+<div class="dbg" id="dbg"></div>
+<div class="drawer" id="drawer"><h3 id="dTitle"></h3><div class="dbody" id="dBody"></div><div class="dfoot" id="dFoot"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_KEY=window.__CV_ANON_KEY;
+  var sb=window.cvClient();
+  window.__cvSb=sb;
+
+  var I18N={
+   tr:{ back:'Etkinliklerim', signin:'Giriş gerekli', signin_d:'Bu konsol etkinlik yöneticileri içindir.', signin_b:'Giriş yap',
+     notfound:'Etkinlik bulunamadı', notfound_d:'Bağlantı geçersiz ya da bu etkinliği yönetme yetkin yok.',
+     tab_general:'Genel', tab_reg:'Kayıtlar', tab_agenda:'Ajanda', tab_ann:'Duyurular', tab_docs:'Dokümanlar', tab_log:'İdari & Lojistik',
+     g_code:'Kod', g_dates:'Tarih', g_loc:'Yer', g_host:'Ev sahibi', g_comm:'Topluluk', g_pub:'Durum', g_reg:'Kayıt',
+     g_cap:'Kontenjan', g_paf:'PAF alanı', published:'Yayında', draft:'Taslak', open:'Açık', closed:'Kapalı',
+     r_all:'Tümü', r_pending:'Bekleyen', r_approved:'Onaylı', r_rejected:'Reddedilen', r_wait:'Bekleme',
+     r_none:'Kayıt yok.', r_count:'kayıt', r_who:'Kayıt', r_status:'Durum', r_when:'Tarih', r_ans:'Yanıtlar',
+     act_approve:'Onayla', act_reject:'Reddet', act_wait:'Beklet', act_checkin:'Giriş yap', act_review:'İncele',
+     done:'Güncellendi.', soon:'Bu sekme bir sonraki dilimde bağlanacak.',
+     ob_add:'+ Vekaleten', ob_title:'Vekaleten / toplu kayıt', ob_single:'Tekil', ob_bulk:'Toplu',
+     ob_first:'Ad', ob_last:'Soyad', ob_email:'E-posta', ob_org:'Kurum', ob_rank:'Rütbe', ob_nation:'Ülke',
+     ob_phone:'Telefon', ob_role:'Katılım', ob_note:'Not', ob_save:'Kayıt oluştur', ob_cancel:'Vazgeç',
+     ob_bulk_h:'Her satır bir delege: Ad Soyad, e-posta, kurum', ob_need:'Ad Soyad gerekli.',
+     ob_added:'%s kayıt oluşturuldu.', ob_hint:'Delege adına oluşturursun; sen ekstenildiğin için doğrudan onaylı düşer.',
+     edit_agenda_d:'Oturumları ve programı düzenle.', edit_ann_d:'Katılımcılara duyuru yaz.', open_editor:'Editörü aç →',
+     log_save:'Lojistiği kaydet', log_saved:'Lojistik kaydedildi.', log_intro:'Katılımcılar bunu My Event ve el kitabında görür.',
+     l_venue:'Mekân', l_address:'Adres', l_transport:'Ulaşım notu', l_dress:'Kıyafet', l_contact:'İrtibat noktaları', l_security:'Güvenlik & giriş',
+     doc_intro:'Katılımcılara link olarak doküman paylaş (ajanda PDF, mekân haritası, form). Görünürlük hedef kitle ile belirlenir.',
+     doc_title:'Başlık', doc_url:'URL (link)', doc_cat:'Kategori', doc_aud:'Hedef kitle', doc_pub:'Yayında',
+     doc_add:'+ Doküman ekle', doc_save:'Kaydet', doc_cancel:'Vazgeç', doc_edit:'Düzenle', doc_del:'Sil',
+     doc_empty:'Henüz doküman yok.', doc_open:'Aç', doc_need:'Başlık gerekli.', doc_saved:'Doküman kaydedildi.',
+     doc_deleted:'Silindi.', doc_delq:'Bu dokümanı sil?', doc_badurl:'URL http(s):// ile başlamalı.',
+     cat_general:'Genel', cat_agenda:'Ajanda', cat_venue:'Mekân', cat_travel:'Seyahat', cat_security:'Güvenlik', cat_forms:'Formlar', cat_other:'Diğer',
+     aud_all:'Herkes', aud_approved:'Onaylı katılımcılar', aud_pending:'Başvuranlar', aud_community_members:'Topluluk üyeleri', aud_organizers:'Organizatörler',
+     st_invited:'davetli', st_draft:'taslak', st_submitted:'gönderildi', st_under_review:'incelemede',
+     st_approved:'onaylı', st_rejected:'red', st_waitlisted:'beklemede', st_checked_in:'giriş yaptı',
+     st_cancelled:'iptal', st_no_show:'gelmedi' },
+   en:{ back:'My events', signin:'Sign in required', signin_d:'This console is for event managers.', signin_b:'Sign in',
+     notfound:'Event not found', notfound_d:'Invalid link, or you cannot manage this event.',
+     tab_general:'General', tab_reg:'Registrations', tab_agenda:'Agenda', tab_ann:'Announcements', tab_docs:'Documents', tab_log:'Admin & Logistics',
+     g_code:'Code', g_dates:'Dates', g_loc:'Location', g_host:'Host', g_comm:'Community', g_pub:'Status', g_reg:'Registration',
+     g_cap:'Capacity', g_paf:'PAF fields', published:'Published', draft:'Draft', open:'Open', closed:'Closed',
+     r_all:'All', r_pending:'Pending', r_approved:'Approved', r_rejected:'Rejected', r_wait:'Waitlist',
+     r_none:'No registrations.', r_count:'registrations', r_who:'Registrant', r_status:'Status', r_when:'Date', r_ans:'Answers',
+     act_approve:'Approve', act_reject:'Reject', act_wait:'Waitlist', act_checkin:'Check in', act_review:'Review',
+     done:'Updated.', soon:'This tab connects in the next slice.',
+     ob_add:'+ On behalf', ob_title:'On-behalf / bulk registration', ob_single:'Single', ob_bulk:'Bulk',
+     ob_first:'First name', ob_last:'Last name', ob_email:'Email', ob_org:'Organisation', ob_rank:'Rank', ob_nation:'Nation',
+     ob_phone:'Phone', ob_role:'Attending as', ob_note:'Note', ob_save:'Create registration', ob_cancel:'Cancel',
+     ob_bulk_h:'One delegate per line: Full Name, email, organisation', ob_need:'Full name is required.',
+     ob_added:'%s registration(s) created.', ob_hint:'You register on the delegate’s behalf; as you are on the team it is created as approved.',
+     edit_agenda_d:'Edit sessions and programme.', edit_ann_d:'Message participants.', open_editor:'Open editor →',
+     log_save:'Save logistics', log_saved:'Logistics saved.', log_intro:'Participants see this in My Event and the handbook.',
+     l_venue:'Venue', l_address:'Address', l_transport:'Transport note', l_dress:'Dress code', l_contact:'Contacts', l_security:'Security & access',
+     doc_intro:'Share documents as links (agenda PDF, venue map, forms). Visibility is set by the audience.',
+     doc_title:'Title', doc_url:'URL (link)', doc_cat:'Category', doc_aud:'Audience', doc_pub:'Published',
+     doc_add:'+ Add document', doc_save:'Save', doc_cancel:'Cancel', doc_edit:'Edit', doc_del:'Delete',
+     doc_empty:'No documents yet.', doc_open:'Open', doc_need:'Title is required.', doc_saved:'Document saved.',
+     doc_deleted:'Deleted.', doc_delq:'Delete this document?', doc_badurl:'URL must start with http(s)://',
+     cat_general:'General', cat_agenda:'Agenda', cat_venue:'Venue', cat_travel:'Travel', cat_security:'Security', cat_forms:'Forms', cat_other:'Other',
+     aud_all:'Everyone', aud_approved:'Approved participants', aud_pending:'Applicants', aud_community_members:'Community members', aud_organizers:'Organisers',
+     st_invited:'invited', st_draft:'draft', st_submitted:'submitted', st_under_review:'under review',
+     st_approved:'approved', st_rejected:'rejected', st_waitlisted:'waitlisted', st_checked_in:'checked in',
+     st_cancelled:'cancelled', st_no_show:'no show' }
+  };
+  function lang(){ return (window.CVPrefs&&CVPrefs.getLang&&CVPrefs.getLang())||'en'; }
+  function T(k){ var d=I18N[lang()]||I18N.en; return d[k]!=null?d[k]:(I18N.en[k]!=null?I18N.en[k]:k); }
+  function Tf(k,val){ return String(T(k)).replace('%s',val); }
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtD(iso){ if(!iso) return '—'; var d=new Date(iso);
+    return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }
+  function fmtDT(iso){ if(!iso) return '—'; var d=new Date(iso);
+    return fmtD(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  var toastT; function toast(m,bad){ var t=$('#toast'); t.textContent=m; t.classList.toggle('bad',!!bad); t.classList.add('on');
+    clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('on');},2400); }
+  var TONE={approved:'ok',checked_in:'ok',rejected:'bad',cancelled:'bad',no_show:'bad',waitlisted:'warn',invited:'warn',
+    submitted:'n',under_review:'n',draft:'n'};
+  function stChip(s){ return '<span class="st '+(TONE[s]||'n')+'">'+esc(T('st_'+s)||s)+'</span>'; }
+  function openDrawer(title,body,foot){ $('#dTitle').textContent=title; $('#dBody').innerHTML=body; $('#dFoot').innerHTML=foot;
+    $('#dbg').classList.add('on'); $('#drawer').classList.add('on'); }
+  function closeDrawer(){ $('#dbg').classList.remove('on'); $('#drawer').classList.remove('on'); }
+  document.getElementById('dbg').addEventListener('click',closeDrawer);
+
+  var CODE=new URLSearchParams(location.search).get('e');
+  var EVENT=null, COMM=null, TAB='general', REGS=[], FILTER='all', SESSION=null;
+
+  boot();
+  async function boot(){
+    var s=await sb.auth.getSession(); SESSION=(s.data&&s.data.session)||null;
+    if(!SESSION){ gate('signin'); return; }
+    if(!CODE){ gate('notfound'); return; }
+    var e=await sb.from('conventus_managed_events').select('*').eq('code',CODE).maybeSingle();
+    if(e.error||!e.data){ gate('notfound', e.error&&e.error.message); return; }
+    EVENT=e.data;
+    if(EVENT.activity_id){
+      var can=await sb.rpc('conventity_can_manage_event',{p_activity_id:EVENT.activity_id});
+      if(can.error||!can.data){ gate('notfound', can.error&&can.error.message); return; }
+    } else { gate('notfound','event has no activity_id'); return; }
+    if(EVENT.community_id){
+      var c=await sb.from('conventus_communities').select('name,short_name').eq('id',EVENT.community_id).maybeSingle();
+      COMM=c.data||null;
+    }
+    $('#barTitle').textContent=EVENT.title||EVENT.code;
+    render();
+  }
+  function gate(kind,detail){
+    var map={signin:['signin','signin_d','/login.html','signin_b'],notfound:['notfound','notfound_d',null,null]};
+    var g=map[kind];
+    $('#wrap').innerHTML='<div class="gate"><h2>'+esc(T(g[0]))+'</h2><p>'+esc(T(g[1]))+
+      (detail?'<br><span class="mono" style="font-size:11px">'+esc(detail)+'</span>':'')+'</p>'+
+      (g[2]?'<a class="btn btn-primary" href="'+g[2]+'">'+esc(T(g[3]))+'</a>':'')+'</div>';
+  }
+
+  function render(){
+    $('#backLbl').textContent=T('back');
+    var tabs=[['general','tab_general'],['reg','tab_reg'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
+    $('#wrap').innerHTML=
+      '<div class="head"><div class="eyebrow">conventus_managed_events</div><h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
+      '<div class="subline"><span class="mono">'+esc(EVENT.code)+'</span>·'+
+        '<span>'+(EVENT.published?esc(T('published')):esc(T('draft')))+'</span>'+
+        (COMM?'·<span>'+esc(COMM.short_name||COMM.name)+'</span>':'')+'</div>'+
+      '<div class="tabs">'+tabs.map(function(t){return '<button class="tab'+(TAB===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+esc(T(t[1]))+'</button>';}).join('')+'</div>'+
+      '<div id="tb"></div>';
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
+      b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
+    });
+    ({general:tGeneral,reg:tReg,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
+  }
+  function tSoon(){ $('#tb').innerHTML='<div class="soon">'+esc(T('soon'))+'</div>'; }
+  function editorLink(page, descKey){
+    var e=encodeURIComponent(EVENT.code||'');
+    return '<div class="card"><h3>'+esc(T(TAB==='agenda'?'tab_agenda':'tab_ann'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:6px 0">'+esc(T(descKey))+'</div>'+
+      '<div class="actions" style="margin-top:8px"><a class="btn btn-primary btn-sm" href="/platforms/conventus/'+page+'?e='+e+'">'+esc(T('open_editor'))+'</a></div></div>';
+  }
+  function tAgendaTab(){ $('#tb').innerHTML=editorLink('agenda.html','edit_agenda_d'); }
+  function tAnnTab(){ $('#tb').innerHTML=editorLink('announcements.html','edit_ann_d'); }
+  function tLogTab(){
+    var L=(EVENT.logistics&&typeof EVENT.logistics==='object')?EVENT.logistics:{};
+    function fld(key,area){ var v=esc(L[key]||'');
+      return '<div><label>'+esc(T('l_'+key.replace('dress_code','dress').replace('contacts','contact')))+'</label>'+
+        (area?'<textarea id="lg_'+key+'" rows="2">'+v+'</textarea>':'<input id="lg_'+key+'" value="'+v+'">')+'</div>'; }
+    $('#tb').innerHTML='<div class="card"><h3>'+esc(T('tab_log'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('log_intro'))+'</div>'+
+      '<div style="display:grid;gap:12px">'+
+        fld('venue')+fld('address',true)+fld('transport',true)+fld('dress_code')+fld('contacts',true)+fld('security',true)+
+      '</div>'+
+      '<div class="actions" style="margin-top:14px"><button class="btn btn-primary btn-sm" id="lgSave">'+esc(T('log_save'))+'</button>'+
+      '<span class="ferr" id="lgErr" style="align-self:center"></span></div></div>';
+    $('#lgSave').addEventListener('click',saveLogistics);
+  }
+  function lgv(id){ var el=$('#'+id); return el?el.value.trim():''; }
+  async function saveLogistics(){
+    if(!EVENT.activity_id){ toast(T('e_no_activity'),true); return; }
+    var L={ venue:lgv('lg_venue'), address:lgv('lg_address'), transport:lgv('lg_transport'),
+      dress_code:lgv('lg_dress_code'), contacts:lgv('lg_contacts'), security:lgv('lg_security') };
+    Object.keys(L).forEach(function(k){ if(!L[k]) delete L[k]; });
+    var res=await sb.rpc('conventus_set_event_logistics',{p_activity_id:EVENT.activity_id,p_logistics:L});
+    if(res.error){ $('#lgErr').textContent=res.error.message; return; }
+    EVENT.logistics=L; toast(T('log_saved'));
+  }
+
+  // ── Documents (S19): link-based document manager ──────────────────────
+  var DOCS=[], docEdit=null;
+  var DOC_CATS=['general','agenda','venue','travel','security','forms','other'];
+  var DOC_AUDS=['all','approved','pending','community_members','organizers'];
+  async function tDocsTab(){
+    $('#tb').innerHTML='<div class="card"><div class="empty" style="border:none">…</div></div>';
+    var r=await sb.from('conventus_documents').select('*').eq('event_id',EVENT.id)
+      .order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+    if(r.error){ $('#tb').innerHTML='<div class="card"><span class="ferr">'+esc(r.error.message)+'</span></div>'; return; }
+    DOCS=r.data||[]; renderDocs();
+  }
+  function docOpt(list,pfx,cur){ return list.map(function(v){
+    return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+esc(T(pfx+v))+'</option>'; }).join(''); }
+  function renderDocs(){
+    var rows=DOCS.map(function(d){
+      return '<tr><td>'+esc(d.title)+(d.url?' <a href="'+esc(d.url)+'" target="_blank" rel="noopener" class="mono" style="font-size:11px">'+esc(T('doc_open'))+' ↗</a>':'')+'</td>'+
+        '<td>'+esc(T('cat_'+d.category))+'</td><td>'+esc(T('aud_'+d.audience))+'</td>'+
+        '<td>'+(d.is_published?esc(T('published')):esc(T('draft')))+'</td>'+
+        '<td class="actions"><button class="btn btn-ghost btn-sm" data-de="'+d.id+'">'+esc(T('doc_edit'))+'</button>'+
+        '<button class="btn btn-ghost btn-sm" data-dd="'+d.id+'">'+esc(T('doc_del'))+'</button></td></tr>';
+    }).join('');
+    var table=DOCS.length
+      ? '<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('doc_title'))+'</th><th>'+esc(T('doc_cat'))+'</th><th>'+esc(T('doc_aud'))+'</th><th>'+esc(T('doc_pub'))+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+      : '<div class="empty">'+esc(T('doc_empty'))+'</div>';
+    $('#tb').innerHTML='<div class="card"><h3>'+esc(T('tab_docs'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('doc_intro'))+'</div>'+
+      table+
+      '<div class="actions" style="margin-top:12px"><button class="btn btn-primary btn-sm" id="docAdd">'+esc(T('doc_add'))+'</button></div>'+
+      '<div id="docForm"></div></div>';
+    $('#docAdd').addEventListener('click',function(){ openDocForm(null); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-de]'),function(b){ b.addEventListener('click',function(){ openDocForm(b.getAttribute('data-de')); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dd]'),function(b){ b.addEventListener('click',function(){ delDoc(b.getAttribute('data-dd')); }); });
+  }
+  function openDocForm(id){
+    var d=id?DOCS.filter(function(x){return x.id===id;})[0]:null; docEdit=id;
+    $('#docForm').innerHTML='<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:grid;gap:10px">'+
+      '<div><label>'+esc(T('doc_title'))+' *</label><input id="dc_title" value="'+esc(d?d.title:'')+'"></div>'+
+      '<div><label>'+esc(T('doc_url'))+'</label><input id="dc_url" placeholder="https://…" value="'+esc(d?(d.url||''):'')+'"></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        '<div><label>'+esc(T('doc_cat'))+'</label><select id="dc_cat">'+docOpt(DOC_CATS,'cat_',d?d.category:'general')+'</select></div>'+
+        '<div><label>'+esc(T('doc_aud'))+'</label><select id="dc_aud">'+docOpt(DOC_AUDS,'aud_',d?d.audience:'approved')+'</select></div>'+
+      '</div>'+
+      '<label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:13px;letter-spacing:0"><input type="checkbox" id="dc_pub" style="width:auto"'+((!d||d.is_published)?' checked':'')+'> '+esc(T('doc_pub'))+'</label>'+
+      '<div class="actions"><button class="btn btn-primary btn-sm" id="dcSave">'+esc(T('doc_save'))+'</button>'+
+        '<button class="btn btn-ghost btn-sm" id="dcCancel">'+esc(T('doc_cancel'))+'</button>'+
+        '<span class="ferr" id="dcErr" style="align-self:center"></span></div></div>';
+    $('#dcSave').addEventListener('click',saveDoc);
+    $('#dcCancel').addEventListener('click',function(){ $('#docForm').innerHTML=''; docEdit=null; });
+    $('#dc_title').focus();
+  }
+  async function saveDoc(){
+    var title=$('#dc_title').value.trim();
+    if(!title){ $('#dcErr').textContent=T('doc_need'); return; }
+    var url=$('#dc_url').value.trim();
+    if(url && !/^https?:\/\//i.test(url)){ $('#dcErr').textContent=T('doc_badurl'); return; }
+    var payload={ event_id:EVENT.id, title:title, url:url||null,
+      category:$('#dc_cat').value, audience:$('#dc_aud').value, is_published:$('#dc_pub').checked };
+    var r=docEdit ? await sb.from('conventus_documents').update(payload).eq('id',docEdit)
+                  : await sb.from('conventus_documents').insert(payload);
+    if(r.error){ $('#dcErr').textContent=r.error.message; return; }
+    toast(T('doc_saved')); docEdit=null; tDocsTab();
+  }
+  async function delDoc(id){
+    var d=DOCS.filter(function(x){return x.id===id;})[0]; if(!d)return;
+    if(!confirm(T('doc_delq')+' — '+d.title)) return;
+    var r=await sb.from('conventus_documents').delete().eq('id',id);
+    if(r.error){ toast(r.error.message,true); return; }
+    toast(T('doc_deleted')); tDocsTab();
+  }
+
+  function tGeneral(){
+    var e=EVENT, defs=Array.isArray(e.registration_field_defs)?e.registration_field_defs:[];
+    $('#tb').innerHTML='<div class="card"><dl class="kv">'+
+      kv('g_code',e.code)+
+      kvRaw('g_dates',esc([fmtD(e.start_date),fmtD(e.end_date)].filter(function(x){return x!=='—';}).join(' – ')||'—'))+
+      kv('g_loc',e.location)+kv('g_host',e.host_org)+
+      kvRaw('g_comm',COMM?esc(COMM.name):'—')+
+      kvRaw('g_pub',e.published?esc(T('published')):esc(T('draft')))+
+      kvRaw('g_reg',e.registration_open?esc(T('open')):esc(T('closed')))+
+      kvRaw('g_cap',e.capacity!=null?esc(e.capacity):'—')+
+      kvRaw('g_paf',esc(defs.length)+(defs.length?' ('+defs.map(function(d){return esc(d.label||d.key);}).join(', ')+')':''))+
+      '</dl></div>';
+  }
+  function kv(k,v){ return '<dt>'+esc(T(k))+'</dt><dd>'+esc(v||'—')+'</dd>'; }
+  function kvRaw(k,v){ return '<dt>'+esc(T(k))+'</dt><dd>'+v+'</dd>'; }
+
+  async function tReg(){
+    $('#tb').innerHTML='<div class="empty">…</div>';
+    var r=await sb.from('conventus_registrations').select('*').eq('event_id',EVENT.id).order('created_at',{ascending:false});
+    if(r.error){ $('#tb').innerHTML='<div class="empty">'+esc(r.error.message)+'</div>'; return; }
+    REGS=r.data||[];
+    drawReg();
+  }
+  function pafPreview(a){
+    if(!a||typeof a!=='object') return '';
+    var keys=Object.keys(a).slice(0,4);
+    return keys.map(function(k){return '<b>'+esc(k)+':</b> '+esc(a[k]);}).join(' · ');
+  }
+  function regName(x){
+    var nm=[x.first_name,x.last_name].filter(Boolean).join(' ');
+    if(nm) return nm + (x.is_delegated?' · '+((lang()==='tr')?'vekaleten':'on behalf'):'');
+    var a=x.answers||{};
+    return a.name||a.full_name||x.email||x.user_id||x.id||'—';
+  }
+  var FILTERS=[['all','r_all'],['submitted','r_pending'],['approved','r_approved'],['rejected','r_rejected'],['waitlisted','r_wait']];
+  function drawReg(){
+    var list=REGS.filter(function(x){
+      if(FILTER==='all') return true;
+      if(FILTER==='submitted') return x.status==='submitted'||x.status==='under_review'||x.status==='draft'||x.status==='pending';
+      return x.status===FILTER;
+    });
+    var html='<div class="toolbar"><h3>'+esc(T('tab_reg'))+'</h3><span class="mono" style="color:var(--muted);font-size:12px">'+
+      REGS.length+' '+esc(T('r_count'))+'</span><div class="sp"></div><div class="fbar">'+
+      FILTERS.map(function(f){return '<button class="fchip'+(FILTER===f[0]?' on':'')+'" data-f="'+f[0]+'">'+esc(T(f[1]))+'</button>';}).join('')+
+      '</div><button class="btn btn-primary btn-sm" id="obAdd">'+esc(T('ob_add'))+'</button></div>';
+    if(!list.length){ html+='<div class="empty">'+esc(T('r_none'))+'</div>'; }
+    else{
+      html+='<div class="table-wrap"><table class="grid"><thead><tr><th>'+esc(T('r_who'))+'</th><th>'+esc(T('r_ans'))+
+        '</th><th>'+esc(T('r_status'))+'</th><th>'+esc(T('r_when'))+'</th><th></th></tr></thead><tbody>'+
+        list.map(function(x){
+          return '<tr><td style="color:var(--ink);font-weight:600">'+esc(regName(x))+'</td>'+
+            '<td class="ans">'+pafPreview(x.answers)+'</td>'+
+            '<td>'+stChip(x.status)+'</td>'+
+            '<td class="mono" style="font-size:11px">'+esc(fmtDT(x.created_at))+'</td>'+
+            '<td class="row-acts">'+regActions(x)+'</td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    $('#tb').innerHTML=html;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-f]'),function(b){
+      b.addEventListener('click',function(){ FILTER=b.getAttribute('data-f'); drawReg(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-set]'),function(b){
+      b.addEventListener('click',function(){ setStatus(b.getAttribute('data-id'), b.getAttribute('data-set')); });
+    });
+    var ob=$('#obAdd'); if(ob) ob.addEventListener('click',onBehalfForm);
+  }
+
+  var OB_MODE='single';
+  function onBehalfForm(){
+    OB_MODE='single';
+    var body=
+      '<div style="font-size:12.5px;color:var(--muted)">'+esc(T('ob_hint'))+'</div>'+
+      '<div class="seg"><button id="obS" class="on">'+esc(T('ob_single'))+'</button><button id="obB">'+esc(T('ob_bulk'))+'</button></div>'+
+      '<div id="obSingle">'+
+        '<div><label>'+esc(T('ob_first'))+'</label><input id="ob_fn"></div>'+
+        '<div><label>'+esc(T('ob_last'))+'</label><input id="ob_ln"></div>'+
+        '<div><label>'+esc(T('ob_email'))+'</label><input id="ob_em" type="email"></div>'+
+        '<div><label>'+esc(T('ob_org'))+'</label><input id="ob_org"></div>'+
+        '<div><label>'+esc(T('ob_rank'))+'</label><input id="ob_rank"></div>'+
+        '<div><label>'+esc(T('ob_nation'))+'</label><input id="ob_nat"></div>'+
+        '<div><label>'+esc(T('ob_phone'))+'</label><input id="ob_ph"></div>'+
+      '</div>'+
+      '<div id="obBulk" style="display:none"><label>'+esc(T('ob_bulk_h'))+'</label>'+
+        '<textarea id="ob_bulk" rows="7" style="width:100%;font-family:var(--font-mono);font-size:12px" '+
+        'placeholder="Jane Doe, jane@mod.gov, MoD&#10;John Roe, john@landcom.nato.int, LANDCOM"></textarea></div>'+
+      '<div class="ferr" id="obErr"></div>';
+    openDrawer(T('ob_title'), body,
+      '<div class="sp"></div><button class="btn btn-ghost" id="obCancel">'+esc(T('ob_cancel'))+'</button>'+
+      '<button class="btn btn-primary" id="obSave">'+esc(T('ob_save'))+'</button>');
+    $('#obCancel').addEventListener('click',closeDrawer);
+    $('#obSave').addEventListener('click',doOnBehalf);
+    $('#obS').addEventListener('click',function(){ OB_MODE='single'; this.classList.add('on'); $('#obB').classList.remove('on');
+      $('#obSingle').style.display=''; $('#obBulk').style.display='none'; });
+    $('#obB').addEventListener('click',function(){ OB_MODE='bulk'; this.classList.add('on'); $('#obS').classList.remove('on');
+      $('#obSingle').style.display='none'; $('#obBulk').style.display=''; });
+  }
+  function v(id){ var el=$('#'+id); return el?el.value.trim():''; }
+  async function doOnBehalf(){
+    var uid=SESSION.user.id, rows=[];
+    if(OB_MODE==='single'){
+      var fn=v('ob_fn'), ln=v('ob_ln');
+      if(!fn&&!ln){ $('#obErr').textContent=T('ob_need'); return; }
+      rows.push({ first_name:fn||null, last_name:ln||null, email:v('ob_em')||null,
+        institution:v('ob_org')||null, rank_title:v('ob_rank')||null, country:v('ob_nat')||null, phone:v('ob_ph')||null });
+    } else {
+      var lines=(v('ob_bulk')||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+      if(!lines.length){ $('#obErr').textContent=T('ob_need'); return; }
+      rows=lines.map(function(l){
+        var p=l.split(',').map(function(x){return x.trim();});
+        var name=(p[0]||'').split(/\s+/); var fn=name.shift()||''; var ln=name.join(' ');
+        return { first_name:fn||null, last_name:ln||null, email:p[1]||null, institution:p[2]||null };
+      }).filter(function(r){ return r.first_name||r.last_name; });
+      if(!rows.length){ $('#obErr').textContent=T('ob_need'); return; }
+    }
+    var payload=rows.map(function(r){ return Object.assign({
+      event_id:EVENT.id, user_id:null, registered_by:uid, is_delegated:true, status:'approved', answers:{} }, r); });
+    var res=await sb.from('conventus_registrations').insert(payload);
+    if(res.error){ $('#obErr').textContent=res.error.message; return; }
+    closeDrawer(); toast(Tf('ob_added', payload.length)); await tReg();
+  }
+  function regActions(x){
+    var id=esc(x.id), s=x.status, out=[];
+    function btn(to,lbl,cls){ return '<button class="btn btn-ghost btn-sm'+(cls||'')+'" data-id="'+id+'" data-set="'+to+'">'+esc(T(lbl))+'</button>'; }
+    if(s==='submitted'||s==='under_review'||s==='draft'||s==='waitlisted'||s==='pending'){
+      out.push(btn('approved','act_approve'));
+      out.push(btn('rejected','act_reject'));
+      if(s!=='waitlisted') out.push(btn('waitlisted','act_wait'));
+    } else if(s==='approved'){
+      out.push(btn('checked_in','act_checkin'));
+    }
+    return out.join(' ');
+  }
+  async function setStatus(id,to){
+    var res=await sb.from('conventus_registrations').update({status:to}).eq('id',id);
+    if(res.error){ toast(res.error.message,true); return; }
+    var row=REGS.find(function(x){return String(x.id)===String(id);}); if(row) row.status=to;
+    toast(T('done')); drawReg();
+  }
+
+  $('#langBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleLang(); });
+  $('#themeBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleTheme(); });
+  if(window.CVPrefs&&CVPrefs.onChange) CVPrefs.onChange(function(w){ if(w==='lang'&&EVENT) render(); });
+})();
+</script>
+</body>
+</html>

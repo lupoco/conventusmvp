@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>My Plan · Go &amp; Meet · Conventus</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-glow:rgba(0,73,144,.10);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --btnd:#0E2148;
+  --ok:#1E8E5A; --warn:#B7791F; --bad:#C0392B;
+  --ok-bg:rgba(30,142,90,.09); --warn-bg:rgba(183,121,31,.10); --bad-bg:rgba(192,57,43,.08);
+}
+[data-dark]{
+  --pf:#4B92DB; --pf-glow:rgba(75,146,219,.12);
+  --bg:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+  --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+  --line:#243456; --line2:#2A3A5E;
+  --btnd:#EEF1F7;
+  --ok:#34C97F; --warn:#E0A63C; --bad:#E4604E;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:var(--pf);text-decoration:none}
+.hidden{display:none !important}
+.bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:0 1.3rem;height:56px;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar-l{display:flex;align-items:center;gap:10px;min-width:0}
+.badge{background:var(--pf);color:#fff;padding:3px 11px;border-radius:100px;font-size:10px;letter-spacing:.12em;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.crumb{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{padding:5px 12px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font-size:11px;font-weight:800;color:var(--muted);font-family:inherit;transition:all .15s;white-space:nowrap;text-decoration:none}
+.pill:hover{border-color:var(--pf);color:var(--pf)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:100px;overflow:hidden;background:var(--paper2)}
+.seg button{padding:5px 11px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s}
+.seg button.on{background:var(--pf);color:#fff}
+.wrap{max-width:900px;margin:0 auto;padding:1.8rem 1.3rem 6rem}
+.gate{max-width:460px;margin:12vh auto 0;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:2.2rem;text-align:center;box-shadow:0 14px 40px rgba(14,33,72,.06)}
+.gate h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.7rem;line-height:1.15;margin-bottom:.5rem}
+.gate h2 em{font-style:normal;color:var(--pf)}
+.gate p{font-size:.86rem;color:var(--muted);line-height:1.65;margin-bottom:1.3rem}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:11px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--btnd);color:var(--paper)}
+[data-dark] .btn-primary{color:#0E1A32}
+.btn-primary:hover{background:var(--pf);color:#fff}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:var(--paper2);color:var(--ink2);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--pf);color:var(--pf)}
+.btn-danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn-danger:hover{background:var(--bad-bg)}
+.btn-sm{padding:6px 12px;font-size:.74rem;border-radius:9px}
+/* plan header */
+.pcardx{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:1.4rem 1.5rem;margin-bottom:1rem;box-shadow:0 10px 30px rgba(14,33,72,.05)}
+.pname{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.6rem;line-height:1.12}
+.pname span{color:var(--pf)}
+.ev-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-top:.4rem}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:1rem}
+.slot{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem}
+.slot .sl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.slot .sv{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.35;word-break:break-word}
+.slot .sv.emp{color:var(--muted);font-weight:500}
+.chip{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:3px 9px;border-radius:100px;border:1px solid;white-space:nowrap;background:transparent}
+.chip.pf{border-color:var(--pf);color:var(--pf);background:var(--pf-glow)}
+.chip.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.chip.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-bg)}
+.chip.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+.chip.mut{border-color:var(--line2);color:var(--muted)}
+a.chip{text-decoration:none}
+/* cross-sell */
+.xsell{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--pf-glow);border:1px solid var(--pf);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.1rem}
+.xsell .xt{font-size:.85rem;font-weight:700;color:var(--ink);flex:1;min-width:200px}
+/* tabs */
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.2rem}
+.tab{padding:8px 16px;border-radius:100px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:.79rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab:hover{border-color:var(--pf);color:var(--pf)}
+.tab.on{background:var(--pf);border-color:var(--pf);color:#fff}
+.sec-sub{font-size:.78rem;color:var(--muted);margin-bottom:1rem}
+/* items */
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:1rem 1.15rem;transition:box-shadow .15s}
+.item:hover{box-shadow:0 8px 24px rgba(14,33,72,.06)}
+.it-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.it-title{font-weight:800;font-size:.95rem;color:var(--ink)}
+.it-prov{font-size:.78rem;color:var(--muted)}
+.it-prov b{color:var(--pf)}
+.it-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin-top:4px}
+.it-meta b{color:var(--ink)}
+.it-desc{font-size:.8rem;color:var(--muted);line-height:1.6;margin-top:6px;white-space:pre-wrap}
+.it-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:.75rem;flex-wrap:wrap}
+.empty{background:var(--paper2);border:1px dashed var(--line2);border-radius:13px;padding:2rem;text-align:center;color:var(--muted);font-size:.85rem}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.75rem 1.3rem;border-radius:11px;font-size:.83rem;font-weight:600;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+[data-dark] .toast{background:var(--paper);color:var(--ink);border:1px solid var(--line2)}
+.toast.show{opacity:1}
+@media(max-width:680px){
+  .bar{flex-wrap:wrap;height:auto;padding:.55rem 1rem;row-gap:.4rem}
+  .crumb{display:none}
+  .slots{grid-template-columns:1fr}
+  .pname{font-size:1.35rem}
+  .it-foot{justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-l">
+    <span class="badge">GO &amp; MEET</span>
+    <span class="crumb" data-i18n="crumb">My Plan</span>
+  </div>
+  <div class="bar-r">
+    <a class="pill" id="backProg" href="#" data-i18n="back_prog">← Programme</a>
+    <a class="pill" href="my-events.html" data-i18n="myev">My Events</a>
+    <div class="seg"><button id="langEN">EN</button><button id="langTR">TR</button></div>
+    <button class="pill" id="themeBtn">🌙</button>
+  </div>
+</div>
+
+<div class="gate hidden" id="gateAuth">
+  <h2 data-i18n-html="g_auth_h">Sign in <em>required</em></h2>
+  <p data-i18n="g_auth_p">Go &amp; Meet services are available to registered event participants. Sign in to continue.</p>
+  <a class="btn btn-primary" href="/login.html" data-i18n="g_auth_b">Sign in</a>
+</div>
+
+<div class="gate hidden" id="gateEvent">
+  <h2 data-i18n-html="g_ev_h">Event <em>not found</em></h2>
+  <p data-i18n="g_ev_p">This link is missing an event code. Open Go &amp; Meet from your event's programme or registration page.</p>
+</div>
+
+<div class="gate hidden" id="gateReg">
+  <h2 data-i18n-html="g_reg_h">Approval <em>required</em></h2>
+  <p id="gateRegMsg"></p>
+  <a class="btn btn-primary" id="gateRegBtn" href="#" data-i18n="g_reg_b">Go to registration</a>
+</div>
+
+<div class="wrap hidden" id="main">
+  <div class="pcardx">
+    <div class="pname" id="evTitle">—</div>
+    <div class="ev-meta" id="evMeta"></div>
+    <div class="slots" id="slots"></div>
+  </div>
+
+  <div id="xsellBox"></div>
+
+  <div class="tabs" id="tabsBox"></div>
+  <div class="sec-sub" id="secSub"></div>
+  <div class="list" id="list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var sb=window.cvClient();
+
+  var CAT_ORDER=['accommodation','transfer_car','culture_spouse','offers'];
+  var TAG_IC={summer:'☀️',winter:'❄️',golf:'⛳',ski:'🎿',spa:'💆',city:'🏙',other:'✨'};
+  var PLAT_LBL={google:'Google',tripadvisor:'TripAdvisor',booking:'Booking.com',trustpilot:'Trustpilot',expedia:'Expedia',other:'Other'};
+
+  var I18N={
+   en:{
+    crumb:'My Plan',back_prog:'← Programme',myev:'My Events',
+    g_auth_h:'Sign in <em>required</em>',g_auth_p:'Go & Meet services are available to registered event participants. Sign in to continue.',g_auth_b:'Sign in',
+    g_ev_h:'Event <em>not found</em>',g_ev_p:'This link is missing an event code. Open Go & Meet from your event\u2019s programme or registration page.',
+    g_reg_h:'Approval <em>required</em>',g_reg_b:'Go to registration',
+    g_reg_none:'Go & Meet services are for approved participants of this event. We couldn\u2019t find your application — please register first.',
+    g_reg_pending:'Your application for this event is still pending. Services open once the organiser approves you.',
+    g_reg_rejected:'Your application for this event was not approved, so Go & Meet services are not available.',
+    plan_hint:'Pick your services below — requests go to contracted providers for confirmation. Payments are settled directly with the provider.',
+    slot_empty:'Not selected yet',
+    cat_accommodation:'Accommodation',cat_transfer_car:'Transfer & Car',cat_culture_spouse:'Culture & Spouse',cat_offers:'Special Offers',
+    sub_accommodation:'Contracted hotels with room blocks for this event.',
+    sub_transfer_car:'Airport transfers and car rental from contracted companies.',
+    sub_culture_spouse:'Cultural tours and companion programmes.',
+    sub_offers:'Admin-approved seasonal deals from contracted providers.',
+    by:'by',REQUEST:'Request',REQUESTED:'REQUESTED',CONFIRMED:'✓ CONFIRMED',CANCELLED:'DECLINED / CANCELLED',
+    cancel_req:'Cancel request',again:'Request again',
+    empty_cat:'No listings in this category yet. Check back soon.',
+    empty_off:'No approved offers right now. Check back soon.',
+    xs_acc2tc:'🚌 Accommodation sorted — would you like an airport transfer too?',
+    xs_tc2acc:'🏨 Transfer arranged — shall we sort your accommodation as well?',
+    xs_both2cs:'🏛 Travel is set — add a cultural tour or spouse programme to the free slots?',
+    xs_view:'View options',
+    t_requested:'Request sent — the provider will confirm.',t_cancelled:'Request cancelled.',
+    conf_cancel:'Cancel this request?',
+    seasonal:'SEASONAL',evl:'EVENT',
+    fl_room_type:'Room type',fl_board:'Board',fl_star_rating:'Star rating',fl_distance:'Distance to venue',
+    fl_service_kind:'Service kind',fl_vehicle_class:'Vehicle class',fl_with_driver:'With driver',fl_pickup_point:'Pickup point',fl_dropoff_point:'Drop-off point',fl_pickup_date:'Pickup date',fl_pickup_time:'Pickup time',
+    fl_programme_kind:'Programme kind',fl_duration_hours:'Duration (hours)',fl_languages:'Guide languages',fl_min_group:'Min group size',
+    ov_single:'Single',ov_double:'Double',ov_twin:'Twin',ov_triple:'Triple',ov_family:'Family',ov_deluxe:'Deluxe',ov_junior_suite:'Junior Suite',ov_suite:'Suite',
+    ov_room_only:'Room only',ov_bb:'Bed & Breakfast',ov_hb:'Half board',ov_fb:'Full board',ov_ai:'All inclusive',ov_boutique:'Boutique',
+    ov_airport_transfer:'Airport transfer',ov_car_rental:'Car rental',ov_both:'Both',
+    ov_sedan:'Sedan',ov_suv:'SUV',ov_van:'Van',ov_minibus:'Minibus',ov_bus:'Bus',ov_luxury:'Luxury',
+    ov_yes:'Yes',ov_no:'No (self-drive)',
+    ov_cultural_tour:'Cultural tour',ov_spouse_programme:'Spouse programme',ov_other:'Other',ov_none:'—'
+   },
+   tr:{
+    crumb:'Planım',back_prog:'← Program',myev:'Etkinliklerim',
+    g_auth_h:'Giriş <em>gerekli</em>',g_auth_p:'Go & Meet hizmetleri kayıtlı etkinlik katılımcıları içindir. Devam etmek için giriş yapın.',g_auth_b:'Giriş yap',
+    g_ev_h:'Etkinlik <em>bulunamadı</em>',g_ev_p:'Bu bağlantıda etkinlik kodu eksik. Go & Meet\u2019e etkinliğinizin program veya kayıt sayfasından ulaşın.',
+    g_reg_h:'Onay <em>gerekli</em>',g_reg_b:'Kayıt sayfasına git',
+    g_reg_none:'Go & Meet hizmetleri bu etkinliğin onaylı katılımcıları içindir. Başvurunuz bulunamadı — önce kayıt olun.',
+    g_reg_pending:'Bu etkinlik için başvurunuz henüz beklemede. Organizatör onayladığında hizmetler açılır.',
+    g_reg_rejected:'Bu etkinlik başvurunuz onaylanmadığı için Go & Meet hizmetleri kullanılamıyor.',
+    plan_hint:'Aşağıdan hizmetlerinizi seçin — talepler onay için sözleşmeli sağlayıcılara iletilir. Ödemeler doğrudan sağlayıcıyla yapılır.',
+    slot_empty:'Henüz seçilmedi',
+    cat_accommodation:'Konaklama',cat_transfer_car:'Transfer & Araç',cat_culture_spouse:'Kültür & Eş',cat_offers:'Özel Teklifler',
+    sub_accommodation:'Bu etkinlik için oda bloğu ayrılmış sözleşmeli oteller.',
+    sub_transfer_car:'Sözleşmeli firmalardan havalimanı transferi ve araç kiralama.',
+    sub_culture_spouse:'Kültür turları ve refakatçi programları.',
+    sub_offers:'Sözleşmeli sağlayıcılardan admin onaylı sezonluk fırsatlar.',
+    by:'—',REQUEST:'Talep et',REQUESTED:'TALEP EDİLDİ',CONFIRMED:'✓ ONAYLANDI',CANCELLED:'REDDEDİLDİ / İPTAL',
+    cancel_req:'Talebi iptal et',again:'Yeniden talep et',
+    empty_cat:'Bu kategoride henüz ilan yok. Yakında tekrar bakın.',
+    empty_off:'Şu an onaylı teklif yok. Yakında tekrar bakın.',
+    xs_acc2tc:'🚌 Konaklama tamam — havalimanı transferi de ister misiniz?',
+    xs_tc2acc:'🏨 Transfer ayarlandı — konaklamanızı da ayarlayalım mı?',
+    xs_both2cs:'🏛 Yolculuk hazır — boş vakitlere kültür turu ya da eş programı ekleyelim mi?',
+    xs_view:'Seçenekleri gör',
+    t_requested:'Talep gönderildi — sağlayıcı onaylayacak.',t_cancelled:'Talep iptal edildi.',
+    conf_cancel:'Bu talep iptal edilsin mi?',
+    seasonal:'SEZONLUK',evl:'ETKİNLİK',
+    fl_room_type:'Oda tipi',fl_board:'Pansiyon',fl_star_rating:'Yıldız',fl_distance:'Mekana uzaklık',
+    fl_service_kind:'Hizmet türü',fl_vehicle_class:'Araç sınıfı',fl_with_driver:'Şoförlü',fl_pickup_point:'Alış noktası',fl_dropoff_point:'Bırakış noktası',fl_pickup_date:'Alış tarihi',fl_pickup_time:'Alış saati',
+    fl_programme_kind:'Program türü',fl_duration_hours:'Süre (saat)',fl_languages:'Rehber dilleri',fl_min_group:'Min. grup',
+    ov_single:'Single',ov_double:'Double',ov_twin:'Twin',ov_triple:'Triple',ov_family:'Aile',ov_deluxe:'Deluxe',ov_junior_suite:'Junior Suit',ov_suite:'Suit',
+    ov_room_only:'Sadece oda',ov_bb:'Oda kahvaltı',ov_hb:'Yarım pansiyon',ov_fb:'Tam pansiyon',ov_ai:'Her şey dahil',ov_boutique:'Butik',
+    ov_airport_transfer:'Havalimanı transferi',ov_car_rental:'Araç kiralama',ov_both:'Her ikisi',
+    ov_sedan:'Sedan',ov_suv:'SUV',ov_van:'Van',ov_minibus:'Minibüs',ov_bus:'Otobüs',ov_luxury:'Lüks',
+    ov_yes:'Evet',ov_no:'Hayır (şoförsüz)',
+    ov_cultural_tour:'Kültür turu',ov_spouse_programme:'Eş programı',ov_other:'Diğer',ov_none:'—'
+   }
+  };
+  var LANG=localStorage.getItem('cv-lang')||'en';
+  function t(k){var d=I18N[LANG]||I18N.en;return (k in d)?d[k]:(I18N.en[k]!==undefined?I18N.en[k]:k);}
+  function applyI18n(){
+    document.documentElement.lang=LANG;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=t(el.dataset.i18n);});
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){el.innerHTML=t(el.dataset.i18nHtml);});
+    $('langEN').classList.toggle('on',LANG==='en');
+    $('langTR').classList.toggle('on',LANG==='tr');
+  }
+  function setLang(l){
+    LANG=l;localStorage.setItem('cv-lang',l);
+    applyI18n();
+    if(READY){renderAll();}
+    if(REGGATE)regGateMsg();
+  }
+
+  var FIELD_TYPE={pickup_date:'date_tr',pickup_time:'time',
+    room_type:'sel',board:'sel',star_rating:'sel',service_kind:'sel',vehicle_class:'sel',with_driver:'sel',programme_kind:'sel'};
+
+  var qs=new URLSearchParams(location.search);
+  var CODE=(qs.get('e')||'').trim();
+  var EVENT=null, UID=null, INV=[], OFFERS=[], PROVS={}, RATS={}, PLAN=[], TAB='accommodation', READY=false, REGGATE=null;
+
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+  function show(el){el.classList.remove('hidden');}
+  function hide(el){el.classList.add('hidden');}
+  function toast(m){var el=$('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._h);el._h=setTimeout(function(){el.classList.remove('show');},2200);}
+  function fmtD(s){if(!s)return'';var p=String(s).slice(0,10).split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+  function dr(a,b){a=fmtD(a);b=fmtD(b);if(a&&b)return a+' → '+b;return a||b||'';}
+  function money(am,cur){if(am==null||am==='')return'';return (+am).toLocaleString(LANG==='tr'?'tr-TR':'en-US',{minimumFractionDigits:0,maximumFractionDigits:2})+' '+(cur||'EUR');}
+  function ovl(v){if(v==null||v==='')return t('ov_none');if(/^\d$/.test(String(v)))return v+'★';var k='ov_'+v;var d=I18N[LANG]||I18N.en;return (k in d||k in I18N.en)?t(k):v;}
+
+  // tema + dil
+  var dark=localStorage.getItem('cn-dark')==='1';
+  function applyDark(){document.body.toggleAttribute('data-dark',dark);$('themeBtn').textContent=dark?'☀️':'🌙';}
+  applyDark();
+  $('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');applyDark();};
+  $('langEN').onclick=function(){setLang('en');};
+  $('langTR').onclick=function(){setLang('tr');};
+  applyI18n();
+
+  init();
+  async function init(){
+    var s=await sb.auth.getSession();
+    if(!s.data||!s.data.session){show($('gateAuth'));return;}
+    UID=s.data.session.user.id;
+    if(!CODE){show($('gateEvent'));return;}
+
+    var ev=await sb.from('conventus_managed_events')
+      .select('id,code,title,start_date,end_date,location,gm_services').eq('code',CODE).maybeSingle();
+    if(ev.error||!ev.data){show($('gateEvent'));return;}
+    EVENT=ev.data;
+    $('backProg').href='programme.html?e='+encodeURIComponent(EVENT.code);
+
+    // onaylı katılımcı kontrolü
+    var reg=await sb.from('conventus_registrations')
+      .select('status').eq('event_id',EVENT.id).eq('user_id',UID)
+      .order('created_at',{ascending:false}).limit(1).maybeSingle();
+    var st=reg&&reg.data?(reg.data.status||'pending'):null;
+    if(st!=='approved'){
+      REGGATE=st||'none';
+      regGateMsg();
+      $('gateRegBtn').href='register.html?e='+encodeURIComponent(EVENT.code);
+      show($('gateReg'));
+      return;
+    }
+
+    $('evTitle').innerHTML=esc(EVENT.title).replace(/\s(\S+)$/,' <span>$1</span>');
+    var meta=[];
+    if(EVENT.start_date){
+      var rge=fmtD(EVENT.start_date);
+      if(EVENT.end_date&&EVENT.end_date!==EVENT.start_date)rge+=' → '+fmtD(EVENT.end_date);
+      meta.push('📅 '+rge);
+    }
+    if(EVENT.location)meta.push('📍 '+esc(EVENT.location));
+    $('evMeta').innerHTML=meta.map(function(m){return '<span>'+m+'</span>';}).join('')
+      +'<span style="flex-basis:100%;margin-top:.3rem">'+esc(t('plan_hint'))+'</span>';
+
+    await loadAll();
+    show($('main'));
+    READY=true;
+    renderAll();
+  }
+  function regGateMsg(){
+    var k=REGGATE==='pending'?'g_reg_pending':(REGGATE==='rejected'?'g_reg_rejected':'g_reg_none');
+    $('gateRegMsg').textContent=t(k);
+  }
+
+  async function loadAll(){
+    var evOr='event_id.is.null,event_id.eq.'+EVENT.id;
+    var r1=await sb.from('gm_inventory').select('*').eq('is_active',true).or(evOr)
+      .order('created_at',{ascending:false});
+    INV=r1.error?[]:(r1.data||[]);
+    var r2=await sb.from('gm_offers').select('*').eq('status','approved').or(evOr)
+      .order('created_at',{ascending:false});
+    OFFERS=r2.error?[]:(r2.data||[]);
+    var r3=await sb.from('gm_providers_public').select('*');
+    PROVS={};(r3.data||[]).forEach(function(p){PROVS[p.id]=p;});
+    var r4=await sb.from('gm_provider_ratings').select('provider_id,platform,platform_other,score,scale,url');
+    RATS={};(r4.data||[]).forEach(function(x){(RATS[x.provider_id]=RATS[x.provider_id]||[]).push(x);});
+    await loadPlan();
+  }
+  async function loadPlan(){
+    var r=await sb.from('gm_plan').select('*').eq('event_id',EVENT.id).eq('user_id',UID)
+      .order('created_at',{ascending:true});
+    PLAN=r.error?[]:(r.data||[]);
+  }
+
+  function planFor(field,id){
+    var rows=PLAN.filter(function(p){return p[field]===id;});
+    return rows.length?rows[rows.length-1]:null;
+  }
+  function activeCat(cat){
+    return PLAN.some(function(p){return p.category===cat&&p.status!=='cancelled';});
+  }
+  function provName(pid){var p=PROVS[pid];return p?p.name:'—';}
+  function ratingChips(pid){
+    return (RATS[pid]||[]).map(function(x){
+      var lbl=x.platform==='other'?(x.platform_other||'Other'):PLAT_LBL[x.platform];
+      return '<a class="chip ok" href="'+esc(x.url)+'" target="_blank" rel="noopener">★ '+esc(x.score)+'/'+esc(+x.scale)+' '+esc(lbl.toUpperCase())+' ✓</a>';
+    }).join('');
+  }
+
+  // ---------- RENDER ----------
+  function renderAll(){renderSlots();renderXsell();buildTabs();render();}
+
+  function statusChip(st){
+    if(st==='confirmed')return '<span class="chip ok">'+t('CONFIRMED')+'</span>';
+    if(st==='cancelled')return '<span class="chip bad">'+t('CANCELLED')+'</span>';
+    return '<span class="chip warn">'+t('REQUESTED')+'</span>';
+  }
+
+  function renderSlots(){
+    var invById={};INV.forEach(function(x){invById[x.id]=x;});
+    var offById={};OFFERS.forEach(function(x){offById[x.id]=x;});
+    var h=['accommodation','transfer_car','culture_spouse'].filter(function(c){return enabledCats().indexOf(c)>=0;}).map(function(c){
+      var rows=PLAN.filter(function(p){return p.category===c&&p.status!=='cancelled';});
+      var last=rows.length?rows[rows.length-1]:null;
+      var v;
+      if(last){
+        var it=invById[last.inventory_id];
+        v='<span class="sv">'+esc(it?it.title:'—')+'</span><div style="margin-top:4px">'+statusChip(last.status)+'</div>';
+      }else{
+        v='<span class="sv emp">'+t('slot_empty')+'</span>';
+      }
+      return '<div class="slot"><div class="sl">'+catIcon(c)+' '+esc(t('cat_'+c))+'</div>'+v+'</div>';
+    }).join('');
+    var offRows=PLAN.filter(function(p){return p.category==='offer'&&p.status!=='cancelled';});
+    if(offRows.length){
+      h+='<div class="slot" style="grid-column:1/-1"><div class="sl">⭐ '+esc(t('cat_offers'))+'</div>'
+        +offRows.map(function(p){
+          var o=offById[p.offer_id];
+          return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px"><span class="sv">'+esc(o?o.title:'—')+'</span>'+statusChip(p.status)+'</div>';
+        }).join('')+'</div>';
+    }
+    $('slots').innerHTML=h;
+  }
+
+  function renderXsell(){
+    var en=enabledCats();
+    var has=function(c){return en.indexOf(c)>=0;};
+    var acc=activeCat('accommodation'),tc=activeCat('transfer_car'),cs=activeCat('culture_spouse');
+    var rule=null;
+    if(acc&&!tc&&has('transfer_car'))rule={txt:'xs_acc2tc',go:'transfer_car'};
+    else if(tc&&!acc&&has('accommodation'))rule={txt:'xs_tc2acc',go:'accommodation'};
+    else if(acc&&tc&&!cs&&has('culture_spouse'))rule={txt:'xs_both2cs',go:'culture_spouse'};
+    if(!rule){$('xsellBox').innerHTML='';return;}
+    $('xsellBox').innerHTML='<div class="xsell"><span class="xt">'+esc(t(rule.txt))+'</span>'
+      +'<button class="btn btn-primary btn-sm" id="xsGo">'+esc(t('xs_view'))+' →</button></div>';
+    $('xsGo').onclick=function(){TAB=rule.go;buildTabs();render();window.scrollTo({top:$('tabsBox').offsetTop-70,behavior:'smooth'});};
+  }
+
+  function enabledCats(){
+    var s=EVENT&&Array.isArray(EVENT.gm_services)&&EVENT.gm_services.length?EVENT.gm_services:CAT_ORDER;
+    return CAT_ORDER.filter(function(c){return s.indexOf(c)>=0;});
+  }
+  function catIcon(c){return {accommodation:'🏨',transfer_car:'🚌',culture_spouse:'🏛',offers:'⭐'}[c];}
+  function buildTabs(){
+    var cats=enabledCats();
+    if(cats.indexOf(TAB)<0)TAB=cats[0];
+    $('tabsBox').innerHTML=cats.map(function(c){
+      return '<button class="tab'+(c===TAB?' on':'')+'" data-t="'+c+'">'+catIcon(c)+' '+esc(t('cat_'+c))+'</button>';
+    }).join('');
+    $('tabsBox').querySelectorAll('.tab').forEach(function(tb){
+      tb.onclick=function(){
+        $('tabsBox').querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+        tb.classList.add('on');TAB=tb.dataset.t;render();
+      };
+    });
+  }
+
+  function detailChips(x){
+    var d=x.details||{};
+    return Object.keys(d).filter(function(k){
+      return d[k]!==''&&d[k]!=null&&!/_other$/.test(k);
+    }).map(function(k){
+      var v=d[k];
+      var ty=FIELD_TYPE[k];
+      var disp;
+      if(ty==='date_tr')disp=fmtD(v);
+      else if(ty==='sel')disp=(v==='other'&&d[k+'_other'])?d[k+'_other']:ovl(String(v));
+      else disp=v;
+      return '<span>'+esc(t('fl_'+k)!=='fl_'+k?t('fl_'+k):k)+': <b>'+esc(disp)+'</b></span>';
+    }).join('');
+  }
+
+  function actionHtml(plan,kind,id){
+    if(!plan)return '<button class="btn btn-primary btn-sm" data-req="'+kind+':'+id+'">'+t('REQUEST')+'</button>';
+    if(plan.status==='requested')
+      return statusChip('requested')+'<button class="btn btn-danger btn-sm" data-cxl="'+plan.id+'">'+t('cancel_req')+'</button>';
+    if(plan.status==='confirmed')return statusChip('confirmed');
+    return statusChip('cancelled')+'<button class="btn btn-primary btn-sm" data-req="'+kind+':'+id+'">'+t('again')+'</button>';
+  }
+
+  function render(){
+    $('secSub').textContent=t('sub_'+TAB);
+    if(TAB==='offers'){
+      if(!OFFERS.length){$('list').innerHTML='<div class="empty">'+t('empty_off')+'</div>';return;}
+      $('list').innerHTML=OFFERS.map(function(x){
+        var plan=planFor('offer_id',x.id);
+        return '<div class="item">'
+          +'<div class="it-top"><span>'+(TAG_IC[x.tag]||'✨')+'</span><span class="it-title">'+esc(x.title)+'</span>'
+            +(x.tag==='other'&&x.tag_other?'<span class="chip pf">'+esc(x.tag_other.toUpperCase())+'</span>':'')
+            +(x.event_id?'<span class="chip pf">'+t('evl')+'</span>':'<span class="chip mut">'+t('seasonal')+'</span>')
+          +'</div>'
+          +'<div class="it-prov">'+esc(t('by'))+' <b>'+esc(provName(x.provider_id))+'</b> '+ratingChips(x.provider_id)+'</div>'
+          +'<div class="it-meta">'
+            +(money(x.price_amount,x.currency)?'<span>💰 <b>'+esc(money(x.price_amount,x.currency))+'</b>'+(x.price_note?' · '+esc(x.price_note):'')+'</span>':(x.price_note?'<span>💰 '+esc(x.price_note)+'</span>':''))
+            +(dr(x.date_from,x.date_to)?'<span>📅 '+esc(dr(x.date_from,x.date_to))+'</span>':'')
+          +'</div>'
+          +(x.body?'<div class="it-desc">'+esc(x.body)+'</div>':'')
+          +'<div class="it-foot">'+actionHtml(plan,'offer',x.id)+'</div>'
+        +'</div>';
+      }).join('');
+    }else{
+      var rows=INV.filter(function(x){return x.category===TAB;});
+      if(!rows.length){$('list').innerHTML='<div class="empty">'+t('empty_cat')+'</div>';return;}
+      $('list').innerHTML=rows.map(function(x){
+        var plan=planFor('inventory_id',x.id);
+        return '<div class="item">'
+          +'<div class="it-top"><span class="it-title">'+esc(x.title)+'</span>'
+            +(x.event_id?'<span class="chip pf">'+t('evl')+'</span>':'')
+          +'</div>'
+          +'<div class="it-prov">'+esc(t('by'))+' <b>'+esc(provName(x.provider_id))+'</b> '+ratingChips(x.provider_id)+'</div>'
+          +'<div class="it-meta">'
+            +(money(x.price_amount,x.currency)?'<span>💰 <b>'+esc(money(x.price_amount,x.currency))+'</b></span>':'')
+            +(x.capacity?'<span>👥 <b>'+esc(x.capacity)+'</b></span>':'')
+            +(dr(x.date_from,x.date_to)?'<span>📅 '+esc(dr(x.date_from,x.date_to))+'</span>':'')
+            +detailChips(x)
+          +'</div>'
+          +(x.description?'<div class="it-desc">'+esc(x.description)+'</div>':'')
+          +'<div class="it-foot">'+actionHtml(plan,'inv',x.id)+'</div>'
+        +'</div>';
+      }).join('');
+    }
+    $('list').querySelectorAll('[data-req]').forEach(function(b){
+      b.onclick=function(){var p=b.dataset.req.split(':');request(p[0],p[1],b);};
+    });
+    $('list').querySelectorAll('[data-cxl]').forEach(function(b){
+      b.onclick=function(){cancelReq(b.dataset.cxl);};
+    });
+  }
+
+  async function request(kind,id,btn){
+    btn.disabled=true;
+    var payload={
+      event_id:EVENT.id,user_id:UID,
+      category:kind==='offer'?'offer':TAB,
+      inventory_id:kind==='inv'?id:null,
+      offer_id:kind==='offer'?id:null,
+      status:'requested'
+    };
+    var r=await sb.from('gm_plan').insert(payload);
+    btn.disabled=false;
+    if(r.error){toast(r.error.message);return;}
+    toast(t('t_requested'));
+    await loadPlan();renderAll();
+  }
+  async function cancelReq(id){
+    if(!confirm(t('conf_cancel')))return;
+    var r=await sb.from('gm_plan').delete().eq('id',id).eq('status','requested');
+    if(r.error){toast(r.error.message);return;}
+    toast(t('t_cancelled'));
+    await loadPlan();renderAll();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Register · Conventus</title>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+  const _sb = window.cvClient();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--r:14px;--ease:.2s ease}
+  [data-resolved-theme="dark"]{--gold:#4B92DB;--gold-dim:rgba(75,146,219,.12);--bg:#0B1428;--panel:#101C36;--surface:#0E1A32;--border:#243456;--border-accent:#2A3A5E;--text:#EEF1F7;--sub:#AAB4C8;--muted:#7F8AA2;--field:#0E1A32;--ok:#4ADE80;--err:#F87171}
+  [data-resolved-theme="light"]{--gold:#004990;--gold-dim:rgba(0,73,144,.10);--bg:#F5F2EC;--panel:#FFFFFF;--surface:#FAF7F1;--border:#E5DFD2;--border-accent:#D6CFBE;--text:#0E2148;--sub:#1F2D55;--muted:#5A6486;--field:#FAF7F1;--ok:#1F9E50;--err:#DC2626}
+  body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Manrope',system-ui,sans-serif;transition:background var(--ease),color var(--ease)}
+  header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4vw,2rem);border-bottom:1px solid var(--border-accent);background:var(--panel)}
+  .brand{display:flex;align-items:center;gap:.6rem}
+  .brand svg{width:28px;height:28px}
+  .brand b{font-family:'Instrument Serif',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+  .brand small{display:block;font-size:.48rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  #whoami{font-size:.72rem;color:var(--sub)}
+  #whoami a{color:var(--gold);text-decoration:none;cursor:pointer}
+  main{max-width:560px;margin:0 auto;padding:2.2rem 1.3rem 4rem}
+  /* event header */
+  .ev-head{border:1px solid var(--border-accent);background:var(--panel);border-radius:16px;padding:1.4rem 1.5rem;margin-bottom:1.4rem}
+  .ev-head .eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+  .ev-head h1{font-family:'Instrument Serif',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:.5rem}
+  .ev-head .meta{font-size:.78rem;color:var(--sub);line-height:1.6}
+  .ev-head .desc{font-size:.78rem;color:var(--muted);margin-top:.6rem;line-height:1.6}
+  .ev-head .prog-link{display:inline-flex;align-items:center;gap:6px;margin-top:.85rem;padding:.42rem .95rem;border:1px solid var(--gold);border-radius:100px;color:var(--gold);font:600 .74rem 'Manrope';text-decoration:none;transition:all .2s}
+  .ev-head .prog-link:hover{background:var(--gold);color:#fff}
+  /* card */
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:clamp(1.3rem,3vw,1.8rem)}
+  .card h2{font-family:'Instrument Serif',sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:.3rem}
+  .card .hint{font-size:.78rem;color:var(--sub);margin-bottom:1.3rem}
+  /* tabs */
+  .tabs{display:flex;gap:.4rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.25rem;margin-bottom:1.3rem}
+  .tabs button{flex:1;padding:.5rem;border:none;background:transparent;border-radius:100px;color:var(--sub);font:600 .78rem 'Manrope';cursor:pointer;transition:background var(--ease),color var(--ease)}
+  .tabs button.active{background:var(--gold);color:#fff}
+  /* fields */
+  .field{margin-bottom:1rem}
+  .field label{display:block;font-size:.72rem;font-weight:600;color:var(--sub);margin-bottom:.35rem}
+  .field label .req{color:var(--gold)}
+  .field input,.field select,.field textarea{width:100%;background:var(--field);border:1px solid var(--border);border-radius:10px;padding:.68rem .8rem;color:var(--text);font:400 .86rem 'Manrope';transition:border-color var(--ease)}
+  .field textarea{min-height:70px;resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+  .field input:read-only{background:var(--surface);color:var(--sub);cursor:default}
+  .verified{font-size:.66rem;color:var(--ok);margin-top:.3rem;display:flex;align-items:center;gap:.3rem}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .btn{width:100%;padding:.82rem;border:none;border-radius:11px;background:var(--gold);color:#fff;font:700 .86rem 'Manrope';cursor:pointer;transition:opacity var(--ease),transform .15s;margin-top:.3rem}
+  .btn:hover{opacity:.92;transform:translateY(-1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .msg{font-size:.78rem;padding:.7rem .9rem;border-radius:10px;margin-top:1rem;display:none;line-height:1.5}
+  .msg.err{display:block;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:var(--err)}
+  .msg.ok{display:block;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);color:var(--ok)}
+  /* state screens */
+  .state{text-align:center;padding:.5rem 0}
+  .state .ic{width:52px;height:52px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--border-accent);display:grid;place-items:center;margin:0 auto 1rem;color:var(--gold)}
+  .state h2{font-family:'Instrument Serif',sans-serif;font-size:1.15rem;margin-bottom:.5rem}
+  .state p{font-size:.82rem;color:var(--sub);line-height:1.6;max-width:38ch;margin:0 auto}
+  .state p b{color:var(--text)}
+  .status-pill{display:inline-block;margin-top:.9rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .8rem;border-radius:100px;border:1px solid var(--border-accent);color:var(--gold);background:var(--gold-dim)}
+  .center-note{text-align:center;font-size:.72rem;color:var(--muted);margin-top:1rem}
+  .center-note a{color:var(--gold);cursor:pointer;text-decoration:none}
+  @media(max-width:440px){.row2{grid-template-columns:1fr}}
+</style>
+<script src="cv-skin.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 56 56" fill="none"><path d="M47 21A21 21 0 1 0 47 35" stroke="#1C3060" stroke-width="3.5" stroke-linecap="round"/><path d="M39 23A13 13 0 1 0 39 33" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" fill="#1C3060"/></svg>
+    <span><b>Conventus</b><small>Event Registration</small></span>
+  </div>
+  <div id="whoami"></div>
+</header>
+
+<main>
+  <div id="evHead"></div>
+  <div id="panel" class="card"><div class="state"><p>Loading…</p></div></div>
+</main>
+
+<script>
+  // theme
+  (function(){var t=localStorage.getItem('cv-theme')||'system';function r(x){return x==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):x;}document.documentElement.setAttribute('data-resolved-theme',r(t));})();
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const params = new URLSearchParams(location.search);
+  const CODE = params.get('e');
+  let EVENT = null;
+
+  const ICON_MAIL = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  const ICON_CHECK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>';
+
+  function evHeader(e){
+    const when=[e.start_date,e.end_date].filter(Boolean).join(' → ')||'Date to be confirmed';
+    $('evHead').innerHTML = `<div class="ev-head">
+      <div class="eyebrow">You're registering for</div>
+      <h1>${esc(e.title)}</h1>
+      <div class="meta">${esc(when)}${e.location?' · '+esc(e.location):''}${e.host_org?'<br>Hosted by '+esc(e.host_org):''}</div>
+      ${e.description?`<div class="desc">${esc(e.description)}</div>`:''}
+      <a class="prog-link" href="programme.html?e=${encodeURIComponent(e.code)}" target="_blank" rel="noopener">📋 View programme →</a>
+    </div>`;
+  }
+
+  async function init(){
+    if(!CODE){ return fail('This registration link is invalid.', 'No event code was provided.'); }
+    // fetch event (public read allowed for open events)
+    const { data:ev, error } = await _sb.from('conventus_managed_events').select('*').eq('code', CODE).maybeSingle();
+    if(error){ return fail('Something went wrong.', error.message); }
+    if(!ev){ return fail('Registration unavailable.', 'This event link is closed or does not exist.'); }
+    EVENT = ev; evHeader(ev);
+    if(ev.published===false){ return fail('Registration unavailable.', 'This event is not open yet.'); }
+    if(!ev.registration_open){ return stdGate(ev); }
+    route();
+  }
+
+function icsHref(ev){
+    function dd(x,plus){var t=new Date(String(x).slice(0,10)+'T00:00:00Z');if(plus)t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10).replace(/-/g,'');}
+    if(!ev.start_date)return null;
+    var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Conventity//EN','BEGIN:VEVENT',
+      'UID:cv-'+ev.id+'@conventity.org',
+      'DTSTART;VALUE=DATE:'+dd(ev.start_date),
+      'DTEND;VALUE=DATE:'+dd(ev.end_date||ev.start_date,true),
+      'SUMMARY:'+String(ev.title||'').replace(/[,;\n]/g,' '),
+      'LOCATION:'+String(([ev.city,ev.country].filter(Boolean).join(', '))||ev.location||'').replace(/[,;\n]/g,' '),
+      'END:VEVENT','END:VCALENDAR'];
+    return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(L.join('\r\n'));
+  }
+  function stdGate(ev){
+    var ics=icsHref(ev);
+    $('panel').innerHTML = `<div class="state" style="text-align:center;padding:1.4rem 0">
+      <div style="font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">📅 SAVE THE DATE</div>
+      <p style="line-height:1.7;margin-bottom:1rem">Registration opens with the <b>invitation stage</b>.<br>Add the event to your calendar now — details and registration will follow.</p>
+      ${ics?`<a class="btn" style="display:inline-block;width:auto;padding:.82rem 1.6rem;text-decoration:none" href="${ics}" download="${esc(ev.code||'event')}.ics">📅 Add to Calendar</a>`:''}
+      <div style="margin-top:1rem"><a class="prog-link" href="go-and-test.html">← Browse events</a></div>
+    </div>`;
+  }
+  async function route(){
+    const { data:{ session } } = await _sb.auth.getSession();
+    if(session){ showWho(session.user); infoForm(session.user); }
+    else { $('whoami').innerHTML=''; authPanel('register'); }
+  }
+
+  function showWho(user){
+    const m=user.user_metadata||{}; const name=m.first_name||user.email.split('@')[0];
+    $('whoami').innerHTML = `${esc(name)} · <a id="signout">Sign out</a>`;
+    $('signout').onclick = async ()=>{ await _sb.auth.signOut(); location.reload(); };
+  }
+
+  function fail(title, sub){
+    $('panel').innerHTML = `<div class="state"><div class="ic">!</div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div>`;
+  }
+
+  // ---------- AUTH (register / sign in) ----------
+  function authPanel(tab){
+    $('panel').innerHTML = `
+      <h2>Register to apply</h2>
+      <div class="hint">Create an account (or sign in) to submit your application. We verify your email for security.</div>
+      <div class="tabs">
+        <button id="tabReg" class="${tab==='register'?'active':''}">Register</button>
+        <button id="tabIn" class="${tab==='signin'?'active':''}">Sign in</button>
+      </div>
+      <div id="authBody"></div>
+      <div class="msg" id="authMsg"></div>`;
+    $('tabReg').onclick=()=>authPanel('register');
+    $('tabIn').onclick=()=>authPanel('signin');
+    $('authBody').innerHTML = tab==='register' ? regForm() : signinForm();
+    if(tab==='register') $('doReg').onclick=doRegister; else $('doIn').onclick=doSignin;
+  }
+  function regForm(){
+    return `
+      <div class="row2">
+        <div class="field"><label>First name <span class="req">*</span></label><input id="fn" type="text" autocomplete="given-name"></div>
+        <div class="field"><label>Last name <span class="req">*</span></label><input id="ln" type="text" autocomplete="family-name"></div>
+      </div>
+      <div class="field"><label>Email <span class="req">*</span></label><input id="em" type="email" autocomplete="email"></div>
+      <div class="field"><label>Password <span class="req">*</span></label><input id="pw" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+      <button class="btn" id="doReg">Create account</button>`;
+  }
+  function signinForm(){
+    return `
+      <div class="field"><label>Email <span class="req">*</span></label><input id="em" type="email" autocomplete="email"></div>
+      <div class="field"><label>Password <span class="req">*</span></label><input id="pw" type="password" autocomplete="current-password"></div>
+      <button class="btn" id="doIn">Sign in</button>`;
+  }
+  function authErr(m){ const e=$('authMsg'); e.className='msg err'; e.textContent=m; }
+
+  async function doRegister(){
+    const fn=$('fn').value.trim(), ln=$('ln').value.trim(), em=$('em').value.trim(), pw=$('pw').value;
+    if(!fn||!ln||!em||!pw) return authErr('Please fill in all fields.');
+    if(pw.length<6) return authErr('Password must be at least 6 characters.');
+    $('doReg').disabled=true; $('doReg').textContent='Creating…';
+    const { data, error } = await _sb.auth.signUp({
+      email:em, password:pw,
+      options:{ data:{ first_name:fn, last_name:ln }, emailRedirectTo: location.href }
+    });
+    $('doReg').disabled=false; $('doReg').textContent='Create account';
+    if(error) return authErr(error.message);
+    if(data.session){ // email confirmation disabled → straight in
+      showWho(data.session.user); infoForm(data.session.user);
+    } else {
+      verifySent(em);
+    }
+  }
+  async function doSignin(){
+    const em=$('em').value.trim(), pw=$('pw').value;
+    if(!em||!pw) return authErr('Please enter your email and password.');
+    $('doIn').disabled=true; $('doIn').textContent='Signing in…';
+    const { error } = await _sb.auth.signInWithPassword({ email:em, password:pw });
+    $('doIn').disabled=false; $('doIn').textContent='Sign in';
+    if(error) return authErr(error.message.includes('confirm') ? 'Please verify your email first — check your inbox.' : error.message);
+    location.reload();
+  }
+  function verifySent(email){
+    $('whoami').innerHTML='';
+    $('panel').innerHTML = `<div class="state">
+      <div class="ic">${ICON_MAIL}</div>
+      <h2>Verify your email</h2>
+      <p>We've sent a verification link to <b>${esc(email)}</b>. Click it to confirm your account, then you'll come right back here to complete your application.</p>
+      <div class="center-note">Wrong email? <a id="back">Go back</a></div>
+    </div>`;
+    $('back').onclick=()=>authPanel('register');
+  }
+
+  // ---------- INFO FORM (verified user) ----------
+  const NATIONS=["Albania","Belgium","Bulgaria","Canada","Croatia","Czech Republic","Denmark","Estonia","Finland","France","Germany","Greece","Hungary","Iceland","Italy","Latvia","Lithuania","Luxembourg","Montenegro","Netherlands","North Macedonia","Norway","Poland","Portugal","Romania","Slovakia","Slovenia","Spain","Sweden","Türkiye","United Kingdom","United States"];
+  const RANKS={
+    "Officers (OF)":["OF-9 — General / Air Chief Marshal / Admiral","OF-8 — Lieutenant General / Air Marshal / Vice Admiral","OF-7 — Major General / Air Vice Marshal / Rear Admiral (UH)","OF-6 — Brigadier General / Air Commodore / Rear Admiral (LH)","OF-5 — Colonel / Group Captain / Captain (Navy)","OF-4 — Lieutenant Colonel / Wing Commander / Commander","OF-3 — Major / Squadron Leader / Lieutenant Commander","OF-2 — Captain / Flight Lieutenant / Lieutenant","OF-1 — Lieutenant / Flying Officer / Lieutenant JG"],
+    "Other Ranks (OR)":["OR-9 — Command Sergeant Major / Warrant Officer / MCPO","OR-8 — Master Sergeant / Senior Master Sergeant / SCPO","OR-7 — Sergeant First Class / Master Sergeant / Chief Petty Officer","OR-6 — Staff Sergeant / Technical Sergeant / PO 1st Class","OR-5 — Sergeant / Staff Sergeant / PO 2nd Class","OR-4 — Corporal / Senior Airman / PO 3rd Class","OR-3 — Private First Class / Airman First Class / Seaman","OR-2 — Private E2 / Airman / Seaman Apprentice","OR-1 — Private E1 / Airman Basic / Seaman Recruit"],
+    "NATO Civilian":["A7 — NATO Civilian Grade","A6 — NATO Civilian Grade","A5 — NATO Civilian Grade","A4 — NATO Civilian Grade","A3 — NATO Civilian Grade","A2 — NATO Civilian Grade","A1 — NATO Civilian Grade"],
+    "Civilian / Industry":["Civilian — Government","Civilian — Industry","Civilian — Academia","Civilian — Other"]
+  };
+  function optList(arr,sel){ return arr.map(function(o){ return '<option'+(o===sel?' selected':'')+'>'+esc(o)+'</option>'; }).join(''); }
+  function rankOptions(){
+    var h='<option value="">Select rank / grade…</option>';
+    for(var g in RANKS){ h+='<optgroup label="'+esc(g)+'">'+optList(RANKS[g])+'</optgroup>'; }
+    h+='<option value="__other__">Other (specify manually)</option>';
+    return h;
+  }
+
+  async function infoForm(user){
+    const m=user.user_metadata||{};
+    const fn=m.first_name||'', ln=m.last_name||'', email=user.email||'';
+    const hasName = !!(fn && ln);
+    // already applied?
+    const { data:existing } = await _sb.from('conventus_registrations')
+      .select('status').eq('event_id', EVENT.id).eq('user_id', user.id).maybeSingle();
+    if(existing){ return applied(existing.status); }
+
+    $('panel').innerHTML = `
+      <h2>Personal information</h2>
+      <div class="hint">Your registration enters review once submitted. Fields marked <span class="req">*</span> are required for accreditation.</div>
+      <div class="row2">
+        <div class="field"><label>First name <span class="req">*</span></label><input id="fnm" type="text" maxlength="80" value="${esc(fn)}" ${hasName?'readonly':''}></div>
+        <div class="field"><label>Last name <span class="req">*</span></label><input id="lnm" type="text" maxlength="80" value="${esc(ln)}" ${hasName?'readonly':''}></div>
+      </div>
+      <div class="field"><label>Email address</label><input type="text" value="${esc(email)}" readonly>
+        <div class="verified">${ICON_CHECK.replace('width="24" height="24"','width="12" height="12"')} Verified</div></div>
+      <div class="row2">
+        <div class="field"><label>Phone number <span class="req">*</span></label><input id="phn" type="tel" maxlength="40" placeholder="+90 5xx xxx xx xx"></div>
+        <div class="field"><label>Passport number <span class="req">*</span></label><input id="pss" type="text" maxlength="40" placeholder="e.g. A12345678"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Date of birth <span class="req">*</span></label><input id="dob" type="text" maxlength="10" inputmode="numeric" placeholder="DD.MM.YYYY"></div>
+        <div class="field"><label>Nation <span class="req">*</span></label>
+          <select id="cty"><option value="">Select nation…</option>${optList(NATIONS)}</select></div>
+      </div>
+      <div class="field"><label>NS/NR email address</label><input id="nse" type="email" maxlength="120" placeholder="name@ns.nato.int"></div>
+      <div class="field"><label>Organization <span class="req">*</span></label><input id="inst" type="text" maxlength="140" placeholder="e.g. NATO LANDCOM"></div>
+      <div class="row2">
+        <div class="field"><label>Rank / grade <span class="req">*</span></label>
+          <select id="rk">${rankOptions()}</select>
+          <input id="rkOther" type="text" maxlength="100" placeholder="Type your rank / grade" style="margin-top:9px;display:none"></div>
+        <div class="field"><label>Duty / position <span class="req">*</span></label><input id="duty" type="text" maxlength="120" placeholder="e.g. Branch Chief"></div>
+      </div>
+      <div class="field"><label>Attending as <span class="req">*</span></label>
+        <select id="role">
+          <option value="">Select…</option>
+          <option>Delegate</option><option>Speaker</option><option>Observer</option>
+          <option>Media / Press</option><option>Support staff</option><option>Other</option>
+        </select></div>
+      <div class="field"><label>Note to organiser (optional)</label><textarea id="note" maxlength="400" placeholder="Anything the organiser should know."></textarea></div>
+      ${pafFieldsHtml()}
+      <button class="btn" id="doApply">Submit registration</button>
+      <div class="msg" id="applyMsg"></div>`;
+
+    // rank "Other" toggle
+    $('rk').onchange=function(){
+      const other=this.value==='__other__';
+      $('rkOther').style.display=other?'block':'none';
+      if(other) $('rkOther').focus();
+    };
+    // DD.MM.YYYY mask (native date input banned)
+    $('dob').oninput=function(){
+      let d=this.value.replace(/\D/g,'').slice(0,8), out=d.slice(0,2);
+      if(d.length>2) out+='.'+d.slice(2,4);
+      if(d.length>4) out+='.'+d.slice(4,8);
+      this.value=out;
+    };
+    $('doApply').onclick=()=>submitApplication(user, email);
+    applyFieldConfig();
+  }
+
+  function dobToISO(v){
+    const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((v||'').trim());
+    if(!m) return null;
+    const d=m[1], mo=m[2], y=m[3];
+    const dt=new Date(y+'-'+mo+'-'+d+'T00:00:00Z');
+    if(isNaN(dt) || dt.getUTCFullYear()!=+y || (dt.getUTCMonth()+1)!=+mo || dt.getUTCDate()!=+d) return null;
+    return y+'-'+mo+'-'+d;
+  }
+
+  // registration_field_defs: core fields (map to columns) + custom fields (-> answers).
+  function pafDefs(){ return Array.isArray(EVENT.registration_field_defs) ? EVENT.registration_field_defs : []; }
+  function customDefs(){ return pafDefs().filter(d => !d.core && d.visible !== false); }
+  function pafFieldsHtml(){
+    const defs=customDefs(); if(!defs.length) return '';
+    return '<h2 style="margin-top:26px">Event-specific details</h2>' + defs.map(d=>{
+      const req=d.required?' <span class="req">*</span>':''; const id='paf_'+esc(d.key); const t=String(d.type||'text').toLowerCase();
+      let ctl;
+      if(t==='textarea') ctl=`<textarea id="${id}" maxlength="600"></textarea>`;
+      else if(t==='select'||t==='multi-select'||t==='multiselect') ctl=`<select id="${id}"><option value="">Select…</option>${(d.options||[]).map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
+      else if(t==='checkbox') ctl=`<label style="display:flex;gap:8px;align-items:center;font-weight:400"><input id="${id}" type="checkbox"> ${esc(d.label)}</label>`;
+      else if(t==='date') ctl=`<input id="${id}" type="text" maxlength="10" inputmode="numeric" placeholder="DD.MM.YYYY">`;
+      else ctl=`<input id="${id}" type="text" maxlength="200">`;
+      return t==='checkbox' ? `<div class="field">${ctl}</div>` : `<div class="field"><label>${esc(d.label)}${req}</label>${ctl}</div>`;
+    }).join('');
+  }
+  function pafCollect(){
+    const a={}, missing=[];
+    customDefs().forEach(d=>{
+      const el=document.getElementById('paf_'+d.key); if(!el) return;
+      const v = (el.type==='checkbox') ? !!el.checked : el.value.trim();
+      a[d.key]=v;
+      if(d.required && (v===''||v===false)) missing.push(d.label||d.key);
+    });
+    return { answers:a, missing };
+  }
+  // Core field visibility/required, driven by the organiser's PAF config (core===true defs).
+  const CORE = { organisation:'inst', rank:'rk', duty:'duty', first_name:'fnm', last_name:'lnm',
+    nation:'cty', phone:'phn', passport:'pss', dob:'dob', ns_email:'nse', attending_as:'role', note:'note' };
+  function coreCfg(){
+    const defs=pafDefs(), hasDefs=defs.length>0, cfg={};
+    defs.forEach(d=>{ if(d.core) cfg[d.key]={ visible:d.visible!==false, required:!!d.required }; });
+    return { hasDefs, cfg };
+  }
+  function shownOf(key){ const c=coreCfg(); if(!c.hasDefs) return true; return c.cfg[key] ? c.cfg[key].visible : false; }
+  function reqOf(key){ const c=coreCfg(); if(!c.hasDefs) return true; return c.cfg[key] ? (c.cfg[key].visible && c.cfg[key].required) : false; }
+  function applyFieldConfig(){
+    Object.keys(CORE).forEach(key=>{
+      const el=document.getElementById(CORE[key]); if(!el) return;
+      const box=el.closest('.field'); if(!box) return;
+      const show=shownOf(key), required=reqOf(key);
+      box.style.display = show ? '' : 'none';
+      const star=box.querySelector('label .req');
+      if(star) star.style.display = (required && show) ? '' : 'none';
+    });
+  }
+
+  async function submitApplication(user, email){
+    const err=(msg)=>{ const e=$('applyMsg'); e.className='msg err'; e.textContent=msg; };
+    const val=(id)=>{ const el=$(id); return el ? el.value.trim() : ''; };
+
+    const fn=val('fnm'), ln=val('lnm');
+    let rank=val('rk'); if(rank==='__other__') rank=val('rkOther');
+    const phone=val('phn'), pss=val('pss'), dobRaw=val('dob'), nation=val('cty');
+    const org=val('inst'), duty=val('duty'), role=val('role'), nse=val('nse');
+
+    if((reqOf('first_name')&&!fn) || (reqOf('last_name')&&!ln)) return err('Please enter your first and last name.');
+    if(reqOf('phone') && !phone) return err('Please enter your phone number.');
+    if(reqOf('passport') && !pss) return err('Please enter your passport number.');
+    const dob=dobToISO(dobRaw);
+    if(reqOf('dob') && !dob) return err('Please enter a valid date of birth (DD.MM.YYYY).');
+    if(reqOf('nation') && !nation) return err('Please select your nation.');
+    if(reqOf('organisation') && !org) return err('Please enter your organization.');
+    if(reqOf('rank') && !rank) return err('Please select your rank / grade.');
+    if(reqOf('duty') && !duty) return err('Please enter your duty / position.');
+    if(reqOf('attending_as') && !role) return err('Please select how you are attending.');
+    const paf=pafCollect();
+    if(paf.missing.length) return err('Please complete: '+paf.missing.join(', '));
+
+    $('doApply').disabled=true; $('doApply').textContent='Submitting…';
+    const md=user.user_metadata||{};
+    if(fn && ln && (md.first_name!==fn || md.last_name!==ln)){
+      try{ await _sb.auth.updateUser({ data:{ first_name:fn, last_name:ln } }); }catch(_){}
+    }
+    const row={
+      event_id:EVENT.id, user_id:user.id, email,
+      first_name: shownOf('first_name')?(fn||null):null,
+      last_name:  shownOf('last_name') ?(ln||null):null,
+      phone:      shownOf('phone')     ?(phone||null):null,
+      passport_no:shownOf('passport')  ?(pss||null):null,
+      dob:        shownOf('dob')       ?dob:null,
+      ns_email:   shownOf('ns_email')  ?(nse||null):null,
+      institution:shownOf('organisation')?(org||null):null,
+      country:    shownOf('nation')    ?(nation||null):null,
+      rank_title: shownOf('rank')      ?(rank||null):null,
+      duty:       shownOf('duty')      ?(duty||null):null,
+      role:       shownOf('attending_as')?(role||null):null,
+      note:       shownOf('note')      ?(val('note')||null):null,
+      answers:paf.answers,
+      status:'submitted'
+    };
+    const { error } = await _sb.from('conventus_registrations').insert(row);
+    $('doApply').disabled=false; $('doApply').textContent='Submit registration';
+    if(error){
+      if(error.code==='23505') return applied('pending');
+      return err(error.message);
+    }
+    applied('submitted', true);
+  }
+
+  function applied(status, justNow){
+    const label = {pending:'Pending review', submitted:'Under review', under_review:'Under review',
+      waitlisted:'Waitlisted', approved:'Approved', rejected:'Not approved', checked_in:'Checked in'}[status] || status;
+    $('panel').innerHTML = `<div class="state">
+      <div class="ic">${ICON_CHECK}</div>
+      <h2>${justNow?'Application submitted':"You've already applied"}</h2>
+      <p>${justNow?'Thanks — the organiser will review your application.':'Your application for this event is on file.'}</p>
+      <div class="status-pill">${esc(label)}</div>
+      <div style="margin-top:1.3rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+        <a class="prog-link" href="my-events.html">My Events →</a>
+        <a class="prog-link" href="go-and-test.html">Browse more events</a>
+      </div>
+    </div>`;
+  }
+
+  // handle the return from the email verification link (session becomes available)
+  _sb.auth.onAuthStateChange((event)=>{ if(event==='SIGNED_IN' && EVENT){ route(); } });
+
+  init();
+</script>
+</body>
+</html>

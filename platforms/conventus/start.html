@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Conventus · Get Started · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-glow:rgba(0,73,144,0.15);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+}
+[data-dark]{
+  --bg:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+  --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+  --line:#243456; --line2:#2A3A5E;
+  --pf:#4B92DB;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
+.strip{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;text-align:center;padding:5px;color:var(--muted);background:var(--paper2);border-bottom:1px solid var(--line)}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font-size:10px;letter-spacing:.1em;font-weight:700}
+.ver{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:2px 7px}
+.bar-right{display:flex;align-items:center;gap:8px}
+.mini{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);font-family:inherit;transition:all .15s}
+.mini:hover{border-color:var(--pf);color:var(--pf)}
+.mini.on{border-color:var(--pf);color:var(--pf)}
+.close-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--paper2);border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink2);font-family:inherit;text-decoration:none;transition:all .15s}
+.close-btn:hover{border-color:var(--pf);color:var(--pf)}
+.wrap{max-width:940px;margin:0 auto;padding:3.5rem 2rem 6rem}
+.head{text-align:center;margin-bottom:2.6rem}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pf);margin-bottom:1rem}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,4.4vw,3.2rem);font-weight:400;line-height:1.08;color:var(--ink);margin-bottom:.9rem}
+h1 em{font-style:normal;color:var(--pf)}
+.lead{font-size:.95rem;color:var(--muted);line-height:1.6;max-width:560px;margin:0 auto}
+.resume{display:none;max-width:620px;margin:0 auto 2rem;padding:.85rem 1.1rem;border:1px solid var(--pf);background:var(--pf-glow);border-radius:12px;font-size:.85rem;color:var(--ink2);text-align:center}
+.resume.on{display:block}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.door{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.6rem 1.4rem;transition:border-color .18s,transform .18s,box-shadow .18s}
+.door:hover{border-color:var(--pf);transform:translateY(-3px);box-shadow:0 12px 30px rgba(14,33,72,.09)}
+.door-ic{width:46px;height:46px;border-radius:12px;background:var(--pf-glow);color:var(--pf);display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.door-ic svg{width:23px;height:23px}
+.door-nm{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pf);margin-bottom:.4rem}
+.door h3{font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+.door p{font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:1.3rem;flex:1}
+.door-cta{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:var(--pf);color:#fff;border-radius:9px;font-size:.82rem;font-weight:700;text-decoration:none;transition:opacity .15s}
+.door-cta:hover{opacity:.9}
+.door-sub{display:block;text-align:center;margin-top:.6rem;font-size:.75rem;font-weight:700;color:var(--muted);text-decoration:none}
+.door-sub:hover{color:var(--pf)}
+.door.soon{opacity:.62}
+.door.soon:hover{border-color:var(--line);transform:none;box-shadow:none}
+.door-soon{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border:1px dashed var(--line2);
+  border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.foot{text-align:center;margin-top:2.6rem;font-size:.78rem;color:var(--muted)}
+.foot a{color:var(--pf);font-weight:700;text-decoration:none}
+@media(max-width:760px){.doors{grid-template-columns:1fr}.wrap{padding:2.4rem 1.4rem 4rem}}
+</style>
+</head>
+<body>
+<div class="strip" data-i="strip">Unclassified · Conventity · Conventus</div>
+<div class="bar">
+  <div class="crumbs"><span class="badge">CONVENTUS</span><span data-i="crumb">Get started</span><span class="ver">v0.1</span></div>
+  <div class="bar-right">
+    <button class="mini" id="lgEN">EN</button>
+    <button class="mini" id="lgTR">TR</button>
+    <button class="mini" id="thBtn">🌙</button>
+    <a class="close-btn" href="/platforms/conventus/index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <span data-i="back">Conventus</span>
+    </a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+      <span data-i="eyebrow">Choose your path</span>
+    </div>
+    <h1 data-i="title">Welcome to <em>Conventus.</em></h1>
+    <p class="lead" data-i="lead">One entry, three roles. Pick where you fit — organize events, take part in them, or offer services.</p>
+  </div>
+
+  <div class="resume" id="resume">
+    <span data-i="resume">You're already signed in.</span>
+    <a href="#" id="resumeLink" style="color:var(--pf);font-weight:700;text-decoration:none">·&nbsp;<span data-i="resume_cta">Go to your workspace →</span></a>
+  </div>
+
+  <div class="doors">
+    <!-- ORGANIZER -->
+    <div class="door" data-workspace="/platforms/conventus/event-studio.html">
+      <div class="door-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+      <div class="door-nm" data-i="o_nm">Organizer</div>
+      <h3 data-i="o_h">Run events</h3>
+      <p data-i="o_p">Create events, manage program &amp; registration, coordinate delegations and roles.</p>
+      <a class="door-cta" href="/login.html?next=%2Fplatforms%2Fconventus%2Fevent-studio.html"><span data-i="login">Log in</span></a>
+      <a class="door-sub" href="/register.html"><span data-i="signup">Sign up →</span></a>
+    </div>
+    <!-- PARTICIPANT -->
+    <div class="door" data-workspace="/platforms/conventus/my-events.html">
+      <div class="door-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="door-nm" data-i="p_nm">Participant</div>
+      <h3 data-i="p_h">Take part</h3>
+      <p data-i="p_p">Browse open events, register in a few steps, and track your status in My Events.</p>
+      <a class="door-cta" href="/login.html?next=%2Fplatforms%2Fconventus%2Fmy-events.html"><span data-i="login">Log in</span></a>
+      <a class="door-sub" href="/platforms/conventus/go-and-test.html"><span data-i="p_browse">Browse events →</span></a>
+    </div>
+    <!-- PROVIDER — gm-provider launch kapsamı dışında (yarım sayfa) -->
+    <div class="door soon">
+      <div class="door-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-5h16l1 5M4 9v11h16V9M4 9h16M9 20v-6h6v6"/></svg></div>
+      <div class="door-nm" data-i="s_nm">Provider</div>
+      <h3 data-i="s_h">Offer services</h3>
+      <p data-i="s_p">Accommodation, transport, venues, catering — publish offers and quote for events.</p>
+      <div class="door-soon"><span data-i="soon">Soon</span></div>
+    </div>
+  </div>
+
+  <div class="foot" data-i="foot">Not sure? Start as a participant — you can add other roles later.</div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  /* ---- i18n (I18N.tr/en + T + data-i) ---- */
+  var I18N={
+    en:{
+      strip:'Unclassified · Conventity · Conventus', crumb:'Get started', back:'Conventus',
+      eyebrow:'Choose your path', title:'Welcome to <em>Conventus.</em>',
+      lead:'One entry, three roles. Pick where you fit — organize events, take part in them, or offer services.',
+      resume:"You're already signed in.", resume_cta:'Go to your workspace →',
+      login:'Log in', signup:'Sign up →',
+      o_nm:'Organizer', o_h:'Run events', o_p:'Create events, manage program & registration, coordinate delegations and roles.',
+      p_nm:'Participant', p_h:'Take part', p_p:'Browse open events, register in a few steps, and track your status in My Events.', p_browse:'Browse events →',
+      s_nm:'Provider', s_h:'Offer services', s_p:'Accommodation, transport, venues, catering — publish offers and quote for events.', s_signup:'Become a provider →',
+      foot:'Not sure? Start as a participant — you can add other roles later.', open:'Open →', soon:'Soon'
+    },
+    tr:{
+      strip:'Tasnif dışı · Conventity · Conventus', crumb:'Başla', back:'Conventus',
+      eyebrow:'Yolunu seç', title:'<em>Conventus</em>\'a hoş geldin.',
+      lead:'Tek giriş, üç rol. Nerede olduğunu seç — etkinlik düzenle, katıl ya da hizmet sun.',
+      resume:'Zaten giriş yaptın.', resume_cta:'Workspace\'ine git →',
+      login:'Giriş yap', signup:'Kaydol →',
+      o_nm:'Organizatör', o_h:'Etkinlik yönet', o_p:'Etkinlik oluştur, program ve kaydı yönet, delegasyon ve rolleri koordine et.',
+      p_nm:'Katılımcı', p_h:'Katıl', p_p:'Açık etkinliklere göz at, birkaç adımda kaydol, durumunu My Events\'te izle.', p_browse:'Etkinliklere göz at →',
+      s_nm:'Sağlayıcı', s_h:'Hizmet sun', s_p:'Konaklama, ulaşım, mekân, ikram — teklif yayınla ve etkinliklere fiyat ver.', s_signup:'Sağlayıcı ol →',
+      foot:'Emin değil misin? Katılımcı olarak başla — diğer rolleri sonra ekleyebilirsin.', open:'Aç →', soon:'Yakında'
+    }
+  };
+  var lang='en'; try{ var l=localStorage.getItem('cv-lang'); if(l==='tr'||l==='en') lang=l; }catch(e){}
+  function T(k){ return (I18N[lang]&&I18N[lang][k])!=null ? I18N[lang][k] : (I18N.en[k]||k); }
+  function applyI18n(){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i]').forEach(function(el){ el.innerHTML=T(el.getAttribute('data-i')); });
+    document.getElementById('lgEN').classList.toggle('on', lang==='en');
+    document.getElementById('lgTR').classList.toggle('on', lang==='tr');
+  }
+  function setLang(v){ lang=v; try{ localStorage.setItem('cv-lang', v); }catch(e){} applyI18n(); }
+  document.getElementById('lgEN').addEventListener('click', function(){ setLang('en'); });
+  document.getElementById('lgTR').addEventListener('click', function(){ setLang('tr'); });
+
+  /* ---- theme (cn-dark / data-dark) ---- */
+  var dark=false; try{ dark=localStorage.getItem('cn-dark')==='1'; }catch(e){}
+  function applyDark(){ document.body.toggleAttribute('data-dark', dark); document.getElementById('thBtn').textContent = dark?'☀️':'🌙'; }
+  document.getElementById('thBtn').addEventListener('click', function(){ dark=!dark; try{ localStorage.setItem('cn-dark', dark?'1':'0'); }catch(e){} applyDark(); });
+
+  applyDark(); applyI18n();
+
+  /* ---- girişliyse: workspace'e devam (rol → CV.homeFor) ---- */
+  try{
+    var c=window.cvClient && window.cvClient();
+    if(c){ c.auth.getSession().then(function(res){
+      var s=res && res.data && res.data.session;
+      if(!s) return;
+      // rolü conventity_roles'tan çek; yoksa katılımcı workspace'i
+      c.from('conventity_roles').select('role').eq('auth_user_id', s.user.id).limit(1).maybeSingle().then(function(r){
+        var role = r && r.data ? r.data.role : null;
+        var home = (window.CV && window.CV.homeFor) ? window.CV.homeFor(role) : '/platforms/conventus/my-events.html';
+        var box=document.getElementById('resume'), lnk=document.getElementById('resumeLink');
+        lnk.setAttribute('href', home);
+        box.classList.add('on');
+        // her kapının CTA'sını doğrudan workspace'e çevir (Giriş → Aç)
+        document.querySelectorAll('.door').forEach(function(d){
+          var cta=d.querySelector('.door-cta'); var ws=d.getAttribute('data-workspace');
+          if(cta && ws){ cta.setAttribute('href', ws); cta.querySelector('[data-i]').textContent=T('open'); }
+        });
+      }).catch(function(){});
+    }).catch(function(){}); }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

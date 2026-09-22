@@ -1,0 +1,332 @@
+<title>Conventus v2 · Rol & Akış Mimarisi</title>
+<style>
+  :root{
+    --cream:#F5F2EC; --paper:#FFFFFF; --paper2:#FAF7F1;
+    --ink:#0E2148; --ink2:#33406B; --muted:#6B7592;
+    --line:#E4DDCE; --line2:#D3CAB6;
+    --pf:#06488A; --pf-soft:rgba(6,72,138,.09);
+    --gold:#B9832E; --gold-soft:rgba(226,182,94,.16);
+    --crit:#B23A30; --warn:#B0741C; --ok:#2E7D53;
+    --v-super:#8B47CE; --v-comm:#06488A; --v-event:#B0741C; --v-part:#2E7D53; --v-prov:#18808C;
+    --font-d:'Instrument Serif',Georgia,serif;
+    --font-b:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+    --font-m:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --cream:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+    --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+    --line:#243456; --line2:#2C3D63;
+    --pf:#4B92DB; --pf-soft:rgba(75,146,219,.14);
+    --gold:#E2B65E; --crit:#E0796F; --warn:#E0A94C; --ok:#5FBF8B;
+    --v-super:#B98DE6; --v-comm:#4B92DB; --v-event:#E0A94C; --v-part:#5FBF8B; --v-prov:#3FBFCC;
+  }}
+  :root[data-theme="dark"]{
+    --cream:#0B1428; --paper:#101C36; --paper2:#0E1A32; --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+    --line:#243456; --line2:#2C3D63; --pf:#4B92DB; --pf-soft:rgba(75,146,219,.14);
+    --gold:#E2B65E; --crit:#E0796F; --warn:#E0A94C; --ok:#5FBF8B;
+    --v-super:#B98DE6; --v-comm:#4B92DB; --v-event:#E0A94C; --v-part:#5FBF8B; --v-prov:#3FBFCC;
+  }
+  :root[data-theme="light"]{
+    --cream:#F5F2EC; --paper:#FFFFFF; --paper2:#FAF7F1; --ink:#0E2148; --ink2:#33406B; --muted:#6B7592;
+    --line:#E4DDCE; --line2:#D3CAB6; --pf:#06488A; --pf-soft:rgba(6,72,138,.09);
+    --gold:#B9832E; --crit:#B23A30; --warn:#B0741C; --ok:#2E7D53;
+    --v-super:#8B47CE; --v-comm:#06488A; --v-event:#B0741C; --v-part:#2E7D53; --v-prov:#18808C;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{background:var(--cream);color:var(--ink);font-family:var(--font-b);line-height:1.6;font-weight:400;-webkit-font-smoothing:antialiased}
+  .strip{font-family:var(--font-m);font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;text-align:center;
+    padding:7px;color:var(--muted);background:var(--paper2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.6rem) 6rem}
+  header.top{padding:3.4rem 0 2.2rem;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--font-m);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:8px}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--gold)}
+  h1{font-family:var(--font-d);font-weight:400;font-size:clamp(2.3rem,6vw,3.9rem);line-height:1.02;letter-spacing:-.01em;margin:.7rem 0 .5rem;text-wrap:balance}
+  h1 em{font-style:italic;color:var(--pf)}
+  .sub{color:var(--ink2);font-size:1.02rem;max-width:64ch}
+  .meta{font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:1.3rem;display:flex;flex-wrap:wrap;gap:6px 18px}
+  section{padding:2.8rem 0;border-bottom:1px solid var(--line)}
+  h2{font-family:var(--font-d);font-weight:400;font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.1;margin:.4rem 0 .3rem}
+  h3{font-size:1.05rem;margin:1.6rem 0 .5rem;color:var(--ink)}
+  .lead{color:var(--ink2);max-width:70ch;margin-bottom:.4rem}
+  p{margin:.6rem 0}
+  /* role cards */
+  .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-top:1.6rem}
+  .rc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem;border-top:3px solid var(--accent)}
+  .rc .tag{font-family:var(--font-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .rc h3{font-family:var(--font-d);font-weight:400;font-size:1.4rem;margin:.15rem 0 .3rem}
+  .rc p{font-size:12.5px;color:var(--ink2);margin:.3rem 0}
+  .rc code{font-family:var(--font-m);font-size:11px;background:var(--paper2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--ink2);white-space:nowrap}
+  .diagram{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.2rem;margin-top:1.6rem;overflow-x:auto}
+  .mermaid{min-width:640px}
+  .caption{font-family:var(--font-m);font-size:10.5px;color:var(--muted);margin-top:.9rem}
+  table{width:100%;border-collapse:collapse;margin-top:1.4rem;font-size:13px}
+  th{font-family:var(--font-m);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-align:left;padding:.55rem .7rem;border-bottom:1.5px solid var(--line2);font-weight:600;vertical-align:bottom}
+  td{padding:.6rem .7rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2)}
+  tr:last-child td{border-bottom:none}
+  code.f{font-family:var(--font-m);font-size:.85em;background:var(--pf-soft);color:var(--pf);padding:1px 6px;border-radius:5px;white-space:nowrap}
+  .wrapscroll{overflow-x:auto}
+  .pill{font-family:var(--font-m);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;white-space:nowrap;border:1px solid}
+  .p-a{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+  .p-b{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:var(--gold-soft)}
+  .p-x{color:var(--muted);border-color:var(--line2)}
+  .yes{color:var(--ok);font-weight:700}.no{color:var(--muted)}.part{color:var(--warn);font-weight:700}
+  .note{background:var(--paper2);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:.9rem 1.1rem;margin-top:1.5rem;font-size:13px;color:var(--ink2)}
+  .note b{color:var(--ink)}
+  .dec{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--pf);border-radius:8px;padding:.8rem 1.1rem;margin-top:1rem;font-size:13px}
+  .dec b{color:var(--ink)} .dec .q{font-family:var(--font-m);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--pf)}
+  ul{margin:.5rem 0;padding-left:1.2rem}li{margin:.28rem 0;color:var(--ink2);font-size:13.5px}
+  .legend{display:flex;flex-wrap:wrap;gap:.6rem 1.3rem;margin-top:1rem;font-size:12.5px;color:var(--ink2)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}.dot{width:11px;height:11px;border-radius:3px;flex:none}
+  footer{padding:2.5rem 0 0;color:var(--muted);font-family:var(--font-m);font-size:11px}
+</style>
+
+<div class="strip">Unclassified · Conventity · Conventus · Design</div>
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Rol &amp; Akış Mimarisi · Faz A2 öncesi tasarım</span>
+    <h1>Conventus <em>rol &amp; akış</em> modeli</h1>
+    <p class="sub">Etkinlik ekosisteminin yetki katmanları, uçtan uca akışı ve veri modeli — Swapcard · Cvent · Whova gibi
+    olgun sistemlerden damıtılıp NATO/protokol bağlamına ve mevcut <code class="f">conventity_roles</code> omurgasına
+    oturtuldu. Kod yazmadan önce iskeleti kilitlemek için.</p>
+    <div class="meta"><span>KAPSAM · Conventus (Go &amp; Test → Go &amp; Meet)</span><span>TEK YETKİ KAYNAĞI · conventity_roles</span><span>DURUM · TASARIM (kod yok)</span></div>
+  </header>
+
+  <!-- 1. ROLLER -->
+  <section>
+    <span class="eyebrow">1 · Yetki katmanları</span>
+    <h2>Beş rol, tek kaynak</h2>
+    <p class="lead">Her rol <code class="f">conventity_roles(scope, scope_id, role)</code> ile ifade edilir — yeni yetki tablosu yok.
+    Kimlik = <b>scope</b> (nerede), yetki = <b>role</b>. Etkinlik ekibinin <b>fonksiyonel unvanı</b> ayrı bir etikettir (aşağıda).</p>
+    <div class="roles">
+      <div class="rc" style="--accent:var(--v-super)">
+        <div class="tag">Katman 0</div><h3>Super Admin</h3>
+        <p>Ekosistem yöneticisi. <b>Tek özel yetkisi:</b> ana topluluk provision etmek + sağlayıcı/teklif üst onayı.</p>
+        <p><code>scope=ecosystem · role=admin</code></p>
+      </div>
+      <div class="rc" style="--accent:var(--v-comm)">
+        <div class="tag">Katman 1</div><h3>Topluluk</h3>
+        <p>owner · admin · organizer · member. Ana/alt topluluk yönetimi, üye onayı, <b>etkinlik yöneticisi görevlendirme</b>.</p>
+        <p><code>scope=community · scope_id=topluluk</code></p>
+      </div>
+      <div class="rc" style="--accent:var(--v-event)">
+        <div class="tag">Katman 2</div><h3>Etkinlik Ekibi</h3>
+        <p>event_manager (lider) + organizer (ekip). Fonksiyonel unvan: OPR·POC·Protocol·Escort·Dispatcher…</p>
+        <p><code>scope=activity · scope_id=activity_id</code></p>
+      </div>
+      <div class="rc" style="--accent:var(--v-part)">
+        <div class="tag">Katman 3</div><h3>Katılımcı / Davetli</h3>
+        <p>Rol değil — <b>kayıt</b>tır. Bir etkinliğe PAF doldurarak kayıt olur; onaylanınca My Event açılır.</p>
+        <p><code>conventus_registrations</code></p>
+      </div>
+      <div class="rc" style="--accent:var(--v-prov)">
+        <div class="tag">Katman 4</div><h3>Hizmet Sağlayıcı</h3>
+        <p>Konaklama · transfer · tur… Teklif verir → super admin onayı → etkinlik yöneticisi katılımcıya iletir. (Go &amp; Meet)</p>
+        <p><code>gm_providers + scope=activity·role=vendor</code></p>
+      </div>
+    </div>
+    <div class="note"><b>Neden rol değil kayıt?</b> Swapcard/Cvent de katılımcıyı bir "grup/registrant" olarak tutar, yetki nesnesi olarak değil.
+    Katılımcının erişimi <b>onaylı kaydından</b> doğar (My Event); topluluk üyeliğinden bağımsızdır. Bir kişi aynı anda:
+    bir toplulukta üye, bir etkinlikte Protocol subayı, başka etkinlikte katılımcı olabilir — hepsi ayrı satır.</div>
+  </section>
+
+  <!-- 2. FONKSIYONEL UNVANLAR -->
+  <section>
+    <span class="eyebrow">2 · Etkinlik ekibi</span>
+    <h2>Yetki ≠ görev: fonksiyonel unvanlar</h2>
+    <p class="lead">"Etkinlik yöneticisi" tek bir yetki değil, bir <b>ekip</b>tir. Yetki iki kademe (<code class="f">event_manager</code> tam,
+    <code class="f">organizer</code> sınırlı); <b>görev</b> ise <code class="f">title</code> etiketiyle taşınır. Böylece bir etkinlikte
+    çok kişi, farklı görevlerle, tek yetki kaynağında durur.</p>
+    <div class="wrapscroll"><table>
+      <thead><tr><th>Fonksiyonel unvan</th><th>title</th><th>Yetki kademesi</th><th>Sorumluluk</th></tr></thead>
+      <tbody>
+        <tr><td><b>OPR</b> — Office of Primary Responsibility</td><td><code class="f">opr</code></td><td>event_manager</td><td>Etkinliğin lideri; tüm onaylar, yayın, ekip kurma.</td></tr>
+        <tr><td><b>POC</b> — Point of Contact</td><td><code class="f">poc</code></td><td>organizer</td><td>İletişim noktası; katılımcı/sağlayıcı yazışması, duyuru.</td></tr>
+        <tr><td><b>Protocol Officer</b></td><td><code class="f">protocol</code></td><td>organizer</td><td>Precedence/oturma planı, VIP tier, konuşma sırası.</td></tr>
+        <tr><td><b>Escort Officer</b></td><td><code class="f">escort</code></td><td>organizer</td><td>Delegasyon refakati, karşılama, transfer eşleştirme.</td></tr>
+        <tr><td><b>Dispatcher</b></td><td><code class="f">dispatcher</code></td><td>organizer</td><td>Ulaşım/lojistik sevk, araç-oda-slot dağıtımı.</td></tr>
+        <tr><td><b>Registration Officer</b></td><td><code class="f">registration</code></td><td>organizer</td><td>PAF/kayıt onayı, akreditasyon seviyesi, badge.</td></tr>
+        <tr><td><i>(genişletilebilir: AV, Security, Media, Finance…)</i></td><td><code class="f">…</code></td><td>organizer</td><td>Serbest etiket — CHECK ile sınırlanmaz (esneklik).</td></tr>
+      </tbody>
+    </table></div>
+    <div class="dec"><span class="q">Karar gerekiyor · D1</span> — <b>Fonksiyonel unvanı nasıl tutalım?</b>
+    Önerim: <code class="f">conventity_roles</code>'a <code class="f">title text</code> kolonu ekle (yalnız activity kapsamında dolu).
+    Yeni tablo yok, tek kaynak korunur; unvanlar serbest metin (öneri listesi UI'da). Onaylıyor musun?</div>
+  </section>
+
+  <!-- 3. UCTAN UCA AKIS -->
+  <section>
+    <span class="eyebrow">3 · Uçtan uca akış</span>
+    <h2>Provision → etkinlik → kayıt → My Event → sağlayıcı</h2>
+    <p class="lead">Senin tarif ettiğin akış, aktörlere göre. Her ok bir yetki kapısından geçer (RLS).</p>
+    <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor SA as Super Admin
+  actor CO as Topluluk (owner)
+  actor EM as Etkinlik Ekibi (OPR/POC…)
+  actor P as Katılımcı
+  actor SP as Hizmet Sağlayıcı
+  SA->>CO: Ana topluluk provision + owner ata
+  CO->>CO: (ops.) Alt topluluk kur
+  CO->>EM: Üyeyi etkinlik yöneticisi (OPR) ata
+  EM->>EM: Etkinlik oluştur (activity_id auto)
+  EM->>EM: PAF / kayıt formu tanımla · pencere · kontenjan
+  EM->>EM: Yayınla (görünürlük: public / members_only / invite)
+  P->>EM: PAF'ı doldur → kayıt (submitted)
+  EM->>P: İnceleme → onay / red / bekleme
+  Note over EM,P: onay → My Event açılır
+  P->>P: My Event: ajanda · duyuru · doküman · badge · sertifika · networking
+  SP->>SA: Hizmet teklifi (konaklama/transfer/tur)
+  SA->>EM: Teklifi onayla (üst onay)
+  EM->>P: Onaylı hizmeti katılımcıya sun (My Plan)
+</pre>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--v-super)"></i> Super Admin</span>
+      <span><i class="dot" style="background:var(--v-comm)"></i> Topluluk</span>
+      <span><i class="dot" style="background:var(--v-event)"></i> Etkinlik ekibi</span>
+      <span><i class="dot" style="background:var(--v-part)"></i> Katılımcı</span>
+      <span><i class="dot" style="background:var(--v-prov)"></i> Sağlayıcı</span>
+    </div>
+    <p class="caption">Kilit ilke: her topluluk YALNIZ kendi etkinliğini yönetir; katılımcı/davetli yalnız üyesi olduğu ya da
+    davet edildiği topluluğun etkinliğine dahil olabilir (görünürlük + davet RLS'te).</p>
+  </section>
+
+  <!-- 4. KAYIT DURUM MAKINESI -->
+  <section>
+    <span class="eyebrow">4 · Kayıt yaşam döngüsü</span>
+    <h2>PAF → onay → My Event (append-only geçiş)</h2>
+    <p class="lead">Katılımcının kaydı bir durum makinesidir; her geçiş <code class="f">conventus_registration_events</code>'e
+    yazılır (silme/düzenleme yok). "Davetli" = önceden açılmış <code class="f">invited</code> kaydı.</p>
+    <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  I[invited] --> D[draft]
+  D --> S[submitted]
+  S --> UR[under_review]
+  UR --> A[approved]
+  UR --> R[rejected]
+  UR --> W[waitlisted]
+  W --> A
+  A --> CI[checked_in]
+  A --> CA[cancelled]
+  A --> NS[no_show]
+  classDef ok fill:#2E7D53,stroke:#2E7D53,color:#fff;
+  classDef warn fill:#B0741C,stroke:#B0741C,color:#fff;
+  classDef bad fill:#B23A30,stroke:#B23A30,color:#fff;
+  classDef n fill:#FAF7F1,stroke:#D3CAB6,color:#0E2148;
+  class A,CI ok; class W,I warn; class R,CA,NS bad; class D,S,UR n;
+</pre>
+    </div>
+    <p class="caption">approved → My Event kilidi açılır. members_only ajanda/duyuru/doküman yalnız approved katılımcıya görünür (T12/T14 — RLS).</p>
+  </section>
+
+  <!-- 5. YETKI MATRISI -->
+  <section>
+    <span class="eyebrow">5 · Yetki matrisi (RBAC)</span>
+    <h2>Kim ne yapar</h2>
+    <p class="lead">Topluluk izolasyonu esas: yetki hep bir <b>kapsam</b>a (topluluk/etkinlik) bağlı. ✔ = izin · ○ = kendi kaydı/verisi · — = yok.</p>
+    <div class="wrapscroll"><table>
+      <thead><tr><th>Yetenek</th><th>Super Admin</th><th>Toplu. owner/admin</th><th>Etkinlik yön. (OPR)</th><th>Ekip (organizer)</th><th>Katılımcı</th><th>Sağlayıcı</th></tr></thead>
+      <tbody>
+        <tr><td>Ana topluluk aç</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Alt topluluk / üye yönet</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Etkinlik yöneticisi ata</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Etkinlik oluştur / yayınla</td><td class="yes">✔</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>PAF / kayıt formu tanımla</td><td class="yes">✔</td><td class="part">○</td><td class="yes">✔</td><td class="part">○</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Kayıt onayı / red / seating</td><td class="yes">✔</td><td class="no">—</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Ajanda / duyuru / doküman yaz</td><td class="yes">✔</td><td class="no">—</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Etkinliğe kayıt ol (PAF)</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="yes">✔</td><td class="no">—</td></tr>
+        <tr><td>My Event (ajanda/badge/sertifika)</td><td class="no">—</td><td class="no">—</td><td class="part">○</td><td class="part">○</td><td class="yes">✔</td><td class="no">—</td></tr>
+        <tr><td>Hizmet teklifi ver</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="yes">✔</td></tr>
+        <tr><td>Teklifi onayla (üst)</td><td class="yes">✔</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Onaylı hizmeti katılımcıya sun</td><td class="no">—</td><td class="no">—</td><td class="yes">✔</td><td class="part">○</td><td class="no">—</td><td class="no">—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="caption">Tümü <code class="f">conventity_can_manage_community()</code> / <code class="f">conventity_can_manage_event()</code> /
+    kayıt-sahipliği üzerinden RLS'te zorlanır — UI yalnızca kolaylık.</p>
+  </section>
+
+  <!-- 6. VERI MODELI -->
+  <section>
+    <span class="eyebrow">6 · Veri modeli genişlemeleri</span>
+    <h2>Akışın gerektirdiği tablolar/alanlar</h2>
+    <p class="lead">Faz A1 (topluluk+yetki) kuruldu. Aşağıdakiler akışı tamamlar; faz etiketli.</p>
+    <div class="wrapscroll"><table>
+      <thead><tr><th>Yetenek</th><th>Tablo / alan</th><th>Not</th><th>Faz</th></tr></thead>
+      <tbody>
+        <tr><td>Fonksiyonel unvan</td><td><code class="f">conventity_roles.title</code></td><td>activity ekibi için etiket (OPR/POC…)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>PAF / kayıt formu tanımı</td><td><code class="f">managed_events.registration_field_defs jsonb</code></td><td>alan tipleri (text/select/date/file/checkbox) + zorunluluk</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Kayıt cevapları</td><td><code class="f">registrations.answers jsonb</code> + <code class="f">status</code></td><td>durum makinesi (§4)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Kayıt geçiş izi</td><td><code class="f">conventus_registration_events</code></td><td>append-only (T11)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Duyuru hedef kitle</td><td><code class="f">announcements.audience/pinned/publish_at</code></td><td>members_only/approved görünürlük (T14)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>İdari &amp; lojistik</td><td><code class="f">managed_events.logistics jsonb</code></td><td>mekân/salon/ulaşım/irtibat/badge seviyesi</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Dokümanlar</td><td><code class="f">conventus_documents(event, audience, url)</code></td><td>erişim RLS'e bağlı</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Seating &amp; precedence</td><td><code class="f">conventus_seating(event, reg, table, seat, tier, rank)</code></td><td>protokol sırası (Tier 1/2/3)</td><td><span class="pill p-b">A2+</span></td></tr>
+        <tr><td>Badge / sertifika</td><td><code class="f">gm_products(kind=badge|certificate…)</code></td><td>Product Studio üretimi</td><td><span class="pill p-b">B</span></td></tr>
+        <tr><td>Networking / mesaj</td><td><code class="f">conventus_connections · messages</code></td><td>katılımcı-katılımcı (Swapcard tarzı)</td><td><span class="pill p-b">B</span></td></tr>
+        <tr><td>Sağlayıcı teklif/sipariş</td><td><code class="f">gm_briefs · gm_offers · gm_orders</code></td><td>teklif→onay→sipariş→teslim→puan</td><td><span class="pill p-b">B</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="dec"><span class="q">Karar gerekiyor · D2</span> — <b>PAF alanlarını nerede tutalım?</b> Önerim:
+    tanım <code class="f">managed_events.registration_field_defs</code> (jsonb, mevcut <code class="f">agenda_field_defs</code> deseniyle birebir),
+    cevap <code class="f">registrations.answers</code> (jsonb). Ayrı tablo şişkinliği yok. Uygun mu?</div>
+  </section>
+
+  <!-- 7. SWAPCARD/CVENT ESLEME -->
+  <section>
+    <span class="eyebrow">7 · Olgun sistemlerle kıyas</span>
+    <h2>Swapcard · Cvent · Whova → Conventus eşlemesi</h2>
+    <p class="lead">Aldığımız desenler ve hangi faza düştüğü. Amaç superset değil — ihtiyacın kadarı, protokol katmanıyla.</p>
+    <div class="wrapscroll"><table>
+      <thead><tr><th>Özellik (piyasa)</th><th>Kaynak</th><th>Conventus karşılığı</th><th>Faz</th></tr></thead>
+      <tbody>
+        <tr><td>Grup-tabanlı erişim (Attendee/Speaker/Exhibitor)</td><td>Swapcard</td><td>scope+role+audience; içerik görünürlüğü gruba göre</td><td><span class="pill p-a">A</span></td></tr>
+        <tr><td>Ekip rolleri (Admin / Limited Access)</td><td>Swapcard</td><td>event_manager (tam) / organizer (sınırlı) + title</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Rol/izin setleri + alan-düzeyi güvenlik</td><td>Cvent</td><td>RLS + can_manage fonksiyonları</td><td><span class="pill p-a">A</span></td></tr>
+        <tr><td>Özelleştirilebilir kayıt formu + koşullu alan</td><td>Cvent/Whova</td><td>registration_field_defs (PAF)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Onay akışı + davet/gated kayıt</td><td>tümü</td><td>durum makinesi + invited + visibility</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Katılımcı portalı (My Event/Hub)</td><td>Cvent Attendee Hub</td><td>my-event_dc.html (ajanda/duyuru/doküman/badge)</td><td><span class="pill p-a">A2</span></td></tr>
+        <tr><td>Seating chart (drag-drop)</td><td>EventCreate</td><td>seating + <b>precedence/tier</b> (protokol farkı)</td><td><span class="pill p-b">A2+</span></td></tr>
+        <tr><td>Badge/sertifika basımı</td><td>tümü</td><td>Product Studio (gm_products)</td><td><span class="pill p-b">B</span></td></tr>
+        <tr><td>Exhibitor/sağlayıcı portalı + lead</td><td>Swapcard</td><td>gm_providers + teklif/sipariş akışı</td><td><span class="pill p-b">B</span></td></tr>
+        <tr><td>Networking / toplantı planlama</td><td>Swapcard/Brella</td><td>connections + messages</td><td><span class="pill p-b">B</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Protokol katmanı = bizim farkımız.</b> Swapcard/Cvent'te olmayan: precedence/tier'lı oturma, escort/dispatcher görev
+    atama, akreditasyon seviyesi → badge tipi + erişim bölgesi matrisi, delegasyon (heyet) yönetimi. Bunlar NATO/askeri bağlamın çekirdeği.</div>
+  </section>
+
+  <!-- 8. FAZ PLANI -->
+  <section style="border-bottom:none">
+    <span class="eyebrow">8 · Revize faz planı</span>
+    <h2>Sıradaki adımlar</h2>
+    <div class="roles" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div class="rc" style="--accent:var(--ok)">
+        <div class="tag">Bitti · Faz A1</div><h3>Hiyerarşi + yetki</h3>
+        <p>Topluluklar, roller (scope_id), miras, yetki fonksiyonları, provisioning + community sayfaları. T1–T8 mantığı doğrulandı.</p>
+      </div>
+      <div class="rc" style="--accent:var(--v-event)">
+        <div class="tag">Sıradaki · Faz A2</div><h3>Go &amp; Test</h3>
+        <p>title kolonu · PAF kayıt formu · durum makinesi · event-studio kabuk (Kayıtlar/Ajanda/Duyuru/Lojistik) · My Event · seating iskeleti. T9–T18.</p>
+      </div>
+      <div class="rc" style="--accent:var(--v-prov)">
+        <div class="tag">Sonra · Faz B</div><h3>Go &amp; Meet</h3>
+        <p>Sağlayıcı teklif/sipariş · Product Studio (badge/sertifika) · networking · precedence tam · kanıt üretimi. T19–T27.</p>
+      </div>
+    </div>
+    <div class="note"><b>Önerilen ilk A2 dilimi:</b> (1) <code class="f">title</code> kolonu + community-admin'de unvan seçimi,
+    (2) <code class="f">registration_field_defs</code> + <code class="f">answers</code> + durum makinesi SQL'i,
+    (3) <code class="f">new-event</code>'e topluluk seçimi + activity_id (T9), (4) <code class="f">event-studio</code> Kayıtlar sekmesi (onay/red).
+    Her dilim SQL→RLS→UI sırası, sonunda dur+rapor.</div>
+
+    <h3 style="margin-top:2rem">Kilitlenecek kararlar</h3>
+    <div class="dec"><span class="q">D1</span> Fonksiyonel unvan = <code class="f">conventity_roles.title</code> serbest metin. <b>Onay?</b></div>
+    <div class="dec"><span class="q">D2</span> PAF = <code class="f">registration_field_defs</code> + <code class="f">answers</code> jsonb. <b>Onay?</b></div>
+    <div class="dec"><span class="q">D3</span> Davetli = <code class="f">registrations.status='invited'</code> (ayrı davet tablosu yok). <b>Onay?</b></div>
+    <div class="dec"><span class="q">D4</span> Sağlayıcı erişimi = <code class="f">scope=activity·role=vendor</code> + <code class="f">gm_providers</code>; üst onay super admin. <b>Onay?</b></div>
+  </section>
+
+  <footer>Conventity · Conventus v2 rol &amp; akış mimarisi · tasarım · kod yazılmadı · kaynak: Swapcard · Cvent · Whova · protokol precedence</footer>
+</div>

@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Convexus · Selection · Console</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script src="/cv-selection-engine.js?v=1.3"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-soft:rgba(0,73,144,.08); --pf-line:rgba(0,73,144,.3);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE; --gold:#E2B65E;
+  --must:#1E8E5A; --reserve:#B7791F; --maybe:#8A6D1F; --no:#C0392B;
+  --ok:#1E8E5A; --warn:#B7791F; --err:#C0392B;
+}
+body[data-dark]{
+  --pf:#5B92D6; --pf-soft:rgba(91,146,214,.12); --pf-line:rgba(91,146,214,.35);
+  --bg:#141B2B; --paper:#1C2436; --paper2:#212A3E;
+  --ink:#E8ECF5; --ink2:#C4CCDE; --muted:#8B97B4;
+  --line:#2C3650; --line2:#38435F; --gold:#E2B65E;
+  --must:#3FBE7E; --reserve:#D9A441; --maybe:#C6A24E; --no:#E06A5C;
+  --ok:#3FBE7E; --warn:#D9A441; --err:#E06A5C;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh;transition:.2s}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 1.3rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:8px;font:600 12px 'Manrope';color:var(--muted)}
+.crumbs a{color:var(--pf);text-decoration:none}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font:700 10px 'JetBrains Mono';letter-spacing:.1em}
+.bar-right{display:flex;align-items:center;gap:6px}
+.langs{display:flex;gap:3px}
+.ver{font:700 9.5px 'JetBrains Mono';color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:1px 7px;margin-left:4px}
+.mini{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font:700 11px 'Manrope';color:var(--muted);transition:.15s}
+.mini:hover,.mini.on{border-color:var(--pf);color:var(--pf)}
+.mini.on{background:var(--pf-soft)}
+.wrap{max-width:1120px;margin:0 auto;padding:1.2rem 1rem 5rem}
+.eyebrow{font:700 11px 'Manrope';letter-spacing:.16em;text-transform:uppercase;color:var(--pf)}
+h1{font:400 30px 'Instrument Serif',serif;margin:.2rem 0}
+h1 em{font-style:italic;color:var(--pf)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:1rem}
+.toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;position:sticky;top:52px;z-index:100}
+.btn{background:var(--pf);color:#fff;border:none;border-radius:9px;padding:.55rem 1rem;font:700 12.5px 'Manrope';cursor:pointer;transition:.15s}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--pf);border:1px solid var(--pf)}
+.btn.sm{padding:.35rem .7rem;font-size:11.5px;border-radius:7px}
+.summary{display:flex;gap:.5rem;flex-wrap:wrap}
+.pill{font:700 11px 'JetBrains Mono';border-radius:100px;padding:.28rem .75rem;border:1px solid}
+.p-must{color:var(--must);border-color:var(--must);background:rgba(30,142,90,.08)}
+.p-reserve{color:var(--reserve);border-color:var(--reserve);background:rgba(183,121,31,.08)}
+.p-maybe{color:var(--maybe);border-color:var(--maybe)}
+.p-no{color:var(--no);border-color:var(--no);background:rgba(192,57,43,.06)}
+.p-total{color:var(--muted);border-color:var(--line)}
+.filters{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto}
+.fbtn{font:600 11px 'Manrope';border:1px solid var(--line);border-radius:100px;padding:.3rem .7rem;background:var(--paper);color:var(--muted);cursor:pointer}
+.fbtn.on{border-color:var(--pf);color:var(--pf);background:var(--pf-soft)}
+.grp{margin-bottom:1.3rem}
+.gh{display:flex;align-items:center;gap:.5rem;font:700 12px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;padding-bottom:.35rem;border-bottom:2px solid}
+.gh.must{color:var(--must);border-color:var(--must)}
+.gh.reserve{color:var(--reserve);border-color:var(--reserve)}
+.gh.maybe{color:var(--maybe);border-color:var(--maybe)}
+.gh.no{color:var(--no);border-color:var(--no)}
+.gh .c{margin-left:auto;font-size:11px;color:var(--muted)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;margin-bottom:.55rem;transition:.15s}
+.card.dim{opacity:.62}
+.chead{display:flex;align-items:center;gap:.7rem;cursor:pointer}
+.rank{font:700 15px 'Instrument Serif',serif;color:var(--muted);min-width:26px;text-align:center}
+.score{font:700 17px 'JetBrains Mono';min-width:44px;text-align:center;border-radius:8px;padding:.15rem 0}
+.s-must{color:var(--must);background:rgba(30,142,90,.1)}
+.s-reserve{color:var(--reserve);background:rgba(183,121,31,.1)}
+.s-maybe{color:var(--maybe)}
+.s-no{color:var(--no)}
+.cmain{flex:1;min-width:0}
+.cname{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.flag{font:600 10px 'JetBrains Mono';color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.cmeta{font:500 11.5px 'JetBrains Mono';color:var(--muted);margin-top:.15rem}
+.verdict{font:700 10px 'JetBrains Mono';letter-spacing:.06em;border-radius:100px;padding:3px 10px;border:1px solid;white-space:nowrap}
+.v-MUST{color:var(--must);border-color:var(--must);background:rgba(30,142,90,.1)}
+.v-RESERVE{color:var(--reserve);border-color:var(--reserve);background:rgba(183,121,31,.1)}
+.v-MAYBE{color:var(--maybe);border-color:var(--maybe)}
+.v-NO{color:var(--no);border-color:var(--no);background:rgba(192,57,43,.06)}
+.ovr{font:600 9px 'JetBrains Mono';color:var(--pf);border:1px solid var(--pf-line);border-radius:100px;padding:2px 7px;background:var(--pf-soft)}
+.body{display:none;margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--line)}
+.body.open{display:block}
+.badges{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.6rem}
+.bdg{font:600 11px 'Manrope';border-radius:7px;padding:.25rem .55rem;border:1px solid}
+.b-plus{color:var(--must);border-color:rgba(30,142,90,.3);background:rgba(30,142,90,.06)}
+.b-minus{color:var(--no);border-color:rgba(192,57,43,.25);background:rgba(192,57,43,.04)}
+.b-gate{color:var(--no);border-color:var(--no);background:rgba(192,57,43,.08)}
+.b-portfolio{color:var(--reserve);border-color:var(--reserve);background:rgba(183,121,31,.08)}
+.vfrow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;border:1px dashed var(--line);border-radius:9px;padding:.45rem .6rem;margin-bottom:.6rem;font-size:12px}
+.vfl{font:700 10px 'JetBrains Mono';letter-spacing:.06em;color:var(--muted)}
+.vfc{font:600 11.5px 'JetBrains Mono';color:var(--ink)}
+.vfok{color:var(--ok);font-weight:700}
+.vfno{color:var(--warn);font-weight:700}
+.vfrow select{padding:.28rem .45rem;font-size:12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+body[data-dark] .vfrow select{background:var(--paper2)}
+.bdwrap{border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem;margin-bottom:.6rem;background:var(--paper)}
+body[data-dark] .bdwrap{background:var(--paper2)}
+.bdrow{display:grid;grid-template-columns:150px 1fr 76px;gap:.6rem;align-items:center;margin-bottom:.3rem}
+@media(max-width:620px){.bdrow{grid-template-columns:110px 1fr 66px}}
+.bdl{font:600 11px 'Manrope';color:var(--muted)}
+.bdbar{height:6px;background:var(--line);border-radius:100px;overflow:hidden}
+.bdbar i{display:block;height:100%;background:var(--pf);border-radius:100px}
+.bdv{font:700 12px 'JetBrains Mono';text-align:right;color:var(--ink)}
+.bdv em{font-style:normal;font-weight:400;color:var(--muted);font-size:10.5px}
+.bdv.neg{color:var(--no)}
+.bdrow.clickable{cursor:pointer}
+.bdrow.clickable:hover .bdl{color:var(--pf)}
+.bdcar{font:700 9px 'JetBrains Mono';color:var(--muted);margin-left:.25rem}
+.bddet{display:none;grid-column:1/-1;margin:.1rem 0 .5rem;padding:.45rem .6rem;background:var(--bg);
+ border-left:2px solid var(--pf-line);border-radius:0 7px 7px 0;font:500 11px 'JetBrains Mono';
+ line-height:1.7;color:var(--ink2)}
+.bddet.open{display:block}
+.bddet .ok{color:var(--ok);font-weight:700}
+.bddet .no{color:var(--no);font-weight:700}
+.bddet .dim{color:var(--muted)}
+.bddet .hi{color:var(--pf);font-weight:700}
+.bddet .ln{display:block}
+.bdtot{border-top:1px solid var(--line);margin-top:.4rem;padding-top:.4rem}
+.bdtot .bdl{color:var(--ink);font-weight:700}
+.bdtot .bdv{font-size:13.5px;color:var(--pf)}
+.actlist{border-top:1px dashed var(--line);margin-top:.5rem;padding-top:.45rem}
+.actrow{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;font-size:11.5px}
+.acto{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:var(--muted)}
+.acto-excelled{background:var(--must)}.acto-met{background:var(--pf)}
+.acto-did_not_meet{background:var(--no)}.acto-partial{background:var(--reserve)}
+.actn{font-weight:600;color:var(--ink)}
+.actm{color:var(--muted);font:500 10.5px 'JetBrains Mono';margin-left:auto;text-align:right}
+.breakdown{display:flex;gap:.5rem;flex-wrap:wrap;font:600 11px 'JetBrains Mono';color:var(--muted);margin-bottom:.6rem}
+.breakdown span{border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+.ovrow{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.5rem}
+.ovrow .set{font:600 10px 'JetBrains Mono';color:var(--muted);margin-right:.2rem}
+.ob{font:700 11px 'Manrope';border:1px solid var(--line);border-radius:7px;padding:.3rem .7rem;background:var(--paper);color:var(--muted);cursor:pointer}
+.ob.MUST.on{border-color:var(--must);color:var(--must);background:rgba(30,142,90,.1)}
+.ob.RESERVE.on{border-color:var(--reserve);color:var(--reserve);background:rgba(183,121,31,.1)}
+.ob.MAYBE.on{border-color:var(--maybe);color:var(--maybe)}
+.ob.NO.on{border-color:var(--no);color:var(--no);background:rgba(192,57,43,.06)}
+.links a{font-size:12px;color:var(--pf);margin-right:.8rem;text-decoration:none}
+.msg{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1rem;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.msg.on{opacity:1}
+.hidden{display:none!important}
+.state{max-width:520px;margin:4rem auto;text-align:center}
+.state .big{font:400 40px 'Instrument Serif',serif;color:var(--pf)}
+select#evPick{padding:.5rem .6rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:600 12.5px 'Manrope'}
+body[data-dark] select#evPick{background:var(--paper2)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="crumbs"><a href="/convexus.html">← Convexus</a><span>·</span><span class="badge">SELECTION</span><span style="color:var(--muted)">Console</span><span class="ver" id="verBadge">—</span></div>
+  <div class="bar-right">
+    <div class="langs"><button class="mini lg" data-lg="en">EN</button><button class="mini lg" data-lg="tr">TR</button><button class="mini lg" data-lg="fr">FR</button><button class="mini lg" data-lg="de">DE</button></div>
+    <button class="mini" id="themeBtn">🌙</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="gate" class="state hidden"><div class="big">🔒</div><h1 data-i18n="gate_h">Sign-in <em>required</em></h1><a class="btn" href="/login.html" style="text-decoration:none;display:inline-block" data-i18n="gate_b">Sign in</a></div>
+
+  <div id="main" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrow">Convexus · Selection Engine</div>
+    <h1 data-i18n="h1">Triage <em>Console</em></h1>
+    <p class="sub" data-i18n="sub">Run the engine across all applications, review the ranked verdicts with reasons, and override where your judgement differs.</p>
+
+    <div class="toolbar">
+      <select id="evPick"></select>
+      <button class="btn" id="runBtn" data-i18n="run">▶ Run engine</button>
+      <button class="btn ghost sm" id="exportBtn" data-i18n="export">⤓ Orion CSV</button>
+      <div class="summary" id="summary"></div>
+      <div class="filters" id="filters"></div>
+    </div>
+
+    <div id="empty" class="state hidden"><div class="big">—</div><p class="sub" data-i18n="empty">No applications yet for this call.</p></div>
+    <div id="groups"></div>
+  </div>
+</div>
+<div class="msg" id="msg"></div>
+
+<script>
+(function(){
+'use strict';
+var I18N={
+ en:{eng:"SELECTION",eyebrow:"Convexus · Selection Engine",gate_h:'Sign-in <em>required</em>',gate_b:"Sign in",h1:'Triage <em>Console</em>',sub:"Run the engine across all applications, review the ranked verdicts with reasons, and override where your judgement differs.",run:"▶ Run engine",running:"Running the engine…",export:"⤓ Orion CSV",empty:"No applications yet for this call.",gated:"Gated out",total:"applicants",saved:"Verdicts saved",override:"OVERRIDDEN",set:"Set verdict:",engine_said:"Engine",why:"Why",breakdown_need:"need",breakdown_art:"class",breakdown_val:"evidence",breakdown_trl:"TRL",breakdown_fit:"fit",breakdown_act:"Activity & evaluation",total_score:"TOTAL",verify:"Verify",vf_claimed:"Claimed",vf_verified:"Verified",vf_none:"not verified",vf_saved:"Verification recorded",vf_title:"Evidence verification",d_scale:"Scale",d_earned:"earned",d_missing:"not earned",d_matched:"matched",d_unmatched:"not addressed",d_capped:"capped at",d_raw:"raw",d_verified:"verified",d_unverified:"unverified — one tier lower",d_claimed:"claimed",d_weight:"weight",d_why:"why",eng_demonstrated:"demonstrated",eng_integrated:"integrated",eng_participated:"participated",eng_selected_only:"selected",eng_applied:"applied",asm_excelled:"excelled",asm_met:"met expectations",asm_partial:"partial",asm_did_not_meet:"did not meet",asm_not_assessed:"not assessed",asm_unknown:"unknown",materials:"Materials",no_run:"Run the engine to see verdicts.",promoted:"Portfolio promotion"},
+ tr:{eng:"SEÇİM",eyebrow:"Convexus · Seçim Motoru",gate_h:'Giriş <em>gerekli</em>',gate_b:"Giriş yap",h1:'Triyaj <em>Konsolu</em>',sub:"Motoru tüm başvurularda çalıştır, sıralı kararları gerekçeleriyle incele, kanaatin farklıysa geçersiz kıl.",run:"▶ Motoru çalıştır",running:"Motor çalışıyor…",export:"⤓ Orion CSV",empty:"Bu çağrı için henüz başvuru yok.",gated:"Elendi (gate)",total:"başvuru",saved:"Kararlar kaydedildi",override:"GEÇERSİZ KILINDI",set:"Karar ver:",engine_said:"Motor",why:"Neden",breakdown_need:"alan",breakdown_art:"sınıf",breakdown_val:"kanıt",breakdown_trl:"TRL",breakdown_fit:"uyum",breakdown_act:"Faaliyet ve değerlendirme",total_score:"TOPLAM",verify:"Teyit et",vf_claimed:"Beyan",vf_verified:"Teyit",vf_none:"teyit edilmemiş",vf_saved:"Teyit kaydedildi",vf_title:"Kanıt teyidi",d_scale:"Ölçek",d_earned:"alındı",d_missing:"alınamadı",d_matched:"karşılandı",d_unmatched:"cevap verilmedi",d_capped:"tavan",d_raw:"ham",d_verified:"teyitli",d_unverified:"teyitsiz — bir kademe aşağı",d_claimed:"beyan",d_weight:"ağırlık",d_why:"neden",eng_demonstrated:"gösterim yaptı",eng_integrated:"entegre edildi",eng_participated:"katıldı",eng_selected_only:"seçildi",eng_applied:"başvurdu",asm_excelled:"üstün",asm_met:"karşıladı",asm_partial:"kısmen",asm_did_not_meet:"karşılamadı",asm_not_assessed:"değerlendirilmedi",asm_unknown:"bilinmiyor",materials:"Materyaller",no_run:"Kararları görmek için motoru çalıştır.",promoted:"Portföy terfisi"},
+ fr:{eng:"SÉLECTION",eyebrow:"Convexus · Moteur de sélection",gate_h:'Connexion <em>requise</em>',gate_b:"Se connecter",h1:'Console de <em>triage</em>',sub:"Lancez le moteur sur toutes les candidatures, examinez les verdicts classés avec motifs, et corrigez si votre jugement diffère.",run:"▶ Lancer le moteur",running:"Moteur en cours…",export:"⤓ Orion CSV",empty:"Aucune candidature pour cet appel.",gated:"Éliminé",total:"candidatures",saved:"Verdicts enregistrés",override:"CORRIGÉ",set:"Verdict :",engine_said:"Moteur",why:"Pourquoi",breakdown_need:"domaine",breakdown_art:"classe",breakdown_val:"preuve",breakdown_trl:"TRL",breakdown_fit:"adéq.",breakdown_act:"Activité et évaluation",total_score:"TOTAL",verify:"Vérifier",vf_claimed:"Déclaré",vf_verified:"Vérifié",vf_none:"non vérifié",vf_saved:"Vérification enregistrée",vf_title:"Vérification des preuves",d_scale:"Échelle",d_earned:"obtenu",d_missing:"non obtenu",d_matched:"couvert",d_unmatched:"non traité",d_capped:"plafonné à",d_raw:"brut",d_verified:"vérifié",d_unverified:"non vérifié — un cran plus bas",d_claimed:"déclaré",d_weight:"poids",d_why:"pourquoi",eng_demonstrated:"démonstration",eng_integrated:"intégré",eng_participated:"participé",eng_selected_only:"sélectionné",eng_applied:"candidaté",asm_excelled:"excellent",asm_met:"attentes remplies",asm_partial:"partiel",asm_did_not_meet:"insuffisant",asm_not_assessed:"non évalué",asm_unknown:"inconnu",materials:"Documents",no_run:"Lancez le moteur pour voir les verdicts.",promoted:"Promotion portefeuille"},
+ de:{eng:"AUSWAHL",eyebrow:"Convexus · Auswahl-Engine",gate_h:'Anmeldung <em>erforderlich</em>',gate_b:"Anmelden",h1:'Triage-<em>Konsole</em>',sub:"Engine über alle Bewerbungen laufen lassen, die eingestuften Urteile mit Begründung prüfen und bei abweichendem Urteil überschreiben.",run:"▶ Engine starten",running:"Engine läuft…",export:"⤓ Orion CSV",empty:"Noch keine Bewerbungen für diesen Aufruf.",gated:"Aussortiert",total:"Bewerbungen",saved:"Urteile gespeichert",override:"ÜBERSCHRIEBEN",set:"Urteil:",engine_said:"Engine",why:"Warum",breakdown_need:"Bereich",breakdown_art:"Klasse",breakdown_val:"Nachweis",breakdown_trl:"TRL",breakdown_fit:"Eignung",breakdown_act:"Aktivität & Bewertung",total_score:"GESAMT",verify:"Verifizieren",vf_claimed:"Angegeben",vf_verified:"Verifiziert",vf_none:"nicht verifiziert",vf_saved:"Verifizierung erfasst",vf_title:"Nachweisprüfung",d_scale:"Skala",d_earned:"erhalten",d_missing:"nicht erhalten",d_matched:"abgedeckt",d_unmatched:"nicht behandelt",d_capped:"gedeckelt auf",d_raw:"roh",d_verified:"verifiziert",d_unverified:"unverifiziert — eine Stufe niedriger",d_claimed:"angegeben",d_weight:"Gewicht",d_why:"warum",eng_demonstrated:"vorgeführt",eng_integrated:"integriert",eng_participated:"teilgenommen",eng_selected_only:"ausgewählt",eng_applied:"beworben",asm_excelled:"herausragend",asm_met:"erfüllt",asm_partial:"teilweise",asm_did_not_meet:"nicht erfüllt",asm_not_assessed:"nicht bewertet",asm_unknown:"unbekannt",materials:"Material",no_run:"Engine starten, um Urteile zu sehen.",promoted:"Portfolio-Beförderung"}
+};
+/* Puan dökümü — her bileşen için kazanılan / tavan.
+   Tavanlar motorun ağırlıklarından türetilir, elle yazılmaz. */
+function maxOf(o){var m=0;for(var k in o){if(o[k]>m)m=o[k];}return m;}
+function scoreMaxes(){
+  var W=window.CVSelection?window.CVSelection.WEIGHTS:{};
+  return {
+    need:W.need_cap||30, artifact:maxOf(W.artifact||{}), validation:maxOf(W.validation||{}),
+    activity:W.activity_cap||10, trl:maxOf(W.trl||{}), fit:W.fit_cap||3
+  };
+}
+var COMP=[['need','breakdown_need'],['artifact','breakdown_art'],['validation','breakdown_val'],
+          ['activity','breakdown_act'],['trl','breakdown_trl'],['fit','breakdown_fit']];
+var VAL_OPTS=['combat_fielded','combat_tested','allied_exercise','national_trial','none'];
+function verifyHtml(r){
+  var a=r.app, vv=r.score.validation||{}, ver=a.validation_tier_verified;
+  return '<div class="vfrow"><span class="vfl">'+T('vf_title')+'</span>'+
+    '<span class="vfl">'+T('vf_claimed')+':</span><span class="vfc">'+esc(a.validation_tier||'none')+'</span>'+
+    '<span class="vfl">'+T('vf_verified')+':</span>'+
+    (ver?'<span class="vfc vfok">✓ '+esc(ver)+'</span>':'<span class="vfc vfno">'+T('vf_none')+'</span>')+
+    '<span style="flex:1"></span>'+
+    '<select data-vsel="'+a.id+'">'+VAL_OPTS.map(function(o){
+       return '<option value="'+o+'"'+((ver||a.validation_tier)===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'+
+    '<button class="btn sm ghost" data-vbtn="'+a.id+'">✓ '+T('verify')+'</button></div>';
+}
+/* Her bileşen için "neden bu puan" açıklaması. Kapalı gelir, tıklayınca açılır. */
+function scaleStr(o,cur){
+  return Object.keys(o).sort(function(a,b){return o[b]-o[a];}).map(function(k){
+    return (k===cur?'<span class="hi">':'<span class="dim">')+k+' '+o[k]+'</span>';}).join(' · ');
+}
+function compDetail(key,r){
+  var W=window.CVSelection.WEIGHTS, a=r.app, sc=r.score;
+  if(key==='need'){
+    var m=sc.matched_needs||[];
+    return NEEDS.map(function(n){
+      var hit=m.indexOf(n.code)>=0;
+      return '<span class="ln">'+(hit?'<span class="ok">✓</span>':'<span class="no">✗</span>')+' '+esc(n.code)+
+        ' — '+esc(n.label)+' <span class="dim">'+(hit?'+'+W.need_per_match:T('d_unmatched'))+'</span></span>';
+    }).join('')+'<span class="ln dim">'+T('d_capped')+' '+W.need_cap+'</span>';
+  }
+  if(key==='artifact')
+    return '<span class="ln"><span class="hi">'+esc(a.artifact_class||'unknown')+'</span> → '+(W.artifact[a.artifact_class]||0)+'</span>'+
+           '<span class="ln dim">'+T('d_scale')+': '+scaleStr(W.artifact,a.artifact_class)+'</span>';
+  if(key==='validation'){
+    var v=sc.validation||{}, head;
+    if(v.verified) head='<span class="ln"><span class="ok">✓ '+T('d_verified')+'</span> <span class="hi">'+esc(v.tier)+'</span> → '+(W.validation[v.tier]||0)+'</span>';
+    else head='<span class="ln"><span class="no">'+T('d_unverified')+'</span><br>'+T('d_claimed')+': '+esc(a.validation_tier||'none')+
+              ' → <span class="hi">'+esc(v.tier)+'</span> = '+(W.validation[v.tier]||0)+'</span>';
+    return head+'<span class="ln dim">'+T('d_scale')+': '+scaleStr(W.validation,v.tier)+'</span>';
+  }
+  if(key==='activity'){
+    var act=sc.activity||{details:[]};
+    if(!(act.details||[]).length)return '<span class="ln dim">—</span>';
+    var lines=act.details.map(function(d){
+      var rec=d.rec, base=W.engagement[rec.engagement_level]||0, tw=W.organiser_tier[rec.organiser_tier]||1,
+          am=rec.verified?(W.assessment[rec.assessment_outcome]||0):Math.min(W.assessment[rec.assessment_outcome]||0,0);
+      return '<span class="ln">'+(d.penalty?'<span class="no">▼</span> ':'')+esc(rec.activity_name||rec.activity_code)+
+        ' <span class="dim">'+rec.engagement_level+'('+base+') × '+rec.organiser_tier+'('+tw+')'+
+        (am?' '+(am>0?'+':'')+am+' '+rec.assessment_outcome:'')+
+        (rec.verified?'':' <span class="no">'+T('d_unverified').split('—')[0]+'</span>')+
+        ' → '+d.base+' × '+T('d_weight')+' '+d.weight+'</span> = <span class="hi">'+d.applied+'</span></span>';
+    }).join('');
+    return lines+'<span class="ln dim">'+T('d_raw')+' '+act.raw+(act.capped?' → '+T('d_capped')+' '+W.activity_cap:'')+'</span>';
+  }
+  if(key==='trl')
+    return '<span class="ln">TRL <span class="hi">'+(a.trl_demo||'—')+'</span> → '+(W.trl[a.trl_demo]||0)+'</span>'+
+           '<span class="ln dim">'+T('d_scale')+': '+Object.keys(W.trl).sort(function(x,y){return y-x;}).map(function(k){
+             return (String(k)===String(a.trl_demo)?'<span class="hi">':'<span class="dim">')+'TRL'+k+'→'+W.trl[k]+'</span>';}).join(' · ')+'</span>';
+  if(key==='fit'){
+    var got=a.fit||[];
+    return Object.keys(W.fit).map(function(k){
+      var hit=got.indexOf(k)>=0;
+      return '<span class="ln">'+(hit?'<span class="ok">✓</span>':'<span class="no">✗</span>')+' '+k+
+        ' <span class="dim">'+(hit?'+'+W.fit[k]+' '+T('d_earned'):T('d_missing'))+'</span></span>';
+    }).join('');
+  }
+  return '';
+}
+function breakdownHtml(r){
+  var bd=r.score.breakdown||{}, mx=scoreMaxes(), tot=0, max=0;
+  var rows=COMP.map(function(c){
+    var v=bd[c[0]]||0, m=mx[c[0]]||0; tot+=v; max+=m;
+    var pct=m>0?Math.max(0,Math.min(100,Math.round(v/m*100))):0;
+    var neg=v<0;
+    var did='bd_'+r.app.id+'_'+c[0];
+    return '<div class="bdrow clickable" data-bd="'+did+'"><span class="bdl">'+T(c[1])+'<span class="bdcar">▾</span></span>'+
+      '<span class="bdbar"><i style="width:'+pct+'%'+(neg?';background:var(--no)':'')+'"></i></span>'+
+      '<span class="bdv'+(neg?' neg':'')+'">'+v+'<em>/'+m+'</em></span></div>'+
+      '<div class="bddet" id="'+did+'">'+compDetail(c[0],r)+'</div>';
+  }).join('');
+  var acts=(r.app._activities||[]);
+  var actList=acts.length?'<div class="actlist">'+acts.map(function(a){
+      var oc=a.assessment_outcome||'unknown';
+      return '<div class="actrow"><span class="acto acto-'+oc+'"></span>'+
+        '<span class="actn">'+esc(a.activity_name||a.activity_code||'')+'</span>'+
+        '<span class="actm">'+esc(T('eng_'+(a.engagement_level||'')))+' · '+esc(T('asm_'+oc))+'</span></div>';
+    }).join('')+'</div>':'';
+  return '<div class="bdwrap">'+rows+
+    '<div class="bdrow bdtot"><span class="bdl">'+T('total_score')+'</span><span class="bdbar"></span>'+
+    '<span class="bdv">'+tot+'<em>/'+max+'</em></span></div>'+actList+'</div>';
+}
+/* Motor dil-bağımsız KOD üretir; çeviri burada yapılır.
+   {param} yer tutucuları badge.params'tan doldurulur.
+   Kod tanınmazsa badge.text (İngilizce yedek) gösterilir. */
+var BADGE={
+ PLATFORM_SUBJECT:{en:"Platform — the subject of the demonstration",tr:"Platform — gösterimin doğrudan öznesi",fr:"Plateforme — l'objet de la démonstration",de:"Plattform — Gegenstand der Demonstration"},
+ COVERS_ALL:{en:"Covers all {n} challenge areas",tr:"{n} challenge alanının tamamını kapsıyor",fr:"Couvre les {n} domaines de défi",de:"Deckt alle {n} Bereiche ab"},
+ VAL_FIELDED:{en:"Fielded at scale in combat",tr:"Muharebede sahada — seri kullanım kanıtı",fr:"Déployé à grande échelle au combat",de:"Im Gefecht in Serie eingesetzt"},
+ VAL_TESTED:{en:"Tested in combat conditions",tr:"Muharebe ortamında test edildi",fr:"Testé en conditions de combat",de:"Unter Gefechtsbedingungen getestet"},
+ VAL_EXERCISE:{en:"NATO / allied exercise history",tr:"NATO / müttefik tatbikat geçmişi",fr:"Historique d'exercices OTAN / alliés",de:"NATO-/Bündnis-Übungserfahrung"},
+ VAL_NONE:{en:"No external validation",tr:"Harici doğrulama yok",fr:"Aucune validation externe",de:"Keine externe Validierung"},
+ TRL_MATURE:{en:"TRL {trl} — mature",tr:"TRL {trl} — olgun",fr:"TRL {trl} — mature",de:"TRL {trl} — ausgereift"},
+ TRL_THRESHOLD:{en:"TRL {trl} — at the threshold",tr:"TRL {trl} — eşik seviyesinde",fr:"TRL {trl} — au seuil",de:"TRL {trl} — an der Schwelle"},
+ FIT_HOST:{en:"Host nation company — logistics advantage",tr:"Ev sahibi ülke firması — lojistik avantaj",fr:"Entreprise du pays hôte — avantage logistique",de:"Firma des Gastlandes — logistischer Vorteil"},
+ VAL_UNVERIFIED:{en:'Claim of "{claimed}" not verified — counted one tier lower',tr:'"{claimed}" beyanı teyit edilmemiş — bir kademe aşağı sayıldı',fr:'Déclaration "{claimed}" non vérifiée — comptée un cran plus bas',de:'Angabe "{claimed}" nicht verifiziert — eine Stufe niedriger gewertet'},
+ VAL_CORRECTED:{en:'Verified as "{verified}" (claimed "{claimed}")',tr:'"{verified}" olarak teyit edildi (beyan: "{claimed}")',fr:'Vérifié comme "{verified}" (déclaré "{claimed}")',de:'Verifiziert als "{verified}" (angegeben "{claimed}")'},
+ ACT_EXCELLED:{en:"Excelled at {activity}",tr:"{activity} faaliyetinde üstün değerlendirildi",fr:"Excellent résultat à {activity}",de:"Herausragend bei {activity}"},
+ ACT_MET:{en:"Met expectations at {activity}",tr:"{activity} faaliyetinde beklentiyi karşıladı",fr:"A répondu aux attentes à {activity}",de:"Erwartungen erfüllt bei {activity}"},
+ ACT_DEMONSTRATED:{en:"Demonstrated at {activity} — outcome not recorded",tr:"{activity} faaliyetinde gösterim yaptı — sonuç kayıtlı değil",fr:"Démonstration à {activity} — résultat non consigné",de:"Vorführung bei {activity} — Ergebnis nicht erfasst"},
+ ACT_PARTICIPATED:{en:"Took part in {activity} — no demonstration recorded",tr:"{activity} faaliyetine katıldı — gösterim kaydı yok",fr:"A participé à {activity} — aucune démonstration",de:"Teilnahme an {activity} — keine Vorführung"},
+ ACT_NONE:{en:"No NATO / allied activity record",tr:"NATO / müttefik faaliyet kaydı yok",fr:"Aucun historique d'activité OTAN / alliée",de:"Kein NATO-/Bündnis-Aktivitätsnachweis"},
+ ACT_BELOW:{en:"Did not meet expectations at {activity}",tr:"{activity} faaliyetinde beklentiyi karşılamadı",fr:"N'a pas répondu aux attentes à {activity}",de:"Erwartungen nicht erfüllt bei {activity}"},
+ NO_INTEGRATION:{en:"No declared platform / C2 integration path",tr:"Beyan edilmiş platform / C2 entegrasyon yolu yok",fr:"Aucune voie d'intégration plateforme / C2 déclarée",de:"Kein erklärter Plattform-/C2-Integrationspfad"},
+ PORTFOLIO_PROMOTION:{en:"Specialist gap in {need} ({have}/{min}) — highest-scoring specialist promoted",tr:"{need} alanında uzman açığı ({have}/{min}) — en yüksek puanlı uzman yükseltildi",fr:"Manque de spécialiste en {need} ({have}/{min}) — le mieux classé promu",de:"Spezialistenlücke bei {need} ({have}/{min}) — bestbewerteter Spezialist befördert"},
+ G1_INCOMPLETE_APPLICATION:{en:"Incomplete application — no assessable information",tr:"Eksik başvuru — değerlendirilebilir bilgi yok",fr:"Candidature incomplète — aucune information évaluable",de:"Unvollständige Bewerbung — keine bewertbaren Angaben"},
+ G1_EXPORT_RESTRICTED:{en:"Export / classification restriction — cannot be demonstrated",tr:"İhracat / sınıflandırma kısıtı — tatbikatta gösterilemez",fr:"Restriction export / classification — non démontrable",de:"Export-/Einstufungsbeschränkung — nicht vorführbar"},
+ G1_REQUIRES_BACKEND:{en:"Requires online backend — conflicts with the DDIL/EW requirement",tr:"Çevrimiçi backend zorunluluğu — DDIL/EW şartıyla çelişiyor",fr:"Backend en ligne requis — contredit l'exigence DDIL/EW",de:"Online-Backend nötig — widerspricht der DDIL/EW-Anforderung"},
+ G1_INFRASTRUCTURE_DEPENDENT:{en:"Depends on infrastructure not present at the exercise",tr:"Tatbikatta bulunmayan altyapıya bağımlı",fr:"Dépend d'une infrastructure absente de l'exercice",de:"Abhängig von bei der Übung fehlender Infrastruktur"},
+ G1_RESEARCH_STAGE:{en:"Research / consultancy stage — no deployable product",tr:"Araştırma / danışmanlık seviyesi — sahaya çıkarılabilir ürün yok",fr:"Stade recherche / conseil — aucun produit déployable",de:"Forschungs-/Beratungsstadium — kein einsatzfähiges Produkt"},
+ G2_DOMAIN:{en:"No direct link to the exercise domain",tr:"Tatbikatın alanıyla doğrudan bağ yok",fr:"Aucun lien direct avec le domaine de l'exercice",de:"Kein direkter Bezug zur Übungsdomäne"},
+ G3_TRL_FLOOR:{en:"TRL {trl} — below the absolute floor of {floor}",tr:"TRL {trl} — mutlak taban {floor} altında",fr:"TRL {trl} — sous le plancher absolu de {floor}",de:"TRL {trl} — unter der absoluten Untergrenze von {floor}"},
+ G4_TRL_MIN:{en:"TRL {trl} < {min}, no waiver (external validation + domain match)",tr:"TRL {trl} < {min}, muafiyet yok (harici doğrulama + alan uyumu)",fr:"TRL {trl} < {min}, sans dérogation (validation externe + domaine)",de:"TRL {trl} < {min}, keine Ausnahme (externe Validierung + Domäne)"}
+};
+function bTxt(b){
+  var e=BADGE[b&&b.code];
+  if(!e)return (b&&b.text)||'';
+  var s=e[LANG]||e.en, p=b.params||{};
+  return s.replace(/\{(\w+)\}/g,function(m,k){return p[k]!=null?p[k]:m;});
+}
+var LANG=localStorage.getItem('cv-lang')||'en';if(!I18N[LANG])LANG='en';
+function T(k){return (I18N[LANG]&&I18N[LANG][k]!=null)?I18N[LANG][k]:(I18N.en[k]||k);}
+var dark=localStorage.getItem('cn-dark')==='1';
+function applyDark(){document.body.toggleAttribute('data-dark',dark);document.getElementById('themeBtn').textContent=dark?'☀️':'🌙';}
+
+var SB_URL=window.__CV_SUPABASE_URL;
+var SB_KEY=window.__CV_ANON_KEY;
+var sb=window.cvClient();
+var $=function(id){return document.getElementById(id);};
+var EV=null,NEEDS=[],APPS=[],ROWS=[],RUN=null,FILTER='all';
+
+function toast(t,c){var m=$('msg');m.textContent=t;m.style.background=c||'var(--ink)';m.classList.add('on');clearTimeout(m._h);m._h=setTimeout(function(){m.classList.remove('on');},2600);}
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+
+/* ---- app -> motor girdi şekli ---- */
+function toEngineInput(app){
+  var needs=(app._needs||[]).map(function(x){return x.code;});
+  var primary=(app._needs||[]).filter(function(x){return x.is_primary;}).map(function(x){return x.code;})[0]||needs[0]||null;
+  var raw=app.raw_intake||{};
+  var fit=[];
+  if(app.diana_backed)fit.push('diana');
+  if(app.nif_backed)fit.push('nif');
+  if(EV.host_nation&&(app.registration_country===EV.host_nation||app.country===EV.host_nation))fit.push('host_nation');
+  if(raw.prior_efdi||app.prior_efdi)fit.push('prior_efdi');
+  if((app.integration_standards||[]).indexOf('TAK_COT')>=0||(app.integration_standards||[]).indexOf('STANAG_4586')>=0)fit.push('c2_integration');
+  // domain ekseni: isc_domain -> engine axis
+  var dmap={LAND:'ground',AIR:'aerial',MARITIME:'maritime',SPACE:'space',CYBER:'cyber',JOINT_ENABLING:'other',SOF:'ground'};
+  var axis=app.domain_axis||dmap[app.isc_domain]||EV.domain_axis||'ground';
+  return {
+    id:app.id, name:app.company_name, country:app.registration_country||app.country,
+    trl_demo:app.trl_demo||0, artifact_class:app.artifact_class||'unknown',
+    domain_axis:axis, needs:needs, primary_need:primary,
+    validation_tier:app.validation_tier||'none',
+    validation_tier_verified:app.validation_tier_verified||null,
+    fit:fit, blockers:app.blockers||[],
+    integration_path:!!app.integration_path,
+    activity_records:app._activities||[]
+  };
+}
+
+function evForEngine(){
+  return {
+    code:EV.event_code, title:EV.title, host_nation:EV.host_nation,
+    min_trl:EV.min_trl, absolute_trl_floor:EV.absolute_trl_floor,
+    domain_axis:EV.domain_axis, slots:EV.slots,
+    min_specialists_per_need:EV.min_specialists_per_need,
+    needs:NEEDS.map(function(n){return {code:n.code,label:n.label};})
+  };
+}
+
+/* ---- yükle ---- */
+async function loadEvents(){
+  var r=await sb.from('conventus_selection_events').select('id,event_code,title,status').order('created_at',{ascending:false});
+  if(r.error){toast(r.error.message,'var(--err)');return;}
+  $('evPick').innerHTML=(r.data||[]).map(function(e){return '<option value="'+e.id+'">'+esc(e.title)+' ('+esc(e.event_code)+')</option>';}).join('');
+  if(r.data&&r.data.length)openEvent(r.data[0].id);
+}
+async function openEvent(id){
+  var e=await sb.from('conventus_selection_events').select('*').eq('id',id).single();
+  EV=e.data;
+  var n=await sb.from('conventus_selection_needs').select('*').eq('event_id',id).order('sort_order');
+  NEEDS=(n.data||[]).map(function(x){x.criteria=x.criteria||[];return x;});
+  var a=await sb.from('conventus_selection_applications').select('*').eq('event_id',id).order('created_at');
+  APPS=a.data||[];
+  // needs + materials per app
+  for(var i=0;i<APPS.length;i++){
+    var an=await sb.from('conventus_selection_app_needs').select('need_id,is_primary').eq('application_id',APPS[i].id);
+    var codeById={};NEEDS.forEach(function(x){codeById[x.id]=x.code;});
+    APPS[i]._needs=(an.data||[]).map(function(x){return {code:codeById[x.need_id],is_primary:x.is_primary};}).filter(function(x){return x.code;});
+    var mt=await sb.from('conventus_selection_materials').select('kind,url,label').eq('application_id',APPS[i].id);
+    APPS[i]._materials=mt.data||[];
+    var ac=await sb.from('convexus_activity_records').select('*').eq('application_id',APPS[i].id).order('year',{ascending:false});
+    APPS[i]._activities=ac.error?[]:(ac.data||[]);
+  }
+  // en güncel assessment (varsa) -> önceki koşuyu göster
+  var asr=await sb.from('conventus_selection_assessments').select('*').in('application_id',APPS.map(function(x){return x.id;}).concat(['00000000-0000-0000-0000-000000000000'])).order('created_at',{ascending:false});
+  var latest={};(asr.data||[]).forEach(function(as){if(!latest[as.application_id])latest[as.application_id]=as;});
+  ROWS=[];
+  if(Object.keys(latest).length){ // önceki koşu var — göster
+    ROWS=APPS.map(function(app){var as=latest[app.id];return as?fromAssessment(app,as):null;}).filter(Boolean);
+    rankAndRender();
+  }else{
+    $('groups').innerHTML='<p class="sub" style="text-align:center;padding:2rem">'+T('no_run')+'</p>';
+  }
+  $('empty').classList.toggle('hidden',APPS.length>0);
+  $('main').querySelector('#groups').classList.toggle('hidden',APPS.length===0);
+  renderSummary();renderFilters();
+}
+function fromAssessment(app,as){
+  return {app:app, engineInput:toEngineInput(app),
+    gate_fails:(as.gate_fails||[]), score:{total:as.score_total,breakdown:as.score_breakdown||{},matched_needs:as.matched_needs||[]},
+    decision:as.decision, engineDecision:as.source==='engine'?as.decision:(as._engine||as.decision),
+    badges:as.badges||[], promoted:as.promoted, promotion_reason:as.promotion_reason,
+    overridden:as.source!=='engine', rationale:as.rationale};
+}
+
+/* ---- motoru çalıştır ---- */
+async function runEngine(){
+  if(!APPS.length){toast(T('empty'),'var(--warn)');return;}
+  $('runBtn').disabled=true;toast(T('running'));
+  var inputs=APPS.map(toEngineInput);
+  var out=window.CVSelection.run(evForEngine(),inputs);
+  var byId={};out.rows.forEach(function(r){byId[r.app.id]=r;});
+  // run başlığı
+  var u=(await sb.auth.getUser()).data.user;
+  var runRow=await sb.from('conventus_selection_runs').insert({
+    event_id:EV.id, engine_version:window.CVSelection.VERSION,
+    weights:window.CVSelection.WEIGHTS, bands:window.CVSelection.BANDS,
+    run_by:u?u.id:null
+  }).select().single();
+  RUN=runRow.data;
+  // her app için assessment yaz (append-only, source=engine)
+  var rows=[];
+  APPS.forEach(function(app){
+    var r=byId[app.id];if(!r)return;
+    rows.push({
+      run_id:RUN?RUN.id:null, application_id:app.id, source:'engine',
+      gate_passed:!r.gate_fails.length, gate_fails:r.gate_fails,
+      score_total:r.score.total, score_breakdown:r.score.breakdown, matched_needs:r.score.matched_needs,
+      decision:r.decision, promoted:!!r.promoted, promotion_reason:r.promotion_reason||null,
+      badges:r.badges, fit_status:'generated'
+    });
+  });
+  var ins=await sb.from('conventus_selection_assessments').insert(rows);
+  if(ins.error){toast(ins.error.message,'var(--err)');$('runBtn').disabled=false;return;}
+  ROWS=APPS.map(function(app){var r=byId[app.id];r.app=app;r.engineInput=toEngineInput(app);r.engineDecision=r.decision;r.overridden=false;return r;});
+  rankAndRender();renderSummary();
+  $('runBtn').disabled=false;toast(T('saved'),'var(--ok)');
+}
+
+/* ---- override ---- */
+async function override(row,newDecision){
+  if(row.decision===newDecision)return;
+  var u=(await sb.auth.getUser()).data.user;
+  var ins=await sb.from('conventus_selection_assessments').insert({
+    run_id:RUN?RUN.id:null, application_id:row.app.id, source:'human_override',
+    gate_passed:!row.gate_fails.length, gate_fails:row.gate_fails,
+    score_total:row.score.total, score_breakdown:row.score.breakdown, matched_needs:row.score.matched_needs,
+    decision:newDecision, promoted:row.promoted, promotion_reason:row.promotion_reason||null,
+    badges:row.badges, rationale:'Manual override', assessor_id:u?u.id:null, fit_status:'human_reviewed'
+  });
+  if(ins.error){toast(ins.error.message,'var(--err)');return;}
+  row.decision=newDecision;row.overridden=(newDecision!==row.engineDecision);
+  rankAndRender();renderSummary();toast(T('saved'),'var(--ok)');
+}
+
+/* ---- sırala + render ---- */
+var ORDER={MUST:0,RESERVE:1,MAYBE:2,NO:3};
+function rankAndRender(){
+  ROWS.sort(function(a,b){
+    if(ORDER[a.decision]!==ORDER[b.decision])return ORDER[a.decision]-ORDER[b.decision];
+    return (b.score.total||0)-(a.score.total||0);
+  });
+  var groups={MUST:[],RESERVE:[],MAYBE:[],NO:[]};
+  ROWS.forEach(function(r){groups[r.decision].push(r);});
+  var order=['MUST','RESERVE','MAYBE','NO'];
+  var html='';
+  order.forEach(function(g){
+    var list=groups[g];if(!list.length)return;
+    if(FILTER!=='all'&&FILTER!==g)return;
+    html+='<div class="grp"><div class="gh '+g.toLowerCase()+'">'+g+'<span class="c">'+list.length+'</span></div>';
+    list.forEach(function(r,i){html+=cardHtml(r,i+1,g);});
+    html+='</div>';
+  });
+  $('groups').innerHTML=html||('<p class="sub" style="text-align:center;padding:2rem">—</p>');
+  bindCards();
+}
+function cardHtml(r,rank,g){
+  var a=r.app, sc=r.score.total||0, gated=r.gate_fails.length;
+  var scls='s-'+g.toLowerCase();
+  var mats=(a._materials||[]).filter(function(m){return m.url;});
+  var bd=r.score.breakdown||{};
+  return '<div class="card dimwrap" data-id="'+a.id+'">'+
+    '<div class="chead" data-toggle="'+a.id+'">'+
+      '<div class="rank">'+rank+'</div>'+
+      '<div class="score '+scls+'">'+(gated?'—':sc)+'</div>'+
+      '<div class="cmain"><div class="cname">'+esc(a.company_name)+
+        (a.registration_country||a.country?' <span class="flag">'+esc(a.registration_country||a.country)+'</span>':'')+
+        (a.trl_demo?' <span class="flag">TRL '+a.trl_demo+'</span>':'')+
+        (a.artifact_class&&a.artifact_class!=='unknown'?' <span class="flag">'+esc(a.artifact_class.replace(/_/g,' '))+'</span>':'')+
+      '</div><div class="cmeta">'+esc(a.system_name||a.summary||'')+'</div></div>'+
+      (r.overridden?'<span class="ovr">'+T('override')+'</span>':'')+
+      '<span class="verdict v-'+r.decision+'">'+r.decision+'</span>'+
+    '</div>'+
+    '<div class="body" data-body="'+a.id+'">'+
+      '<div class="badges">'+(r.badges||[]).map(function(b){return '<span class="bdg b-'+(b.kind||'plus')+'">'+esc(bTxt(b))+'</span>';}).join('')+'</div>'+
+      (!gated?verifyHtml(r):'')+
+      (!gated?breakdownHtml(r):'')+
+      (mats.length?'<div class="links">'+mats.map(function(m){return '<a href="'+esc(m.url)+'" target="_blank" rel="noopener">↗ '+esc(m.kind||'link')+'</a>';}).join('')+'</div>':'')+
+      '<div class="ovrow"><span class="set">'+T('set')+'</span>'+
+        ['MUST','RESERVE','MAYBE','NO'].map(function(d){return '<button class="ob '+d+(r.decision===d?' on':'')+'" data-ov="'+a.id+'|'+d+'">'+d+'</button>';}).join('')+
+        (r.engineDecision&&r.engineDecision!==r.decision?'<span class="set" style="margin-left:.5rem">'+T('engine_said')+': '+r.engineDecision+'</span>':'')+
+      '</div>'+
+    '</div></div>';
+}
+async function verify(row,value){
+  var u=(await sb.auth.getUser()).data.user;
+  var claimed=row.app.validation_tier||'none';
+  var outcome = value===claimed?'confirmed':
+                (VAL_OPTS.indexOf(value)>VAL_OPTS.indexOf(claimed)?'downgraded':'upgraded');
+  var ins=await sb.from('conventus_selection_verifications').insert({
+    application_id:row.app.id, field_key:'validation_tier',
+    claimed_value:claimed, verified_value:value, outcome:outcome,
+    verifier_id:u?u.id:null, note:'Console verification'});
+  if(ins.error){toast(ins.error.message,'var(--err)');return;}
+  row.app.validation_tier_verified=value;
+  toast(T('vf_saved'),'var(--ok)');
+  rankAndRender();
+}
+function bindCards(){
+  document.querySelectorAll('[data-toggle]').forEach(function(h){h.onclick=function(e){if(e.target.closest('[data-ov]'))return;var b=document.querySelector('[data-body="'+h.dataset.toggle+'"]');if(b)b.classList.toggle('open');};});
+  document.querySelectorAll('[data-bd]').forEach(function(el){el.onclick=function(e){e.stopPropagation();
+    var d=document.getElementById(el.dataset.bd);if(d)d.classList.toggle('open');
+    var c=el.querySelector('.bdcar');if(c)c.textContent=d&&d.classList.contains('open')?'▴':'▾';};});
+  document.querySelectorAll('[data-vbtn]').forEach(function(b){b.onclick=function(e){e.stopPropagation();
+    var id=b.dataset.vbtn,row=ROWS.filter(function(x){return x.app.id===id;})[0];
+    var sel=document.querySelector('[data-vsel="'+id+'"]');
+    if(row&&sel)verify(row,sel.value);};});
+  document.querySelectorAll('[data-vsel]').forEach(function(el){el.onclick=function(e){e.stopPropagation();};});
+  document.querySelectorAll('[data-ov]').forEach(function(b){b.onclick=function(e){e.stopPropagation();var p=b.dataset.ov.split('|');var row=ROWS.filter(function(r){return r.app.id===p[0];})[0];if(row)override(row,p[1]);};});
+}
+function renderSummary(){
+  var c={MUST:0,RESERVE:0,MAYBE:0,NO:0};ROWS.forEach(function(r){c[r.decision]++;});
+  $('summary').innerHTML=
+    '<span class="pill p-must">MUST '+c.MUST+'</span>'+
+    '<span class="pill p-reserve">RESERVE '+c.RESERVE+'</span>'+
+    '<span class="pill p-maybe">MAYBE '+c.MAYBE+'</span>'+
+    '<span class="pill p-no">NO '+c.NO+'</span>'+
+    '<span class="pill p-total">'+APPS.length+' '+T('total')+'</span>';
+}
+function renderFilters(){
+  var fs=[['all','ALL'],['MUST','MUST'],['RESERVE','RESERVE'],['MAYBE','MAYBE'],['NO','NO']];
+  $('filters').innerHTML=fs.map(function(f){return '<button class="fbtn'+(FILTER===f[0]?' on':'')+'" data-f="'+f[0]+'">'+f[1]+'</button>';}).join('');
+  document.querySelectorAll('[data-f]').forEach(function(b){b.onclick=function(){FILTER=b.dataset.f;renderFilters();rankAndRender();};});
+}
+
+/* ---- Orion CSV export ---- */
+async function exportCSV(){
+  var r=await sb.from('conventus_selection_orion_export').select('*').eq('event_id',EV.id);
+  if(r.error){toast(r.error.message,'var(--err)');return;}
+  var rows=r.data||[];if(!rows.length){toast(T('empty'),'var(--warn)');return;}
+  var cols=['contribution_id','organisation','country','submitted_at','contact_name','contact_role','capability_name_claimed','focus_area','trl','description','use_case','evidence','interoperability','diana','nif','isc_domain','isc_pilot_area','primary_capability_code','primary_capability_name','primary_confidence','primary_signal','fit_verdict','fit_suitability','fit_rationale','fit_model_id','fit_generated_at','state'];
+  var csv=cols.join(',')+'\n'+rows.map(function(row){return cols.map(function(c){var v=row[c];if(v==null)v='';if(Array.isArray(v))v=v.join(' | ');v=String(v).replace(/"/g,'""');return /[",\n]/.test(v)?'"'+v+'"':v;}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=EV.event_code+'_orion_export.csv';a.click();URL.revokeObjectURL(url);
+  toast('CSV ✓','var(--ok)');
+}
+
+function applyStatic(){document.querySelectorAll('[data-i18n]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-i18n'));});document.querySelectorAll('.lg').forEach(function(b){b.classList.toggle('on',b.dataset.lg===LANG);});}
+document.querySelectorAll('.lg').forEach(function(b){b.onclick=function(){LANG=b.dataset.lg;localStorage.setItem('cv-lang',LANG);applyStatic();if(EV){renderSummary();renderFilters();rankAndRender();}};});
+$('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');applyDark();};
+$('evPick').onchange=function(){openEvent($('evPick').value);};
+$('runBtn').onclick=runEngine;
+$('exportBtn').onclick=exportCSV;
+
+(async function(){
+  applyDark();applyStatic();
+  if(!window.CVSelection){toast('Engine not loaded (cv-selection-engine.js)','var(--err)');$('verBadge').textContent='engine?';$('verBadge').style.color='var(--err)';}else{$('verBadge').textContent='v'+window.CVSelection.VERSION;}
+  var s=(await sb.auth.getSession()).data.session;
+  if(!s){$('gate').classList.remove('hidden');return;}
+  $('main').classList.remove('hidden');
+  loadEvents();
+})();
+})();
+</script>
+</body>
+</html>

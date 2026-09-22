@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Convexus · Engagement — Triage Console</title>
+
+<!-- ============================================================
+     CONVEXUS > ENGAGEMENT — Triage Console (Faz2-B)  [ADMIN]
+     Reads/writes convexus_engagement_requests + _events under
+     closed RLS (is_convexus_admin). State machine transitions,
+     gap radar, promote queue. High-fidelity 3-pane cockpit.
+     Tokens LOCKED: Instrument Serif / Manrope / JetBrains Mono.
+     ============================================================ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --cream:#F5F2EC; --paper:#FBF9F4; --white:#FFFFFF;
+    --line:#E7E0D1; --line-2:#D6CCB6;
+    --ink:#12233A; --muted:#5C6B7C; --faint:#8A97A6;
+    --navy:#004990; --navy-deep:#0E2148; --navy-soft:#e7eef6;
+    --gold:#E2B65E; --gold-deep:#B8892B;
+    --good:#1F7A4D; --danger:#B23A3A;
+    --serif:"Instrument Serif",Georgia,serif;
+    --sans:"Manrope",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --shadow:0 1px 2px rgba(14,33,72,.04), 0 8px 24px -16px rgba(14,33,72,.18);
+    --shadow-lg:0 2px 4px rgba(14,33,72,.05), 0 24px 48px -24px rgba(14,33,72,.28);
+    --r:16px; --r-s:10px; --r-xs:7px;
+    --bg:var(--cream); --surf:var(--paper); --surf-2:var(--white);
+    --hair:var(--line); --hair-2:var(--line-2);
+    --tx:var(--ink); --tx-mut:var(--muted); --tx-faint:var(--faint);
+    --accent:var(--navy); --accent-soft:var(--navy-soft);
+  }
+  html[data-theme="dark"]{
+    --bg:#0B1B39; --surf:#0F2445; --surf-2:#143059;
+    --hair:rgba(255,255,255,.09); --hair-2:rgba(255,255,255,.16);
+    --tx:#EAF1F9; --tx-mut:#9FB2CA; --tx-faint:#7488a3;
+    --accent:#5A97DA; --accent-soft:rgba(90,151,218,.15);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -18px rgba(0,0,0,.6);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.35), 0 30px 60px -28px rgba(0,0,0,.7);
+    --good:#4FB783; --danger:#E27B7B; --gold:#EBC873;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--tx);
+    font-family:var(--sans); font-size:14.5px; line-height:1.5;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    display:flex; flex-direction:column;
+  }
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum"}
+  button{font-family:inherit}
+  ::selection{background:var(--gold); color:var(--navy-deep)}
+
+  /* ---------------- header ---------------- */
+  .hdr{
+    flex:none; display:flex; align-items:center; gap:20px;
+    padding:14px 22px; background:var(--surf);
+    border-bottom:1px solid var(--hair);
+    position:relative;
+  }
+  .hdr::after{content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px;
+    background:linear-gradient(90deg,transparent, var(--gold) 20%, var(--gold) 80%, transparent); opacity:.5}
+  .brand{display:flex; align-items:baseline; gap:9px; min-width:0}
+  .brand .m{font-family:var(--serif); font-size:24px; line-height:1; color:var(--accent); letter-spacing:.01em}
+  .brand .s{font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--tx-faint); white-space:nowrap}
+  .hdr-metrics{display:flex; gap:8px; margin-left:6px}
+  .metric{display:flex; flex-direction:column; align-items:flex-start; gap:1px;
+    padding:6px 12px; border:1px solid var(--hair); border-radius:var(--r-xs); background:var(--surf-2)}
+  .metric .v{font-family:var(--mono); font-size:16px; font-weight:600; line-height:1; color:var(--tx)}
+  .metric .k{font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx-faint)}
+  .metric.gap .v{color:var(--gold-deep)}
+  html[data-theme="dark"] .metric.gap .v{color:var(--gold)}
+  .hdr-sp{flex:1}
+  .hdr-ctl{display:flex; align-items:center; gap:8px}
+  .icon-btn{width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--hair);
+    background:var(--surf-2); border-radius:var(--r-xs); color:var(--tx-mut); cursor:pointer; transition:.14s}
+  .icon-btn:hover{border-color:var(--accent); color:var(--accent)}
+  .icon-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+  .icon-btn svg{width:16px; height:16px}
+  .seg{display:flex; border:1px solid var(--hair); border-radius:999px; overflow:hidden; background:var(--surf-2)}
+  .seg button{font-family:var(--mono); font-size:11px; letter-spacing:.05em; padding:7px 12px; border:0; background:transparent; color:var(--tx-mut); cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--accent); color:#fff}
+  .signout{font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:var(--tx-mut);
+    border:1px solid var(--hair); background:var(--surf-2); padding:8px 12px; border-radius:var(--r-xs); cursor:pointer}
+  .signout:hover{border-color:var(--danger); color:var(--danger)}
+
+  /* ---------------- cockpit ---------------- */
+  .cockpit{flex:1; min-height:0; display:grid; grid-template-columns:352px 1fr 336px; gap:0}
+  .pane{min-height:0; overflow:auto; padding:18px}
+  .pane.inbox{border-right:1px solid var(--hair); background:var(--surf)}
+  .pane.detail{background:var(--bg)}
+  .pane.audit{border-left:1px solid var(--hair); background:var(--surf)}
+  .pane::-webkit-scrollbar{width:10px}
+  .pane::-webkit-scrollbar-thumb{background:var(--hair-2); border-radius:10px; border:3px solid transparent; background-clip:content-box}
+
+  /* inbox views + filters */
+  .views{display:flex; gap:6px; margin-bottom:14px}
+  .view{flex:1; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+    padding:9px 6px; border:1px solid var(--hair); border-radius:var(--r-xs); background:var(--surf-2);
+    color:var(--tx-mut); cursor:pointer; transition:.14s; position:relative}
+  .view:hover{border-color:var(--accent)}
+  .view[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .view .badge{display:inline-block; margin-left:6px; padding:1px 6px; border-radius:999px; font-size:10px;
+    background:var(--accent-soft); color:var(--accent)}
+  .view[aria-pressed="true"] .badge{background:rgba(255,255,255,.22); color:#fff}
+  .search{position:relative; margin-bottom:14px}
+  .search svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--tx-faint)}
+  .search input{width:100%; padding:9px 12px 9px 33px; border:1px solid var(--hair); border-radius:var(--r-xs);
+    background:var(--surf-2); color:var(--tx); font-size:13.5px}
+  .search input:focus{outline:0; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+
+  /* request cards */
+  .rlist{display:flex; flex-direction:column; gap:8px}
+  .rcard{text-align:left; width:100%; border:1px solid var(--hair); border-radius:var(--r-s);
+    background:var(--surf-2); padding:13px 14px; cursor:pointer; transition:.14s; position:relative; overflow:hidden}
+  .rcard:hover{border-color:var(--hair-2); transform:translateY(-1px); box-shadow:var(--shadow)}
+  .rcard[aria-selected="true"]{border-color:var(--accent); box-shadow:var(--shadow)}
+  .rcard[aria-selected="true"]::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent)}
+  .rcard .top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px}
+  .rcard .org{font-weight:700; font-size:14px; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rcard .cap{font-size:12.5px; color:var(--tx-mut); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .rcard .meta{display:flex; align-items:center; gap:8px; margin-top:9px; font-family:var(--mono); font-size:10.5px; color:var(--tx-faint)}
+  .rcard .flags{display:flex; gap:5px; margin-left:auto}
+  .dotflag{width:7px; height:7px; border-radius:50%}
+  .dotflag.gap{background:var(--gold)}
+  .dotflag.promo{background:var(--good)}
+
+  /* status pills */
+  .pill{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10px;
+    letter-spacing:.05em; text-transform:uppercase; padding:3px 8px; border-radius:999px; border:1px solid transparent; white-space:nowrap}
+  .pill::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor}
+  .pill.received{color:#5C6B7C; background:rgba(92,107,124,.1)}
+  .pill.briefing_requested{color:var(--gold-deep); background:rgba(184,137,43,.12)}
+  .pill.under_review{color:var(--navy); background:rgba(0,73,144,.1)}
+  .pill.routed{color:var(--good); background:rgba(31,122,77,.12)}
+  .pill.experimentation{color:#B5581F; background:rgba(181,88,31,.12)}
+  .pill.closed{color:var(--tx-faint); background:rgba(138,151,166,.12)}
+  html[data-theme="dark"] .pill.under_review{color:#7FB3EA; background:rgba(127,179,234,.14)}
+
+  /* ---------------- detail pane ---------------- */
+  .empty{height:100%; display:grid; place-items:center; text-align:center; color:var(--tx-faint)}
+  .empty .big{font-family:var(--serif); font-size:30px; color:var(--tx-mut); margin-bottom:8px}
+  .empty svg{width:40px; height:40px; margin:0 auto 14px; color:var(--hair-2); display:block}
+
+  .dcard{max-width:720px; margin:0 auto}
+  .dhead{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:6px}
+  .dhead h1{font-family:var(--serif); font-weight:400; font-size:32px; line-height:1.05; margin:0; letter-spacing:-.01em}
+  .dhead .sub{font-family:var(--mono); font-size:11px; color:var(--tx-faint); margin-top:5px; display:flex; gap:12px; flex-wrap:wrap}
+  .dhead .sub a{color:var(--accent); text-decoration:none}
+  .dcap{font-size:16px; color:var(--tx); margin:14px 0 4px}
+  .dsum{color:var(--tx-mut); font-size:14px; line-height:1.6}
+
+  .block{margin-top:22px; padding-top:20px; border-top:1px solid var(--hair)}
+  .block > .bh{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx-faint); margin:0 0 12px; display:flex; align-items:center; gap:8px}
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .tag{font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid var(--hair); background:var(--surf-2); color:var(--tx)}
+  .tag.other{border-color:var(--gold); background:rgba(226,182,94,.1); color:var(--gold-deep)}
+  html[data-theme="dark"] .tag.other{color:var(--gold)}
+  .kv{display:grid; grid-template-columns:120px 1fr; gap:6px 14px; font-size:13.5px}
+  .kv dt{font-family:var(--mono); font-size:11px; letter-spacing:.03em; color:var(--tx-faint); text-transform:uppercase; padding-top:2px}
+  .kv dd{margin:0; color:var(--tx)}
+
+  /* state machine actions */
+  .flow{display:flex; flex-wrap:wrap; gap:9px; align-items:center}
+  .flowbtn{display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600;
+    padding:10px 15px; border-radius:var(--r-xs); border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; transition:.13s}
+  .flowbtn:hover{filter:brightness(1.06)}
+  .flowbtn.ghost{background:var(--surf-2); color:var(--accent)}
+  .flowbtn.warn{border-color:var(--danger); background:transparent; color:var(--danger)}
+  .flowbtn.warn:hover{background:rgba(178,58,58,.08)}
+  .flowbtn svg{width:14px; height:14px}
+  .flowbtn:disabled{opacity:.5; cursor:not-allowed}
+
+  /* triage form */
+  .fgrid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  .fld{display:flex; flex-direction:column; gap:5px; margin-bottom:12px}
+  .fld.full{grid-column:1/-1}
+  .fld label{font-size:12.5px; font-weight:600; color:var(--tx)}
+  .fld .h{font-size:11px; color:var(--tx-faint); font-weight:400}
+  select, .ti, textarea{font-family:var(--sans); font-size:13.5px; color:var(--tx);
+    background:var(--surf-2); border:1px solid var(--hair); border-radius:var(--r-xs); padding:9px 11px; width:100%}
+  textarea{resize:vertical; min-height:70px; line-height:1.5}
+  select:focus, .ti:focus, textarea:focus{outline:0; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .savebar{display:flex; align-items:center; gap:10px; margin-top:6px}
+  .btn-save{font-size:13px; font-weight:700; padding:10px 18px; border-radius:var(--r-xs); border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer}
+  .btn-save:hover{filter:brightness(1.06)}
+  .btn-save:disabled{opacity:.55; cursor:not-allowed}
+
+  /* promote */
+  .promo-row{display:flex; gap:9px; flex-wrap:wrap}
+  .promo-btn{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600;
+    padding:10px 14px; border-radius:var(--r-xs); border:1px dashed var(--gold); background:rgba(226,182,94,.08); color:var(--gold-deep); cursor:pointer; transition:.13s}
+  html[data-theme="dark"] .promo-btn{color:var(--gold)}
+  .promo-btn:hover{background:rgba(226,182,94,.16)}
+  .promo-note{font-size:11.5px; color:var(--tx-faint); margin-top:9px; line-height:1.5}
+
+  /* ---------------- audit pane ---------------- */
+  .audit h3{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx-faint); margin:0 0 16px}
+  .timeline{position:relative; padding-left:20px}
+  .timeline::before{content:""; position:absolute; left:5px; top:4px; bottom:4px; width:1px; background:var(--hair-2)}
+  .evt{position:relative; padding-bottom:18px}
+  .evt::before{content:""; position:absolute; left:-18px; top:3px; width:11px; height:11px; border-radius:50%;
+    background:var(--surf); border:2px solid var(--accent)}
+  .evt.sys::before{border-color:var(--gold)}
+  .evt .act{font-family:var(--mono); font-size:11.5px; font-weight:600; color:var(--tx); letter-spacing:.02em}
+  .evt .trans{font-size:11.5px; color:var(--tx-mut); margin-top:2px}
+  .evt .when{font-family:var(--mono); font-size:10px; color:var(--tx-faint); margin-top:3px}
+  .evt .who{font-family:var(--mono); font-size:9.5px; color:var(--tx-faint)}
+  .evt .nt{font-size:12px; color:var(--tx-mut); margin-top:5px; padding:7px 9px; background:var(--surf-2); border-radius:var(--r-xs); border:1px solid var(--hair)}
+
+  /* ---------------- gate / toast ---------------- */
+  .gate{position:fixed; inset:0; display:grid; place-items:center; background:var(--bg); z-index:50}
+  .gatecard{width:min(380px,92vw); background:var(--surf); border:1px solid var(--hair); border-radius:var(--r); padding:32px; box-shadow:var(--shadow-lg); text-align:center}
+  .gatecard .m{font-family:var(--serif); font-size:30px; color:var(--accent); margin-bottom:4px}
+  .gatecard .s{font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--tx-faint); margin-bottom:22px}
+  .gatecard .fld{text-align:left}
+  .gatecard .btn-save{width:100%; justify-content:center; margin-top:6px; padding:12px}
+  .gate-err{color:var(--danger); font-size:13px; margin-top:12px; min-height:18px}
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--navy-deep); color:#fff; font-size:13.5px; padding:12px 20px; border-radius:999px; box-shadow:var(--shadow-lg); transition:.22s; z-index:60; pointer-events:none}
+  .toast.show{transform:translateX(-50%) translateY(0); opacity:1}
+  .toast.err{background:var(--danger)}
+
+  @media (max-width:1180px){
+    .cockpit{grid-template-columns:320px 1fr}
+    .pane.audit{grid-column:1/-1; border-left:0; border-top:1px solid var(--hair); max-height:340px}
+  }
+  @media (max-width:820px){
+    .cockpit{grid-template-columns:1fr; overflow:auto}
+    .pane{overflow:visible}
+    .hdr-metrics{display:none}
+    .fgrid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<!-- gate -->
+<div class="gate" id="gate">
+  <div class="gatecard">
+    <div class="m">Convexus</div>
+    <div class="s" data-i="gate_sub">Engagement · Triage</div>
+    <div id="gateForm">
+      <div class="fld"><label data-i="g_email">E-posta</label><input class="ti" type="email" id="g_email" autocomplete="email" /></div>
+      <div class="fld"><label data-i="g_pass">Parola</label><input class="ti" type="password" id="g_pass" autocomplete="current-password" /></div>
+      <button class="btn-save" id="g_go" data-i="g_go">Giriş yap</button>
+    </div>
+    <div class="gate-err" id="g_err"></div>
+  </div>
+</div>
+
+<!-- header -->
+<header class="hdr" id="app" style="display:none">
+  <div class="brand"><span class="m">Convexus</span><span class="s">Engagement · Triage</span></div>
+  <div class="hdr-metrics">
+    <div class="metric"><span class="v mono" id="mTotal">0</span><span class="k" data-i="m_total">Toplam</span></div>
+    <div class="metric gap"><span class="v mono" id="mGap">0</span><span class="k" data-i="m_gap">Gap</span></div>
+    <div class="metric"><span class="v mono" id="mPromo">0</span><span class="k" data-i="m_promo">Promote</span></div>
+  </div>
+  <div class="hdr-sp"></div>
+  <div class="hdr-ctl">
+    <div class="seg" role="group" aria-label="Language">
+      <button data-lang="tr" aria-pressed="true">TR</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Theme" aria-label="Theme">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>
+    </button>
+    <button class="icon-btn" id="refreshBtn" title="Refresh" aria-label="Refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>
+    </button>
+    <button class="signout" id="signout" data-i="signout">Çıkış</button>
+  </div>
+</header>
+
+<!-- cockpit -->
+<div class="cockpit" id="cockpit" style="display:none">
+  <!-- inbox -->
+  <section class="pane inbox">
+    <div class="views">
+      <button class="view" data-view="all" aria-pressed="true"><span data-i="v_all">Tümü</span></button>
+      <button class="view" data-view="gap" aria-pressed="false"><span data-i="v_gap">Gap radar</span><span class="badge" id="bGap">0</span></button>
+      <button class="view" data-view="promo" aria-pressed="false"><span data-i="v_promo">Promote</span><span class="badge" id="bPromo">0</span></button>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="q" data-i-ph="search_ph" placeholder="Firma / yetenek ara…" />
+    </div>
+    <div class="rlist" id="rlist"></div>
+  </section>
+
+  <!-- detail -->
+  <section class="pane detail" id="detail">
+    <div class="empty" id="detailEmpty">
+      <div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h10"/></svg>
+        <div class="big" data-i="pick_h">Bir talep seçin</div>
+        <div data-i="pick_s">Soldaki listeden bir başvuruya tıklayın.</div>
+      </div>
+    </div>
+    <div class="dcard" id="dcard" style="display:none"></div>
+  </section>
+
+  <!-- audit -->
+  <aside class="pane audit">
+    <h3 data-i="audit_h">Denetim izi</h3>
+    <div class="timeline" id="timeline"><p style="color:var(--tx-faint);font-size:12.5px" data-i="audit_empty">Seçili talebin geçmişi burada.</p></div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+/* ---------------- config ---------------- */
+const SUPABASE_URL=window.__CV_SUPABASE_URL;
+const ANON=window.__CV_ANON_KEY;
+const sb=window.cvClient();
+window.__cvSb=sb;
+
+/* ---------------- i18n ---------------- */
+const T={
+  tr:{ gate_sub:"Engagement · Triage", g_email:"E-posta", g_pass:"Parola", g_go:"Giriş yap",
+    signout:"Çıkış", m_total:"Toplam", m_gap:"Gap", m_promo:"Promote",
+    v_all:"Tümü", v_gap:"Gap radar", v_promo:"Promote", search_ph:"Firma / yetenek ara…",
+    pick_h:"Bir talep seçin", pick_s:"Soldaki listeden bir başvuruya tıklayın.",
+    audit_h:"Denetim izi", audit_empty:"Seçili talebin geçmişi burada.",
+    submitted:"gönderildi", contact:"İletişim", country:"Ülke", targets:"Hedefler", focus:"Odak alanları",
+    brief:"Tanıtım paketi", none:"—", flow_h:"Durum akışı", triage_h:"Triage",
+    tax:"Taksonomi durumu", dem:"Talep durumu", prop:"Önerilen alan", notes:"Triage notları",
+    prof:"Pool profili (uuid)", route_to:"Yönlendirilen", route_reasons:"Neden (virgülle)",
+    save:"Triage kaydet", promote_h:"Promote",
+    p_demand:"Yeni talep adayı yap", p_cat:"Yeni kategori adayı yap",
+    p_note:"Her iki buton da artık gerçek satır üretir. “Yeni talep adayı” → convexus_demand_signals’a candidate; “Yeni kategori adayı” → convexus_focus_areas’a aday kategori (origin=candidate, listede gizli). İkisi de curation ile onaylanınca (active / base) kamuya açılır.",
+    a_briefing:"Tanıtım iste", a_review:"İncelemeye al", a_route:"Yönlendir", a_exp:"Deneye gönder", a_close:"Kapat", a_reopen:"Yeniden aç",
+    ok_saved:"Kaydedildi", ok_moved:"Durum güncellendi", err_generic:"İşlem başarısız", empty_list:"Kayıt yok." },
+  en:{ gate_sub:"Engagement · Triage", g_email:"Email", g_pass:"Password", g_go:"Sign in",
+    signout:"Sign out", m_total:"Total", m_gap:"Gap", m_promo:"Promote",
+    v_all:"All", v_gap:"Gap radar", v_promo:"Promote", search_ph:"Search firm / capability…",
+    pick_h:"Select a request", pick_s:"Pick a submission from the list on the left.",
+    audit_h:"Audit trail", audit_empty:"History of the selected request appears here.",
+    submitted:"submitted", contact:"Contact", country:"Country", targets:"Targets", focus:"Focus areas",
+    brief:"Briefing package", none:"—", flow_h:"Status flow", triage_h:"Triage",
+    tax:"Taxonomy status", dem:"Demand status", prop:"Proposed area", notes:"Triage notes",
+    prof:"Pool profile (uuid)", route_to:"Routed to", route_reasons:"Reasons (comma-sep)",
+    save:"Save triage", promote_h:"Promote",
+    p_demand:"Mark demand candidate", p_cat:"Mark category candidate",
+    p_note:"Both buttons now mint real rows. “Mark demand candidate” → a candidate in convexus_demand_signals; “Mark category candidate” → a candidate category in convexus_focus_areas (origin=candidate, hidden from the list). Curation promotes either one (active / base) for public view.",
+    a_briefing:"Request briefing", a_review:"Start review", a_route:"Route", a_exp:"To experimentation", a_close:"Close", a_reopen:"Reopen",
+    ok_saved:"Saved", ok_moved:"Status updated", err_generic:"Action failed", empty_list:"No records." }
+};
+let LANG='tr';
+try{const s=localStorage.getItem('cv-lang'); if(s==='tr'||s==='en')LANG=s;}catch(e){}
+function t(k){return (T[LANG]&&T[LANG][k])||k;}
+function applyLang(l){
+  LANG=l; document.documentElement.lang=l;
+  document.querySelectorAll('[data-i]').forEach(el=>{const k=el.getAttribute('data-i'); if(T[l][k]!==undefined)el.textContent=T[l][k];});
+  document.querySelectorAll('[data-i-ph]').forEach(el=>{const k=el.getAttribute('data-i-ph'); if(T[l][k]!==undefined)el.placeholder=T[l][k];});
+  document.querySelectorAll('.seg [data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===l)));
+  try{localStorage.setItem('cv-lang',l);}catch(e){}
+  if(selected)renderDetail(selected); else renderList();
+}
+document.querySelectorAll('.seg [data-lang]').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.lang)));
+
+/* ---------------- theme ---------------- */
+function applyTheme(mode){
+  document.documentElement.setAttribute('data-theme',mode);
+  try{localStorage.setItem('cn-dark', mode==='dark'?'1':'0');}catch(e){}
+  const ic=document.getElementById('themeIcon');
+  ic.innerHTML = mode==='dark'
+    ? '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
+    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>';
+}
+let startTheme='light';
+try{ if(localStorage.getItem('cn-dark')==='1')startTheme='dark'; }catch(e){}
+applyTheme(startTheme);
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+/* ---------------- state ---------------- */
+let CURRENT_UID=null, ROWS=[], VIEW='all', selected=null;
+
+const FLOW={
+  received:[['briefing_requested','a_briefing','briefing_requested','ghost'],['under_review','a_review','review_started','']],
+  briefing_requested:[['under_review','a_review','review_started','']],
+  under_review:[['routed','a_route','routed',''],['closed','a_close','closed','warn']],
+  routed:[['experimentation','a_exp','experimentation_started',''],['closed','a_close','closed','warn']],
+  experimentation:[['closed','a_close','closed','']],
+  closed:[['under_review','a_reopen','reopened','ghost']]
+};
+
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function isGap(r){return ['off_taxonomy','new_category_candidate'].includes(r.taxonomy_status)||['no_match','new_demand_candidate'].includes(r.demand_status);}
+function isPromo(r){return r.taxonomy_status==='new_category_candidate'||r.demand_status==='new_demand_candidate';}
+function fmtTs(s){ if(!s)return''; const d=new Date(s); return d.toLocaleString(LANG==='tr'?'tr-TR':'en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+function toast(msg,err){ const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(err?' err':''); setTimeout(()=>el.className='toast'+(err?' err':''),2600); }
+
+/* ---------------- data ---------------- */
+async function loadRows(){
+  const { data, error } = await sb.from('convexus_engagement_requests').select('*').order('created_at',{ascending:false});
+  if(error){ toast(t('err_generic')+': '+error.message,true); return; }
+  ROWS=data||[];
+  updateMetrics(); renderList();
+  if(selected){ const fresh=ROWS.find(r=>r.id===selected.id); if(fresh){selected=fresh; renderDetail(fresh); loadEvents(fresh.id);} }
+}
+function updateMetrics(){
+  const g=ROWS.filter(isGap).length, p=ROWS.filter(isPromo).length;
+  document.getElementById('mTotal').textContent=ROWS.length;
+  document.getElementById('mGap').textContent=g;
+  document.getElementById('mPromo').textContent=p;
+  document.getElementById('bGap').textContent=g;
+  document.getElementById('bPromo').textContent=p;
+}
+
+/* ---------------- inbox render ---------------- */
+function currentSet(){
+  let set=ROWS;
+  if(VIEW==='gap')set=ROWS.filter(isGap);
+  if(VIEW==='promo')set=ROWS.filter(isPromo);
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  if(q)set=set.filter(r=>((r.org_name||'')+' '+(r.capability_title||'')+' '+(r.capability_summary||'')).toLowerCase().includes(q));
+  return set;
+}
+function renderList(){
+  const wrap=document.getElementById('rlist'); const set=currentSet();
+  if(!set.length){ wrap.innerHTML='<p style="color:var(--tx-faint);font-size:13px;padding:8px">'+esc(t('empty_list'))+'</p>'; return; }
+  wrap.innerHTML=set.map(r=>`
+    <button class="rcard" data-id="${r.id}" aria-selected="${selected&&selected.id===r.id}">
+      <div class="top">
+        <span class="org">${esc(r.org_name)}</span>
+        <span class="pill ${r.status}">${esc(r.status.replace(/_/g,' '))}</span>
+      </div>
+      <div class="cap">${esc(r.capability_title||'')}</div>
+      <div class="meta">
+        <span class="mono">${esc((r.org_country||'').toUpperCase())||'—'}</span>
+        <span class="mono">TRL ${r.trl||'—'}</span>
+        <span class="flags">
+          ${isGap(r)?'<span class="dotflag gap" title="gap"></span>':''}
+          ${isPromo(r)?'<span class="dotflag promo" title="promote"></span>':''}
+        </span>
+      </div>
+    </button>`).join('');
+  wrap.querySelectorAll('.rcard').forEach(c=>c.addEventListener('click',()=>{
+    selected=ROWS.find(r=>r.id===c.dataset.id); renderList(); renderDetail(selected); loadEvents(selected.id);
+  }));
+}
+document.getElementById('q').addEventListener('input',renderList);
+document.querySelectorAll('.view').forEach(v=>v.addEventListener('click',()=>{
+  VIEW=v.dataset.view;
+  document.querySelectorAll('.view').forEach(x=>x.setAttribute('aria-pressed',String(x===v)));
+  renderList();
+}));
+
+/* ---------------- detail render ---------------- */
+function tagList(arr){ if(!arr||!arr.length)return `<span style="color:var(--tx-faint);font-size:13px">${esc(t('none'))}</span>`;
+  return '<div class="chips">'+arr.map(x=>`<span class="tag ${/^other:/i.test(x)?'other':''}">${esc(x)}</span>`).join('')+'</div>'; }
+
+function renderDetail(r){
+  document.getElementById('detailEmpty').style.display='none';
+  const d=document.getElementById('dcard'); d.style.display='';
+  const flow=(FLOW[r.status]||[]).map(([to,lab,act,cls])=>
+    `<button class="flowbtn ${cls}" data-to="${to}" data-act="${act}">${esc(t(lab))}</button>`).join('');
+  d.innerHTML=`
+    <div class="dhead">
+      <div>
+        <h1>${esc(r.org_name)}</h1>
+        <div class="sub">
+          <span class="mono">${esc((r.org_country||'—').toUpperCase())}</span>
+          ${r.website?`<a href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.website.replace(/^https?:\/\//,''))}</a>`:''}
+          ${r.contact_email?`<a href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a>`:''}
+        </div>
+      </div>
+      <span class="pill ${r.status}">${esc(r.status.replace(/_/g,' '))}</span>
+    </div>
+    <div class="dcap">${esc(r.capability_title||'')}</div>
+    ${r.capability_summary?`<p class="dsum">${esc(r.capability_summary)}</p>`:''}
+
+    <div class="block">
+      <p class="bh">${esc(t('focus'))}</p>
+      ${tagList(r.focus_area)}
+    </div>
+    <div class="block">
+      <p class="bh">${esc(t('targets'))}</p>
+      ${tagList(r.target_stakeholder)}
+      <dl class="kv" style="margin-top:14px">
+        <dt>${esc(t('contact'))}</dt><dd>${esc(r.contact_name||'—')}</dd>
+        <dt>TRL</dt><dd>${r.trl||'—'}</dd>
+        <dt>${esc(t('brief'))}</dt><dd>${r.briefing_package_url?`<a href="${esc(r.briefing_package_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(t('brief'))} ↗</a>`:'—'}</dd>
+      </dl>
+    </div>
+
+    <div class="block">
+      <p class="bh">${esc(t('flow_h'))}</p>
+      <div class="flow">${flow||'<span style="color:var(--tx-faint);font-size:13px">—</span>'}</div>
+    </div>
+
+    <div class="block">
+      <p class="bh">${esc(t('triage_h'))}</p>
+      <div class="fgrid">
+        <div class="fld">
+          <label>${esc(t('tax'))}</label>
+          <select id="f_tax">
+            ${['untriaged','mapped','partial','off_taxonomy','new_category_candidate'].map(v=>`<option value="${v}" ${r.taxonomy_status===v?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fld">
+          <label>${esc(t('dem'))}</label>
+          <select id="f_dem">
+            ${['untriaged','matched','no_match','new_demand_candidate'].map(v=>`<option value="${v}" ${r.demand_status===v?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fld full">
+          <label>${esc(t('prop'))}</label>
+          <input class="ti" id="f_prop" value="${esc(r.proposed_capability_area||'')}" placeholder="e.g. Resilient PNT / Assured Navigation" />
+        </div>
+        <div class="fld">
+          <label>${esc(t('route_to'))}</label>
+          <input class="ti" id="f_routeto" value="${esc((r.routed_to||[]).join(', '))}" placeholder="TFX-EFDI, LANDCOM" />
+        </div>
+        <div class="fld">
+          <label>${esc(t('route_reasons'))}</label>
+          <input class="ti" id="f_reasons" value="${esc((r.route_reasons||[]).join(', '))}" placeholder="TRL fit, C-UAS overlap" />
+        </div>
+        <div class="fld full">
+          <label>${esc(t('prof'))}</label>
+          <input class="ti" id="f_prof" value="${esc(r.profile_id||'')}" placeholder="convexus_profiles.id (uuid)" />
+        </div>
+        <div class="fld full">
+          <label>${esc(t('notes'))}</label>
+          <textarea id="f_notes" placeholder="Internal only.">${esc(r.triage_notes||'')}</textarea>
+        </div>
+      </div>
+      <div class="savebar"><button class="btn-save" id="saveTriage">${esc(t('save'))}</button></div>
+    </div>
+
+    <div class="block">
+      <p class="bh">${esc(t('promote_h'))}</p>
+      <div class="promo-row">
+        <button class="promo-btn" id="promoDemand" ${r.demand_status==='new_demand_candidate'?'disabled':''}>◇ ${esc(t('p_demand'))}</button>
+        <button class="promo-btn" id="promoCat" ${r.taxonomy_status==='new_category_candidate'?'disabled':''}>◇ ${esc(t('p_cat'))}</button>
+      </div>
+      <p class="promo-note">${esc(t('p_note'))}</p>
+    </div>`;
+
+  d.querySelectorAll('.flowbtn').forEach(b=>b.addEventListener('click',()=>doTransition(r,b.dataset.to,b.dataset.act,b)));
+  d.querySelector('#saveTriage').addEventListener('click',()=>saveTriage(r));
+  d.querySelector('#promoDemand').addEventListener('click',()=>promote(r,'demand'));
+  d.querySelector('#promoCat').addEventListener('click',()=>promote(r,'category'));
+}
+
+/* ---------------- mutations ---------------- */
+async function writeEvent(r,to,action,note){
+  return sb.from('convexus_engagement_events').insert({
+    request_id:r.id, from_status:r.status, to_status:to, action, actor_id:CURRENT_UID, note:note||null });
+}
+async function doTransition(r,to,action,btn){
+  btn.disabled=true;
+  try{
+    const { error:e1 }=await sb.from('convexus_engagement_requests').update({status:to}).eq('id',r.id);
+    if(e1)throw e1;
+    const { error:e2 }=await writeEvent(r,to,action,null);
+    if(e2)throw e2;
+    toast(t('ok_moved'));
+    await loadRows();
+  }catch(err){ toast(t('err_generic')+': '+(err.message||''),true); btn.disabled=false; }
+}
+function parseArr(v){ return v.split(',').map(s=>s.trim()).filter(Boolean); }
+async function saveTriage(r){
+  const btn=document.getElementById('saveTriage'); btn.disabled=true;
+  const patch={
+    taxonomy_status:document.getElementById('f_tax').value,
+    demand_status:document.getElementById('f_dem').value,
+    proposed_capability_area:document.getElementById('f_prop').value.trim()||null,
+    routed_to:(()=>{const a=parseArr(document.getElementById('f_routeto').value); return a.length?a:null;})(),
+    route_reasons:(()=>{const a=parseArr(document.getElementById('f_reasons').value); return a.length?a:null;})(),
+    profile_id:document.getElementById('f_prof').value.trim()||null,
+    triage_notes:document.getElementById('f_notes').value.trim()||null
+  };
+  try{
+    const { error:e1 }=await sb.from('convexus_engagement_requests').update(patch).eq('id',r.id);
+    if(e1)throw e1;
+    await writeEvent(r,r.status,'note','triage updated');
+    toast(t('ok_saved'));
+    await loadRows();
+  }catch(err){ toast(t('err_generic')+': '+(err.message||''),true); btn.disabled=false; }
+}
+async function promote(r,kind){
+  try{
+    if(kind==='demand'){
+      // A) mint a real CANDIDATE demand signal row and back-link it
+      const code='DS-ENG-'+String(r.id).slice(0,8).toUpperCase();
+      const { data:mint, error:e0 }=await sb.from('convexus_demand_signals').insert({
+        code,
+        title: r.capability_title || r.org_name,
+        summary: r.capability_summary || null,
+        focus_area: (r.focus_area&&r.focus_area.length)?r.focus_area:null,
+        source:'engagement',
+        status:'candidate',
+        origin_request_id: r.id
+      }).select('id,code').single();
+      if(e0)throw e0;
+      const { error:e1 }=await sb.from('convexus_engagement_requests')
+        .update({demand_status:'new_demand_candidate', demand_signal_id: mint.id}).eq('id',r.id);
+      if(e1)throw e1;
+      const { error:e2 }=await writeEvent(r,r.status,'promoted_to_demand','minted candidate demand signal: '+mint.code);
+      if(e2)throw e2;
+    }else{
+      // B) mint a real CANDIDATE category into convexus_focus_areas (kept separate via origin='candidate')
+      let catName=(r.proposed_capability_area||'').trim();
+      if(!catName){ const o=(r.focus_area||[]).find(x=>/^other:/i.test(x)); if(o)catName=o.replace(/^other:\s*/i,'').trim(); }
+      if(!catName) catName=r.capability_title||r.org_name;
+      const code='cand_'+String(r.id).slice(0,8).toLowerCase();
+      const { data:mint, error:e0 }=await sb.from('convexus_focus_areas').insert({
+        code, name:catName, sort_order:999, origin:'candidate',
+        description:'candidate from engagement request '+String(r.id).slice(0,8)
+      }).select('code').single();
+      if(e0)throw e0;
+      const { error:e1 }=await sb.from('convexus_engagement_requests').update({taxonomy_status:'new_category_candidate'}).eq('id',r.id);
+      if(e1)throw e1;
+      const { error:e2 }=await writeEvent(r,r.status,'promoted_to_category','minted candidate category: '+mint.code);
+      if(e2)throw e2;
+    }
+    toast(t('ok_saved'));
+    await loadRows();
+  }catch(err){ toast(t('err_generic')+': '+(err.message||''),true); }
+}
+
+/* ---------------- audit ---------------- */
+async function loadEvents(id){
+  const tl=document.getElementById('timeline');
+  const { data, error }=await sb.from('convexus_engagement_events').select('*').eq('request_id',id).order('created_at',{ascending:false});
+  if(error){ tl.innerHTML='<p style="color:var(--danger);font-size:12px">'+esc(error.message)+'</p>'; return; }
+  if(!data||!data.length){ tl.innerHTML='<p style="color:var(--tx-faint);font-size:12.5px">'+esc(t('audit_empty'))+'</p>'; return; }
+  tl.innerHTML=data.map(e=>`
+    <div class="evt ${e.actor_id?'':'sys'}">
+      <div class="act">${esc(e.action)}</div>
+      ${e.from_status||e.to_status?`<div class="trans mono">${esc(e.from_status||'∅')} → ${esc(e.to_status||'∅')}</div>`:''}
+      <div class="when mono">${esc(fmtTs(e.created_at))}</div>
+      <div class="who mono">${e.actor_id?esc(e.actor_id.slice(0,8)):'system'}</div>
+      ${e.note?`<div class="nt">${esc(e.note)}</div>`:''}
+    </div>`).join('');
+}
+
+/* ---------------- auth gate ---------------- */
+async function boot(){
+  const { data:{ session } }=await sb.auth.getSession();
+  if(session){ return afterAuth(session); }
+  document.getElementById('gate').style.display='grid';
+}
+async function afterAuth(session){
+  CURRENT_UID=session.user.id;
+  // admin check via convexus_admins (RLS: only admins can see themselves)
+  const { data }=await sb.from('convexus_admins').select('user_id').eq('user_id',CURRENT_UID).maybeSingle();
+  if(!data){
+    document.getElementById('gate').style.display='grid';
+    document.getElementById('gateForm').innerHTML='<p style="color:var(--tx-mut);font-size:14px;line-height:1.6">'+
+      (LANG==='tr'?'Bu hesap admin listesinde değil. Erişim yetkisi yok.':'This account is not on the admin allowlist. Access denied.')+'</p>';
+    document.getElementById('g_err').innerHTML='<button class="signout" id="g_out" style="margin-top:14px">'+t('signout')+'</button>';
+    document.getElementById('g_out').addEventListener('click',async()=>{await sb.auth.signOut(); location.reload();});
+    return;
+  }
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('cockpit').style.display='grid';
+  applyLang(LANG);
+  await loadRows();
+}
+document.getElementById('g_go').addEventListener('click',async()=>{
+  const email=document.getElementById('g_email').value.trim();
+  const password=document.getElementById('g_pass').value;
+  const errEl=document.getElementById('g_err'); errEl.textContent='';
+  const { data, error }=await sb.auth.signInWithPassword({email,password});
+  if(error){ errEl.textContent=(LANG==='tr'?'Giriş başarısız: ':'Sign-in failed: ')+error.message; return; }
+  afterAuth(data.session);
+});
+document.getElementById('g_pass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('g_go').click();});
+document.getElementById('signout').addEventListener('click',async()=>{await sb.auth.signOut(); location.reload();});
+document.getElementById('refreshBtn').addEventListener('click',loadRows);
+
+/* gate labels reflect language on load */
+applyLang(LANG);
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,2412 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conventity — The Secure Operational Ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="/assets/js/cv-config.js"></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+<script defer src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+
+<link rel="stylesheet" href="assets/shared.css" />
+</head>
+<body>
+
+<!-- ============== PLATFORM NAVIGATION (interceptor for extracted platforms) ============== -->
+<script>
+  // Migrated platforms live as their own pages under /platforms/.
+  // Intercept data-open-platform clicks at capture phase BEFORE the main
+  // openPlatform() handler runs, and navigate to the standalone file.
+  (function(){
+    var PLATFORM_URLS = {
+      "convexus":   "/platforms/convexus/index.html",
+      "conventus":  "/platforms/conventus/index.html",
+      "consultus":  "/platforms/consultus/index.html",
+      "connectus":  "/platforms/connectus/index.html",
+      "governance": "platforms/governance.html",
+      "about":      "platforms/about.html",
+      "conventlab": "/platforms/conventlab/index.html",
+      "convergens": "/platforms/convergens/index.html"
+    };
+    function go(url){ window.location.href = url; }
+    document.addEventListener("click", function(e){
+      // 1. Workspace deep-link → Conventus standalone with auto-open
+      var ws = e.target.closest("[data-open-workspace]");
+      if (ws) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        go("platforms/conventus/index.html?workspace=1");
+        return;
+      }
+      // 2. Convergens → standalone page
+      if (e.target.closest("[data-open-convergens]")) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        go("/platforms/convergens/index.html");
+        return;
+      }
+      // 3. About tab triggers (menu, footer, drawer) → About page, deep-linked to tab.
+      //    Skip the in-overlay bar tabs (those only live inside the moved page now).
+      var ab = e.target.closest("[data-about-tab]");
+      if (ab && !ab.closest("#aboutTabs")) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        go("platforms/about.html#" + ab.dataset.aboutTab);
+        return;
+      }
+      // 4. Platform open → corresponding standalone page
+      var t = e.target.closest("[data-open-platform]");
+      if (!t) return;
+      var id = t.dataset.openPlatform;
+      if (!PLATFORM_URLS[id]) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      go(PLATFORM_URLS[id]);
+    }, true);  // capture phase = runs before delegated handlers
+  })();
+</script>
+
+
+<!-- ============== TOP BAR ============== -->
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 100 100" aria-label="Conventity logo">
+        <!-- Outer C -->
+        <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6"
+              fill="none" stroke="var(--logo-outer)" stroke-width="6" stroke-linecap="round" />
+        <!-- Inner C -->
+        <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7"
+              fill="none" stroke="var(--logo-inner)" stroke-width="4.5" stroke-linecap="round" />
+        <!-- Center dot -->
+        <circle cx="50" cy="50" r="3" fill="var(--logo-outer)" />
+      </svg>
+      <div>
+        <div class="brand-name">CONVENTITY</div>
+        <div class="brand-sub">Ecosystem for Future</div>
+      </div>
+    </div>
+    <nav class="primary" id="primaryNav">
+      <div class="nav-item" data-nav="platform">
+        <button class="nav-trigger" aria-haspopup="true" data-i18n="nav_platform">Platform <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mega-menu mm-platform" role="menu">
+          <div class="mm-platform-grid">
+            <button class="mm-mod m1" data-open-workspace>
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONVENTUS</span><span class="mod-chip">CORE</span></span>
+                <span class="mod-desc">End-to-end management of multinational events — invite, accredit, execute and archive on one secure surface.</span>
+              </span>
+            </button>
+            <button class="mm-mod m2" data-open-platform="convexus">
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 3 21 8 21 16 12 21 3 16 3 8"/><polyline points="3 8 12 13 21 8"/><line x1="12" y1="13" x2="12" y2="21"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONVEXUS</span><span class="mod-chip">LIVE</span></span>
+                <span class="mod-desc">Trusted capability marketplace — solutions matched to needs on real-world track record.</span>
+              </span>
+            </button>
+            <button class="mm-mod m3" data-open-platform="connectus">
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="12" cy="12" r="2.5"/><line x1="8" y1="7.5" x2="11" y2="11"/><line x1="16" y1="7.5" x2="13" y2="11"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONNECTUS</span><span class="mod-chip">LIVE</span></span>
+                <span class="mod-desc">Purpose-locked professional network — provenance-backed profiles for working groups and cells.</span>
+              </span>
+            </button>
+            <button class="mm-mod m4" data-open-convergens>
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONVERGENS</span><span class="mod-chip">STRATEGIC</span></span>
+                <span class="mod-desc">Civil–military (CIMIC) integration layer across institutional, industrial and civilian ecosystems.</span>
+              </span>
+            </button>
+            <button class="mm-mod m5" data-open-platform="consultus">
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONSULTUS</span><span class="mod-chip">HUMAN</span></span>
+                <span class="mod-desc">Advisory, training and ISO/IEC 17024-aligned certification — the ecosystem's human layer.</span>
+              </span>
+            </button>
+            <button class="mm-mod m6" data-open-platform="conventlab">
+              <span class="mod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4l3 6a5 5 0 01-5 5h-2a5 5 0 01-5-5l3-6V3z"/><line x1="9" y1="9" x2="15" y2="9"/></svg></span>
+              <span class="mod-text">
+                <span class="mod-row"><span class="mod-name">CONVENTLAB</span><span class="mod-chip">LAB</span></span>
+                <span class="mod-desc">Experimentation lab — pilots, exercises, wargaming and scenario simulation before real decisions.</span>
+              </span>
+            </button>
+          </div>
+          <div class="mm-foot">
+            <span style="color:var(--muted);font-size:11.5px;letter-spacing:0.08em;">SIX LAYERS · SECURE BY DESIGN</span>
+            <a href="#ecosystem">Explore full ecosystem <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-item" data-nav="solutions">
+        <button class="nav-trigger" aria-haspopup="true" data-i18n="nav_solutions">Solutions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mega-menu mm-solutions" role="menu">
+          <div class="mm-sol-grid">
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></span><span class="sol-name">Operational Coordination</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span><span class="sol-name">Event & Protocol Management</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span><span class="sol-name">Trusted Capability Exchange</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span><span class="sol-name">Secure Collaboration</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5l-8-3z"/></svg></span><span class="sol-name">Governance & Compliance</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></span><span class="sol-name">AI Matchmaking</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v4l3 6a5 5 0 01-5 5h-2a5 5 0 01-5-5l3-6V3z"/></svg></span><span class="sol-name">Operational Experimentation</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span><span class="sol-name">Hybrid Events</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21v-2a4 4 0 014-4h2a4 4 0 014 4v2"/></svg></span><span class="sol-name">Executive Coordination</span></button>
+            <button class="mm-sol"><span class="sol-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span><span class="sol-name">Innovation Ecosystems</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-item" data-nav="ecosystem">
+        <button class="nav-trigger" aria-haspopup="true" data-i18n="nav_ecosystem">Ecosystem <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mega-menu mm-list mm-eco" role="menu">
+          <div class="mm-list-head">Views</div>
+          <button class="mm-eco-item" data-eco-view="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="tx"><span class="t">Card View</span><span class="s">Structured capability layout</span></span><span class="dot"></span></button>
+          <button class="mm-eco-item" data-eco-view="constellation"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="9"/><circle cx="5" cy="7" r="1" fill="currentColor"/><circle cx="19" cy="10" r="1" fill="currentColor"/><circle cx="8" cy="19" r="1" fill="currentColor"/></svg></span><span class="tx"><span class="t">Constellation View</span><span class="s">Living ecosystem topology</span></span><span class="dot"></span></button>
+          <button class="mm-eco-item" data-eco-view="network"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><path d="M8 7l3 4M16 7l-3 4M12 14v2"/></svg></span><span class="tx"><span class="t">Operational Network</span><span class="s">Inter-module relationships</span></span><span class="dot"></span></button>
+          <div class="mm-list-head" style="margin-top:10px;">Intelligence</div>
+          <button class="mm-eco-item" data-eco-view="pulse"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span><span class="tx"><span class="t">Operational Pulse</span><span class="s">Live ecosystem activity</span></span><span class="dot pulse"></span></button>
+          <button class="mm-eco-item" data-eco-view="relationship"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg></span><span class="tx"><span class="t">Relationship Map</span><span class="s">Coordination intelligence</span></span><span class="dot"></span></button>
+          <div class="mm-eco-foot"><span class="k">⌘</span><span class="k">E</span><span class="lbl">Switch ecosystem view</span></div>
+        </div>
+      </div>
+
+      <div class="nav-item" data-nav="resources">
+        <button class="nav-trigger" aria-haspopup="true" data-i18n="nav_resources">Resources <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mega-menu mm-list" role="menu">
+          <div class="mm-list-head">Public Resources</div>
+          <a href="/verified-directory.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 5v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V5l-8-3z"/><path d="M9 12l2 2 4-4"/></svg> Verified Directory</a>
+          <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Capability Overview</a>
+          <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg> Operational Briefs</a>
+          <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Case Studies</a>
+          <div class="mm-list-head" style="margin-top:10px;">Trust &amp; Compliance</div>
+          <a href="legal/data-protection.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 5v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V5l-8-3z"/><path d="M9 12l2 2 4-4"/></svg> Data Protection</a>
+          <a href="legal/security.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Security &amp; Trust Center</a>
+          <a href="legal/terms.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg> Terms &amp; Legal</a>
+        </div>
+      </div>
+
+      <div class="nav-item" data-nav="about">
+        <button class="nav-trigger" aria-haspopup="true" data-i18n="nav_about">About <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="mega-menu mm-list mm-about" role="menu">
+          <div class="mm-about-head"><span class="badge">STRATEGIC BRIEFING LAYER</span><span class="sub">Conventity Institutional Overview</span></div>
+          <button class="mm-about-item" data-briefing="vision" data-about-tab="vision"><span class="num">01</span><span class="tx"><span class="t">Vision</span><span class="s">Where the ecosystem is heading</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+          <button class="mm-about-item" data-briefing="philosophy" data-about-tab="mission"><span class="num">02</span><span class="tx"><span class="t">Operational Philosophy</span><span class="s">Think as one product, build as six</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+          <button class="mm-about-item" data-briefing="roadmap" data-about-tab="roadmap"><span class="num">03</span><span class="tx"><span class="t">Future Roadmap</span><span class="s">Phased, standalone-then-federated rollout</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+          <button class="mm-about-item" data-briefing="architecture" data-about-tab="architecture"><span class="num">04</span><span class="tx"><span class="t">Architecture</span><span class="s">Shared backbone, interoperable layers</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+          <button class="mm-about-item" data-briefing="positioning" data-about-tab="positioning"><span class="num">05</span><span class="tx"><span class="t">Strategic Positioning</span><span class="s">Dual-use, integration-first</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+          <button class="mm-about-item" data-open-platform="governance"><span class="num">06</span><span class="tx"><span class="t">Plan · Policy · Permissions</span><span class="s">Governance &amp; access model</span></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>
+        </div>
+      </div>
+    </nav>
+    <div class="nav-actions">
+      <div class="settings" id="settingsMenu">
+        <button class="settings-btn" id="settingsBtn" aria-haspopup="true" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <div class="settings-pop" role="menu">
+          <h6>Theme</h6>
+          <div class="theme-seg" role="group" aria-label="Theme" data-theme-control>
+            <button data-theme-pref="light" title="Light" aria-label="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+            <button data-theme-pref="dark" title="Dark" aria-label="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button data-theme-pref="system" title="System" aria-label="System theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+          </div>
+          <h6>Language</h6>
+          <div class="set-langs">
+            <button data-lang="en"><span>English</span><span class="code">EN</span></button>
+            <button data-lang="tr"><span>Türkçe</span><span class="code">TR</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">DE</span></button>
+            <button data-lang="fr"><span>Français</span><span class="code">FR</span></button>
+          </div>
+          <h6>Operational mode</h6>
+          <button class="op-mode" id="opModeToggle" aria-label="Toggle operational mode" title="Operational mode"><span class="dot"></span><span class="lbl">OPS</span></button>
+          <h6>Accessibility</h6>
+          <label class="set-toggle"><span>Reduce motion</span><input type="checkbox" id="reduceMotionToggle" /></label>
+        </div>
+      </div>
+      <span class="auth-nav" id="authNav" style="display:inline-flex;align-items:center;gap:6px;">
+        <button class="btn btn-link" data-login data-i18n="cta_login">Login</button>
+        <a class="btn btn-link" href="/register.html" data-register>Create account</a>
+      </span>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="top-clocks is-24h" id="ecoClocks">
+  <span class="tc-k">◷ WORLD TIME</span>
+  <div class="eco-clock" data-tz="UTC"><span class="ck-loc">ZULU</span><span class="ck-seg"><span class="ck-ghost">88:88:88</span><span class="ck-t">--:--:--</span></span><span class="ck-mer"><i data-m="AM">AM</i><i data-m="PM">PM</i></span></div>
+  <div class="eco-clock" data-tz="Europe/London"><span class="ck-loc">LONDON</span><span class="ck-seg"><span class="ck-ghost">88:88:88</span><span class="ck-t">--:--:--</span></span><span class="ck-mer"><i data-m="AM">AM</i><i data-m="PM">PM</i></span></div>
+  <div class="eco-clock" data-tz="Europe/Brussels"><span class="ck-loc">BRUSSELS</span><span class="ck-seg"><span class="ck-ghost">88:88:88</span><span class="ck-t">--:--:--</span></span><span class="ck-mer"><i data-m="AM">AM</i><i data-m="PM">PM</i></span></div>
+  <div class="eco-clock" data-tz="America/New_York"><span class="ck-loc">WASHINGTON</span><span class="ck-seg"><span class="ck-ghost">88:88:88</span><span class="ck-t">--:--:--</span></span><span class="ck-mer"><i data-m="AM">AM</i><i data-m="PM">PM</i></span></div>
+  <div class="eco-clock" data-tz="Europe/Istanbul"><span class="ck-loc">İZMİR</span><span class="ck-seg"><span class="ck-ghost">88:88:88</span><span class="ck-t">--:--:--</span></span><span class="ck-mer"><i data-m="AM">AM</i><i data-m="PM">PM</i></span></div>
+  <button class="tc-fmt" id="ecoFmt" type="button" aria-label="Toggle 12 or 24 hour format"><span class="seg h24">24H</span><span class="seg h12">12H</span></button>
+</div>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">
+        <span class="eyebrow-dot">✦</span>
+        <span data-i18n="hero_eyebrow">DUAL-USE · AI-POWERED ECOSYSTEM</span>
+      </span>
+      <h1 class="hero-title"><em data-i18n="hero_h1">Trusted Operational Ecosystem</em></h1>
+      <p class="hero-lead">
+        Secure by design. Interoperable by nature.<br/>
+        Six platforms — one operational ecosystem.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#ecosystem">
+          Explore Ecosystem
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <button class="btn btn-ghost" data-demo>
+          Request Access
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-globe-wrap">
+      <canvas id="globeCanvas" width="560" height="560"></canvas>
+
+      <!-- Interactive hotspots over the 6 platform nodes -->
+      <div class="globe-hotspots" id="globeHotspots" aria-label="Six platforms — hover for details">
+        <button class="globe-hotspot" data-pf="convexus"   data-open-platform="convexus"
+                style="--ang: -90deg; --c: var(--pf-convexus);"
+                aria-label="Open Convexus">
+          <span class="hs-pulse"></span>
+        </button>
+        <button class="globe-hotspot" data-pf="conventus"  data-open-platform="conventus"
+                style="--ang: -30deg; --c: var(--pf-conventus);"
+                aria-label="Open Conventus">
+          <span class="hs-pulse"></span>
+        </button>
+        <button class="globe-hotspot" data-pf="consultus"  data-open-platform="consultus"
+                style="--ang: 30deg; --c: var(--pf-consultus);"
+                aria-label="Open Consultus">
+          <span class="hs-pulse"></span>
+        </button>
+        <button class="globe-hotspot" data-pf="connectus"  data-open-platform="connectus"
+                style="--ang: 90deg; --c: var(--pf-connectus);"
+                aria-label="Open Connectus">
+          <span class="hs-pulse"></span>
+        </button>
+        <button class="globe-hotspot" data-pf="convergens" data-open-convergens
+                style="--ang: 150deg; --c: var(--pf-convergens);"
+                aria-label="Open Convergens">
+          <span class="hs-pulse"></span>
+        </button>
+        <button class="globe-hotspot" data-pf="conventlab" data-open-platform="conventlab"
+                style="--ang: 210deg; --c: var(--pf-connovus);"
+                aria-label="Open Conventlab">
+          <span class="hs-pulse"></span>
+        </button>
+
+        <!-- Floating tooltip (single, repositioned on hover) -->
+        <div class="globe-tooltip" id="globeTooltip" aria-hidden="true">
+          <div class="gt-head">
+            <span class="gt-num">— · 06</span>
+            <span class="gt-status"><span class="gt-dot"></span> LIVE</span>
+          </div>
+          <h4 class="gt-name">—</h4>
+          <div class="gt-tag">—</div>
+          <p class="gt-desc">—</p>
+          <div class="gt-foot">
+            <span class="gt-cta">Open platform
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-legend">
+      <div class="hl-chips">
+        <button class="pf-chip" data-open-platform="conventus"  style="--c: var(--pf-conventus);"><span class="dot"></span>Conventus</button>
+        <button class="pf-chip" data-open-platform="convexus"   style="--c: var(--pf-convexus);"><span class="dot"></span>Convexus</button>
+        <button class="pf-chip" data-open-platform="connectus"  style="--c: var(--pf-connectus);"><span class="dot"></span>Connectus</button>
+        <button class="pf-chip" data-open-platform="conventlab" style="--c: var(--pf-connovus);"><span class="dot"></span>Conventlab</button>
+        <button class="pf-chip" data-open-platform="consultus"  style="--c: var(--pf-consultus);"><span class="dot"></span>Consultus</button>
+        <button class="pf-chip" data-open-platform="convergens" style="--c: var(--pf-convergens);"><span class="dot"></span>Convergens</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TRUST STRIP ============== -->
+<section class="trust">
+  <div class="container trust-inner">
+    <div class="trust-label" data-i18n="trust_label">Trusted across alliance &amp; multinational ecosystems</div>
+    <div class="trust-logos">
+      <div style="--c: var(--pf-conventus);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/></svg>
+        <span>SECURE BY DESIGN</span>
+      </div>
+      <div style="--c: var(--pf-convexus);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="18" y1="8" x2="18" y2="16"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+        <span>OPERATIONALLY INTEROPERABLE</span>
+      </div>
+      <div style="--c: var(--pf-connectus);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span>MISSION-ORIENTED</span>
+      </div>
+      <div style="--c: var(--pf-convergens);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+        <span>AUDIT &amp; ACCOUNTABILITY</span>
+      </div>
+      <div style="--c: var(--pf-connovus);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 12l9 5 9-5M3 17l9 5 9-5"/></svg>
+        <span>MULTI-DOMAIN READY</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ECOSYSTEM ============== -->
+<section class="section" id="ecosystem">
+  <div class="container">
+    <div class="section-head">
+      <h1 class="section-title section-title-hero"><em data-i18n="ecosystem_h1">The Conventity Ecosystem</em></h1>
+      <div class="section-eyebrow section-eyebrow-after" data-i18n="ecosystem_eyebrow">Six interoperable platforms. One living operational ecosystem.</div>
+      <p class="section-sub">Designed to evolve, scale, and adapt for secure collaboration, operational coordination, and strategic innovation.</p>
+    </div>
+
+    <div class="platforms">
+      <!-- 01 CONVEXUS -->
+      <div class="platform-card platform-card-link" data-open-platform="convexus" role="button" tabindex="0">
+        <div class="num">01</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+            <polygon points="12 2 22 8 22 16 12 22 2 16 2 8"/>
+            <polyline points="2 8 12 14 22 8"/>
+            <line x1="12" y1="14" x2="12" y2="22"/>
+          </svg>
+        </div><div class="platform-name">CONVEXUS</div></div>
+        <div class="platform-tag">Innovation & Solution Catalog</div>
+        <div class="platform-desc">A trusted solution marketplace where defense-tech is judged by real-world track record — matching nations with innovators on proven evidence, not marketing claims.</div>
+        <div class="platform-kw"><span>Marketplace</span><span>Proven Track Record</span><span>AI Matchmaking</span></div>
+        <a href="#" class="platform-link" data-open-platform="convexus">Explore CONVEXUS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <!-- 02 CONVENTUS -->
+      <div class="platform-card platform-card-link" data-open-platform="conventus" role="button" tabindex="0">
+        <div class="num">02</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="3" y="5" width="18" height="16" rx="2"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <line x1="8" y1="3" x2="8" y2="7"/>
+            <line x1="16" y1="3" x2="16" y2="7"/>
+          </svg>
+        </div><div class="platform-name">CONVENTUS</div></div>
+        <div class="platform-tag">Event & Protocol Management</div>
+        <div class="platform-desc">The ecosystem's flagship — run multinational conferences, exercises and summits end-to-end on one secure surface: invite, accredit, execute and archive, with zero duplicated effort.</div>
+        <div class="platform-kw"><span>Summits & Exercises</span><span>Accreditation</span><span>Protocol & Logistics</span></div>
+        <a href="#" class="platform-link" data-open-platform="conventus">Explore CONVENTUS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <!-- 03 CONSULTUS -->
+      <div class="platform-card platform-card-link" data-open-platform="consultus" role="button" tabindex="0">
+        <div class="num">03</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="8" r="3"/>
+            <circle cx="17" cy="8" r="3"/>
+            <path d="M3 21v-2a5 5 0 015-5h2a5 5 0 015 5v2"/>
+            <path d="M14 14h2a5 5 0 015 5v2"/>
+          </svg>
+        </div><div class="platform-name">CONSULTUS</div></div>
+        <div class="platform-tag">Advisory, Training & Certification</div>
+        <div class="platform-desc">The human layer — digital-transformation, procurement and infrastructure advisory, plus training and ISO/IEC 17024-aligned certification that makes competence verifiable.</div>
+        <div class="platform-kw"><span>Advisory</span><span>Training</span><span>Certification</span></div>
+        <a href="#" class="platform-link" data-open-platform="consultus">Explore CONSULTUS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <!-- 04 CONNECTUS -->
+      <div class="platform-card platform-card-link" data-open-platform="connectus" role="button" tabindex="0">
+        <div class="num">04</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="2.5"/>
+            <circle cx="18" cy="6" r="2.5"/>
+            <circle cx="12" cy="18" r="2.5"/>
+            <circle cx="12" cy="12" r="2.5"/>
+            <line x1="8" y1="7.5" x2="11" y2="11"/>
+            <line x1="16" y1="7.5" x2="13" y2="11"/>
+            <line x1="12" y1="14.5" x2="12" y2="15.5"/>
+          </svg>
+        </div><div class="platform-name">CONNECTUS</div></div>
+        <div class="platform-tag">Purpose-Locked Network</div>
+        <div class="platform-desc">A purpose-locked professional network for the defense and innovation community — provenance-backed profiles, noise-free, fed automatically by events and the solution catalog.</div>
+        <div class="platform-kw"><span>Verified Profiles</span><span>Expert Discovery</span><span>Trusted Network</span></div>
+        <a href="#" class="platform-link" data-open-platform="connectus">Explore CONNECTUS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <!-- 05 CONVERGENS -->
+      <div class="platform-card platform-card-link" data-open-convergens role="button" tabindex="0">
+        <div class="num">05</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
+          </svg>
+        </div><div class="platform-name">CONVERGENS</div></div>
+        <div class="platform-tag">CIMIC Integration Layer</div>
+        <div class="platform-desc">The bridge connecting civil–military cooperation to the ecosystem's identity, data and AI backbone — civil and military on one secure surface, authority boundaries preserved.</div>
+        <div class="platform-kw"><span>Civil–Military</span><span>CIMIC</span><span>Crisis Coordination</span></div>
+        <a href="#" class="platform-link" data-open-convergens>Explore CONVERGENS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <!-- 06 CONVENTLAB -->
+      <div class="platform-card platform-card-link" data-open-platform="conventlab" role="button" tabindex="0">
+        <div class="num">06</div>
+        <div class="platform-head"><div class="platform-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 3h6v4l3 6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5l3-6V3z"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+          </svg>
+        </div><div class="platform-name">CONVENTLAB</div></div>
+        <div class="platform-tag">Experimentation & Simulation Lab</div>
+        <div class="platform-desc">Where solutions are proven before real decisions — face-to-face, digital TTX, MapEx and wargaming. Every experiment leaves a lesson and a track record the ecosystem learns from.</div>
+        <div class="platform-kw"><span>Wargaming</span><span>Simulation</span><span>Pilots</span></div>
+        <a href="#" class="platform-link" data-open-platform="conventlab">Explore CONVENTLAB <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
+    <!-- Open workspace CTA → lives inside the Conventus overlay -->
+    <!-- Platform vision & mission -->
+    <div class="opr-rooms-head vm-head-center">
+      <h3>One ecosystem, <em>one direction.</em></h3>
+    </div>
+
+    <div class="eco-dir-grid">
+      <div class="eco-dir" style="--c: var(--pf-conventus);">
+        <div class="eco-dir-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div>
+        <div class="eco-dir-k">Vision</div>
+        <p class="eco-dir-tx">One ecosystem where every mission — defense and civil — runs on the <em>same trusted rails.</em></p>
+      </div>
+      <div class="eco-dir" style="--c: var(--pf-convexus);">
+        <div class="eco-dir-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></div>
+        <div class="eco-dir-k">Mission</div>
+        <p class="eco-dir-tx">One shared backbone — identity, governance, data — so six platforms <em>interoperate the moment they connect.</em></p>
+      </div>
+      <div class="eco-dir" style="--c: var(--pf-convergens);">
+        <div class="eco-dir-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></div>
+        <div class="eco-dir-k">Approach</div>
+        <p class="eco-dir-tx">Built like six platforms, <em>operated like one living product</em> — secure by design, interoperable by nature.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== HOME · UPCOMING EVENTS (compact mirror of Conventus calendar) ============== -->
+<style>
+  .home-events{ border-top:1px solid var(--line); }
+  .he-bar{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:26px; }
+  .he-bar .he-intro{ max-width:560px; }
+  .he-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--pf-conventus); font-weight:700; }
+  .he-eyebrow .live-dot{ width:7px; height:7px; }
+  .he-bar h2{ font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+    font-size:clamp(28px,3.4vw,44px); line-height:1.05; letter-spacing:-.02em; color:var(--ink); margin:12px 0 0; }
+  .he-bar h2 em{ font-style:normal; color:var(--pf-conventus); }
+  .he-allcta{ display:inline-flex; align-items:center; gap:9px; font-size:13.5px; font-weight:700; color:var(--ink);
+    background:var(--paper); border:1px solid var(--line); border-radius:11px; padding:11px 16px; cursor:pointer;
+    transition:border-color .2s ease, transform .2s ease, background .2s ease; white-space:nowrap; }
+  .he-allcta:hover{ border-color:color-mix(in srgb,var(--pf-conventus) 50%,var(--line)); transform:translateY(-1px);
+    background:var(--paper-2); }
+  .he-allcta svg{ width:15px; height:15px; }
+
+  .he-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .he-card{ position:relative; display:flex; flex-direction:column; gap:14px; background:var(--paper);
+    border:1px solid var(--line); border-radius:16px; padding:20px 20px 22px; overflow:hidden; cursor:pointer;
+    transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease; }
+  .he-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--ec,var(--pf-conventus)); }
+  .he-card:hover{ transform:translateY(-4px); border-color:color-mix(in srgb,var(--ec,var(--pf-conventus)) 55%,var(--line));
+    box-shadow:0 24px 46px -28px color-mix(in srgb,var(--ec,var(--pf-conventus)) 45%,transparent); }
+  .he-top{ display:flex; align-items:center; gap:13px; }
+  .he-date{ flex:none; width:58px; height:58px; border-radius:13px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; line-height:1;
+    background:color-mix(in srgb,var(--ec,var(--pf-conventus)) 11%,var(--paper));
+    border:1px solid color-mix(in srgb,var(--ec,var(--pf-conventus)) 26%,var(--line)); color:var(--ec,var(--pf-conventus)); }
+  .he-date .mo{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; font-weight:700; }
+  .he-date .dy{ font-size:23px; font-weight:800; letter-spacing:-.02em; margin-top:3px; color:var(--ink); }
+  .he-cat{ font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
+    font-weight:700; padding:4px 9px; border-radius:6px; color:var(--ec,var(--pf-conventus));
+    background:color-mix(in srgb,var(--ec,var(--pf-conventus)) 10%,transparent);
+    border:1px solid color-mix(in srgb,var(--ec,var(--pf-conventus)) 26%,transparent); }
+  .he-body h4{ margin:0 0 6px; font-size:16.5px; font-weight:800; letter-spacing:-.01em; color:var(--ink); line-height:1.25; }
+  .he-meta{ display:flex; flex-direction:column; gap:5px; }
+  .he-meta .row{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); line-height:1.35; }
+  .he-meta .row svg{ width:14px; height:14px; flex:none; opacity:.8; }
+  .he-foot{ margin-top:auto; padding-top:14px; border-top:1px dashed var(--line); display:flex; align-items:center;
+    justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted); }
+  .he-foot .open{ display:inline-flex; align-items:center; gap:6px; color:var(--ec,var(--pf-conventus)); font-weight:700; }
+  .he-foot .open svg{ width:13px; height:13px; }
+
+  @media(max-width:980px){ .he-grid{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:560px){ .he-grid{ grid-template-columns:1fr; } .he-bar h2{ font-size:30px; } }
+</style>
+<section class="section home-events">
+  <div class="container">
+    <div class="he-bar">
+      <div class="he-intro">
+        <span class="he-eyebrow"><span class="live-dot"></span> 2026 EVENT CALENDAR</span>
+        <h2>Where the ecosystem <em>convenes.</em></h2>
+      </div>
+      <button class="he-allcta" data-open-platform="conventus" data-conventus-anchor="event" aria-label="Open the full event calendar in Conventus">
+        Open full calendar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="he-grid">
+      <div class="he-card" style="--ec:var(--pf-conventus);" data-open-platform="conventus" data-conventus-anchor="event" role="button" tabindex="0">
+        <div class="he-top">
+          <div class="he-date"><span class="mo">JUN</span><span class="dy">01</span></div>
+          <span class="he-cat">Interoperability</span>
+        </div>
+        <div class="he-body">
+          <h4>CWIX 2026</h4>
+          <div class="he-meta">
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> 01–19 June 2026</div>
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Bydgoszcz, Poland · JFTC</div>
+          </div>
+        </div>
+        <div class="he-foot"><span>NATO flagship exercise</span><span class="open">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></div>
+      </div>
+
+      <div class="he-card" style="--ec:#D97757;" data-open-platform="conventus" data-conventus-anchor="event" role="button" tabindex="0">
+        <div class="he-top">
+          <div class="he-date"><span class="mo">JUN</span><span class="dy">15</span></div>
+          <span class="he-cat">Industry · Expo</span>
+        </div>
+        <div class="he-body">
+          <h4>Eurosatory 2026</h4>
+          <div class="he-meta">
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> 15–19 June 2026</div>
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Paris, France</div>
+          </div>
+        </div>
+        <div class="he-foot"><span>2,000+ exhibitors</span><span class="open">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></div>
+      </div>
+
+      <div class="he-card" style="--ec:#D97757;" data-open-platform="conventus" data-conventus-anchor="event" role="button" tabindex="0">
+        <div class="he-top">
+          <div class="he-date"><span class="mo">OCT</span><span class="dy">21</span></div>
+          <span class="he-cat">Industry · Expo</span>
+        </div>
+        <div class="he-body">
+          <h4>Future Forces Forum 2026</h4>
+          <div class="he-meta">
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> 21–23 October 2026</div>
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Prague, Czechia</div>
+          </div>
+        </div>
+        <div class="he-foot"><span>Defence &amp; security forum</span><span class="open">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></div>
+      </div>
+
+      <div class="he-card" style="--ec:var(--pf-conventus);" data-open-platform="conventus" data-conventus-anchor="event" role="button" tabindex="0">
+        <div class="he-top">
+          <div class="he-date"><span class="mo">NOV</span><span class="dy">17</span></div>
+          <span class="he-cat">Interoperability</span>
+        </div>
+        <div class="he-body">
+          <h4>NATO Industry Forum</h4>
+          <div class="he-meta">
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> 17–19 November 2026</div>
+            <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Europe · venue TBC</div>
+          </div>
+        </div>
+        <div class="he-foot"><span>Alliance · industry</span><span class="open">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ECOSYSTEM CONVERGENCE ANIMATION ============== -->
+<section style="padding: 0 0 30px;">
+  <div class="eco-conv-band">
+    <div class="eco-conv-head">
+      <span class="eco-conv-eyebrow"><span class="d"></span> ONE LIVING ECOSYSTEM</span>
+      <h2 class="eco-conv-title">Ready to meet Conventity <em>ecosystem for future?</em></h2>
+      <div class="eco-cta-actions">
+        <button class="btn btn-primary" data-demo>Request a Demo
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <button class="eco-ghost-btn" data-demo>Talk to Sales</button>
+      </div>
+    </div>
+
+    <div class="eco-stage">
+      <svg viewBox="0 0 900 600" role="img" aria-label="Global operational ecosystem — six platforms converging on one core">
+        <defs>
+          <radialGradient id="sphereGrad" cx="42%" cy="38%" r="65%"><stop offset="0%" stop-color="#143058"/><stop offset="62%" stop-color="#0e2148"/><stop offset="100%" stop-color="#0a1838"/></radialGradient>
+          <radialGradient id="globeGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2A6FDB" stop-opacity="0.5"/><stop offset="60%" stop-color="#2A6FDB" stop-opacity="0.12"/><stop offset="100%" stop-color="#2A6FDB" stop-opacity="0"/></radialGradient>
+          <radialGradient id="shine" cx="38%" cy="32%" r="42%"><stop offset="0%" stop-color="#7FB3F0" stop-opacity="0.22"/><stop offset="100%" stop-color="#7FB3F0" stop-opacity="0"/></radialGradient>
+          <filter id="gGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g opacity="0.7"><circle cx="0" cy="0" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="137" cy="89" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="274" cy="178" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="411" cy="267" r="1.3" fill="#BFD8F5" opacity="0.32"/><circle cx="548" cy="356" r="0.6" fill="#BFD8F5" opacity="0.39"/><circle cx="685" cy="445" r="0.8" fill="#BFD8F5" opacity="0.45"/><circle cx="822" cy="534" r="1.1" fill="#BFD8F5" opacity="0.12"/><circle cx="59" cy="23" r="1.3" fill="#BFD8F5" opacity="0.19"/><circle cx="196" cy="112" r="0.6" fill="#BFD8F5" opacity="0.25"/><circle cx="333" cy="201" r="0.8" fill="#BFD8F5" opacity="0.32"/><circle cx="470" cy="290" r="1.1" fill="#BFD8F5" opacity="0.39"/><circle cx="607" cy="379" r="1.3" fill="#BFD8F5" opacity="0.45"/><circle cx="744" cy="468" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="881" cy="557" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="118" cy="46" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="255" cy="135" r="1.3" fill="#BFD8F5" opacity="0.32"/><circle cx="392" cy="224" r="0.6" fill="#BFD8F5" opacity="0.39"/><circle cx="529" cy="313" r="0.8" fill="#BFD8F5" opacity="0.45"/><circle cx="666" cy="402" r="1.1" fill="#BFD8F5" opacity="0.12"/><circle cx="803" cy="491" r="1.3" fill="#BFD8F5" opacity="0.19"/><circle cx="40" cy="580" r="0.6" fill="#BFD8F5" opacity="0.25"/><circle cx="177" cy="69" r="0.8" fill="#BFD8F5" opacity="0.32"/><circle cx="314" cy="158" r="1.1" fill="#BFD8F5" opacity="0.39"/><circle cx="451" cy="247" r="1.3" fill="#BFD8F5" opacity="0.45"/><circle cx="588" cy="336" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="725" cy="425" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="862" cy="514" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="99" cy="3" r="1.3" fill="#BFD8F5" opacity="0.32"/><circle cx="236" cy="92" r="0.6" fill="#BFD8F5" opacity="0.39"/><circle cx="373" cy="181" r="0.8" fill="#BFD8F5" opacity="0.45"/><circle cx="510" cy="270" r="1.1" fill="#BFD8F5" opacity="0.12"/><circle cx="647" cy="359" r="1.3" fill="#BFD8F5" opacity="0.19"/><circle cx="784" cy="448" r="0.6" fill="#BFD8F5" opacity="0.25"/><circle cx="21" cy="537" r="0.8" fill="#BFD8F5" opacity="0.32"/><circle cx="158" cy="26" r="1.1" fill="#BFD8F5" opacity="0.39"/><circle cx="295" cy="115" r="1.3" fill="#BFD8F5" opacity="0.45"/><circle cx="432" cy="204" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="569" cy="293" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="706" cy="382" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="843" cy="471" r="1.3" fill="#BFD8F5" opacity="0.32"/><circle cx="80" cy="560" r="0.6" fill="#BFD8F5" opacity="0.39"/><circle cx="217" cy="49" r="0.8" fill="#BFD8F5" opacity="0.45"/><circle cx="354" cy="138" r="1.1" fill="#BFD8F5" opacity="0.12"/><circle cx="491" cy="227" r="1.3" fill="#BFD8F5" opacity="0.19"/><circle cx="628" cy="316" r="0.6" fill="#BFD8F5" opacity="0.25"/><circle cx="765" cy="405" r="0.8" fill="#BFD8F5" opacity="0.32"/><circle cx="2" cy="494" r="1.1" fill="#BFD8F5" opacity="0.39"/><circle cx="139" cy="583" r="1.3" fill="#BFD8F5" opacity="0.45"/><circle cx="276" cy="72" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="413" cy="161" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="550" cy="250" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="687" cy="339" r="1.3" fill="#BFD8F5" opacity="0.32"/><circle cx="824" cy="428" r="0.6" fill="#BFD8F5" opacity="0.39"/><circle cx="61" cy="517" r="0.8" fill="#BFD8F5" opacity="0.45"/><circle cx="198" cy="6" r="1.1" fill="#BFD8F5" opacity="0.12"/><circle cx="335" cy="95" r="1.3" fill="#BFD8F5" opacity="0.19"/><circle cx="472" cy="184" r="0.6" fill="#BFD8F5" opacity="0.25"/><circle cx="609" cy="273" r="0.8" fill="#BFD8F5" opacity="0.32"/><circle cx="746" cy="362" r="1.1" fill="#BFD8F5" opacity="0.39"/><circle cx="883" cy="451" r="1.3" fill="#BFD8F5" opacity="0.45"/><circle cx="120" cy="540" r="0.6" fill="#BFD8F5" opacity="0.12"/><circle cx="257" cy="29" r="0.8" fill="#BFD8F5" opacity="0.19"/><circle cx="394" cy="118" r="1.1" fill="#BFD8F5" opacity="0.25"/><circle cx="531" cy="207" r="1.3" fill="#BFD8F5" opacity="0.32"/></g>
+        <circle cx="450" cy="300" r="244" fill="url(#globeGlow)"/>
+        <circle cx="450" cy="300" r="210" fill="url(#sphereGrad)" stroke="rgba(143,201,255,0.30)" stroke-width="1.4"/>
+        <clipPath id="gc"><circle cx="450" cy="300" r="210"/></clipPath>
+        <g clip-path="url(#gc)"><ellipse cx="450" cy="300" rx="210" ry="34" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="195" rx="182" ry="30" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="405" rx="182" ry="30" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="118" rx="105" ry="18" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="482" rx="105" ry="18" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="300" rx="70" ry="210" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><ellipse cx="450" cy="300" rx="140" ry="210" fill="none" stroke="rgba(143,201,255,0.16)" stroke-width="1"/><line x1="450" y1="90" x2="450" y2="510" stroke="rgba(143,201,255,0.16)" stroke-width="1"/></g>
+        <circle cx="450" cy="300" r="210" fill="url(#shine)"/>
+        <ellipse cx="450" cy="300" rx="300" ry="104" fill="none" stroke="rgba(143,201,255,0.12)" stroke-width="1"/>
+        <ellipse cx="450" cy="300" rx="280" ry="150" fill="none" stroke="rgba(143,201,255,0.10)" stroke-width="1"/>
+        <g><path class="eco-spoke" d="M318,180 L450,300" fill="none" stroke="#818CF8" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.00s" opacity="0.8"/><path class="eco-spoke" d="M471,128 L450,300" fill="none" stroke="#5BA3E8" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.18s" opacity="0.8"/><path class="eco-spoke" d="M577,228 L450,300" fill="none" stroke="#22D3DB" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.36s" opacity="0.8"/><path class="eco-spoke" d="M631,318 L450,300" fill="none" stroke="#34D399" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.54s" opacity="0.8"/><path class="eco-spoke" d="M536,420 L450,300" fill="none" stroke="#A876F0" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.72s" opacity="0.8"/><path class="eco-spoke" d="M349,354 L450,300" fill="none" stroke="#E8A07C" stroke-width="1.5" stroke-dasharray="3 6" style="animation-delay:0.90s" opacity="0.8"/></g>
+        <g filter="url(#gGlow)"><circle r="3.4" fill="#818CF8"><animateMotion dur="2.6s" begin="0.00s" repeatCount="indefinite" path="M318,180 L450,300"/></circle><circle r="3.4" fill="#5BA3E8"><animateMotion dur="2.6s" begin="0.30s" repeatCount="indefinite" path="M471,128 L450,300"/></circle><circle r="3.4" fill="#22D3DB"><animateMotion dur="2.6s" begin="0.60s" repeatCount="indefinite" path="M577,228 L450,300"/></circle><circle r="3.4" fill="#34D399"><animateMotion dur="2.6s" begin="0.90s" repeatCount="indefinite" path="M631,318 L450,300"/></circle><circle r="3.4" fill="#A876F0"><animateMotion dur="2.6s" begin="1.20s" repeatCount="indefinite" path="M536,420 L450,300"/></circle><circle r="3.4" fill="#E8A07C"><animateMotion dur="2.6s" begin="1.50s" repeatCount="indefinite" path="M349,354 L450,300"/></circle></g>
+        <g filter="url(#gGlow)"><g transform="translate(318,180)"><circle class="eco-halo" r="25" fill="none" stroke="#818CF8" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#818CF8" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#818CF8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8 22 16 12 22 2 16 2 8"/><polyline points="2 8 12 14 22 8"/><line x1="12" y1="14" x2="12" y2="22"/></g></g><g transform="translate(471,128)"><circle class="eco-halo" r="25" fill="none" stroke="#5BA3E8" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#5BA3E8" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#5BA3E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></g></g><g transform="translate(577,228)"><circle class="eco-halo" r="25" fill="none" stroke="#22D3DB" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#22D3DB" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#22D3DB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21v-2a5 5 0 015-5h2a5 5 0 015 5v2"/><path d="M14 14h2a5 5 0 015 5v2"/></g></g><g transform="translate(631,318)"><circle class="eco-halo" r="25" fill="none" stroke="#34D399" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#34D399" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="12" cy="12" r="2.5"/><line x1="8" y1="7.5" x2="11" y2="11"/><line x1="16" y1="7.5" x2="13" y2="11"/><line x1="12" y1="14.5" x2="12" y2="15.5"/></g></g><g transform="translate(536,420)"><circle class="eco-halo" r="25" fill="none" stroke="#A876F0" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#A876F0" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#A876F0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></g></g><g transform="translate(349,354)"><circle class="eco-halo" r="25" fill="none" stroke="#E8A07C" stroke-width="1.2" opacity=".45"/><circle r="21" fill="#0c1c3e" stroke="#E8A07C" stroke-width="1.6"/><g transform="translate(-13,-13) scale(1.08)" fill="none" stroke="#E8A07C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4l3 6a5 5 0 01-5 5h-2a5 5 0 01-5-5l3-6V3z"/><line x1="9" y1="9" x2="15" y2="9"/></g></g></g>
+        <circle cx="450" cy="300" r="50" fill="#5BC0FF" opacity=".13" filter="url(#gGlow)"/>
+        <circle cx="450" cy="300" r="40" fill="#0b1a3c" stroke="rgba(255,255,255,0.2)"/>
+        <g transform="translate(415,265) scale(0.7)" filter="url(#gGlow)">
+          <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="#5BC0FF" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="3.2" fill="#fff"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="eco-stats" id="ecoStats">
+      <div class="eco-stat"><div class="v">184</div><div class="k">Organizations</div></div>
+      <div class="eco-stat"><div class="v">1,240</div><div class="k">Capabilities</div></div>
+      <div class="eco-stat"><div class="v">7,800<em>+</em></div><div class="k">Connections</div></div>
+      <div class="eco-stat"><div class="v">320</div><div class="k">Operations</div></div>
+      <div class="eco-stat"><div class="v">32</div><div class="k">Countries</div></div>
+      <div class="eco-stat"><div class="v">90<em>+</em></div><div class="k">Working Groups</div></div>
+    </div>
+    <div class="eco-feats">
+      <div class="eco-feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/></svg></span>Secure &amp; Compliant</div>
+      <div class="eco-feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></span>Proven &amp; Trusted</div>
+      <div class="eco-feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span>Scalable &amp; Flexible</div>
+      <div class="eco-feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></span>Support &amp; Expertise</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 100 100">
+            <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6" stroke-linecap="round" />
+            <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="4.5" stroke-linecap="round" />
+            <circle cx="50" cy="50" r="3" fill="var(--logo-outer)" />
+          </svg>
+          <div>
+            <div class="brand-name">CONVENTITY</div>
+            <div class="brand-sub">Ecosystem for Future</div>
+          </div>
+        </div>
+        <p>Conventity is the trusted operational ecosystem enabling secure collaboration, operational innovation and mission-critical coordination across multinational communities.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Ecosystem</h5>
+        <ul>
+          <li><a href="#">Convexus</a></li>
+          <li><a href="#">Conventus</a></li>
+          <li><a href="#">Consultus</a></li>
+          <li><a href="#">Connectus</a></li>
+          <li><a href="#" data-open-convergens>Convergens</a></li>
+          <li><a href="#">Conventlab</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#" data-about-tab="vision">About</a></li>
+          <li><a href="#" data-about-tab="mission">Mission</a></li>
+          <li><a href="#" data-about-tab="partners">Partners</a></li>
+          <li><a href="#" data-about-tab="news">News</a></li>
+          <li><a href="#" data-about-tab="careers">Careers</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Guides</a></li>
+          <li><a href="#">API</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Request Access</h5>
+        <p style="font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 16px;">Join the ecosystem. Connect with opportunities.</p>
+        <button class="btn btn-primary" style="font-size:13px;padding:9px 16px;" data-demo>Request Access
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <div style="margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line-2);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px;">Contact Us</div>
+          <a href="/cdn-cgi/l/email-protection#c7aea9a1a887a4a8a9b1a2a9b3aeb3bee9a4a8aa" style="display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color: var(--ink-2);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <span><span class="__cf_email__" data-cfemail="96fff8f0f9d6f5f9f8e0f3f8e2ffe2efb8f5f9fb">[email&#160;protected]</span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+      <div class="footer-bottom">
+      <div class="copy">© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.</div>
+      <div class="links">
+        <a href="legal/data-protection.html">Privacy Policy</a>
+        <a href="legal/terms.html">Terms of Use</a>
+        <a href="legal/security.html">Security</a>
+        <a href="/cdn-cgi/l/email-protection#1c75727a735c7f73726a797268756865327f7371">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============== LOGIN MODAL ============== -->
+<div class="modal-backdrop" id="loginModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="loginTitle">
+    <button class="modal-close" aria-label="Close" data-modal-close>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+    <div class="modal-body">
+      <div class="modal-eyebrow" style="color: var(--pf-convergens);"><span style="display:inline-flex;align-items:center;gap:6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5l-8-3z"/></svg> Convergens · Secure access</span></div>
+      <h3 id="loginTitle">Sign in to <em>Conventity.</em></h3>
+      <p class="modal-sub">Federated, role-based and audit-aware sign-in. Your session is monitored by the Convergens trust fabric.</p>
+      <form id="loginForm">
+        <label>WORK EMAIL
+          <input type="email" name="email" required autocomplete="email" placeholder="name@organization.gov" />
+        </label>
+        <label>PASSWORD
+          <input type="password" name="password" required autocomplete="current-password" />
+        </label>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size: 12px;">
+          <label style="flex-direction:row; align-items:center; gap:8px; cursor: pointer;">
+            <input type="checkbox" name="remember" style="width:14px; height:14px; padding:0; margin:0;" />
+            <span style="font-weight: 500; color: var(--ink-2); letter-spacing: normal;">Remember me</span>
+          </label>
+          <a href="#" style="color: var(--brand-blue); font-weight: 600;">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn-submit">
+          Sign In
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+      <div style="display:flex; align-items:center; gap:10px; margin: 16px 0 12px; color: var(--muted); font-size: 11px; letter-spacing: 0.16em; font-weight: 600;">
+        <span style="flex:1; height:1px; background: var(--line);"></span>
+        SSO OPTIONS
+        <span style="flex:1; height:1px; background: var(--line);"></span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button type="button" class="btn btn-ghost" style="justify-content:center; font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Federated SSO
+        </button>
+        <button type="button" class="btn btn-ghost" style="justify-content:center; font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+          Smart-card / PIV
+        </button>
+      </div>
+      <div style="margin-top: 16px; padding: 10px 12px; background: color-mix(in srgb, var(--pf-convergens) 8%, var(--paper-2)); border: 1px solid color-mix(in srgb, var(--pf-convergens) 22%, var(--line)); border-radius: 10px; font-size: 11px; color: var(--ink-2); display: flex; align-items: center; gap: 8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pf-convergens)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span><strong style="color: var(--pf-convergens); letter-spacing: 0.04em;">Audit ON</strong> · Session classification and access scope will be applied automatically.</span>
+      </div>
+    </div>
+    <div class="modal-success" style="display:none;">
+      <div class="modal-success-ico">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Welcome back.</h3>
+      <p class="modal-sub">Secure session established. Redirecting to your operational workspace…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MOBILE DRAWER ============== -->
+<div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+  <div class="mobile-drawer-inner">
+    <button class="md-close" data-drawer-close aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+    <div class="brand" style="margin-bottom: 8px;">
+      <svg class="brand-mark" viewBox="0 0 100 100" style="width: 32px; height: 32px;">
+        <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--logo-outer)" stroke-width="6" stroke-linecap="round" />
+        <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--logo-inner)" stroke-width="4.5" stroke-linecap="round" />
+        <circle cx="50" cy="50" r="3" fill="var(--logo-outer)" />
+      </svg>
+      <div>
+        <div class="brand-name">CONVENTITY</div>
+        <div class="brand-sub">Ecosystem for Future</div>
+      </div>
+    </div>
+
+    <div class="md-section">
+      <h5>Platform</h5>
+      <button data-open-workspace>Conventus · Operational Coordination</button>
+      <a href="#ecosystem">Convexus · Capability Exchange</a>
+      <a href="#ecosystem">Connectus · Collaboration</a>
+      <a href="#" data-open-convergens>Convergens · Strategic Convergence</a>
+      <a href="#ecosystem">Consultus · Strategic Insight</a>
+      <a href="#ecosystem">Conventlab · Sandbox</a>
+    </div>
+    <div class="md-section">
+      <h5>Explore</h5>
+      <a href="#ecosystem">Ecosystem</a>
+      <a href="#rooms">Operational Rooms</a>
+      <a href="#">Solutions</a>
+      <a href="#">Resources</a>
+      <a href="#" data-about-tab="vision">About</a>
+    </div>
+    <div class="md-section" style="display: flex; gap: 8px; flex-direction: column;">
+      <button class="btn btn-primary" data-demo style="justify-content: center;">Request a Demo</button>
+      <span id="authDrawer" style="display:flex;gap:8px;flex-direction:column;">
+        <button class="btn btn-ghost" data-login style="justify-content: center;">Login</button>
+        <a class="btn btn-ghost" href="/register.html" data-register style="justify-content: center;">Create account</a>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ============== GOVERNANCE → platforms/governance.html ============== -->
+<!-- ============== ABOUT → platforms/about.html ============== -->
+
+<!-- ============== CONVENTUS — moved to platforms/conventus.html ============== -->
+
+<!-- ============== CONSULTUS — moved to platforms/consultus.html ============== -->
+<!-- ============== CONNECTUS — moved to platforms/connectus.html ============== -->
+
+<!-- ============== CONVENTLAB → platforms/conventlab.html ============== -->
+
+<!-- ============== CONVERGENS → platforms/convergens.html ============== -->
+
+<!-- ============== REQUEST DEMO MODAL ============== -->
+<div class="modal-backdrop" id="demoModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="demoTitle">
+    <button class="modal-close" aria-label="Close" data-modal-close>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+
+    <div class="modal-body">
+      <div class="modal-eyebrow">Request a Demo</div>
+      <h3 id="demoTitle">See Conventity <em>in action.</em></h3>
+      <p class="modal-sub">Tell us about your mission and a specialist will reach out within one business day.</p>
+
+      <form id="demoForm">
+        <div class="modal-row">
+          <label>FIRST NAME
+            <input type="text" name="firstName" required autocomplete="given-name" />
+          </label>
+          <label>LAST NAME
+            <input type="text" name="lastName" required autocomplete="family-name" />
+          </label>
+        </div>
+        <label>WORK EMAIL
+          <input type="email" name="email" required autocomplete="email" />
+        </label>
+        <div class="modal-row">
+          <label>ORGANIZATION
+            <input type="text" name="org" required />
+          </label>
+          <label>ROLE
+            <input type="text" name="role" />
+          </label>
+        </div>
+        <label>USE CASE
+          <select name="useCase">
+            <option>Strategic conferences</option>
+            <option>Ministerial & diplomatic events</option>
+            <option>Operational exercises</option>
+            <option>Capability matchmaking</option>
+            <option>Innovation pilots</option>
+            <option>Other / multiple</option>
+          </select>
+        </label>
+        <label>MESSAGE
+          <textarea name="message" placeholder="Briefly describe your operational context (optional)…"></textarea>
+        </label>
+        <button type="submit" class="btn-submit">
+          Submit Request
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="modal-success" style="display:none;">
+      <div class="modal-success-ico">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Request <em>received.</em></h3>
+      <p class="modal-sub">Thank you. A Conventity specialist will be in touch within one business day.</p>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // 3-mode theme controller (Light / Dark / System)
+  const html = document.documentElement;
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  function effectiveTheme(pref) {
+    return pref === 'system' ? (mql.matches ? 'dark' : 'light') : pref;
+  }
+  function applyTheme() {
+    const pref = localStorage.getItem('conventity-theme-pref') || 'system';
+    html.setAttribute('data-theme', effectiveTheme(pref));
+    document.querySelectorAll('[data-theme-control] [data-theme-pref]').forEach(b => {
+      b.classList.toggle('on', b.dataset.themePref === pref);
+    });
+  }
+  // Migrate legacy key
+  const legacyTheme = localStorage.getItem('conventity-theme');
+  if (legacyTheme && !localStorage.getItem('conventity-theme-pref')) {
+    localStorage.setItem('conventity-theme-pref', legacyTheme);
+  }
+  document.querySelectorAll('[data-theme-control] [data-theme-pref]').forEach(b => {
+    b.addEventListener('click', () => {
+      localStorage.setItem('conventity-theme-pref', b.dataset.themePref);
+      applyTheme();
+    });
+  });
+  if (mql && mql.addEventListener) {
+    mql.addEventListener('change', () => {
+      if ((localStorage.getItem('conventity-theme-pref') || 'system') === 'system') applyTheme();
+    });
+  }
+  applyTheme();
+  // Legacy hidden button keeps cycling behaviour as a fallback
+  const toggle = document.getElementById('themeToggle');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const cur = localStorage.getItem('conventity-theme-pref') || 'system';
+      const next = cur === 'light' ? 'dark' : cur === 'dark' ? 'system' : 'light';
+      localStorage.setItem('conventity-theme-pref', next);
+      applyTheme();
+    });
+  }
+
+  // ── DEMO MODAL ──
+  const demoModal = document.getElementById('demoModal');
+  const demoForm = document.getElementById('demoForm');
+  const modalBody = demoModal.querySelector('.modal-body');
+  const modalSuccess = demoModal.querySelector('.modal-success');
+
+  function openDemo(){
+    modalBody.style.display = '';
+    modalSuccess.style.display = 'none';
+    if (demoForm) demoForm.reset();
+    demoModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // focus first field
+    setTimeout(()=> {
+      const f = demoModal.querySelector('input,select,textarea');
+      if (f) f.focus();
+    }, 80);
+  }
+  function closeDemo(){
+    demoModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-demo]').forEach(b => {
+    b.addEventListener('click', (e)=> { e.preventDefault(); openDemo(); });
+  });
+  demoModal.addEventListener('click', (e)=> {
+    if (e.target === demoModal || e.target.closest('[data-modal-close]')) closeDemo();
+  });
+  document.addEventListener('keydown', (e)=> {
+    if (e.key === 'Escape' && demoModal.classList.contains('open')) closeDemo();
+  });
+  demoForm.addEventListener('submit', (e)=> {
+    e.preventDefault();
+    modalBody.style.display = 'none';
+    modalSuccess.style.display = 'block';
+    setTimeout(closeDemo, 2600);
+  });
+
+  // ── LOGIN MODAL ──
+  const loginModal = document.getElementById('loginModal');
+  const loginForm = document.getElementById('loginForm');
+  const loginBody = loginModal.querySelector('.modal-body');
+  const loginSuccess = loginModal.querySelector('.modal-success');
+
+  function openLogin(){
+    loginBody.style.display = '';
+    loginSuccess.style.display = 'none';
+    if (loginForm) loginForm.reset();
+    loginModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(()=> {
+      const f = loginModal.querySelector('input');
+      if (f) f.focus();
+    }, 80);
+  }
+  function closeLogin(){
+    loginModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-login]').forEach(b => {
+    b.addEventListener('click', (e)=> { e.preventDefault(); openLogin(); });
+  });
+  loginModal.addEventListener('click', (e)=> {
+    if (e.target === loginModal || e.target.closest('[data-modal-close]')) closeLogin();
+  });
+  document.addEventListener('keydown', (e)=> {
+    if (e.key === 'Escape' && loginModal.classList.contains('open')) closeLogin();
+  });
+  loginForm.addEventListener('submit', (e)=> {
+    e.preventDefault();
+    loginBody.style.display = 'none';
+    loginSuccess.style.display = 'block';
+    setTimeout(closeLogin, 2400);
+  });
+
+  // ── OPERATIONAL MODE TOGGLE ──
+  const opToggle = document.getElementById('opModeToggle');
+  const savedMode = localStorage.getItem('conventity-mode');
+  if (savedMode === 'operational') html.setAttribute('data-mode', 'operational');
+  opToggle.addEventListener('click', () => {
+    const cur = html.getAttribute('data-mode');
+    const next = cur === 'operational' ? '' : 'operational';
+    if (next) html.setAttribute('data-mode', next);
+    else html.removeAttribute('data-mode');
+    localStorage.setItem('conventity-mode', next);
+  });
+
+  // ── MEGA-MENU NAV ──
+  const navItems = document.querySelectorAll('.nav-item');
+  function closeAllMenus() { navItems.forEach(n => n.classList.remove('open')); }
+  navItems.forEach(item => {
+    const trigger = item.querySelector('.nav-trigger');
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wasOpen = item.classList.contains('open');
+      closeAllMenus();
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-item')) closeAllMenus();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAllMenus();
+  });
+
+  // ── HAMBURGER / MOBILE DRAWER ──
+  const hamburger = document.getElementById('hamburger');
+  const mobileDrawer = document.getElementById('mobileDrawer');
+  hamburger.addEventListener('click', () => {
+    mobileDrawer.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+  mobileDrawer.addEventListener('click', (e) => {
+    if (e.target === mobileDrawer || e.target.closest('[data-drawer-close]') || e.target.closest('a')) {
+      mobileDrawer.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // ── WORKSPACE OVERLAY ──
+  // Workspace lives in platforms/conventus.html now; this is a null-safe stub so
+  // landing-side references in this script block don't crash when the element
+  // is absent. Landing's [data-open-workspace] clicks are redirected to
+  // platforms/conventus.html?workspace=1 by the interceptor at top of body.
+  const workspace = document.getElementById('workspace') || (function(){
+    const noop = function(){};
+    return {
+      classList: { add: noop, remove: noop, contains: function(){ return false; }, toggle: noop },
+      querySelectorAll: function(){ return []; },
+      scrollTo: noop,
+      setAttribute: noop,
+      getAttribute: function(){ return null; }
+    };
+  })();
+  function openWorkspace(step = 'dashboard') {
+    workspace.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    closeAllMenus();
+    mobileDrawer.classList.remove('open');
+    setWsStep(step);
+    workspace.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  function closeWorkspace() {
+    workspace.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function setWsStep(step) {
+    workspace.querySelectorAll('[data-ws-pane]').forEach(p => p.classList.toggle('active', p.dataset.wsPane === step));
+    const order = ['dashboard','rooms','live'];
+    const idx = order.indexOf(step);
+    workspace.querySelectorAll('.ws-crumbs .step').forEach(s => {
+      const i = order.indexOf(s.dataset.wsStep);
+      s.classList.toggle('active', i === idx);
+      s.classList.toggle('done', i < idx);
+    });
+    workspace.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('[data-open-workspace]').forEach(b => {
+    b.addEventListener('click', (e) => { e.preventDefault(); openWorkspace(); });
+  });
+  document.querySelectorAll('[data-ws-close]').forEach(b => {
+    b.addEventListener('click', closeWorkspace);
+  });
+  document.querySelectorAll('[data-ws-step]').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.preventDefault();
+      const step = b.dataset.wsStep;
+      if (workspace.classList.contains('open')) setWsStep(step);
+      else openWorkspace(step);
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && workspace.classList.contains('open')) closeWorkspace();
+  });
+
+  // ── CONVERGENS / CONVENTLAB map+OSINT engine → assets/convergens-runtime.js ──
+
+
+
+  // ── FULL-PAGE TRANSLATION ENGINE (self-contained, no API) ──
+  const I18N_DICT = {
+    tr: {
+    "End-to-end management of multinational events — invite, accredit, execute and archive on one secure surface.": "Çok uluslu etkinliklerin uçtan uca yönetimi — tek güvenli yüzeyde davet, akreditasyon, icra ve arşiv.",
+    "Trusted capability marketplace — solutions matched to needs on real-world track record.": "Güvenilir yetenek pazaryeri — çözümler ihtiyaçlarla sahadaki sicile göre eşleştirilir.",
+    "Purpose-locked professional network — provenance-backed profiles for working groups and cells.": "Amaca-kilitli profesyonel ağ — çalışma grupları ve hücreler için kaynağı doğrulanmış profiller.",
+    "Civil–military (CIMIC) integration layer across institutional, industrial and civilian ecosystems.": "Kurumsal, endüstriyel ve sivil ekosistemler arası sivil-asker (CIMIC) entegrasyon katmanı.",
+    "Advisory, training and ISO/IEC 17024-aligned certification — the ecosystem's human layer.": "Danışmanlık, eğitim ve ISO/IEC 17024 uyumlu sertifikasyon — ekosistemin insan katmanı.",
+    "Experimentation lab — pilots, exercises, wargaming and scenario simulation before real decisions.": "Deney laboratuvarı — gerçek kararlardan önce pilotlar, tatbikatlar, wargaming ve senaryo simülasyonu.",
+    "Public Resources": "Kamuya Açık Kaynaklar",
+    "Trust & Compliance": "Güven & Uyum",
+    "Capability Overview": "Yetenek Genel Bakışı",
+    "Operational Briefs": "Operasyonel Brifingler",
+    "Case Studies": "Vaka Çalışmaları",
+    "Data Protection": "Veri Koruma",
+    "Security & Trust Center": "Güvenlik & Güven Merkezi",
+    "Terms & Legal": "Şartlar & Hukuki",
+    "Where the ecosystem is heading": "Ekosistemin gittiği yön",
+    "Think as one product, build as six": "Tek ürün gibi düşün, altı gibi kur",
+    "Phased, standalone-then-federated rollout": "Aşamalı; önce bağımsız, sonra federe",
+    "Shared backbone, interoperable layers": "Ortak omurga, birlikte çalışabilir katmanlar",
+    "Dual-use, integration-first": "Dual-use, entegrasyon öncelikli",
+    "Simulation": "Simülasyon",
+    "Marketplace": "Pazaryeri",
+    "Proven Track Record": "Kanıtlı Sicil",
+    "AI Matchmaking": "AI Eşleştirme",
+    "Summits & Exercises": "Zirveler & Tatbikatlar",
+    "Accreditation": "Akreditasyon",
+    "Protocol & Logistics": "Protokol & Lojistik",
+    "Advisory": "Danışmanlık",
+    "Training": "Eğitim",
+    "Certification": "Sertifikasyon",
+    "Verified Profiles": "Doğrulanmış Profiller",
+    "Expert Discovery": "Uzman Keşfi",
+    "Trusted Network": "Güvenilir Ağ",
+    "Civil–Military": "Sivil-Asker",
+    "Crisis Coordination": "Kriz Koordinasyonu",
+    "Simulation (TTX)": "Simülasyon (TTX)",
+    "Pilots": "Pilotlar",
+    "Innovation & Solution Catalog": "İnovasyon & Çözüm Kataloğu",
+    "Advisory, Training & Certification": "Danışmanlık, Eğitim & Sertifikasyon",
+    "Purpose-Locked Network": "Amaca-Kilitli Ağ",
+    "CIMIC Integration Layer": "CIMIC Entegrasyon Katmanı",
+    "Experimentation & Simulation Lab": "Deney & Simülasyon Laboratuvarı",
+    "A trusted solution marketplace where defense-tech is judged by real-world track record — matching nations with innovators on proven evidence, not marketing claims.": "Savunma teknolojisinin pazarlama vaadiyle değil sahadaki siciliyle değerlendirildiği güvenilir bir çözüm pazaryeri — nations ile inovatörleri gerçek kanıt üzerinden buluşturur.",
+    "The ecosystem's flagship — run multinational conferences, exercises and summits end-to-end on one secure surface: invite, accredit, execute and archive, with zero duplicated effort.": "Ekosistemin amiral ürünü — çok uluslu konferans, tatbikat ve zirveleri tek güvenli yüzeyde uçtan uca yönetin: davet edin, akredite edin, icra edin ve arşivleyin, mükerrer efor olmadan.",
+    "The human layer — digital-transformation, procurement and infrastructure advisory, plus training and ISO/IEC 17024-aligned certification that makes competence verifiable.": "Ekosistemin insan katmanı — dijital dönüşüm, tedarik ve altyapı danışmanlığı; ayrıca yetkinliği doğrulanabilir kılan eğitim ve ISO/IEC 17024 uyumlu sertifikasyon.",
+    "A purpose-locked professional network for the defense and innovation community — provenance-backed profiles, noise-free, fed automatically by events and the solution catalog.": "Savunma ve inovasyon topluluğu için amaca-kilitli bir profesyonel ağ — kaynağı doğrulanmış profiller, gürültüsüz, etkinliklerden ve çözüm kataloğundan otomatik beslenen.",
+    "The bridge connecting civil–military cooperation to the ecosystem's identity, data and AI backbone — civil and military on one secure surface, authority boundaries preserved.": "Sivil-asker iş birliğini ekosistemin kimlik, veri ve AI omurgasına bağlayan köprü — sivil ve askeri taraf tek güvenli yüzeyde, yetki sınırları korunarak.",
+    "Where solutions are proven before real decisions — face-to-face, digital TTX, MapEx and wargaming. Every experiment leaves a lesson and a track record the ecosystem learns from.": "Çözümlerin gerçek kararlardan önce kanıtlandığı yer — yüz yüze, dijital TTX, MapEx ve wargaming. Her deney, ekosistemin öğrendiği bir ders ve bir sicil bırakır.",
+    "Platform": "Platform",
+    "Solutions": "Çözümler",
+    "Ecosystem": "Ekosistem",
+    "Resources": "Kaynaklar",
+    "About": "Hakkında",
+    "Request a Demo": "Demo İste",
+    "Login": "Giriş",
+    "DUAL-USE · AI-POWERED ECOSYSTEM": "DUAL-USE · AI-DESTEKLİ EKOSİSTEM",
+    "Trusted Operational Ecosystem": "Güvenilir Operasyonel Ekosistem",
+    "Secure by design. Interoperable by nature.": "Tasarımdan güvenli. Doğası gereği birlikte çalışabilir.",
+    "Six platforms — one operational ecosystem.": "Altı platform — tek operasyonel ekosistem.",
+    "Explore Ecosystem": "Ekosistemi Keşfet",
+    "Request Access": "Erişim Talep Et",
+    "Trusted across alliance & multinational ecosystems": "İttifak ve çok uluslu ekosistemlerde güvenilir",
+    "SECURE BY DESIGN": "TASARIMDAN GÜVENLİ",
+    "OPERATIONALLY INTEROPERABLE": "OPERASYONEL BİRLİKTE ÇALIŞABİLİR",
+    "MISSION-ORIENTED": "GÖREV ODAKLI",
+    "AUDIT & ACCOUNTABILITY": "DENETİM & HESAP VEREBİLİRLİK",
+    "MULTI-DOMAIN READY": "ÇOK ALANLI HAZIR",
+    "The Conventity Ecosystem": "Conventity Ekosistemi",
+    "Six interoperable platforms. One living operational ecosystem.": "Altı birlikte çalışabilir platform. Tek bir yaşayan operasyonel ekosistem.",
+    "Designed to evolve, scale, and adapt for secure collaboration, operational coordination, and strategic innovation.": "Güvenli iş birliği, operasyonel koordinasyon ve stratejik inovasyon için gelişmek, ölçeklenmek ve uyum sağlamak üzere tasarlandı.",
+    "Innovation & Capability Exchange": "İnovasyon & Yetenek Değişimi",
+    "Event & Protocol Management": "Etkinlik & Protokol Yönetimi",
+    "Strategic Advisory & Ecosystem Support": "Stratejik Danışmanlık & Ekosistem Desteği",
+    "Collaboration & Coordination": "İş Birliği & Koordinasyon",
+    "Strategic Convergence & Resilience Layer": "Stratejik Yakınsama & Direnç Katmanı",
+    "Experimentation & Innovation Labs": "Deney & İnovasyon Laboratuvarları",
+    "AI-powered discovery and match-making platform connecting capabilities, needs and opportunities across the alliance.": "İttifak genelinde yetenekleri, ihtiyaçları ve fırsatları birbirine bağlayan AI destekli keşif ve eşleştirme platformu.",
+    "Secure end-to-end event management for delegations, protocol, accreditation and operational logistics.": "Delegasyonlar, protokol, akreditasyon ve operasyonel lojistik için uçtan uca güvenli etkinlik yönetimi.",
+    "Strategic advisory, ecosystem design and operational support for complex multinational collaboration initiatives.": "Karmaşık çok uluslu iş birliği girişimleri için stratejik danışmanlık, ekosistem tasarımı ve operasyonel destek.",
+    "Trusted collaboration environment for working groups, secure communications and cross-organisation task coordination.": "Çalışma grupları, güvenli iletişim ve kuruluşlar arası görev koordinasyonu için güvenilir iş birliği ortamı.",
+    "Where ideas become operational reality — sandboxes, pilots and innovation pathways, validated before deployment.": "Fikirlerin operasyonel gerçeğe dönüştüğü yer — dağıtımdan önce doğrulanmış kum havuzları, pilotlar ve inovasyon yolları.",
+    "Explore CONVEXUS": "CONVEXUS’u Keşfet",
+    "Explore CONVENTUS": "CONVENTUS’u Keşfet",
+    "Explore CONSULTUS": "CONSULTUS’u Keşfet",
+    "Explore CONNECTUS": "CONNECTUS’u Keşfet",
+    "Explore CONVERGENS": "CONVERGENS’i Keşfet",
+    "Explore CONVENTLAB": "CONVENTLAB’ı Keşfet",
+    "One ecosystem,": "Tek ekosistem,",
+    "one direction.": "tek yön.",
+    "Vision": "Vizyon",
+    "Mission": "Misyon",
+    "Approach": "Yaklaşım",
+    "One ecosystem where every mission — defense and civil — runs on the": "Her görevin — savunma ve sivil — üzerinde çalıştığı tek ekosistem:",
+    "same trusted rails.": "aynı güvenilir raylar.",
+    "One shared backbone — identity, governance, data — so six platforms": "Tek bir ortak omurga — kimlik, yönetişim, veri — böylece altı platform",
+    "interoperate the moment they connect.": "bağlandıkları anda birlikte çalışır.",
+    "Built like six platforms,": "Altı platform gibi inşa edildi,",
+    "operated like one living product": "tek bir yaşayan ürün gibi işletilir",
+    "— secure by design, interoperable by nature.": "— tasarımdan güvenli, doğası gereği birlikte çalışabilir.",
+    "Ready to meet Conventity": "Geleceğin Conventity",
+    "ecosystem for future?": "ekosistemiyle tanışmaya hazır mısınız?",
+    "Book a demo and see Conventity in action — purpose-built for governments, multinational organizations and their trusted strategic partners.": "Bir demo ayırtın ve Conventity’yi iş başında görün — hükümetler, çok uluslu kuruluşlar ve onların güvenilir stratejik ortakları için özel olarak tasarlandı.",
+    "Talk to Sales": "Satışla Görüşün",
+    "Secure & Compliant": "Güvenli & Uyumlu",
+    "Built for the most demanding security environments.": "En zorlu güvenlik ortamları için tasarlandı.",
+    "Proven & Trusted": "Kanıtlanmış & Güvenilir",
+    "Used across alliance ecosystems and multinational organizations.": "İttifak ekosistemleri ve çok uluslu kuruluşlarda kullanılıyor.",
+    "Scalable & Flexible": "Ölçeklenebilir & Esnek",
+    "Adaptable to any event scale or mission profile.": "Her etkinlik ölçeğine veya görev profiline uyarlanabilir.",
+    "Support & Expertise": "Destek & Uzmanlık",
+    "Dedicated specialists available 24/7.": "7/24 hizmetinizde uzman ekip.",
+    "ONE LIVING ECOSYSTEM": "TEK YAŞAYAN EKOSİSTEM",
+    "Organizations": "Kuruluşlar",
+    "Capabilities": "Yetenekler",
+    "Connections": "Bağlantılar",
+    "Operations": "Operasyonlar",
+    "Countries": "Ülkeler",
+    "Working Groups": "Çalışma Grupları",
+    "Ecosystem for Future": "Gelecek İçin Ekosistem",
+    "Conventity is the trusted operational ecosystem enabling secure collaboration, operational innovation and mission-critical coordination across multinational communities.": "Conventity, çok uluslu topluluklar genelinde güvenli iş birliği, operasyonel inovasyon ve görev açısından kritik koordinasyonu mümkün kılan güvenilir operasyonel ekosistemdir.",
+    "Company": "Şirket",
+    "Partners": "Ortaklar",
+    "News": "Haberler",
+    "Careers": "Kariyer",
+    "Documentation": "Dokümantasyon",
+    "Guides": "Kılavuzlar",
+    "Support": "Destek",
+    "Contact": "İletişim",
+    "Join the ecosystem. Connect with opportunities.": "Ekosisteme katılın. Fırsatlarla bağlantı kurun.",
+    "Contact Us": "Bize Ulaşın",
+    "© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.": "© 2026 Conventity. Lupoco A.Ş. tarafından geliştirilmiş ve işletilmektedir. Tüm hakları saklıdır.",
+    "Privacy Policy": "Gizlilik Politikası",
+    "Terms of Use": "Kullanım Şartları",
+    "Security": "Güvenlik",
+    "STRATEGIC BRIEFING LAYER": "STRATEJİK BİLGİLENDİRME KATMANI",
+    "Conventity Institutional Overview": "Conventity Kurumsal Genel Bakış",
+    "Long-term ecosystem direction": "Uzun vadeli ekosistem yönü",
+    "Operational Philosophy": "Operasyonel Felsefe",
+    "Future Roadmap": "Gelecek Yol Haritası",
+    "Capability phases & milestones": "Yetenek aşamaları & kilometre taşları",
+    "Architecture": "Mimari",
+    "Interconnected capability layers": "Birbirine bağlı yetenek katmanları",
+    "Strategic Positioning": "Stratejik Konumlandırma",
+    "What Conventity is — and is not": "Conventity nedir — ve ne değildir",
+    "Plan · Policy · Permissions": "Plan · Politika · İzinler",
+    "Governance & access model": "Yönetişim & erişim modeli"
+    },
+    de: {
+    "End-to-end management of multinational events — invite, accredit, execute and archive on one secure surface.": "End-to-End-Management multinationaler Events — Einladung, Akkreditierung, Durchführung und Archiv auf einer sicheren Oberfläche.",
+    "Trusted capability marketplace — solutions matched to needs on real-world track record.": "Vertrauenswürdiger Fähigkeitsmarktplatz — Lösungen werden anhand realer Erfolgsbilanz auf Bedarfe abgestimmt.",
+    "Purpose-locked professional network — provenance-backed profiles for working groups and cells.": "Zweckgebundenes Berufsnetzwerk — herkunftsgesicherte Profile für Arbeitsgruppen und Zellen.",
+    "Civil–military (CIMIC) integration layer across institutional, industrial and civilian ecosystems.": "Zivil-militärische (CIMIC) Integrationsschicht über institutionelle, industrielle und zivile Ökosysteme.",
+    "Advisory, training and ISO/IEC 17024-aligned certification — the ecosystem's human layer.": "Beratung, Schulung und ISO/IEC-17024-konforme Zertifizierung — die menschliche Ebene des Ökosystems.",
+    "Experimentation lab — pilots, exercises, wargaming and scenario simulation before real decisions.": "Experimentierlabor — Pilotprojekte, Übungen, Wargaming und Szenariosimulation vor echten Entscheidungen.",
+    "Public Resources": "Öffentliche Ressourcen",
+    "Trust & Compliance": "Vertrauen & Compliance",
+    "Capability Overview": "Fähigkeitsüberblick",
+    "Operational Briefs": "Operative Briefings",
+    "Case Studies": "Fallstudien",
+    "Data Protection": "Datenschutz",
+    "Security & Trust Center": "Sicherheits- & Vertrauenscenter",
+    "Terms & Legal": "AGB & Rechtliches",
+    "Where the ecosystem is heading": "Wohin sich das Ökosystem entwickelt",
+    "Think as one product, build as six": "Als ein Produkt denken, als sechs bauen",
+    "Phased, standalone-then-federated rollout": "Phasenweise; erst eigenständig, dann föderiert",
+    "Shared backbone, interoperable layers": "Gemeinsames Rückgrat, interoperable Schichten",
+    "Dual-use, integration-first": "Dual-Use, Integration zuerst",
+    "Simulation": "Simulation",
+    "Marketplace": "Marktplatz",
+    "Proven Track Record": "Belegte Erfolgsbilanz",
+    "AI Matchmaking": "KI-Matchmaking",
+    "Summits & Exercises": "Gipfel & Übungen",
+    "Accreditation": "Akkreditierung",
+    "Protocol & Logistics": "Protokoll & Logistik",
+    "Advisory": "Beratung",
+    "Training": "Schulung",
+    "Certification": "Zertifizierung",
+    "Verified Profiles": "Verifizierte Profile",
+    "Expert Discovery": "Expertensuche",
+    "Trusted Network": "Vertrauensnetzwerk",
+    "Civil–Military": "Zivil-militärisch",
+    "Crisis Coordination": "Krisenkoordination",
+    "Simulation (TTX)": "Simulation (TTX)",
+    "Pilots": "Pilotprojekte",
+    "Innovation & Solution Catalog": "Innovations- & Lösungskatalog",
+    "Advisory, Training & Certification": "Beratung, Schulung & Zertifizierung",
+    "Purpose-Locked Network": "Zweckgebundenes Netzwerk",
+    "CIMIC Integration Layer": "CIMIC-Integrationsschicht",
+    "Experimentation & Simulation Lab": "Experimentier- & Simulationslabor",
+    "A trusted solution marketplace where defense-tech is judged by real-world track record — matching nations with innovators on proven evidence, not marketing claims.": "Ein vertrauenswürdiger Lösungsmarktplatz, auf dem Defense-Tech an realen Einsatznachweisen gemessen wird — Nationen und Innovatoren auf belegter Evidenz statt Marketingversprechen.",
+    "The ecosystem's flagship — run multinational conferences, exercises and summits end-to-end on one secure surface: invite, accredit, execute and archive, with zero duplicated effort.": "Das Flaggschiff des Ökosystems — multinationale Konferenzen, Übungen und Gipfel durchgängig auf einer sicheren Oberfläche: einladen, akkreditieren, durchführen und archivieren, ohne Doppelaufwand.",
+    "The human layer — digital-transformation, procurement and infrastructure advisory, plus training and ISO/IEC 17024-aligned certification that makes competence verifiable.": "Die menschliche Ebene — Beratung zu digitaler Transformation, Beschaffung und Infrastruktur sowie Schulungen und ISO/IEC-17024-konforme Zertifizierung, die Kompetenz überprüfbar macht.",
+    "A purpose-locked professional network for the defense and innovation community — provenance-backed profiles, noise-free, fed automatically by events and the solution catalog.": "Ein zweckgebundenes Berufsnetzwerk für die Verteidigungs- und Innovationsgemeinschaft — herkunftsgesicherte Profile, rauschfrei, automatisch aus Events und dem Lösungskatalog gespeist.",
+    "The bridge connecting civil–military cooperation to the ecosystem's identity, data and AI backbone — civil and military on one secure surface, authority boundaries preserved.": "Die Brücke, die zivil-militärische Zusammenarbeit mit dem Identitäts-, Daten- und KI-Rückgrat des Ökosystems verbindet — zivil und militärisch auf einer sicheren Oberfläche, unter Wahrung der Befugnisgrenzen.",
+    "Where solutions are proven before real decisions — face-to-face, digital TTX, MapEx and wargaming. Every experiment leaves a lesson and a track record the ecosystem learns from.": "Wo Lösungen vor echten Entscheidungen erprobt werden — persönlich, digitales TTX, MapEx und Wargaming. Jedes Experiment hinterlässt eine Lektion und einen Nachweis, aus dem das Ökosystem lernt.",
+    "Platform": "Plattform",
+    "Solutions": "Lösungen",
+    "Ecosystem": "Ökosystem",
+    "Resources": "Ressourcen",
+    "About": "Über uns",
+    "Request a Demo": "Demo anfordern",
+    "Login": "Anmelden",
+    "DUAL-USE · AI-POWERED ECOSYSTEM": "DUAL-USE · KI-GESTÜTZTES ÖKOSYSTEM",
+    "Trusted Operational Ecosystem": "Vertrauenswürdiges operatives Ökosystem",
+    "Secure by design. Interoperable by nature.": "Sicher durch Design. Interoperabel von Natur aus.",
+    "Six platforms — one operational ecosystem.": "Sechs Plattformen — ein operatives Ökosystem.",
+    "Explore Ecosystem": "Ökosystem erkunden",
+    "Request Access": "Zugang anfragen",
+    "Trusted across alliance & multinational ecosystems": "Vertrauenswürdig in Allianz- und multinationalen Ökosystemen",
+    "SECURE BY DESIGN": "SICHER DURCH DESIGN",
+    "OPERATIONALLY INTEROPERABLE": "OPERATIV INTEROPERABEL",
+    "MISSION-ORIENTED": "MISSIONSORIENTIERT",
+    "AUDIT & ACCOUNTABILITY": "AUDIT & RECHENSCHAFT",
+    "MULTI-DOMAIN READY": "MULTI-DOMÄNEN-BEREIT",
+    "The Conventity Ecosystem": "Das Conventity-Ökosystem",
+    "Six interoperable platforms. One living operational ecosystem.": "Sechs interoperable Plattformen. Ein lebendiges operatives Ökosystem.",
+    "Designed to evolve, scale, and adapt for secure collaboration, operational coordination, and strategic innovation.": "Konzipiert, um sich für sichere Zusammenarbeit, operative Koordination und strategische Innovation weiterzuentwickeln, zu skalieren und anzupassen.",
+    "Innovation & Capability Exchange": "Innovation & Fähigkeitsaustausch",
+    "Event & Protocol Management": "Event- & Protokollmanagement",
+    "Strategic Advisory & Ecosystem Support": "Strategische Beratung & Ökosystem-Support",
+    "Collaboration & Coordination": "Zusammenarbeit & Koordination",
+    "Strategic Convergence & Resilience Layer": "Strategische Konvergenz- & Resilienzschicht",
+    "Experimentation & Innovation Labs": "Experimentier- & Innovationslabore",
+    "AI-powered discovery and match-making platform connecting capabilities, needs and opportunities across the alliance.": "KI-gestützte Entdeckungs- und Matchmaking-Plattform, die Fähigkeiten, Bedarfe und Chancen über die Allianz hinweg verbindet.",
+    "Secure end-to-end event management for delegations, protocol, accreditation and operational logistics.": "Sicheres End-to-End-Eventmanagement für Delegationen, Protokoll, Akkreditierung und operative Logistik.",
+    "Strategic advisory, ecosystem design and operational support for complex multinational collaboration initiatives.": "Strategische Beratung, Ökosystemdesign und operative Unterstützung für komplexe multinationale Kooperationsinitiativen.",
+    "Trusted collaboration environment for working groups, secure communications and cross-organisation task coordination.": "Vertrauenswürdige Kollaborationsumgebung für Arbeitsgruppen, sichere Kommunikation und organisationsübergreifende Aufgabenkoordination.",
+    "Where ideas become operational reality — sandboxes, pilots and innovation pathways, validated before deployment.": "Wo Ideen zur operativen Realität werden — Sandboxes, Pilotprojekte und Innovationspfade, validiert vor dem Einsatz.",
+    "Explore CONVEXUS": "CONVEXUS erkunden",
+    "Explore CONVENTUS": "CONVENTUS erkunden",
+    "Explore CONSULTUS": "CONSULTUS erkunden",
+    "Explore CONNECTUS": "CONNECTUS erkunden",
+    "Explore CONVERGENS": "CONVERGENS erkunden",
+    "Explore CONVENTLAB": "CONVENTLAB erkunden",
+    "One ecosystem,": "Ein Ökosystem,",
+    "one direction.": "eine Richtung.",
+    "Vision": "Vision",
+    "Mission": "Mission",
+    "Approach": "Ansatz",
+    "One ecosystem where every mission — defense and civil — runs on the": "Ein Ökosystem, in dem jede Mission — zivil und militärisch — auf",
+    "same trusted rails.": "denselben vertrauenswürdigen Schienen läuft.",
+    "One shared backbone — identity, governance, data — so six platforms": "Ein gemeinsames Rückgrat — Identität, Governance, Daten — sodass sechs Plattformen",
+    "interoperate the moment they connect.": "interoperabel sind, sobald sie sich verbinden.",
+    "Built like six platforms,": "Wie sechs Plattformen gebaut,",
+    "operated like one living product": "wie ein lebendiges Produkt betrieben",
+    "— secure by design, interoperable by nature.": "— sicher durch Design, interoperabel von Natur aus.",
+    "Ready to meet Conventity": "Bereit, das Conventity-",
+    "ecosystem for future?": "Ökosystem für die Zukunft kennenzulernen?",
+    "Book a demo and see Conventity in action — purpose-built for governments, multinational organizations and their trusted strategic partners.": "Buchen Sie eine Demo und erleben Sie Conventity in Aktion — maßgeschneidert für Regierungen, multinationale Organisationen und ihre vertrauenswürdigen strategischen Partner.",
+    "Talk to Sales": "Vertrieb kontaktieren",
+    "Secure & Compliant": "Sicher & Konform",
+    "Built for the most demanding security environments.": "Für die anspruchsvollsten Sicherheitsumgebungen gebaut.",
+    "Proven & Trusted": "Bewährt & Vertrauenswürdig",
+    "Used across alliance ecosystems and multinational organizations.": "In Allianz-Ökosystemen und multinationalen Organisationen im Einsatz.",
+    "Scalable & Flexible": "Skalierbar & Flexibel",
+    "Adaptable to any event scale or mission profile.": "Anpassbar an jede Eventgröße oder jedes Missionsprofil.",
+    "Support & Expertise": "Support & Expertise",
+    "Dedicated specialists available 24/7.": "Engagierte Spezialisten rund um die Uhr verfügbar.",
+    "ONE LIVING ECOSYSTEM": "EIN LEBENDIGES ÖKOSYSTEM",
+    "Organizations": "Organisationen",
+    "Capabilities": "Fähigkeiten",
+    "Connections": "Verbindungen",
+    "Operations": "Operationen",
+    "Countries": "Länder",
+    "Working Groups": "Arbeitsgruppen",
+    "Ecosystem for Future": "Ökosystem für die Zukunft",
+    "Conventity is the trusted operational ecosystem enabling secure collaboration, operational innovation and mission-critical coordination across multinational communities.": "Conventity ist das vertrauenswürdige operative Ökosystem, das sichere Zusammenarbeit, operative Innovation und missionskritische Koordination über multinationale Gemeinschaften hinweg ermöglicht.",
+    "Company": "Unternehmen",
+    "Partners": "Partner",
+    "News": "Neuigkeiten",
+    "Careers": "Karriere",
+    "Documentation": "Dokumentation",
+    "Guides": "Anleitungen",
+    "Support": "Support",
+    "Contact": "Kontakt",
+    "Join the ecosystem. Connect with opportunities.": "Treten Sie dem Ökosystem bei. Verbinden Sie sich mit Chancen.",
+    "Contact Us": "Kontaktieren Sie uns",
+    "© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.": "© 2026 Conventity. Entwickelt und betrieben von Lupoco A.Ş. Alle Rechte vorbehalten.",
+    "Privacy Policy": "Datenschutz",
+    "Terms of Use": "Nutzungsbedingungen",
+    "Security": "Sicherheit",
+    "STRATEGIC BRIEFING LAYER": "STRATEGISCHE BRIEFING-EBENE",
+    "Conventity Institutional Overview": "Conventity – Institutioneller Überblick",
+    "Long-term ecosystem direction": "Langfristige Ökosystem-Ausrichtung",
+    "Operational Philosophy": "Operative Philosophie",
+    "Future Roadmap": "Zukunfts-Roadmap",
+    "Capability phases & milestones": "Fähigkeitsphasen & Meilensteine",
+    "Architecture": "Architektur",
+    "Interconnected capability layers": "Vernetzte Fähigkeitsschichten",
+    "Strategic Positioning": "Strategische Positionierung",
+    "What Conventity is — and is not": "Was Conventity ist — und was nicht",
+    "Plan · Policy · Permissions": "Plan · Richtlinie · Berechtigungen",
+    "Governance & access model": "Governance- & Zugriffsmodell"
+    },
+    fr: {
+    "End-to-end management of multinational events — invite, accredit, execute and archive on one secure surface.": "Gestion de bout en bout d'événements multinationaux — inviter, accréditer, exécuter et archiver sur une surface sécurisée.",
+    "Trusted capability marketplace — solutions matched to needs on real-world track record.": "Place de marché de capacités de confiance — solutions associées aux besoins selon l'historique réel.",
+    "Purpose-locked professional network — provenance-backed profiles for working groups and cells.": "Réseau professionnel verrouillé par objectif — profils à provenance vérifiée pour groupes de travail et cellules.",
+    "Civil–military (CIMIC) integration layer across institutional, industrial and civilian ecosystems.": "Couche d'intégration civilo-militaire (CIMIC) à travers les écosystèmes institutionnels, industriels et civils.",
+    "Advisory, training and ISO/IEC 17024-aligned certification — the ecosystem's human layer.": "Conseil, formation et certification conforme ISO/IEC 17024 — la couche humaine de l'écosystème.",
+    "Experimentation lab — pilots, exercises, wargaming and scenario simulation before real decisions.": "Laboratoire d'expérimentation — pilotes, exercices, wargaming et simulation de scénarios avant les vraies décisions.",
+    "Public Resources": "Ressources publiques",
+    "Trust & Compliance": "Confiance & conformité",
+    "Capability Overview": "Aperçu des capacités",
+    "Operational Briefs": "Notes opérationnelles",
+    "Case Studies": "Études de cas",
+    "Data Protection": "Protection des données",
+    "Security & Trust Center": "Centre de sécurité & confiance",
+    "Terms & Legal": "Conditions & mentions légales",
+    "Where the ecosystem is heading": "Où va l'écosystème",
+    "Think as one product, build as six": "Penser comme un produit, bâtir comme six",
+    "Phased, standalone-then-federated rollout": "Déploiement progressif : autonome puis fédéré",
+    "Shared backbone, interoperable layers": "Épine dorsale commune, couches interopérables",
+    "Dual-use, integration-first": "Dual-use, intégration d'abord",
+    "Simulation": "Simulation",
+    "Marketplace": "Place de marché",
+    "Proven Track Record": "Historique prouvé",
+    "AI Matchmaking": "Mise en relation IA",
+    "Summits & Exercises": "Sommets & exercices",
+    "Accreditation": "Accréditation",
+    "Protocol & Logistics": "Protocole & logistique",
+    "Advisory": "Conseil",
+    "Training": "Formation",
+    "Certification": "Certification",
+    "Verified Profiles": "Profils vérifiés",
+    "Expert Discovery": "Découverte d’experts",
+    "Trusted Network": "Réseau de confiance",
+    "Civil–Military": "Civilo-militaire",
+    "Crisis Coordination": "Coordination de crise",
+    "Simulation (TTX)": "Simulation (TTX)",
+    "Pilots": "Pilotes",
+    "Innovation & Solution Catalog": "Catalogue d’innovation & de solutions",
+    "Advisory, Training & Certification": "Conseil, formation & certification",
+    "Purpose-Locked Network": "Réseau verrouillé par objectif",
+    "CIMIC Integration Layer": "Couche d’intégration CIMIC",
+    "Experimentation & Simulation Lab": "Laboratoire d’expérimentation & de simulation",
+    "A trusted solution marketplace where defense-tech is judged by real-world track record — matching nations with innovators on proven evidence, not marketing claims.": "Une place de marché de solutions de confiance où la défense-tech est jugée sur son historique réel — reliant nations et innovateurs sur des preuves avérées, pas des promesses marketing.",
+    "The ecosystem's flagship — run multinational conferences, exercises and summits end-to-end on one secure surface: invite, accredit, execute and archive, with zero duplicated effort.": "Le produit phare de l’écosystème — gérez conférences, exercices et sommets multinationaux de bout en bout sur une surface sécurisée : inviter, accréditer, exécuter et archiver, sans effort redondant.",
+    "The human layer — digital-transformation, procurement and infrastructure advisory, plus training and ISO/IEC 17024-aligned certification that makes competence verifiable.": "La couche humaine — conseil en transformation numérique, achats et infrastructure, plus formation et certification conforme ISO/IEC 17024 rendant la compétence vérifiable.",
+    "A purpose-locked professional network for the defense and innovation community — provenance-backed profiles, noise-free, fed automatically by events and the solution catalog.": "Un réseau professionnel verrouillé par objectif pour la communauté défense et innovation — profils à provenance vérifiée, sans bruit, alimenté automatiquement par les événements et le catalogue.",
+    "The bridge connecting civil–military cooperation to the ecosystem's identity, data and AI backbone — civil and military on one secure surface, authority boundaries preserved.": "Le pont reliant la coopération civilo-militaire à l’épine dorsale d’identité, de données et d’IA de l’écosystème — civil et militaire sur une surface sécurisée, limites d’autorité préservées.",
+    "Where solutions are proven before real decisions — face-to-face, digital TTX, MapEx and wargaming. Every experiment leaves a lesson and a track record the ecosystem learns from.": "Là où les solutions sont éprouvées avant les vraies décisions — présentiel, TTX numérique, MapEx et wargaming. Chaque expérience laisse une leçon et un historique dont l’écosystème apprend.",
+    "Platform": "Plateforme",
+    "Solutions": "Solutions",
+    "Ecosystem": "Écosystème",
+    "Resources": "Ressources",
+    "About": "À propos",
+    "Request a Demo": "Demander une démo",
+    "Login": "Connexion",
+    "DUAL-USE · AI-POWERED ECOSYSTEM": "DUAL-USE · ÉCOSYSTÈME IA",
+    "Trusted Operational Ecosystem": "Écosystème opérationnel de confiance",
+    "Secure by design. Interoperable by nature.": "Sécurisé par conception. Interopérable par nature.",
+    "Six platforms — one operational ecosystem.": "Six plateformes — un écosystème opérationnel.",
+    "Explore Ecosystem": "Explorer l’écosystème",
+    "Request Access": "Demander l’accès",
+    "Trusted across alliance & multinational ecosystems": "Approuvé dans les écosystèmes d’alliance et multinationaux",
+    "SECURE BY DESIGN": "SÉCURISÉ PAR CONCEPTION",
+    "OPERATIONALLY INTEROPERABLE": "INTEROPÉRABLE OPÉRATIONNELLEMENT",
+    "MISSION-ORIENTED": "AXÉ SUR LA MISSION",
+    "AUDIT & ACCOUNTABILITY": "AUDIT & RESPONSABILITÉ",
+    "MULTI-DOMAIN READY": "PRÊT MULTI-DOMAINE",
+    "The Conventity Ecosystem": "L’écosystème Conventity",
+    "Six interoperable platforms. One living operational ecosystem.": "Six plateformes interopérables. Un écosystème opérationnel vivant.",
+    "Designed to evolve, scale, and adapt for secure collaboration, operational coordination, and strategic innovation.": "Conçu pour évoluer, s’adapter et passer à l’échelle pour une collaboration sécurisée, une coordination opérationnelle et l’innovation stratégique.",
+    "Innovation & Capability Exchange": "Innovation & Échange de capacités",
+    "Event & Protocol Management": "Gestion d’événements & de protocole",
+    "Strategic Advisory & Ecosystem Support": "Conseil stratégique & support d’écosystème",
+    "Collaboration & Coordination": "Collaboration & Coordination",
+    "Strategic Convergence & Resilience Layer": "Couche de convergence stratégique & résilience",
+    "Experimentation & Innovation Labs": "Laboratoires d’expérimentation & d’innovation",
+    "AI-powered discovery and match-making platform connecting capabilities, needs and opportunities across the alliance.": "Plateforme de découverte et de mise en relation par IA, reliant capacités, besoins et opportunités à travers l’alliance.",
+    "Secure end-to-end event management for delegations, protocol, accreditation and operational logistics.": "Gestion d’événements sécurisée de bout en bout pour délégations, protocole, accréditation et logistique opérationnelle.",
+    "Strategic advisory, ecosystem design and operational support for complex multinational collaboration initiatives.": "Conseil stratégique, conception d’écosystème et soutien opérationnel pour des initiatives de collaboration multinationales complexes.",
+    "Trusted collaboration environment for working groups, secure communications and cross-organisation task coordination.": "Environnement de collaboration de confiance pour groupes de travail, communications sécurisées et coordination des tâches inter-organisations.",
+    "Where ideas become operational reality — sandboxes, pilots and innovation pathways, validated before deployment.": "Là où les idées deviennent réalité opérationnelle — bacs à sable, pilotes et parcours d’innovation, validés avant déploiement.",
+    "Explore CONVEXUS": "Explorer CONVEXUS",
+    "Explore CONVENTUS": "Explorer CONVENTUS",
+    "Explore CONSULTUS": "Explorer CONSULTUS",
+    "Explore CONNECTUS": "Explorer CONNECTUS",
+    "Explore CONVERGENS": "Explorer CONVERGENS",
+    "Explore CONVENTLAB": "Explorer CONVENTLAB",
+    "One ecosystem,": "Un écosystème,",
+    "one direction.": "une direction.",
+    "Vision": "Vision",
+    "Mission": "Mission",
+    "Approach": "Approche",
+    "One ecosystem where every mission — defense and civil — runs on the": "Un écosystème où chaque mission — défense et civile — roule sur les",
+    "same trusted rails.": "mêmes rails de confiance.",
+    "One shared backbone — identity, governance, data — so six platforms": "Une seule épine dorsale partagée — identité, gouvernance, données — pour que six plateformes",
+    "interoperate the moment they connect.": "interopèrent dès qu’elles se connectent.",
+    "Built like six platforms,": "Conçu comme six plateformes,",
+    "operated like one living product": "exploité comme un seul produit vivant",
+    "— secure by design, interoperable by nature.": "— sécurisé par conception, interopérable par nature.",
+    "Ready to meet Conventity": "Prêt à découvrir l’écosystème Conventity",
+    "ecosystem for future?": "pour le futur ?",
+    "Book a demo and see Conventity in action — purpose-built for governments, multinational organizations and their trusted strategic partners.": "Réservez une démo et voyez Conventity en action — conçu sur mesure pour les gouvernements, les organisations multinationales et leurs partenaires stratégiques de confiance.",
+    "Talk to Sales": "Contacter les ventes",
+    "Secure & Compliant": "Sécurisé & Conforme",
+    "Built for the most demanding security environments.": "Conçu pour les environnements de sécurité les plus exigeants.",
+    "Proven & Trusted": "Éprouvé & Fiable",
+    "Used across alliance ecosystems and multinational organizations.": "Utilisé dans les écosystèmes d’alliance et les organisations multinationales.",
+    "Scalable & Flexible": "Évolutif & Flexible",
+    "Adaptable to any event scale or mission profile.": "Adaptable à toute échelle d’événement ou profil de mission.",
+    "Support & Expertise": "Support & Expertise",
+    "Dedicated specialists available 24/7.": "Spécialistes dédiés disponibles 24/7.",
+    "ONE LIVING ECOSYSTEM": "UN ÉCOSYSTÈME VIVANT",
+    "Organizations": "Organisations",
+    "Capabilities": "Capacités",
+    "Connections": "Connexions",
+    "Operations": "Opérations",
+    "Countries": "Pays",
+    "Working Groups": "Groupes de travail",
+    "Ecosystem for Future": "Écosystème pour le futur",
+    "Conventity is the trusted operational ecosystem enabling secure collaboration, operational innovation and mission-critical coordination across multinational communities.": "Conventity est l’écosystème opérationnel de confiance permettant une collaboration sécurisée, l’innovation opérationnelle et la coordination critique de mission à travers les communautés multinationales.",
+    "Company": "Entreprise",
+    "Partners": "Partenaires",
+    "News": "Actualités",
+    "Careers": "Carrières",
+    "Documentation": "Documentation",
+    "Guides": "Guides",
+    "Support": "Support",
+    "Contact": "Contact",
+    "Join the ecosystem. Connect with opportunities.": "Rejoignez l’écosystème. Connectez-vous aux opportunités.",
+    "Contact Us": "Contactez-nous",
+    "© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.": "© 2026 Conventity. Développé et exploité par Lupoco A.Ş. Tous droits réservés.",
+    "Privacy Policy": "Politique de confidentialité",
+    "Terms of Use": "Conditions d’utilisation",
+    "Security": "Sécurité",
+    "STRATEGIC BRIEFING LAYER": "COUCHE DE BRIEFING STRATÉGIQUE",
+    "Conventity Institutional Overview": "Aperçu institutionnel de Conventity",
+    "Long-term ecosystem direction": "Orientation à long terme de l’écosystème",
+    "Operational Philosophy": "Philosophie opérationnelle",
+    "Future Roadmap": "Feuille de route future",
+    "Capability phases & milestones": "Phases de capacité & jalons",
+    "Architecture": "Architecture",
+    "Interconnected capability layers": "Couches de capacités interconnectées",
+    "Strategic Positioning": "Positionnement stratégique",
+    "What Conventity is — and is not": "Ce qu’est Conventity — et ce qu’il n’est pas",
+    "Plan · Policy · Permissions": "Plan · Politique · Autorisations",
+    "Governance & access model": "Modèle de gouvernance & d’accès"
+    }
+  };
+
+  let i18nNodes = null;
+  function collectI18nNodes(){
+    i18nNodes = [];
+    const skipSel = 'script,style,svg,canvas,noscript,code,input,textarea';
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(n){
+        const v = n.nodeValue;
+        if (!v || !v.trim()) return NodeFilter.FILTER_REJECT;
+        const p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (p.closest(skipSel)) return NodeFilter.FILTER_REJECT;
+        if (p.closest('.lang-toggle')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('.eco-stat')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let n;
+    while ((n = walker.nextNode())) i18nNodes.push({ node: n, en: n.nodeValue });
+  }
+
+  function applyLang(code){
+    if (!i18nNodes) collectI18nNodes();
+    const dict = I18N_DICT[code];
+    for (let i = 0; i < i18nNodes.length; i++){
+      const it = i18nNodes[i];
+      if (code === 'en' || !dict){ it.node.nodeValue = it.en; continue; }
+      const key = it.en.trim();
+      const t = dict[key];
+      it.node.nodeValue = (t != null) ? it.en.split(key).join(t) : it.en;
+    }
+    // stat labels live inside .eco-stat too — translate just the .k label nodes
+    document.querySelectorAll('.eco-stat .k').forEach(function(k){
+      if (!k.dataset.en) k.dataset.en = k.textContent;
+      const key = (k.dataset.en||'').trim();
+      const t = (code !== 'en' && dict) ? dict[key] : null;
+      k.textContent = t != null ? t : k.dataset.en;
+    });
+    const codeEl = document.getElementById('langCode');
+    if (codeEl) codeEl.textContent = code.toUpperCase();
+    document.querySelectorAll('.set-langs [data-lang]').forEach(function(b){ b.classList.toggle('on', b.dataset.lang === code); });
+    document.documentElement.lang = code;
+  }
+
+  function setLang(code){
+    localStorage.setItem('conventity-lang', code);
+    applyLang(code);
+  }
+
+  // Init: capture English baseline BEFORE applying saved language
+  collectI18nNodes();
+  const langToggle = document.getElementById('langToggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', function(e){ e.stopPropagation(); langToggle.classList.toggle('open'); });
+    document.addEventListener('click', function(e){ if (!e.target.closest('#langToggle')) langToggle.classList.remove('open'); });
+    document.querySelectorAll('.lang-pop [data-lang]').forEach(function(b){
+      b.addEventListener('click', function(e){ e.stopPropagation(); setLang(b.dataset.lang); langToggle.classList.remove('open'); });
+    });
+  }
+  document.querySelectorAll('[data-lang]').forEach(function(b){
+    b.addEventListener('click', function(){ if (b.dataset.lang) setLang(b.dataset.lang); });
+  });
+  const savedLang = localStorage.getItem('conventity-lang') || 'en';
+  setLang(savedLang);
+
+  // ── GENERIC PLATFORM OVERLAYS (Convexus/Conventus/Consultus/Connectus/Conventlab) ──
+  const platformOverlays = Array.from(document.querySelectorAll('[data-platform]'));
+  const platformMap = {};
+  platformOverlays.forEach(el => { platformMap[el.dataset.platform] = el; });
+  function openPlatform(id) {
+    const overlay = platformMap[id];
+    if (!overlay) return;
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    closeAllMenus && closeAllMenus();
+    if (typeof mobileDrawer !== 'undefined' && mobileDrawer) mobileDrawer.classList.remove('open');
+    overlay.scrollTo({ top: 0, behavior: 'instant' });
+    if (id === 'conventlab') {
+      const fixRegionMap = () => { try { initCvgMaps(); } catch(e) {} if (cvgRegionMap) cvgRegionMap.invalidateSize(); };
+      setTimeout(fixRegionMap, 90);
+      setTimeout(fixRegionMap, 450);
+    }
+  }
+  function closePlatform(overlay) {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    const anyOpen = document.querySelector('.cvg-overlay.open');
+    if (!anyOpen) document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-open-platform]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openPlatform(el.dataset.openPlatform);
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openPlatform(el.dataset.openPlatform);
+      }
+    });
+  });
+  // Close buttons inside each platform overlay
+  document.querySelectorAll('[data-plt-close]').forEach(b => {
+    b.addEventListener('click', () => {
+      const overlay = b.closest('.cvg-overlay');
+      if (overlay) closePlatform(overlay);
+    });
+  });
+
+  // ── ABOUT · INSTITUTIONAL OVERVIEW (tab switching + triggers) ──
+  (function(){
+    const aboutOverlay = document.getElementById('aboutOverlay');
+    if (!aboutOverlay) return;
+    const tabs = Array.from(aboutOverlay.querySelectorAll('#aboutTabs a[data-about-tab]'));
+    const panels = Array.from(aboutOverlay.querySelectorAll('[data-about-panel]'));
+    function setAboutTab(id){
+      let matched = panels.some(p => p.dataset.aboutPanel === id);
+      if (!matched && panels[0]) id = panels[0].dataset.aboutPanel;
+      panels.forEach(p => p.classList.toggle('on', p.dataset.aboutPanel === id));
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.aboutTab === id));
+      aboutOverlay.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    // Bar tabs just switch (overlay already open)
+    tabs.forEach(t => t.addEventListener('click', () => setAboutTab(t.dataset.aboutTab)));
+    // External triggers (About menu, footer, mobile drawer) open + switch
+    document.querySelectorAll('[data-about-tab]').forEach(el => {
+      if (el.closest('#aboutTabs')) return;
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openPlatform('about');
+        setAboutTab(el.dataset.aboutTab);
+      });
+    });
+    window.openAboutTab = (id) => { openPlatform('about'); setAboutTab(id); };
+  })();
+
+  // ── Deep-link from homepage "Upcoming Events" → Conventus event calendar ──
+  document.querySelectorAll('[data-conventus-anchor="event"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const ov = document.getElementById('conventusOverlay');
+      const sec = document.getElementById('cnSecEvent');
+      if (!ov || !sec) return;
+      setTimeout(() => {
+        const top = sec.getBoundingClientRect().top - ov.getBoundingClientRect().top + ov.scrollTop - 90;
+        ov.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }, 140);
+    });
+  });
+
+  // Esc closes the topmost open platform overlay
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const open = document.querySelectorAll('.cvg-overlay.open');
+      // Close only the one that isn't the convergens overlay (handled separately) — but harmless to close all
+      open.forEach(o => {
+        if (o.id !== 'convergensOverlay') closePlatform(o);
+      });
+    }
+  });
+
+  // Per-overlay AI prompt console (each .cvg-prompt with data-plt-persona)
+  document.querySelectorAll('.cvg-prompt[data-plt-persona]').forEach(p => {
+    const persona = p.dataset.pltPersona;
+    const textarea = p.querySelector('.plt-prompt-text');
+    const sendBtn  = p.querySelector('.plt-prompt-send');
+    const out      = p.querySelector('.plt-prompt-out');
+    async function ask(prompt) {
+      if (!prompt || !prompt.trim()) return;
+      if (!window.claude || typeof window.claude.complete !== 'function') {
+        out.classList.remove('loading'); out.textContent = 'AI is offline in this preview.'; return;
+      }
+      out.classList.add('loading'); out.textContent = 'thinking'; sendBtn.disabled = true;
+      try {
+        const result = await window.claude.complete({
+          messages: [{ role: 'user', content: persona + '\n\n— User —\n' + prompt }]
+        });
+        out.classList.remove('loading'); out.textContent = (result || '').toString().trim();
+      } catch(err) {
+        out.classList.remove('loading'); out.textContent = 'AI briefly unavailable.';
+      } finally { sendBtn.disabled = false; }
+    }
+    sendBtn.addEventListener('click', () => ask(textarea.value));
+    textarea.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(textarea.value); }});
+    textarea.addEventListener('input', () => { textarea.style.height = 'auto'; textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; });
+    p.querySelectorAll('[data-plt-suggest]').forEach(b => {
+      b.addEventListener('click', () => {
+        const q = b.dataset.pltSuggest;
+        textarea.value = q;
+        textarea.dispatchEvent(new Event('input'));
+        ask(q);
+      });
+    });
+  });
+
+  // Live UTC timestamp also for platform overlays (data-cvg-live elements already covered by tickCvgLive,
+  // but those are scoped to the convergens overlay. Extend a global tick.)
+  function tickPltLive() {
+    const now = new Date();
+    const t = String(now.getUTCHours()).padStart(2,'0') + ':' + String(now.getUTCMinutes()).padStart(2,'0') + ' UTC';
+    document.querySelectorAll('[data-platform] [data-cvg-live]').forEach(el => {
+      const txt = el.textContent || ''; const sep = txt.indexOf('·');
+      el.textContent = (sep > 0 ? t + ' ' + txt.slice(sep) : t);
+    });
+  }
+  tickPltLive(); setInterval(tickPltLive, 30000);
+
+  // Toggle states for live workspace controls (mic, camera, etc.)
+  workspace.querySelectorAll('[data-ws-toggle]').forEach(b => {
+    b.addEventListener('click', () => {
+      b.classList.toggle('rec');
+    });
+  });
+</script>
+
+<script>
+// ── GLOBE HOTSPOTS: hover tooltips + click to platform ──
+(function(){
+  const wrap = document.querySelector('.hero-globe-wrap');
+  const tooltip = document.getElementById('globeTooltip');
+  if (!wrap || !tooltip) return;
+
+  const PLATFORM_INFO = {
+    convexus:   { num:'01 · 06', name:'Convexus',   tag:'Innovation & Capability Exchange',
+                  desc:'AI-powered discovery and matchmaking — capabilities, needs and opportunities across the alliance.',
+                  color:'var(--pf-convexus)' },
+    conventus:  { num:'02 · 06', name:'Conventus',  tag:'Event & Protocol Management',
+                  desc:'Secure end-to-end event operations — delegations, protocol, accreditation and operational logistics.',
+                  color:'var(--pf-conventus)' },
+    consultus:  { num:'03 · 06', name:'Consultus',  tag:'Strategic Advisory & Ecosystem Support',
+                  desc:'Strategic advisory, ecosystem design and operational support for complex multinational programmes.',
+                  color:'var(--pf-consultus)' },
+    connectus:  { num:'04 · 06', name:'Connectus',  tag:'Collaboration & Coordination',
+                  desc:'Trusted collaboration environment — working groups, secure communications and cross-org tasking.',
+                  color:'var(--pf-connectus)' },
+    convergens: { num:'05 · 06', name:'Convergens', tag:'Trust, Security & Resilience Fabric',
+                  desc:'Institutional CIMIC intelligence — situational awareness, resilience layers and governance baseline.',
+                  color:'var(--pf-convergens)' },
+    conventlab: { num:'06 · 06', name:'Conventlab', tag:'Experimentation & Innovation Labs',
+                  desc:'Pilot management, experimentation cells and innovation pathways for operational impact.',
+                  color:'var(--pf-connovus)' },
+  };
+
+  const hotspots = wrap.querySelectorAll('.globe-hotspot');
+  let activeKey = null;
+
+  function showTip(hs){
+    const key = hs.dataset.pf;
+    const info = PLATFORM_INFO[key];
+    if(!info) return;
+    activeKey = key;
+    // Populate content
+    tooltip.style.setProperty('--c', info.color);
+    tooltip.querySelector('.gt-num').textContent = info.num;
+    tooltip.querySelector('.gt-name').textContent = info.name;
+    tooltip.querySelector('.gt-tag').textContent = info.tag;
+    tooltip.querySelector('.gt-desc').textContent = info.desc;
+
+    // Position tooltip beside hotspot — push toward center of stage
+    const wrapRect = wrap.getBoundingClientRect();
+    const hsRect = hs.getBoundingClientRect();
+    const hsCx = (hsRect.left + hsRect.width/2) - wrapRect.left;
+    const hsCy = (hsRect.top + hsRect.height/2) - wrapRect.top;
+    const W = wrapRect.width, H = wrapRect.height;
+    const tw = tooltip.offsetWidth || 260;
+    const th = tooltip.offsetHeight || 160;
+    const gap = 22;
+
+    // Decide horizontal side: tooltip on opposite side of hotspot (away from center horizontally)
+    const fromCenterX = hsCx - W/2;
+    const fromCenterY = hsCy - H/2;
+
+    let leftPx, topPx;
+    // Top node → tooltip above center but next to node, prefer below-right of node
+    // We'll do: place tooltip such that it doesn't cover the central C logo.
+    if (Math.abs(fromCenterY) > Math.abs(fromCenterX) * 1.3) {
+      // Mostly vertical (top or bottom nodes)
+      leftPx = hsCx - tw/2;
+      topPx = (fromCenterY < 0) ? hsCy - th - gap : hsCy + gap;
+    } else {
+      // Side nodes — place beside the hotspot, further from center
+      if (fromCenterX < 0) {
+        // hotspot on left → tooltip to the left of hotspot
+        leftPx = hsCx - tw - gap;
+      } else {
+        leftPx = hsCx + gap;
+      }
+      topPx = hsCy - th/2;
+    }
+    // Clamp inside the wrap
+    leftPx = Math.max(6, Math.min(W - tw - 6, leftPx));
+    topPx  = Math.max(6, Math.min(H - th - 6, topPx));
+
+    tooltip.style.left = '0';
+    tooltip.style.top  = '0';
+    tooltip.style.setProperty('--tx', leftPx + 'px');
+    tooltip.style.setProperty('--ty', topPx + 'px');
+    tooltip.classList.add('is-shown');
+
+    hotspots.forEach(h => h.classList.toggle('is-active', h === hs));
+  }
+
+  function hideTip(){
+    activeKey = null;
+    tooltip.classList.remove('is-shown');
+    hotspots.forEach(h => h.classList.remove('is-active'));
+  }
+
+  hotspots.forEach(hs => {
+    hs.addEventListener('mouseenter', () => showTip(hs));
+    hs.addEventListener('focus', () => showTip(hs));
+    hs.addEventListener('mouseleave', (e) => {
+      // Only hide if not moving into the tooltip
+      const to = e.relatedTarget;
+      if (to && tooltip.contains(to)) return;
+      hideTip();
+    });
+    hs.addEventListener('blur', () => hideTip());
+  });
+
+  // Allow the cursor to pass into the tooltip without dismissing
+  tooltip.addEventListener('mouseenter', () => tooltip.classList.add('is-shown'));
+  tooltip.addEventListener('mouseleave', () => hideTip());
+
+  // Reposition on resize while shown
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    if (!activeKey) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const hs = wrap.querySelector(`.globe-hotspot[data-pf="${activeKey}"]`);
+      if (hs) showTip(hs);
+    }, 80);
+  });
+})();
+
+// ── ANIMATED GLOBE CANVAS ──
+(function(){
+  const canvas = document.getElementById('globeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 560, H = 560, CX = W/2, CY = H/2, R = 200;
+
+  // Continent dot clusters
+  const continentPoints = [];
+  const clusters = [
+    {cx:.12,cy:-.55,rx:.18,ry:.12,n:42},   // Europe
+    {cx:-.55,cy:-.4,rx:.22,ry:.2,n:55},    // N. America
+    {cx:-.38,cy:.3,rx:.14,ry:.22,n:38},    // S. America
+    {cx:.18,cy:.15,rx:.16,ry:.28,n:55},    // Africa
+    {cx:.5,cy:-.35,rx:.3,ry:.2,n:75},      // Asia
+    {cx:.65,cy:.05,rx:.12,ry:.12,n:28},    // SE Asia
+    {cx:.7,cy:.4,rx:.12,ry:.1,n:22},       // Australia
+  ];
+  clusters.forEach(c=>{
+    for(let i=0;i<c.n;i++){
+      const a = Math.random()*Math.PI*2;
+      const r = Math.random();
+      continentPoints.push([
+        c.cx + Math.cos(a)*r*c.rx,
+        c.cy + Math.sin(a)*r*c.ry
+      ]);
+    }
+  });
+
+  const nodeAngles = [
+    {a:-90, lbl:'CONVEXUS',  color:'#818CF8', icon:'cube'},
+    {a:-30, lbl:'CONVENTUS', color:'#F472B6', icon:'cal'},
+    {a: 30, lbl:'CONSULTUS', color:'#0BB8C4', icon:'users'},
+    {a: 90, lbl:'CONNECTUS', color:'#4ADE80', icon:'net'},
+    {a:150, lbl:'CONVERGENS',  color:'#A05CE6', icon:'shield'},
+    {a:210, lbl:'CONVENTLAB',  color:'#E0926E', icon:'flask'},
+  ];
+  const NR = R + 50;
+
+  function hexToRgba(hex, a){
+    const h = hex.replace('#','');
+    const r = parseInt(h.substring(0,2),16);
+    const g = parseInt(h.substring(2,4),16);
+    const b = parseInt(h.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function drawPlatformIcon(ctx, type, color){
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.6; ctx.lineCap='round'; ctx.lineJoin='round';
+    if(type==='cube'){
+      // Hexagon (Convexus)
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a = -Math.PI/2 + i*Math.PI/3;
+        const x = Math.cos(a)*8, y = Math.sin(a)*8;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(8,0); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0,0,1.5,0,Math.PI*2); ctx.fill();
+    } else if(type==='cal'){
+      // Calendar (Conventus)
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(-8,-7,16,15,2) : (ctx.rect(-8,-7,16,15));
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-8,-3); ctx.lineTo(8,-3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-4,-9); ctx.lineTo(-4,-5); ctx.moveTo(4,-9); ctx.lineTo(4,-5); ctx.stroke();
+      ctx.beginPath(); ctx.arc(-3,2,1,0,Math.PI*2); ctx.arc(3,2,1,0,Math.PI*2); ctx.fill();
+    } else if(type==='users'){
+      // Two heads (Consultus)
+      ctx.beginPath(); ctx.arc(-4,-3,2.6,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(4,-3,2.6,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-9,7); ctx.quadraticCurveTo(-9,1,-4,1); ctx.quadraticCurveTo(1,1,1,7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,7); ctx.quadraticCurveTo(0,1,4,1); ctx.quadraticCurveTo(9,1,9,7); ctx.stroke();
+    } else if(type==='net'){
+      // Connected dots (Connectus)
+      const pts = [[0,-7],[-7,0],[7,0],[0,7]];
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0],pts[0][1]); ctx.lineTo(pts[1][0],pts[1][1]);
+      ctx.moveTo(pts[0][0],pts[0][1]); ctx.lineTo(pts[2][0],pts[2][1]);
+      ctx.moveTo(pts[1][0],pts[1][1]); ctx.lineTo(pts[3][0],pts[3][1]);
+      ctx.moveTo(pts[2][0],pts[2][1]); ctx.lineTo(pts[3][0],pts[3][1]);
+      ctx.moveTo(pts[1][0],pts[1][1]); ctx.lineTo(pts[2][0],pts[2][1]);
+      ctx.stroke();
+      pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],2,0,Math.PI*2); ctx.fill(); });
+    } else if(type==='shield'){
+      // Shield with check (Convergens)
+      ctx.beginPath();
+      ctx.moveTo(0,-8); ctx.lineTo(7,-5); ctx.lineTo(7,1);
+      ctx.quadraticCurveTo(7,7,0,9);
+      ctx.quadraticCurveTo(-7,7,-7,1);
+      ctx.lineTo(-7,-5); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-3,0); ctx.lineTo(-1,2.5); ctx.lineTo(3.5,-2); ctx.stroke();
+    } else if(type==='flask'){
+      // Flask (Conventlab)
+      ctx.beginPath();
+      ctx.moveTo(-3,-8); ctx.lineTo(3,-8);
+      ctx.moveTo(-3,-8); ctx.lineTo(-3,-2);
+      ctx.moveTo(3,-8); ctx.lineTo(3,-2);
+      ctx.lineTo(7,7); ctx.quadraticCurveTo(7,9,5,9);
+      ctx.lineTo(-5,9); ctx.quadraticCurveTo(-7,9,-7,7);
+      ctx.lineTo(-3,-2);
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-5,3); ctx.lineTo(5,3); ctx.stroke();
+      ctx.beginPath(); ctx.arc(-2,6,0.9,0,Math.PI*2); ctx.arc(1.5,5,0.7,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  function isLight(){
+    return document.documentElement.getAttribute('data-theme') === 'light';
+  }
+  function palette(){
+    if (isLight()){
+      return {
+        outerGlow:['rgba(42,111,219,0.18)','rgba(42,111,219,0.05)','rgba(42,111,219,0)'],
+        globeBg:['rgba(220,232,250,0.85)','rgba(190,212,242,0.7)','rgba(170,196,236,0.6)'],
+        latLine:'rgba(42,111,219,0.18)',
+        meridian:'rgba(42,111,219,0.12)',
+        continent:(z)=>`rgba(14,33,72,${0.25 + z*0.5})`,
+        rim:'rgba(42,111,219,0.5)',
+        coreCore:['rgba(91,192,255,0.45)','rgba(42,111,219,0.18)','rgba(42,111,219,0)'],
+        cArcOuter:'#0E2148',
+        cArcMid:'#2A6FDB',
+        cArcInner:'#6FA8E6',
+        centerDot:'#0E2148',
+        podBg:'rgba(255,255,255,0.92)'
+      };
+    }
+    return {
+      outerGlow:['rgba(0,133,255,0.20)','rgba(0,133,255,0.06)','rgba(0,133,255,0)'],
+      globeBg:['rgba(27,58,126,0.55)','rgba(10,31,77,0.45)','rgba(3,8,28,0.65)'],
+      latLine:'rgba(91,192,255,0.16)',
+      meridian:'rgba(91,192,255,0.12)',
+      continent:(z)=>`rgba(120,200,255,${0.22 + z*0.6})`,
+      rim:'rgba(61,165,255,0.45)',
+      coreCore:['rgba(91,192,255,0.55)','rgba(61,165,255,0.22)','rgba(61,165,255,0)'],
+      cArcOuter:'rgba(255,255,255,1)',
+      cArcMid:'rgba(91,192,255,0.95)',
+      cArcInner:'rgba(61,165,255,0.85)',
+      centerDot:'#FFFFFF',
+      podBg:'rgba(5,12,28,0.95)'
+    };
+  }
+
+  let t = 0;
+
+  function draw(){
+    const P = palette();
+    ctx.clearRect(0,0,W,H);
+
+    // Outer glow
+    const grd = ctx.createRadialGradient(CX,CY,0,CX,CY,R+30);
+    grd.addColorStop(0, P.outerGlow[0]);
+    grd.addColorStop(.7, P.outerGlow[1]);
+    grd.addColorStop(1, P.outerGlow[2]);
+    ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(CX,CY,R+30,0,Math.PI*2); ctx.fill();
+
+    // Globe clip + bg
+    ctx.save();
+    ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.clip();
+
+    const gbg = ctx.createRadialGradient(CX-40,CY-40,0,CX,CY,R);
+    gbg.addColorStop(0, P.globeBg[0]);
+    gbg.addColorStop(.55, P.globeBg[1]);
+    gbg.addColorStop(1, P.globeBg[2]);
+    ctx.fillStyle=gbg; ctx.fillRect(0,0,W,H);
+
+    // Latitude rings
+    [-3,-2,-1,0,1,2,3].forEach(i=>{
+      const yOff = i * (R/3.5);
+      const rr = Math.sqrt(Math.max(0, R*R - yOff*yOff));
+      if(rr < 5) return;
+      ctx.beginPath();
+      ctx.ellipse(CX, CY+yOff, rr, rr*0.28, 0, 0, Math.PI*2);
+      ctx.strokeStyle = P.latLine; ctx.lineWidth=0.7; ctx.stroke();
+    });
+
+    // Rotating meridians
+    for(let i=0;i<6;i++){
+      const angle = (i/6)*Math.PI + t*0.0035;
+      ctx.save();
+      ctx.translate(CX,CY); ctx.rotate(angle);
+      ctx.beginPath(); ctx.ellipse(0,0,R*0.28,R,0,0,Math.PI*2);
+      ctx.strokeStyle = P.meridian; ctx.lineWidth=0.7; ctx.stroke();
+      ctx.restore();
+    }
+
+    // Continent dots (with slow rotation)
+    const rot = t*0.0035;
+    continentPoints.forEach(([nx,ny])=>{
+      const lon = nx * Math.PI + rot;
+      const lat = ny * Math.PI/2;
+      const cosLat = Math.cos(lat);
+      const x3d = cosLat * Math.cos(lon);
+      const y3d = Math.sin(lat);
+      const z3d = cosLat * Math.sin(lon);
+      if(z3d < -0.25) return;
+      const px = CX + x3d * R;
+      const py = CY - y3d * R;
+      const alpha = 0.22 + z3d * 0.6;
+      const size = 1.1 + z3d*0.9;
+      ctx.beginPath(); ctx.arc(px,py,size,0,Math.PI*2);
+      ctx.fillStyle = P.continent(z3d); ctx.fill();
+    });
+
+    ctx.restore();
+
+    // Globe rim
+    ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2);
+    ctx.strokeStyle = P.rim; ctx.lineWidth=1; ctx.stroke();
+
+    // Connection arcs to nodes
+    nodeAngles.forEach(n=>{
+      const rad = n.a * Math.PI/180;
+      const nx = CX + NR * Math.cos(rad);
+      const ny = CY + NR * Math.sin(rad);
+      const lg = ctx.createLinearGradient(CX,CY,nx,ny);
+      lg.addColorStop(0, hexToRgba(n.color, 0.55));
+      lg.addColorStop(1, hexToRgba(n.color, 0.05));
+      ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(nx,ny);
+      ctx.strokeStyle=lg; ctx.lineWidth=0.8; ctx.stroke();
+      const rx2 = CX + R * Math.cos(rad);
+      const ry2 = CY + R * Math.sin(rad);
+      const pulse = 2.5 + Math.sin(t*0.05 + n.a*0.1)*0.8;
+      ctx.beginPath(); ctx.arc(rx2,ry2,pulse,0,Math.PI*2);
+      ctx.fillStyle = hexToRgba(n.color, 0.9); ctx.fill();
+    });
+
+    // CENTER C LOGO
+    const CLR = 56;
+    const cg = ctx.createRadialGradient(CX,CY,0,CX,CY,CLR+34);
+    cg.addColorStop(0, P.coreCore[0]);
+    cg.addColorStop(.5, P.coreCore[1]);
+    cg.addColorStop(1, P.coreCore[2]);
+    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(CX,CY,CLR+34,0,Math.PI*2); ctx.fill();
+
+    // C arcs (concentric)
+    const startA = 30 * Math.PI/180;
+    const endA   = 330 * Math.PI/180;
+    [
+      [CLR,    P.cArcOuter, 3],
+      [CLR-15, P.cArcMid,   2.4],
+      [CLR-30, P.cArcInner, 2]
+    ].forEach(([r,col,lw])=>{
+      ctx.beginPath();
+      ctx.arc(CX,CY,r,startA,endA,false);
+      ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineCap='round'; ctx.stroke();
+    });
+    // Center dot
+    ctx.beginPath(); ctx.arc(CX,CY,5,0,Math.PI*2);
+    ctx.fillStyle = P.centerDot; ctx.fill();
+
+    // Node circles with platform mini-logos
+    nodeAngles.forEach(n=>{
+      const rad = n.a * Math.PI/180;
+      const nx = CX + NR * Math.cos(rad);
+      const ny = CY + NR * Math.sin(rad);
+
+      // Soft halo in platform color
+      ctx.beginPath(); ctx.arc(nx,ny,28,0,Math.PI*2);
+      const hg = ctx.createRadialGradient(nx,ny,0,nx,ny,28);
+      hg.addColorStop(0, hexToRgba(n.color, 0.35));
+      hg.addColorStop(1, hexToRgba(n.color, 0));
+      ctx.fillStyle=hg; ctx.fill();
+
+      // Pod
+      ctx.beginPath(); ctx.arc(nx,ny,22,0,Math.PI*2);
+      ctx.fillStyle = P.podBg; ctx.fill();
+      ctx.strokeStyle = hexToRgba(n.color, 0.85); ctx.lineWidth=1.4; ctx.stroke();
+
+      // Platform icon drawn inside pod, in platform color
+      ctx.save(); ctx.translate(nx,ny);
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.fillStyle = n.color;
+      ctx.lineWidth = 1.5; ctx.lineCap='round'; ctx.lineJoin='round';
+      drawPlatformIcon(ctx, n.icon, n.color);
+      ctx.restore();
+    });
+
+    t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- CONVENTLAB hero/deep-link script → platforms/conventlab.html -->
+
+<!-- CONVENTLAB Logic Chain TTX script → platforms/conventlab.html -->
+
+<!-- conventus interactive nodes script → platforms/conventus.html -->
+
+<!-- conventus calendar script → platforms/conventus.html -->
+
+<!-- conventus innovation continuum script → platforms/conventus.html -->
+
+<script>
+(function(){
+  var sm = document.getElementById('settingsMenu');
+  var sb = document.getElementById('settingsBtn');
+  if (sm && sb){
+    sb.addEventListener('click', function(e){ e.stopPropagation(); sm.classList.toggle('open'); });
+    document.addEventListener('click', function(e){ if(!e.target.closest('#settingsMenu')) sm.classList.remove('open'); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') sm.classList.remove('open'); });
+  }
+  var rm = document.getElementById('reduceMotionToggle');
+  if (rm){
+    var off = localStorage.getItem('conventity-motion-off')==='1';
+    rm.checked = off; document.documentElement.classList.toggle('motion-off', off);
+    rm.addEventListener('change', function(){
+      document.documentElement.classList.toggle('motion-off', rm.checked);
+      localStorage.setItem('conventity-motion-off', rm.checked?'1':'0');
+    });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var box=document.getElementById('ecoClocks'); if(!box) return;
+  var clocks=box.querySelectorAll('.eco-clock');
+  var here=document.getElementById('ecoClockHere');
+  if(here){ try{ var tz=Intl.DateTimeFormat().resolvedOptions().timeZone; here.dataset.tz=tz; here.querySelector('.ck-loc').textContent='◉ '+tz.split('/').pop().replace(/_/g,' ').toUpperCase(); }catch(e){ here.dataset.tz='UTC'; } }
+  var fmt; try{ fmt=localStorage.getItem('ecoClockFmt'); }catch(e){}
+  if(fmt!=='12'&&fmt!=='24') fmt='24';
+  function applyFmt(){ box.classList.toggle('is-12h', fmt==='12'); box.classList.toggle('is-24h', fmt!=='12'); }
+  applyFmt();
+  var btn=document.getElementById('ecoFmt');
+  if(btn){ btn.addEventListener('click', function(){ fmt=(fmt==='24'?'12':'24'); try{ localStorage.setItem('ecoClockFmt',fmt); }catch(e){} applyFmt(); upd(); }); }
+  function upd(){
+    var now=new Date();
+    var h12=(fmt==='12');
+    clocks.forEach(function(c){
+      var tz=c.dataset.tz; if(!tz) return;
+      try{
+        var parts=new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:h12,timeZone:tz}).formatToParts(now);
+        var m={}; parts.forEach(function(p){ m[p.type]=p.value; });
+        var tEl=c.querySelector('.ck-t'); if(tEl) tEl.textContent=m.hour+':'+m.minute+':'+m.second;
+        var mer=c.querySelector('.ck-mer');
+        if(mer){ var dp=(m.dayPeriod||'').toUpperCase(); mer.querySelectorAll('i').forEach(function(i){ i.classList.toggle('on', i.dataset.m===dp); }); }
+        var dEl=c.querySelector('.ck-d'); if(dEl) dEl.textContent=new Intl.DateTimeFormat('en-GB',{weekday:'short',timeZone:tz}).format(now)+' · '+tz.split('/').pop().replace(/_/g,' ');
+      }catch(e){}
+    });
+  }
+  upd(); setInterval(upd, 1000);
+})();
+</script>
+<script src="assets/image-slot.js"></script>
+<script src="assets/convexus-catalog.js"></script>
+<script src="assets/convexus-expo.js"></script>
+<script src="assets/magazine.js"></script>
+
+<template id="__bundler_thumbnail" data-bg-color="#F5F2EC">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect x="470" y="290" width="260" height="260" rx="58" fill="#0A1B33"></rect>
+    <path d="M 660 510 A 68 68 0 1 1 660 330" fill="none" stroke="#E2B65E" stroke-width="22" stroke-linecap="round"></path>
+    <circle cx="600" cy="420" r="29" fill="#27B0E6"></circle>
+  </svg>
+</template>
+
+<!-- ============== AUTH-AWARE NAV (Supabase) ============== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script>
+(function(){
+  if(!window.supabase){ return; }
+  var _sb = window.__cvSb || window.supabase.createClient(
+    window.__CV_SUPABASE_URL,
+    window.__CV_ANON_KEY
+  );
+  window.__cvSb = _sb;
+
+  // 1) Hijack every Login button → real sign-in page (kills the demo modal)
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-login]');
+    if(b){ e.preventDefault(); e.stopImmediatePropagation(); window.location.href='/login.html'; }
+  }, true);
+
+  // 2) Logged-in user chip + dropdown markup
+  function userChip(name){
+    var initial = (name.charAt(0)||'?').toUpperCase();
+    return ''
+      + '<div class="cv-user" style="position:relative;display:inline-flex;">'
+      +   '<button id="cvUserBtn" type="button" style="display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--line,rgba(10,27,51,0.15));border-radius:100px;padding:4px 10px 4px 4px;cursor:pointer;color:var(--ink,#0A1B33);font-family:inherit;font-size:13px;font-weight:600;">'
+      +     '<span style="width:26px;height:26px;border-radius:50%;background:var(--pf-convergens,#A05CE6);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;">'+initial+'</span>'
+      +     '<span>'+name+'</span>'
+      +     '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'
+      +   '</button>'
+      +   '<div id="cvUserMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:180px;background:var(--paper,#fff);border:1px solid var(--line,rgba(10,27,51,0.12));border-radius:12px;box-shadow:0 16px 44px -18px rgba(10,27,51,0.35);padding:6px;z-index:200;">'
+      +     '<a href="/dashboard/index.html" class="cv-mi">Dashboard</a>'
+      +     '<a href="/settings.html" class="cv-mi">Settings</a>'
+      +     '<div style="height:1px;background:var(--line,rgba(10,27,51,0.1));margin:4px 6px;"></div>'
+      +     '<button type="button" id="cvSignOut" class="cv-mi" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;color:#D14343;font-family:inherit;">Sign out</button>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  function wireChip(){
+    var btn = document.getElementById('cvUserBtn');
+    var menu = document.getElementById('cvUserMenu');
+    if(btn && menu){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        menu.style.display = (menu.style.display==='none') ? 'block' : 'none';
+      });
+      document.addEventListener('click', function(){ menu.style.display='none'; });
+    }
+    var out = document.getElementById('cvSignOut');
+    if(out){ out.addEventListener('click', async function(){ await _sb.auth.signOut(); window.location.reload(); }); }
+  }
+
+  // minimal menu-item style
+  var st = document.createElement('style');
+  st.textContent = '.cv-mi{display:block;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink,#0A1B33);text-decoration:none;transition:background .15s;}.cv-mi:hover{background:var(--line,rgba(10,27,51,0.06));}';
+  document.head.appendChild(st);
+
+  async function init(){
+    var res = await _sb.auth.getSession();
+    var session = res.data.session;
+    if(!session) return; // logged out → keep Login + Create account as-is
+    // Üyelik kapısı (canlı, geçici): oturum var ama üye değilse (ör. OAuth ile
+    // yeni açılmış ya da yalnız self-servis kayıtlı hesap) çıkışa zorla ve
+    // login'e mesajla geri yolla. Anonim ziyaretçi yukarıda erken döndü —
+    // landing herkese açık kalır. fail-closed: RPC hata/boş → erişim yok.
+    if(!(await window.cvGuardMember(_sb))) return;
+    var user = session.user;
+    var meta = user.user_metadata || {};
+    var name = meta.username || (user.email ? user.email.split('@')[0] : 'Account');
+
+    var desktop = document.getElementById('authNav');
+    if(desktop){ desktop.innerHTML = userChip(name); wireChip(); }
+
+    var drawer = document.getElementById('authDrawer');
+    if(drawer){
+      drawer.innerHTML = ''
+        + '<a class="btn btn-ghost" href="/dashboard/index.html" style="justify-content:center;">Dashboard</a>'
+        + '<a class="btn btn-ghost" href="/settings.html" style="justify-content:center;">Settings</a>'
+        + '<button class="btn btn-ghost" id="cvSignOutDrawer" style="justify-content:center;">Sign out</button>';
+      var od = document.getElementById('cvSignOutDrawer');
+      if(od){ od.addEventListener('click', async function(){ await _sb.auth.signOut(); window.location.reload(); }); }
+    }
+  }
+  init();
+})();
+</script>
+<script src="/assets/signin-log.js"></script>
+</body>
+</html>

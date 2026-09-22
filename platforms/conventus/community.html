@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-platform="conventus">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Community · Conventus · Conventity</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/tokens.css"/>
+<link rel="stylesheet" href="/assets/base.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<script src="/assets/cv-event-card.js"></script>
+<style>
+  .strip{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    text-align:center;padding:5px;color:var(--muted);background:var(--paper-2);border-bottom:1px solid var(--line)}
+  .bar{position:sticky;top:0;z-index:var(--z-nav);display:flex;align-items:center;gap:12px;padding:0 16px;
+    height:56px;border-bottom:1px solid var(--line);background:var(--nav-bg)}
+  .bar .back{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .bar .sp{flex:1}
+  .tbtn{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);
+    background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r-pill);padding:6px 12px}
+  .tbtn:hover{color:var(--pf);border-color:var(--pf)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:26px 16px 90px}
+  .hero{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;margin-bottom:8px}
+  .hero h1{font-size:clamp(2rem,5vw,3.4rem)}
+  .tagline{color:var(--ink-2);font-size:1.05rem;max-width:60ch;margin:4px 0 0}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}
+  .tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;color:var(--muted);
+    border:1px solid var(--line-2);border-radius:var(--r-pill);padding:3px 10px}
+  .joinbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .memberbadge{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--ok);
+    border:1px solid color-mix(in srgb,var(--ok) 40%,transparent);border-radius:var(--r-pill);padding:6px 14px}
+  section.blk{margin-top:34px}
+  .blk-h{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+  .blk-h h2{font-size:1.5rem}
+  .blk-h .eyebrow{margin-left:auto}
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .subs{display:flex;gap:10px;flex-wrap:wrap}
+  .subcard{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 16px;background:var(--paper);
+    text-decoration:none;color:var(--ink);min-width:180px}
+  .subcard:hover{border-color:var(--pf);text-decoration:none}
+  .subcard .n{font-weight:700}
+  .subcard .s{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+  .empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-md);font-size:13px}
+  .gate{max-width:460px;margin:12vh auto;text-align:center}
+  .gate h2{font-family:var(--font-display);font-weight:400;font-size:1.9rem;margin-bottom:8px}
+  .gate p{color:var(--muted);margin-bottom:18px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--paper);
+    border:1px solid var(--pf);color:var(--ink);padding:10px 18px;border-radius:var(--r-md);font-size:13px;
+    box-shadow:var(--shadow-2);opacity:0;transition:opacity .25s;pointer-events:none;z-index:1200}
+  .toast.on{opacity:1}.toast.bad{border-color:var(--danger)}
+</style>
+</head>
+<body>
+<div class="strip">Unclassified · Conventity · Conventus</div>
+<div class="bar">
+  <a class="back" href="/platforms/conventus/communities.html">← <span id="dirLbl">Communities</span></a>
+  <div class="sp"></div>
+  <button class="tbtn" id="langBtn">TR/EN</button>
+  <button class="tbtn" id="themeBtn">◐</button>
+</div>
+<div class="wrap" id="wrap"><div class="empty" id="boot">…</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_KEY=window.__CV_ANON_KEY;
+  var sb=window.cvClient();
+  window.__cvSb=sb;
+
+  var I18N={
+   tr:{ dir:'Topluluklar', notfound:'Topluluk bulunamadı', notfound_desc:'Bu bağlantı geçersiz ya da topluluk özel.',
+    events:'Etkinlikler', subs:'Alt Topluluklar', no_events:'Yaklaşan etkinlik yok.', no_subs:'Alt topluluk yok.',
+    join:'Katıl', join_req:'Katılım iste', join_invite:'Katılım davet ile', join_signin:'Giriş yaparak katıl',
+    member:'Üyesiniz', pending:'Başvurunuz beklemede', joined:'Katıldınız.', requested:'Katılım isteği gönderildi.',
+    manage:'Yönet', lvl2:'ALT',
+    st_draft:'Taslak', st_reg_soon:'Kayıt açılmadı', st_reg_open:'Kayıt açık', st_reg_closed:'Kayıt kapandı',
+    st_running:'Devam ediyor', st_done:'Tamamlandı', ec_cap:'kontenjan', ec_apps:'başvuru' },
+   en:{ dir:'Communities', notfound:'Community not found', notfound_desc:'This link is invalid or the community is private.',
+    events:'Events', subs:'Sub-communities', no_events:'No upcoming events.', no_subs:'No sub-communities.',
+    join:'Join', join_req:'Request to join', join_invite:'Join by invite only', join_signin:'Sign in to join',
+    member:'You are a member', pending:'Your request is pending', joined:'Joined.', requested:'Join request sent.',
+    manage:'Manage', lvl2:'SUB',
+    st_draft:'Draft', st_reg_soon:'Registration soon', st_reg_open:'Registration open', st_reg_closed:'Registration closed',
+    st_running:'In progress', st_done:'Completed', ec_cap:'seats', ec_apps:'applications' }
+  };
+  function lang(){ return (window.CVPrefs&&CVPrefs.getLang&&CVPrefs.getLang())||'en'; }
+  function T(k){ var d=I18N[lang()]||I18N.en; return d[k]!=null?d[k]:(I18N.en[k]!=null?I18N.en[k]:k); }
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var toastT; function toast(m,bad){ var t=$('#toast'); t.textContent=m; t.classList.toggle('bad',!!bad); t.classList.add('on');
+    clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('on');},2400); }
+
+  var SLUG=new URLSearchParams(location.search).get('slug');
+  var COM=null, EVENTS=[], SUBS=[], MYROLE=null, SESSION=null, CANMANAGE=false;
+
+  boot();
+  async function boot(){
+    if(!SLUG){ notFound(); return; }
+    var s=await sb.auth.getSession(); SESSION=(s.data&&s.data.session)||null;
+    var c=await sb.from('conventus_communities').select('*').eq('slug',SLUG).maybeSingle();
+    if(c.error||!c.data){ notFound(); return; }
+    COM=c.data;
+    var e=await sb.from('conventus_managed_events')
+      .select('id,code,title,activity_id,start_date,end_date,location,city,capacity,published,visibility,community_id')
+      .eq('community_id',COM.id);
+    EVENTS=(e.data||[]).filter(function(x){return x.published;});
+    var sub=await sb.from('conventus_communities').select('id,name,short_name,slug,visibility').eq('parent_id',COM.id).order('name');
+    SUBS=sub.data||[];
+    if(SESSION){
+      var mr=await sb.from('conventity_roles').select('id,role,status').eq('scope','community').eq('scope_id',COM.id)
+        .eq('auth_user_id',SESSION.user.id).limit(1);
+      MYROLE=(mr.data&&mr.data[0])||null;
+      var cm=await sb.rpc('conventity_can_manage_community',{p_cid:COM.id});
+      CANMANAGE=!cm.error&&!!cm.data;
+    }
+    render();
+  }
+  function notFound(){
+    $('#wrap').innerHTML='<div class="gate"><h2>'+esc(T('notfound'))+'</h2><p>'+esc(T('notfound_desc'))+'</p>'+
+      '<a class="btn btn-primary" href="/platforms/conventus/communities.html">'+esc(T('dir'))+'</a></div>';
+  }
+
+  function joinCta(){
+    if(CANMANAGE) return '<a class="btn btn-sm" href="/platforms/conventus/community-admin.html?id='+esc(COM.id)+'">'+esc(T('manage'))+' →</a>';
+    if(MYROLE){
+      if(MYROLE.status==='pending') return '<span class="memberbadge" style="color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)">'+esc(T('pending'))+'</span>';
+      return '<span class="memberbadge">'+esc(T('member'))+'</span>';
+    }
+    if(!SESSION) return '<a class="btn btn-primary" href="/login.html">'+esc(T('join_signin'))+'</a>';
+    if(COM.join_policy==='open')    return '<button class="btn btn-primary" id="joinBtn" data-mode="open">'+esc(T('join'))+'</button>';
+    if(COM.join_policy==='request') return '<button class="btn btn-primary" id="joinBtn" data-mode="request">'+esc(T('join_req'))+'</button>';
+    return '<span class="tag">'+esc(T('join_invite'))+'</span>';
+  }
+
+  function render(){
+    $('#dirLbl').textContent=T('dir');
+    var tags=[].concat(COM.domain||[]).concat(COM.focus_area||[]);
+    var html=''+
+      '<div class="hero"><div>'+
+        '<div class="eyebrow">'+(COM.level===2?esc(T('lvl2'))+' · ':'')+'conventus_communities</div>'+
+        '<h1>'+esc(COM.name)+(COM.short_name?' <span class="mono" style="font-size:.5em;color:var(--muted)">'+esc(COM.short_name)+'</span>':'')+'</h1>'+
+        (COM.tagline?'<p class="tagline">'+esc(COM.tagline)+'</p>':'')+
+        (tags.length?'<div class="chips">'+tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join('')+'</div>':'')+
+      '</div><div class="joinbox">'+joinCta()+'</div></div>';
+
+    html+='<section class="blk"><div class="blk-h"><h2>'+esc(T('events'))+'</h2><span class="eyebrow">'+EVENTS.length+'</span></div>';
+    if(!EVENTS.length){ html+='<div class="empty">'+esc(T('no_events'))+'</div>'; }
+    else{
+      html+='<div class="grid-cards">'+EVENTS.map(function(ev){
+        return window.CVEventCard.html(ev,{ t:T, accent:'var(--pf-conventus)',
+          href:'/platforms/conventus/programme.html?e='+encodeURIComponent(ev.code||'') });
+      }).join('')+'</div>';
+    }
+    html+='</section>';
+
+    if(COM.level!==2){
+      html+='<section class="blk"><div class="blk-h"><h2>'+esc(T('subs'))+'</h2><span class="eyebrow">'+SUBS.length+'</span></div>';
+      if(!SUBS.length){ html+='<div class="empty">'+esc(T('no_subs'))+'</div>'; }
+      else{
+        html+='<div class="subs">'+SUBS.map(function(s){
+          return '<a class="subcard" href="?slug='+encodeURIComponent(s.slug)+'"><div class="n">'+esc(s.name)+'</div>'+
+            (s.short_name?'<div class="s">'+esc(s.short_name)+'</div>':'')+'</a>';
+        }).join('')+'</div>';
+      }
+      html+='</section>';
+    }
+    $('#wrap').innerHTML=html;
+    var jb=$('#joinBtn'); if(jb) jb.addEventListener('click',function(){ doJoin(jb.getAttribute('data-mode')); });
+  }
+
+  async function doJoin(mode){
+    if(!SESSION) return;
+    var st=mode==='request'?'pending':'active';
+    var res=await sb.from('conventity_roles').insert({auth_user_id:SESSION.user.id,scope:'community',
+      scope_id:COM.id,role:'member',status:st});
+    if(res.error){ toast(res.error.message,true); return; }
+    toast(mode==='request'?T('requested'):T('joined'));
+    MYROLE={role:'member',status:st}; render();
+  }
+
+  $('#langBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleLang(); });
+  $('#themeBtn').addEventListener('click',function(){ if(window.CVPrefs) CVPrefs.toggleTheme(); });
+  if(window.CVPrefs&&CVPrefs.onChange) CVPrefs.onChange(function(w){ if(w==='lang'&&COM) render(); });
+})();
+</script>
+</body>
+</html>

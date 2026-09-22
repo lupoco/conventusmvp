@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ayarlar · Conventity</title>
+
+  <link rel="stylesheet" href="/assets/tokens.css" />
+  <link rel="stylesheet" href="/assets/nav.css" />
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="/assets/prefs.js"></script>
+
+  <style>
+    body { margin: 0; font-family: var(--font-body); background: var(--page-bg); color: var(--ink);
+           transition: background .2s var(--ease), color .2s var(--ease); }
+    .page { max-width: 760px; margin: 0 auto; padding: var(--sp-7) var(--sp-5); }
+    h1 { font-family: var(--font-display); font-size: 40px; font-weight: 400; margin: 0 0 var(--sp-2); }
+    .lede { color: var(--ink-soft); font-size: 16px; margin: 0 0 var(--sp-7); }
+
+    .row {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5);
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+      padding: var(--sp-5); margin-bottom: var(--sp-4);
+    }
+    .row__t { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+    .row__d { color: var(--ink-muted); font-size: 13px; margin: 0; max-width: 42ch; }
+
+    /* Segmented control */
+    .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line);
+           border-radius: var(--r-pill); padding: 3px; flex-shrink: 0; }
+    .seg button {
+      font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 0; background: none; color: var(--ink-soft);
+      padding: var(--sp-2) var(--sp-4); border-radius: var(--r-pill);
+      transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+    }
+    .seg button:hover { color: var(--ink); }
+    .seg button.is-active { background: var(--accent); color: #fff; }
+    [data-theme="dark"] .seg button.is-active { color: var(--navy); }
+
+    .acc { display: flex; align-items: center; gap: var(--sp-3); }
+    .acc__av { width: 40px; height: 40px; border-radius: var(--r-pill); background: var(--accent);
+               color: #fff; display: grid; place-items: center; font-weight: 800; }
+    [data-theme="dark"] .acc__av { color: var(--navy); }
+    .acc__mail { font-weight: 600; font-size: 14px; }
+    .acc__state { color: var(--ink-muted); font-size: 13px; }
+    .btn { font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none;
+           padding: var(--sp-2) var(--sp-4); border-radius: var(--r-sm); border: 1px solid var(--line);
+           background: var(--surface-2); color: var(--ink); }
+    .btn:hover { border-color: var(--accent); }
+
+    @media (max-width: 560px) {
+      .row { flex-direction: column; align-items: stretch; }
+      .seg { align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="cv-nav" data-platform="conventity" data-page="settings"></header>
+
+  <main class="page">
+    <h1 data-i18n="set.title">Ayarlar</h1>
+    <p class="lede" data-i18n="set.lede">Görünüm, dil ve hesap tercihlerin tek yerde.</p>
+
+    <!-- Appearance -->
+    <div class="row">
+      <div>
+        <p class="row__t" data-i18n="set.appearance">Görünüm</p>
+        <p class="row__d" data-i18n="set.appearance_d">Arayüzün açık mı koyu mu görüneceğini seç.</p>
+      </div>
+      <div class="seg" id="segTheme" role="group" aria-label="Theme">
+        <button data-theme-val="system" data-i18n="set.theme.system">Sistem</button>
+        <button data-theme-val="light"  data-i18n="set.theme.light">Açık</button>
+        <button data-theme-val="dark"   data-i18n="set.theme.dark">Koyu</button>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="row">
+      <div>
+        <p class="row__t" data-i18n="set.language">Dil</p>
+        <p class="row__d" data-i18n="set.language_d">Arayüz dilini seç. Tercih tarayıcında saklanır.</p>
+      </div>
+      <div class="seg" id="segLang" role="group" aria-label="Language">
+        <button data-lang-val="tr">Türkçe</button>
+        <button data-lang-val="en">English</button>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <div class="row">
+      <div>
+        <p class="row__t" data-i18n="set.account">Hesap</p>
+        <p class="row__d" data-i18n="set.account_d">Oturum ve hesap bilgilerin.</p>
+      </div>
+      <div id="accBox" class="acc">
+        <span class="acc__state" data-i18n="set.signedout">Şu an giriş yapılmadı.</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/cv-core.js"></script>
+  <script>
+    if (window.supabase && !window.__cvSb) {
+      window.__cvSb = window.supabase.createClient(
+        window.__CV_SUPABASE_URL,
+        window.__CV_ANON_KEY
+      );
+    }
+  </script>
+  <script src="/assets/i18n.js"></script>
+  <script src="/assets/routes.js"></script>
+  <script src="/assets/nav.js" defer></script>
+
+  <!-- Page logic: wire the segmented controls to CVPrefs -->
+  <script>
+    (function () {
+      var P = window.CVPrefs, I = window.CVI18N, R = window.CV_ROUTES;
+
+      function paintTheme() {
+        var cur = P ? P.getTheme() : 'system';
+        document.querySelectorAll('#segTheme button').forEach(function (b) {
+          b.classList.toggle('is-active', b.getAttribute('data-theme-val') === cur);
+        });
+      }
+      function paintLang() {
+        var cur = P ? P.getLang() : 'tr';
+        document.querySelectorAll('#segLang button').forEach(function (b) {
+          b.classList.toggle('is-active', b.getAttribute('data-lang-val') === cur);
+        });
+      }
+
+      document.getElementById('segTheme').addEventListener('click', function (e) {
+        var v = e.target.getAttribute('data-theme-val'); if (v && P) P.setTheme(v);
+      });
+      document.getElementById('segLang').addEventListener('click', function (e) {
+        var v = e.target.getAttribute('data-lang-val'); if (v && P) P.setLang(v);
+      });
+
+      // keep segments synced if the nav toggles change them
+      if (P) P.onChange(function () { paintTheme(); paintLang(); });
+      paintTheme(); paintLang();
+
+      // account section
+      function initials(s){ s=String(s||'').trim(); if(!s)return '?';
+        var p=s.split(/[\s@._-]+/).filter(Boolean); return ((p[0]?p[0][0]:s[0])+(p[1]?p[1][0]:'')).toUpperCase(); }
+      function t(k,f){ return I ? I.t(k,f) : f; }
+
+      function renderAccount(user) {
+        var box = document.getElementById('accBox');
+        if (user) {
+          var m = user.user_metadata || {};
+          var label = m.username || m.full_name || m.name || user.email || 'Account';
+          box.innerHTML =
+            '<span class="acc__av">' + initials(label) + '</span>' +
+            '<div><div class="acc__mail">' + (user.email || label) + '</div>' +
+              '<div class="acc__state">' + t('set.signedin_as','Signed in as') + '</div></div>' +
+            '<button class="btn" id="soBtn" style="margin-left:auto">' + t('set.signout','Sign out') + '</button>';
+          document.getElementById('soBtn').addEventListener('click', function () {
+            if (window.__cvSb) window.__cvSb.auth.signOut().then(function(){ location.reload(); });
+          });
+        } else {
+          box.innerHTML =
+            '<span class="acc__state">' + t('set.signedout','You are not signed in.') + '</span>' +
+            '<a class="btn" style="margin-left:auto" href="' + (R?R.auth.login:'/login.html') + '">' +
+              t('set.login','Log in') + '</a>';
+        }
+      }
+
+      if (window.__cvSb && window.__cvSb.auth) {
+        window.__cvSb.auth.getUser().then(async function (res) {
+          var user = res && res.data && res.data.user;
+          // Üyelik guard'ı (canlı, geçici): oturum var ama üye değilse çıkışa zorla.
+          // fail-closed: RPC hata/boş → erişim yok.
+          if (user) {
+            if (!(await window.cvGuardMember(window.__cvSb))) return;
+          }
+          renderAccount(user);
+        }).catch(function () { renderAccount(null); });
+      } else { renderAccount(null); }
+
+      // retranslate account section when language changes
+      if (P) P.onChange(function (what) {
+        if (what === 'lang' && window.__cvSb) {
+          window.__cvSb.auth.getUser().then(function (res) { renderAccount(res && res.data && res.data.user); });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

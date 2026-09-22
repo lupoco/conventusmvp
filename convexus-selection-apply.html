@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Convexus · Selection · Apply</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-soft:rgba(0,73,144,.08); --pf-line:rgba(0,73,144,.3);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --gold:#E2B65E; --ok:#1E8E5A; --warn:#B7791F; --err:#C0392B;
+}
+body[data-dark]{
+  --pf:#5B92D6; --pf-soft:rgba(91,146,214,.12); --pf-line:rgba(91,146,214,.35);
+  --bg:#141B2B; --paper:#1C2436; --paper2:#212A3E;
+  --ink:#E8ECF5; --ink2:#C4CCDE; --muted:#8B97B4;
+  --line:#2C3650; --line2:#38435F;
+  --gold:#E2B65E; --ok:#3FBE7E; --warn:#D9A441; --err:#E06A5C;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh;transition:background .2s,color .2s}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 1.3rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:8px;font:600 12px 'Manrope';color:var(--muted)}
+.crumbs a{color:var(--pf);text-decoration:none}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font:700 10px 'JetBrains Mono';letter-spacing:.1em}
+.bar-right{display:flex;align-items:center;gap:6px}
+.mini{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;font:700 11px 'Manrope';color:var(--muted);transition:.15s}
+.mini:hover{border-color:var(--pf);color:var(--pf)}
+.mini.on{border-color:var(--pf);color:var(--pf);background:var(--pf-soft)}
+.langs{display:flex;gap:3px}
+.wrap{max-width:760px;margin:0 auto;padding:1.4rem 1rem 6rem}
+.eyebrow{display:inline-flex;gap:6px;font:700 11px 'Manrope';letter-spacing:.16em;text-transform:uppercase;color:var(--pf);margin-bottom:.5rem}
+h1{font:400 32px 'Instrument Serif',serif;line-height:1.12;margin:0 0 .25rem}
+h1 em{font-style:italic;color:var(--pf)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 1rem;line-height:1.6}
+.metabar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+.chip{font:600 11px 'JetBrains Mono';border:1px solid var(--line);border-radius:100px;padding:.25rem .7rem;color:var(--muted);background:var(--paper)}
+.chip b{color:var(--pf)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.1rem;margin-bottom:1rem}
+.sec{font:700 11px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--pf);margin:0 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--line)}
+.fl{margin-bottom:.9rem}
+label{display:flex;align-items:center;gap:.35rem;font:600 11px 'Manrope';color:var(--ink2);margin-bottom:.3rem}
+.req{color:var(--err);font-weight:700}
+.iq{width:15px;height:15px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font:700 10px 'Manrope';display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s;user-select:none}
+.iq:hover{border-color:var(--pf);color:var(--pf)}
+.iq.on{background:var(--pf);color:#fff;border-color:var(--pf)}
+.info{display:none;margin:0 0 .5rem;padding:.5rem .7rem;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:9px;font-size:12px;line-height:1.55;color:var(--ink2)}
+.info.show{display:block}
+.info b{color:var(--pf)}
+input[type=text],input[type=number],input[type=email],input[type=url],select,textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:400 14px 'Manrope',sans-serif}
+body[data-dark] input,body[data-dark] select,body[data-dark] textarea{background:var(--paper2)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pf)}
+textarea{min-height:76px;resize:vertical}
+.bool{display:flex;gap:.5rem}
+.bool button{flex:1;padding:.55rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--muted);font:600 13px 'Manrope';cursor:pointer;transition:.15s}
+body[data-dark] .bool button{background:var(--paper2)}
+.bool button.on{border-color:var(--pf);background:var(--pf);color:#fff}
+.multi{display:flex;flex-wrap:wrap;gap:.4rem}
+.opt{padding:.4rem .7rem;border:1px solid var(--line);border-radius:100px;background:var(--paper);color:var(--muted);font:600 12px 'Manrope';cursor:pointer;transition:.15s}
+body[data-dark] .opt{background:var(--paper2)}
+.opt.on{border-color:var(--pf);background:var(--pf-soft);color:var(--pf)}
+.needbox{border:1px solid var(--line);border-radius:11px;padding:.8rem;margin-bottom:.6rem;background:var(--bg)}
+.needbox .nh{display:flex;align-items:center;gap:.5rem;justify-content:space-between;margin-bottom:.5rem}
+.needbox .nt{font-weight:700;font-size:13.5px}
+.needbox .nd{font-size:11.5px;color:var(--muted);margin-bottom:.5rem}
+.critline{display:grid;grid-template-columns:1fr auto;gap:.5rem;align-items:center;margin-bottom:.4rem;font-size:12.5px}
+.critline .cl{color:var(--ink2)}
+.critline .want{font:600 10.5px 'JetBrains Mono';color:var(--muted)}
+.critline input{max-width:130px;padding:.35rem .5rem}
+.matrow{display:grid;grid-template-columns:130px 1fr auto;gap:.5rem;margin-bottom:.4rem;align-items:center}
+@media(max-width:560px){.matrow{grid-template-columns:1fr}}
+.matrow input,.matrow select{padding:.4rem .5rem;font-size:13px}
+.btn{background:var(--pf);color:#fff;border:none;border-radius:9px;padding:.65rem 1.2rem;font:700 13px 'Manrope';cursor:pointer;transition:.15s}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--pf);border:1px solid var(--pf)}
+.btn.sm{padding:.35rem .7rem;font-size:11.5px;border-radius:7px}
+.btn.dan{background:transparent;color:var(--err);border:1px solid var(--err)}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.msg{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1rem;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.msg.on{opacity:1}
+.hidden{display:none!important}
+.state{max-width:520px;margin:4rem auto;text-align:center}
+.state .big{font:400 40px 'Instrument Serif',serif;color:var(--pf);margin-bottom:.4rem}
+.done{max-width:520px;margin:4rem auto;text-align:center}
+.done .tick{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.aihint{display:flex;gap:.6rem;align-items:flex-start;background:var(--pf-soft);border:1px solid var(--pf-line);border-radius:11px;padding:.7rem .9rem;margin-bottom:1rem;font-size:12.5px;color:var(--ink2)}
+.aihint b{color:var(--pf)}
+.err-txt{color:var(--err);font-size:11.5px;margin-top:.25rem;display:none}
+.fl.invalid .err-txt{display:block}
+.fl.invalid input,.fl.invalid textarea,.fl.invalid select{border-color:var(--err)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="crumbs"><span class="badge" data-i18n="eng">SELECTION</span><span id="crumbEv" style="color:var(--muted)"></span></div>
+  <div class="bar-right">
+    <div class="langs">
+      <button class="mini lg" data-lg="en">EN</button><button class="mini lg" data-lg="tr">TR</button>
+      <button class="mini lg" data-lg="fr">FR</button><button class="mini lg" data-lg="de">DE</button>
+    </div>
+    <button class="mini" id="themeBtn">🌙</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="loading" class="state"><div class="big">…</div><p class="sub" data-i18n="loading">Loading the call…</p></div>
+
+  <div id="closed" class="state hidden">
+    <div class="big">✕</div>
+    <h1 data-i18n="closed_h">This call is <em>not open</em></h1>
+    <p class="sub" data-i18n="closed_s">Applications are not being accepted at this time.</p>
+  </div>
+
+  <div id="form" class="hidden">
+    <div class="eyebrow" data-i18n="eyebrow">Convexus · Application</div>
+    <h1 id="evTitle">—</h1>
+    <p class="sub" id="evDesc"></p>
+    <div class="metabar" id="metabar"></div>
+
+    <div class="aihint">
+      <span>✨</span><span data-i18n="ai_hint"><b>Tip:</b> Paste your website below and we'll pre-fill parts of this form for you to review. You stay in control — nothing is submitted until you press Submit.</span>
+    </div>
+    <div class="card">
+      <div class="row">
+        <input type="url" id="aiUrl" placeholder="https://yourcompany.com" style="flex:1;min-width:180px">
+        <button class="btn ghost" id="aiBtn" data-i18n="ai_btn">✨ Pre-fill</button>
+      </div>
+      <p class="sub" id="aiStatus" style="margin:.5rem 0 0"></p>
+    </div>
+
+    <div id="sections"></div>
+
+    <div class="card" style="position:sticky;bottom:0">
+      <div class="row" style="justify-content:space-between">
+        <span id="reqNote" class="sub" style="margin:0"></span>
+        <button class="btn" id="submitBtn" data-i18n="submit">Submit application</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="done" class="done hidden">
+    <div class="tick">✓</div>
+    <h1 data-i18n="done_h">Application <em>received</em></h1>
+    <p class="sub" id="doneMsg"></p>
+  </div>
+</div>
+<div class="msg" id="msg"></div>
+
+<script>
+(function(){
+'use strict';
+var I18N={
+ en:{eng:"SELECTION",eyebrow:"Convexus · Application",loading:"Loading the call…",closed_h:'This call is <em>not open</em>',closed_s:"Applications are not being accepted at this time.",ai_hint:"<b>Tip:</b> Paste your website below and we'll pre-fill parts of this form for you to review. You stay in control — nothing is submitted until you press Submit.",ai_btn:"✨ Pre-fill",ai_working:"Reading your site…",ai_done:"Pre-filled — please review every field before submitting.",ai_fail:"Couldn't read that site. Please fill the form manually.",submit:"Submit application",done_h:'Application <em>received</em>',done_s:"Thank you. The organiser will review your submission. Reference:",yes:"Yes",no:"No",req_note:"Fields marked * are required.",missing:"Please complete the required fields.",need_sel:"Select the challenge areas you address:",primary_q:"Which is your PRIMARY area? (choose one)",crit_want:"Target",saving:"Submitting…",add_link:"+ Add link",mat_label:"Label",mat_url:"Link (URL)",submitted_ok:"Submitted",err_generic:"Something went wrong. Please try again."},
+ tr:{eng:"SEÇİM",eyebrow:"Convexus · Başvuru",loading:"Çağrı yükleniyor…",closed_h:'Bu çağrı <em>açık değil</em>',closed_s:"Şu anda başvuru alınmıyor.",ai_hint:"<b>İpucu:</b> Web sitenizi aşağıya yapıştırın, formun bir kısmını sizin için önceden dolduralım — siz gözden geçirin. Kontrol sizde; Gönder'e basana kadar hiçbir şey iletilmez.",ai_btn:"✨ Ön-doldur",ai_working:"Siteniz okunuyor…",ai_done:"Ön-dolduruldu — göndermeden önce her alanı kontrol edin.",ai_fail:"Site okunamadı. Lütfen formu elle doldurun.",submit:"Başvuruyu gönder",done_h:'Başvuru <em>alındı</em>',done_s:"Teşekkürler. Organizatör başvurunuzu değerlendirecek. Referans:",yes:"Evet",no:"Hayır",req_note:"* işaretli alanlar zorunludur.",missing:"Lütfen zorunlu alanları doldurun.",need_sel:"Cevap verdiğiniz challenge alanlarını seçin:",primary_q:"ANA alanınız hangisi? (bir tane seçin)",crit_want:"Hedef",saving:"Gönderiliyor…",add_link:"+ Link ekle",mat_label:"Etiket",mat_url:"Link (URL)",submitted_ok:"Gönderildi",err_generic:"Bir şeyler ters gitti. Lütfen tekrar deneyin."},
+ fr:{eng:"SÉLECTION",eyebrow:"Convexus · Candidature",loading:"Chargement de l'appel…",closed_h:"Cet appel n'est <em>pas ouvert</em>",closed_s:"Les candidatures ne sont pas acceptées actuellement.",ai_hint:"<b>Astuce :</b> Collez votre site web ci-dessous et nous préremplirons une partie du formulaire à vérifier. Vous gardez le contrôle — rien n'est envoyé avant que vous cliquiez sur Envoyer.",ai_btn:"✨ Pré-remplir",ai_working:"Lecture de votre site…",ai_done:"Pré-rempli — vérifiez chaque champ avant l'envoi.",ai_fail:"Impossible de lire ce site. Remplissez le formulaire manuellement.",submit:"Envoyer la candidature",done_h:'Candidature <em>reçue</em>',done_s:"Merci. L'organisateur examinera votre candidature. Référence :",yes:"Oui",no:"Non",req_note:"Les champs marqués * sont obligatoires.",missing:"Veuillez remplir les champs obligatoires.",need_sel:"Sélectionnez les domaines que vous traitez :",primary_q:"Quel est votre domaine PRINCIPAL ? (un seul)",crit_want:"Cible",saving:"Envoi…",add_link:"+ Ajouter un lien",mat_label:"Libellé",mat_url:"Lien (URL)",submitted_ok:"Envoyé",err_generic:"Une erreur s'est produite. Réessayez."},
+ de:{eng:"AUSWAHL",eyebrow:"Convexus · Bewerbung",loading:"Aufruf wird geladen…",closed_h:'Dieser Aufruf ist <em>nicht offen</em>',closed_s:"Derzeit werden keine Bewerbungen angenommen.",ai_hint:"<b>Tipp:</b> Fügen Sie Ihre Website unten ein, und wir füllen Teile des Formulars zur Überprüfung vor. Sie behalten die Kontrolle — nichts wird gesendet, bis Sie auf Senden klicken.",ai_btn:"✨ Vorausfüllen",ai_working:"Ihre Website wird gelesen…",ai_done:"Vorausgefüllt — bitte prüfen Sie jedes Feld vor dem Senden.",ai_fail:"Website konnte nicht gelesen werden. Bitte manuell ausfüllen.",submit:"Bewerbung senden",done_h:'Bewerbung <em>erhalten</em>',done_s:"Danke. Der Veranstalter prüft Ihre Bewerbung. Referenz:",yes:"Ja",no:"Nein",req_note:"Mit * markierte Felder sind Pflicht.",missing:"Bitte füllen Sie die Pflichtfelder aus.",need_sel:"Wählen Sie die Bereiche, die Sie abdecken:",primary_q:"Was ist Ihr HAUPTbereich? (einen wählen)",crit_want:"Ziel",saving:"Senden…",add_link:"+ Link hinzufügen",mat_label:"Bezeichnung",mat_url:"Link (URL)",submitted_ok:"Gesendet",err_generic:"Etwas ist schiefgelaufen. Bitte erneut versuchen."}
+};
+var LANG=localStorage.getItem('cv-lang')||'en';if(!I18N[LANG])LANG='en';
+function T(k){return (I18N[LANG]&&I18N[LANG][k]!=null)?I18N[LANG][k]:(I18N.en[k]||k);}
+function lbl(f){ // alan etiketi: seçili dile göre
+  if(LANG==='tr')return f.label_tr||f.label_en||f.field_key;
+  return f.label_en||f.label_tr||f.field_key;
+}
+function help(f){ return (LANG==='tr'?(f.help_tr||f.help_en):(f.help_en||f.help_tr))||''; }
+function optLabel(o){ return (LANG==='tr'?(o.label_tr||o.label_en):(o.label_en||o.label_tr))||o.value; }
+
+var dark=localStorage.getItem('cn-dark')==='1';
+function applyDark(){document.body.toggleAttribute('data-dark',dark);document.getElementById('themeBtn').textContent=dark?'☀️':'🌙';}
+
+var SB_URL=window.__CV_SUPABASE_URL;
+var SB_KEY=window.__CV_ANON_KEY;
+var sb=window.cvClient();
+var $=function(id){return document.getElementById(id);};
+
+// hangi field_key gerçek kolon? gerisi raw_intake'e gider
+var REAL_COLS={company_name:1,registration_country:1,country:1,org_type:1,contact_name:1,contact_email:1,
+  contact_phone:1,website:1,contact_role:1,system_name:1,trl_demo:1,trl_claimed_range:1,artifact_class:1,
+  domain_axis:1,isc_domain:1,isc_pilot_area:1,validation_tier:1,validation_detail:1,use_case:1,
+  integration_path:1,integration_standards:1,integration_detail:1,interoperability_note:1,
+  diana_backed:1,nif_backed:1,certifications:1,spectrum_required:1,spectrum_bands:1,spectrum_detail:1,
+  personnel_count:1,personnel_nationalities:1,cost_coverage:1,data_sharing_consent:1,data_sharing_level:1,
+  foci_flag:1,foci_detail:1,summary:1};
+var NUM_COLS={trl_demo:1,personnel_count:1};
+var BOOL_COLS={integration_path:1,diana_backed:1,nif_backed:1,spectrum_required:1,data_sharing_consent:1,foci_flag:1};
+var ARR_COLS={integration_standards:1,spectrum_bands:1,personnel_nationalities:1,certifications:1};
+
+var EV=null,NEEDS=[],FIELDS=[],VAL={},NEEDSEL={},NEEDPRIMARY=null,MATERIALS=[],CRITVAL={};
+var SECN={identity:{en:'Identity',tr:'Kimlik',fr:'Identité',de:'Identität'},system:{en:'System',tr:'Sistem',fr:'Système',de:'System'},evidence:{en:'Evidence',tr:'Kanıt',fr:'Preuve',de:'Nachweis'},logistics:{en:'Logistics',tr:'Lojistik',fr:'Logistique',de:'Logistik'},materials:{en:'Materials',tr:'Materyal',fr:'Documents',de:'Material'},custom:{en:'Additional',tr:'Ek',fr:'Complément',de:'Zusätzlich'}};
+function secName(s){return (SECN[s]&&SECN[s][LANG])||s;}
+
+function toast(t,c){var m=$('msg');m.textContent=t;m.style.background=c||'var(--ink)';m.classList.add('on');clearTimeout(m._h);m._h=setTimeout(function(){m.classList.remove('on');},2600);}
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+function qs(){var o={},p=(location.search||'').replace(/^\?/,'').split('&');p.forEach(function(kv){var x=kv.split('=');if(x[0])o[decodeURIComponent(x[0])]=decodeURIComponent(x[1]||'');});return o;}
+
+document.addEventListener('click',function(e){var q=e.target.closest('.iq');if(q){var box=q.closest('label').nextElementSibling;if(box&&box.classList.contains('info')){var open=box.classList.toggle('show');q.classList.toggle('on',open);}}});
+
+/* -------- dinamik alan render -------- */
+function fieldHtml(f){
+  var id='fld_'+f.field_key, hp=help(f);
+  var req=f.is_required?' <span class="req">*</span>':'';
+  var head='<label>'+esc(lbl(f))+req+(hp?' <span class="iq">?</span>':'')+'</label>'+(hp?'<div class="info">'+hp+'</div>':'');
+  var v=VAL[f.field_key];
+  var t=f.input_type;
+
+  if(t==='textarea')return head+'<textarea id="'+id+'" data-k="'+f.field_key+'">'+esc(v||'')+'</textarea>';
+  if(t==='number')return head+'<input type="number" id="'+id+'" data-k="'+f.field_key+'" value="'+esc(v||'')+'">';
+  if(t==='url')return head+'<input type="url" id="'+id+'" data-k="'+f.field_key+'" value="'+esc(v||'')+'" placeholder="https://">';
+  if(t==='country')return head+'<input type="text" id="'+id+'" data-k="'+f.field_key+'" value="'+esc(v||'')+'" placeholder="LV" maxlength="3" style="text-transform:uppercase">';
+  if(t==='trl')return head+'<select id="'+id+'" data-k="'+f.field_key+'"><option value="">—</option>'+[1,2,3,4,5,6,7,8,9].map(function(n){return '<option value="'+n+'"'+(String(v)===String(n)?' selected':'')+'>TRL '+n+'</option>';}).join('')+'</select>';
+  if(t==='boolean'){var yes=v===true||v==='true';var no=v===false||v==='false';
+    return head+'<div class="bool" data-k="'+f.field_key+'"><button type="button" data-v="true" class="'+(yes?'on':'')+'">'+T('yes')+'</button><button type="button" data-v="false" class="'+(no?'on':'')+'">'+T('no')+'</button></div>';}
+  if(t==='select'){var opts=(f.options||[]);
+    return head+'<select id="'+id+'" data-k="'+f.field_key+'"><option value="">—</option>'+opts.map(function(o){return '<option value="'+esc(o.value)+'"'+(v===o.value?' selected':'')+'>'+esc(optLabel(o))+'</option>';}).join('')+'</select>';}
+  if(t==='multiselect'){var arr=Array.isArray(v)?v:[];var opts2=(f.options||[]);
+    if(!opts2.length)return head+'<input type="text" id="'+id+'" data-k="'+f.field_key+'" value="'+esc(arr.join(', '))+'" placeholder="a, b, c">';
+    return head+'<div class="multi" data-k="'+f.field_key+'" data-multi="1">'+opts2.map(function(o){return '<span class="opt'+(arr.indexOf(o.value)>=0?' on':'')+'" data-v="'+esc(o.value)+'">'+esc(optLabel(o))+'</span>';}).join('')+'</div>';}
+  if(t==='file'){ // materyal: link listesi
+    return head+'<div id="matbox"></div><button type="button" class="btn ghost sm" id="matAdd" style="margin-top:.4rem">'+T('add_link')+'</button>';}
+  // default text
+  return head+'<input type="text" id="'+id+'" data-k="'+f.field_key+'" value="'+esc(v||'')+'">';
+}
+
+function renderMaterials(){
+  var box=$('matbox');if(!box)return;
+  box.innerHTML=MATERIALS.map(function(m,i){
+    return '<div class="matrow"><select data-mi="'+i+'" data-mk="kind">'+
+      [['pitch_deck','Pitch deck'],['demo_video','Demo video'],['tech_doc','Tech doc'],['brochure','Brochure'],['reference','Reference'],['test_report','Test report'],['other','Other']].map(function(o){return '<option value="'+o[0]+'"'+(m.kind===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+
+      '</select><input type="url" data-mi="'+i+'" data-mk="url" value="'+esc(m.url||'')+'" placeholder="'+T('mat_url')+'"><button type="button" class="btn dan sm" data-mdel="'+i+'">×</button></div>';
+  }).join('');
+  box.querySelectorAll('[data-mi]').forEach(function(el){el.oninput=el.onchange=function(){MATERIALS[+el.dataset.mi][el.dataset.mk]=el.value;};});
+  box.querySelectorAll('[data-mdel]').forEach(function(b){b.onclick=function(){MATERIALS.splice(+b.dataset.mdel,1);renderMaterials();};});
+}
+
+function renderNeeds(){
+  var host=$('needhost');if(!host)return;
+  host.innerHTML='<p class="sub" style="margin:.2rem 0 .6rem">'+T('need_sel')+'</p>'+
+    '<div class="multi" style="margin-bottom:.6rem">'+NEEDS.map(function(n){return '<span class="opt'+(NEEDSEL[n.id]?' on':'')+'" data-need="'+n.id+'">'+esc(n.code)+' · '+esc(n.label)+'</span>';}).join('')+'</div>'+
+    '<label style="margin-top:.4rem">'+T('primary_q')+'</label>'+
+    '<select id="primNeed"><option value="">—</option>'+NEEDS.filter(function(n){return NEEDSEL[n.id];}).map(function(n){return '<option value="'+n.id+'"'+(NEEDPRIMARY===n.id?' selected':'')+'>'+esc(n.code)+'</option>';}).join('')+'</select>'+
+    '<div id="critHost" style="margin-top:.8rem"></div>';
+  host.querySelectorAll('[data-need]').forEach(function(el){el.onclick=function(){var id=el.dataset.need;NEEDSEL[id]=!NEEDSEL[id];if(!NEEDSEL[id]&&NEEDPRIMARY===id)NEEDPRIMARY=null;renderNeeds();};});
+  var pn=$('primNeed');if(pn)pn.onchange=function(){NEEDPRIMARY=pn.value||null;};
+  renderCrit();
+}
+function renderCrit(){
+  var host=$('critHost');if(!host)return;
+  var sel=NEEDS.filter(function(n){return NEEDSEL[n.id]&&(n.criteria||[]).length;});
+  host.innerHTML=sel.map(function(n){
+    return '<div class="needbox"><div class="nt">'+esc(n.code)+' · '+esc(n.label)+'</div>'+
+      (n.criteria||[]).map(function(c){var key=n.id+'::'+c.key;var cv=CRITVAL[key]==null?'':CRITVAL[key];
+        var want=(c.op||'')+' '+esc(c.value)+' '+esc(c.unit||'');
+        var input = (c.unit==='bool'||String(c.value)==='true'||String(c.value)==='false')
+          ? '<div class="bool" data-crit="'+key+'"><button type="button" data-v="true" class="'+(cv===true||cv==='true'?'on':'')+'">'+T('yes')+'</button><button type="button" data-v="false" class="'+(cv===false||cv==='false'?'on':'')+'">'+T('no')+'</button></div>'
+          : '<input type="text" data-critv="'+key+'" value="'+esc(cv)+'">';
+        return '<div class="critline"><div><div class="cl">'+esc(c.label)+'</div><div class="want">'+T('crit_want')+': '+want+'</div></div>'+input+'</div>';
+      }).join('')+'</div>';
+  }).join('');
+  host.querySelectorAll('[data-critv]').forEach(function(el){el.oninput=function(){CRITVAL[el.dataset.critv]=el.value;};});
+  host.querySelectorAll('[data-crit]').forEach(function(g){g.querySelectorAll('button').forEach(function(b){b.onclick=function(){CRITVAL[g.dataset.crit]=b.dataset.v==='true';g.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});});
+}
+
+function bindField(f){
+  var el=document.querySelector('[data-k="'+f.field_key+'"]');
+  if(!el)return;
+  if(f.input_type==='boolean'){el.querySelectorAll('button').forEach(function(b){b.onclick=function(){VAL[f.field_key]=b.dataset.v==='true';el.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});return;}
+  if(f.input_type==='multiselect'&&el.dataset.multi){el.querySelectorAll('.opt').forEach(function(o){o.onclick=function(){var arr=Array.isArray(VAL[f.field_key])?VAL[f.field_key]:[];var i=arr.indexOf(o.dataset.v);if(i>=0)arr.splice(i,1);else arr.push(o.dataset.v);VAL[f.field_key]=arr;o.classList.toggle('on');};});return;}
+  el.oninput=el.onchange=function(){VAL[f.field_key]=el.value;};
+}
+
+function build(){
+  var order=['identity','system','evidence','logistics','materials','custom'];
+  var html='';
+  order.forEach(function(sec){
+    var list=FIELDS.filter(function(f){return f.section===sec&&f.active!==false;}).sort(function(a,b){return a.sort_order-b.sort_order;});
+    if(sec==='system'){ // challenge alanları system'in başına
+      html+='<div class="card"><div class="sec">'+secName('system')+'</div><div id="needhost"></div>';
+      list.forEach(function(f){ if(f.field_key==='primary_need'||f.field_key==='secondary_needs'||f.field_key==='need_criteria')return; html+='<div class="fl" data-fk="'+f.field_key+'">'+fieldHtml(f)+'</div>';});
+      html+='</div>';return;
+    }
+    if(!list.length)return;
+    html+='<div class="card"><div class="sec">'+secName(sec)+'</div>'+list.map(function(f){return '<div class="fl" data-fk="'+f.field_key+'">'+fieldHtml(f)+'</div>';}).join('')+'</div>';
+  });
+  $('sections').innerHTML=html;
+  FIELDS.forEach(function(f){ if(['primary_need','secondary_needs','need_criteria'].indexOf(f.field_key)>=0)return; bindField(f);});
+  renderNeeds();renderMaterials();
+  var ma=$('matAdd');if(ma)ma.onclick=function(){MATERIALS.push({kind:'pitch_deck',url:''});renderMaterials();};
+  $('reqNote').textContent=T('req_note');
+}
+
+/* -------- AI ön-doldurma -------- */
+async function aiPrefill(){
+  var url=$('aiUrl').value.trim();if(!url){toast('URL',' var(--warn)');return;}
+  $('aiBtn').disabled=true;$('aiStatus').textContent=T('ai_working');
+  try{
+    var sys="You extract structured defence-tech company data. Return ONLY compact JSON, no prose, no markdown. Keys: company_name, summary (<=40 words), artifact_class (one of ugv_platform,mountable_subsystem,embedded_software,ops_enabler,adjacent_platform), isc_domain (one of LAND,MARITIME,AIR,CYBER,SPACE,JOINT_ENABLING,SOF), trl_demo (integer 1-9 or null), validation_tier (one of combat_fielded,combat_tested,allied_exercise,national_trial,none), integration_standards (array from STANAG_4586,TAK_COT,ROS2,MAVLINK,NATO_VEH_STD,LINK16). If unknown, use null or empty.";
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:sys,messages:[{role:'user',content:'Company website: '+url+'\nExtract the fields as JSON.'}],tools:[{type:'web_search_20250305',name:'web_search'}]})});
+    var data=await res.json();
+    var txt=(data.content||[]).filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join('').replace(/```json|```/g,'').trim();
+    var m=txt.match(/\{[\s\S]*\}/);var obj=m?JSON.parse(m[0]):{};
+    Object.keys(obj).forEach(function(k){ if(obj[k]!=null&&obj[k]!=='') VAL[k]=obj[k]; });
+    build();
+    $('aiStatus').textContent=T('ai_done');$('aiStatus').style.color='var(--ok)';
+  }catch(e){$('aiStatus').textContent=T('ai_fail');$('aiStatus').style.color='var(--err)';}
+  $('aiBtn').disabled=false;
+}
+
+/* -------- gönder -------- */
+async function submit(){
+  // zorunlu kontrol
+  var miss=[];
+  FIELDS.forEach(function(f){
+    if(!f.is_required)return;
+    if(['primary_need','secondary_needs','need_criteria'].indexOf(f.field_key)>=0)return;
+    var v=VAL[f.field_key];
+    var empty = v==null||v===''||(Array.isArray(v)&&!v.length);
+    var el=document.querySelector('[data-fk="'+f.field_key+'"]');
+    if(el)el.classList.toggle('invalid',empty);
+    if(empty)miss.push(f.field_key);
+  });
+  if(miss.length){toast(T('missing'),'var(--err)');var first=document.querySelector('.fl.invalid');if(first)first.scrollIntoView({behavior:'smooth',block:'center'});return;}
+
+  $('submitBtn').disabled=true;toast(T('saving'));
+  // ana kayıt: gerçek kolonlar + raw_intake
+  var rec={event_id:EV.id,state:'submitted'},raw={};
+  Object.keys(VAL).forEach(function(k){
+    var val=VAL[k];
+    if(REAL_COLS[k]){
+      if(NUM_COLS[k])val=(val===''||val==null)?null:+val;
+      if(BOOL_COLS[k])val=(val===true||val==='true');
+      if(ARR_COLS[k])val=Array.isArray(val)?val:(val?String(val).split(',').map(function(s){return s.trim();}).filter(Boolean):[]);
+      rec[k]=val;
+    } else { raw[k]=val; }
+  });
+  if(rec.company_name==null&&VAL.company_name)rec.company_name=VAL.company_name;
+  if(!rec.company_name){$('submitBtn').disabled=false;toast(T('missing'),'var(--err)');return;}
+  rec.raw_intake=raw;
+
+  var ins=await sb.from('conventus_selection_applications').insert(rec).select().single();
+  if(ins.error){$('submitBtn').disabled=false;toast(ins.error.message,'var(--err)');return;}
+  var appId=ins.data.id;
+
+  // needs
+  var needRows=NEEDS.filter(function(n){return NEEDSEL[n.id];}).map(function(n){return {application_id:appId,need_id:n.id,is_primary:NEEDPRIMARY===n.id};});
+  if(needRows.length)await sb.from('conventus_selection_app_needs').insert(needRows);
+
+  // criteria
+  var critRows=[];
+  Object.keys(CRITVAL).forEach(function(key){var p=key.split('::');var nid=p[0],ck=p[1];var val=CRITVAL[key];if(val===''||val==null)return;
+    var row={application_id:appId,need_id:nid,key:ck};
+    if(val===true||val===false||val==='true'||val==='false')row.value_bool=(val===true||val==='true');
+    else if(!isNaN(parseFloat(val)))row.value_num=parseFloat(val);
+    else row.value_text=String(val);
+    critRows.push(row);});
+  if(critRows.length)await sb.from('conventus_selection_app_criteria').insert(critRows);
+
+  // materials
+  var matRows=MATERIALS.filter(function(m){return m.url;}).map(function(m,i){return {application_id:appId,kind:m.kind,url:m.url,sort_order:i};});
+  if(matRows.length)await sb.from('conventus_selection_materials').insert(matRows);
+
+  $('form').classList.add('hidden');$('done').classList.remove('hidden');
+  $('doneMsg').innerHTML=T('done_s')+' <b>'+appId.slice(0,8).toUpperCase()+'</b>';
+  window.scrollTo(0,0);
+}
+
+/* -------- yükle -------- */
+async function load(){
+  var code=qs().e;
+  if(!code){$('loading').classList.add('hidden');$('closed').classList.remove('hidden');return;}
+  var e=await sb.from('conventus_selection_events').select('*').eq('event_code',code).single();
+  if(e.error||!e.data||e.data.status!=='open'){$('loading').classList.add('hidden');$('closed').classList.remove('hidden');return;}
+  EV=e.data;
+  var n=await sb.from('conventus_selection_needs').select('*').eq('event_id',EV.id).order('sort_order');
+  NEEDS=(n.data||[]).map(function(x){x.criteria=x.criteria||[];return x;});
+  var f=await sb.from('conventus_selection_form_fields').select('*').eq('event_id',EV.id).eq('active',true).order('sort_order');
+  FIELDS=f.data||[];
+  $('crumbEv').textContent=' · '+EV.event_code;
+  $('evTitle').textContent=EV.title;
+  $('evDesc').textContent=(EV.host_nation?EV.host_nation+' · ':'')+(EV.window_start?isoTr(EV.window_start)+' – '+isoTr(EV.window_end):'');
+  var meta=[];
+  if(EV.min_trl)meta.push('<span class="chip">TRL <b>≥ '+EV.min_trl+'</b></span>');
+  if(EV.domain_axis)meta.push('<span class="chip">'+EV.domain_axis.toUpperCase()+'</span>');
+  if(EV.application_deadline)meta.push('<span class="chip">⏱ '+isoTr(EV.application_deadline)+'</span>');
+  $('metabar').innerHTML=meta.join('');
+  $('loading').classList.add('hidden');$('form').classList.remove('hidden');
+  build();
+}
+function isoTr(s){if(!s)return'';var d=String(s).slice(0,10).split('-');return d.length===3?d[2]+'.'+d[1]+'.'+d[0]:'';}
+
+function applyStatic(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.innerHTML=T(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('.lg').forEach(function(b){b.classList.toggle('on',b.dataset.lg===LANG);});
+}
+document.querySelectorAll('.lg').forEach(function(b){b.onclick=function(){LANG=b.dataset.lg;localStorage.setItem('cv-lang',LANG);applyStatic();if(EV)build();};});
+$('themeBtn').onclick=function(){dark=!dark;localStorage.setItem('cn-dark',dark?'1':'0');applyDark();};
+$('aiBtn').onclick=aiPrefill;
+$('submitBtn').onclick=submit;
+
+applyDark();applyStatic();load();
+})();
+</script>
+</body>
+</html>

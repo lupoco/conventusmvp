@@ -1,0 +1,31 @@
+{
+  "meta": { "scope": "Global · Civil/Humanitarian", "generated": "2026-06-03", "max_age_hours": 336, "note": "Sample/placeholder events for UI prototype. Map points auto-expire after 336h (2 weeks)." },
+  "categories": [
+    { "key": "conflict",     "label": "Conflict / Security", "c": "var(--danger)" },
+    { "key": "displacement", "label": "Displacement",        "c": "var(--gold)" },
+    { "key": "climate",      "label": "Climate / Disaster",  "c": "var(--cyan)" },
+    { "key": "health",       "label": "Health",              "c": "var(--ok)" }
+  ],
+  "points": [
+    { "lat": 36.2,  "lon": 37.2,  "title": "NW Syria — new displacement reported", "cat": "displacement", "age": 4,   "src": "OCHA" },
+    { "lat": 31.5,  "lon": 34.5,  "title": "Shelter needs rising",                 "cat": "displacement", "age": 2,   "src": "ReliefWeb" },
+    { "lat": 49.0,  "lon": 32.0,  "title": "Civilian infrastructure damage",       "cat": "conflict",     "age": 15,  "src": "AFP" },
+    { "lat": 15.5,  "lon": 32.5,  "title": "Aid access constrained",               "cat": "conflict",     "age": 9,   "src": "ACAPS" },
+    { "lat": 5.0,   "lon": 46.0,  "title": "Drought worsens food security",        "cat": "climate",      "age": 30,  "src": "FEWS NET" },
+    { "lat": -2.0,  "lon": 23.0,  "title": "Population movement observed",         "cat": "displacement", "age": 50,  "src": "IOM DTM" },
+    { "lat": 21.0,  "lon": 96.0,  "title": "Flood displacement",                   "cat": "climate",      "age": 70,  "src": "ReliefWeb" },
+    { "lat": 18.5,  "lon": -72.0, "title": "Cholera risk elevated",                "cat": "health",       "age": 100, "src": "WHO" },
+    { "lat": 34.0,  "lon": 66.0,  "title": "Returnee influx at border",            "cat": "displacement", "age": 180, "src": "UNHCR" },
+    { "lat": 21.0,  "lon": 92.0,  "title": "Camp WASH gap reported",               "cat": "health",       "age": 250, "src": "UNICEF" },
+    { "lat": 15.0,  "lon": 44.0,  "title": "Funding shortfall impact",             "cat": "conflict",     "age": 320, "src": "OCHA" }
+  ],
+  "feed": [
+    { "src": "ReliefWeb", "time": "12m ago", "head": "Humanitarian partners scale up winterization response amid funding gap" },
+    { "src": "OCHA",      "time": "38m ago", "head": "Flash update: localized displacement following renewed hostilities" },
+    { "src": "Reuters",   "time": "1h ago",  "head": "Aid convoy reaches isolated communities after access negotiation" },
+    { "src": "ACAPS",     "time": "2h ago",  "head": "Severity scan: deteriorating conditions in drought-affected zones" },
+    { "src": "AP",        "time": "3h ago",  "head": "Cross-border returns continue; reintegration services strained" },
+    { "src": "AFP",       "time": "5h ago",  "head": "Explosive ordnance incidents raise civilian protection concerns" },
+    { "src": "WHO",       "time": "6h ago",  "head": "Immunization campaign reaches millions of children nationwide" }
+  ]
+}

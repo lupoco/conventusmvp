@@ -1,0 +1,28 @@
+{
+  "meta": { "title": "Anchored in the CIMIC Community", "scope": "Civil-only · reference network", "generated": "2026-06-03", "note": "Starter directory — curate and extend. Verify links before publishing." },
+  "categories": [
+    { "key": "coe",      "label": "Centres of Excellence" },
+    { "key": "org",      "label": "Organizations" },
+    { "key": "doctrine", "label": "Doctrine & Reference" },
+    { "key": "cop",      "label": "Communities of Practice" },
+    { "key": "data",     "label": "Tools & Datasets" }
+  ],
+  "entries": [
+    { "id":"ccoe",  "name":"NATO CIMIC Centre of Excellence (CCOE)", "cat":"coe", "url":"https://www.cimic-coe.org", "desc":"Lead NATO entity for CIMIC concepts, doctrine support, training and lessons learned.", "tags":["NATO","CIMIC","doctrine","training"] },
+    { "id":"ocha",  "name":"UN OCHA", "cat":"org", "url":"https://www.unocha.org", "desc":"UN Office for the Coordination of Humanitarian Affairs — coordination, appeals, situation reporting.", "tags":["UN","coordination","appeals"] },
+    { "id":"iasc",  "name":"Inter-Agency Standing Committee (IASC)", "cat":"org", "url":"https://interagencystandingcommittee.org", "desc":"Primary inter-agency forum for humanitarian coordination, policy and the cluster system.", "tags":["coordination","clusters","policy"] },
+    { "id":"icrc",  "name":"ICRC", "cat":"org", "url":"https://www.icrc.org", "desc":"International Committee of the Red Cross — protection, IHL, civilian assistance.", "tags":["protection","IHL","Red Cross"] },
+    { "id":"reliefweb", "name":"ReliefWeb", "cat":"data", "url":"https://reliefweb.int", "desc":"OCHA-run information service for humanitarian reports, situation updates and analysis.", "tags":["reports","OSINT","situation"] },
+    { "id":"hdx",   "name":"Humanitarian Data Exchange (HDX)", "cat":"data", "url":"https://data.humdata.org", "desc":"Open platform for sharing and accessing humanitarian datasets across crises.", "tags":["datasets","open data"] },
+    { "id":"dtm",   "name":"IOM Displacement Tracking Matrix (DTM)", "cat":"data", "url":"https://dtm.iom.int", "desc":"Tracks and monitors displacement and population mobility.", "tags":["displacement","IDP","mobility"] },
+    { "id":"unhcrdp","name":"UNHCR Operational Data Portal", "cat":"data", "url":"https://data.unhcr.org", "desc":"Refugee and operational data, dashboards and funding tracking.", "tags":["refugees","dashboards"] },
+    { "id":"acaps", "name":"ACAPS", "cat":"org", "url":"https://www.acaps.org", "desc":"Independent humanitarian needs analysis and severity scanning.", "tags":["needs analysis","severity"] },
+    { "id":"fews",  "name":"FEWS NET", "cat":"data", "url":"https://fews.net", "desc":"Famine Early Warning Systems Network — food security analysis and projections.", "tags":["food security","early warning"] },
+    { "id":"alnap", "name":"ALNAP", "cat":"cop", "url":"https://www.alnap.org", "desc":"Community of practice on humanitarian learning, evaluation and effectiveness.", "tags":["learning","evaluation"] },
+    { "id":"hot",   "name":"Humanitarian OpenStreetMap Team (HOT)", "cat":"data", "url":"https://www.hotosm.org", "desc":"Open mapping for humanitarian response and disaster preparedness.", "tags":["mapping","GIS","open"] },
+    { "id":"sphere","name":"Sphere Standards", "cat":"doctrine", "url":"https://spherestandards.org", "desc":"Minimum standards for humanitarian response and quality.", "tags":["standards","quality"] },
+    { "id":"ajp319","name":"NATO AJP-3.19 — CIMIC Doctrine", "cat":"doctrine", "url":"#", "desc":"Allied Joint Doctrine for Civil-Military Cooperation (reference — link to be set).", "tags":["NATO","doctrine","CIMIC"] },
+    { "id":"uncmcoord","name":"UN-CMCoord", "cat":"cop", "url":"#", "desc":"UN Humanitarian Civil-Military Coordination guidance and practitioner network (link to be set).", "tags":["civ-mil","coordination"] },
+    { "id":"call", "name":"Lessons-Learned Repository", "cat":"coe", "url":"#", "desc":"Cross-mission lessons learned and after-action knowledge base (link to be set).", "tags":["lessons learned","knowledge"] }
+  ]
+}

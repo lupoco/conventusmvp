@@ -1,0 +1,7 @@
+# Conventity — Apache rewrite rules (Hostinger public_html)
+
+RewriteEngine On
+
+# Taşınabilir doğrulama: verified/<slug> -> verified.html
+# verified.html getSlug() slug'ı hem ?s= hem de /verified/<slug> yolundan okur.
+RewriteRule ^verified/([^/]+)/?$ /verified.html [L,QSA]

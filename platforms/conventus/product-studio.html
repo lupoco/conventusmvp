@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="google" content="notranslate"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1180"/>
+<script src="/assets/js/cv-config.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<script>/* Conventity anahtar senkronu: tema+dil tum sayfalarda tasinir */
+(function(){try{
+  var l=localStorage.getItem('cv-lang'); if(l==='tr'||l==='en')localStorage.setItem('efdi_lang',l);
+  localStorage.setItem('efdi_theme',localStorage.getItem('cn-dark')==='1'?'dark':'light');
+}catch(e){}})();
+</script>
+<!-- ===== CONVENTITY KAPISI: Product Studio - yalnizca yetkili ===== -->
+<div id="cvGate" style="position:fixed;inset:0;z-index:999999;background:#F5F2EC;display:flex;align-items:center;justify-content:center;font-family:system-ui">
+  <div style="max-width:430px;text-align:center;padding:2rem">
+    <div style="font-size:2rem;margin-bottom:.6rem">&#128196;</div>
+    <div id="cvGateT" style="font-weight:800;font-size:1.15rem;color:#0E2148;margin-bottom:.4rem">Checking authorization&hellip;</div>
+    <div id="cvGateP" style="font-size:.85rem;color:#5A6486;line-height:1.6;margin-bottom:1.2rem">Product Studio is restricted to authorized organizers and administrators.</div>
+    <div id="cvGateA" style="display:none;gap:8px;justify-content:center">
+      <a href="/login.html" style="background:#0E2148;color:#fff;padding:9px 18px;border-radius:10px;font-size:.85rem;font-weight:700;text-decoration:none">Sign in</a>
+      <a href="index.html" style="background:#fff;color:#0E2148;border:1px solid #d9d4c8;padding:9px 18px;border-radius:10px;font-size:.85rem;font-weight:700;text-decoration:none">&#8592; Conventus</a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYnd5bHJ3cGlvcXlwYmRoamduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjEzMTIsImV4cCI6MjA5Nzk5NzMxMn0.2bZSj_is-oDq_AfZ-llAHFwXCsgRVXrmLw9PoS54qlk';
+  function deny(msg){document.getElementById('cvGateT').textContent='Authorized only';
+    document.getElementById('cvGateP').textContent=msg;
+    document.getElementById('cvGateA').style.display='flex';}
+  function allow(){var g=document.getElementById('cvGate');if(g)g.remove();}
+  var tok=null;
+  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+    if(k&&k.indexOf('sb-')===0&&k.indexOf('auth-token')>-1){
+      var v=JSON.parse(localStorage.getItem(k));
+      tok=(v&&(v.access_token||(v.currentSession&&v.currentSession.access_token)))||null;
+      if(tok)break;}}}catch(e){}
+  if(!tok){deny('Sign in with an authorized account to open the Product Studio.');return;}
+  var H={apikey:SB_ANON,Authorization:'Bearer '+tok};
+  fetch(SB_URL+'/auth/v1/user',{headers:H})
+  .then(function(r){return r.ok?r.json():Promise.reject();})
+  .then(function(u){
+    return fetch(SB_URL+'/rest/v1/cv_admins?select=user_id&user_id=eq.'+u.id,{headers:H})
+      .then(function(r){return r.ok?r.json():[];})
+      .then(function(rows){
+        if(rows&&rows.length)return true;
+        return fetch(SB_URL+'/rest/v1/conventus_managed_events?select=id&created_by=eq.'+u.id+'&limit=1',{headers:H})
+          .then(function(r){return r.ok?r.json():[];})
+          .then(function(ev){return ev&&ev.length>0;});
+      });
+  })
+  .then(function(ok){if(ok)allow();
+    else deny('This account has no Studio permission. Create an event as an Event Manager, or ask the Super Admin.');})
+  .catch(function(){deny('Session expired - please sign in again.');});
+})();
+</script>
+<!-- Conventity gezinme haplari -->
+<div style="position:fixed;left:14px;bottom:14px;z-index:99998;display:flex;gap:7px;font-family:system-ui">
+  <a href="index.html" style="background:#0E2148;color:#fff;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)">&#8592; Conventus</a>
+  <a href="event-studio.html" style="background:#fff;color:#0E2148;border:1px solid #d9d4c8;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.12)">Studio &#8594;</a>
+  <a href="go-and-meet.html" style="background:#fff;color:#0E2148;border:1px solid #d9d4c8;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.12)">Events &#8594;</a>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- TOP BAR -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-label">Studio — <b id="tb-event-name">EFDI TTX 26</b></span>
+    <div class="event-switch">
+      <span class="grid-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      </span>
+      <span class="status-pill public" id="status-pill">Public</span>
+      <span class="ev-name" id="switch-name">EFDI TTX 26</span>
+      <span class="chev">▾</span>
+    </div>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: "Inter", Arial, sans-serif; background: #eef0f4; }
+    .ps-in { width: 100%; border: 1px solid #d8dce4; background: #fff; color: #1f2430; border-radius: 8px; padding: 9px 11px; font-size: 13px; font-family: inherit; }
+    .ps-lab { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: #6b7282; display: block; margin: 12px 0 5px; }
+    .ps-btn { border: none; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .rb { position: sticky; top: 0; z-index: 6; background: #f3f5f9; border-bottom: 1px solid #dfe3ea; display: flex; flex-wrap: wrap; padding: 8px 10px; gap: 0; }
+    .rb-grp { display: flex; flex-direction: column; justify-content: space-between; padding: 2px 12px; border-right: 1px solid #e3e6ed; }
+    .rb-grp:last-child { border-right: none; }
+    .rb-row { display: flex; align-items: center; gap: 3px; }
+    .rb-lab { font-size: 10px; color: #97a0b0; text-align: center; margin-top: 6px; }
+    .rb-b { min-width: 27px; height: 26px; padding: 0 6px; border: 1px solid transparent; background: none; border-radius: 5px; cursor: pointer; font-size: 13px; color: #3a4150; display: inline-flex; align-items: center; justify-content: center; line-height: 1; font-family: inherit; }
+    .rb-b:hover { background: #e6ebf3; border-color: #cfd6e1; }
+    .rb-sel { height: 26px; border: 1px solid #d4d9e2; border-radius: 5px; font-size: 12px; padding: 0 4px; background: #fff; font-family: inherit; color: #3a4150; }
+    .rb-paste { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: #3a4150; cursor: pointer; padding: 4px 10px; border: 1px solid transparent; border-radius: 5px; background: none; font-family: inherit; }
+    .rb-paste:hover { background: #e6ebf3; }
+    .rb-editor { min-height: 230px; max-width: 760px; margin: 0 auto; background: #fff; border: 1px solid #d4d9e2; border-radius: 8px; padding: 30px 34px; font-family: 'EB Garamond', Georgia, serif; font-size: 16px; line-height: 1.7; color: #1f2430; outline: none; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+    .rb-editor:focus { border-color: #c2632f; }
+    .rb-editor p { margin: 0 0 10px; }
+    .rb-editor.show-marks p::after, .rb-editor.show-marks div:not(:empty)::after { content: '\00B6'; color: #c8cdd6; margin-left: 2px; }
+    @media print {
+      @page { size: A4; margin: 0; }
+      .ps-app { display: none !important; }
+      .ps-print { display: block !important; }
+    }
+  </style>
+  <script>
+  (function(){
+    if(window.__cvNav)return;window.__cvNav=1;
+    var HOME='index.html';
+    function ico(p){return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+    function mk(){
+      if(document.getElementById('cv-nav'))return;
+      var d=document.createElement('div');d.id='cv-nav';
+      d.style.cssText='position:fixed;left:16px;bottom:16px;z-index:2147483000;display:flex;align-items:center;gap:2px;padding:4px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(14,33,72,.14);border-radius:100px;box-shadow:0 10px 26px rgba(14,33,72,.16);font-family:system-ui,-apple-system,Segoe UI,sans-serif;';
+      var ib='width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:50%;cursor:pointer;color:#5a6486;transition:background .15s,color .15s;';
+      d.innerHTML='<button data-a="back" title="Back" aria-label="Back" style="'+ib+'">'+ico('<path d="M15 6l-6 6 6 6"/>')+'</button><button data-a="fwd" title="Forward" aria-label="Forward" style="'+ib+'">'+ico('<path d="M9 6l6 6-6 6"/>')+'</button><button data-a="home" title="Platform home" style="display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 15px 0 12px;border:none;background:#004990;border-radius:100px;cursor:pointer;color:#fff;font-size:12.5px;font-weight:700;font-family:inherit;transition:opacity .15s;">'+ico('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')+'<span>Home</span></button>';
+      var b=d.querySelector('[data-a=back]'),f=d.querySelector('[data-a=fwd]'),h=d.querySelector('[data-a=home]');
+      [b,f].forEach(function(x){x.addEventListener('mouseenter',function(){x.style.background='#004990';x.style.color='#fff';});x.addEventListener('mouseleave',function(){x.style.background='transparent';x.style.color='#5a6486';});});
+      h.addEventListener('mouseenter',function(){h.style.opacity='.88';});h.addEventListener('mouseleave',function(){h.style.opacity='1';});
+      b.onclick=function(){history.back();};f.onclick=function(){history.forward();};h.onclick=function(){window.location.href=HOME;};
+      document.body.appendChild(d);
+    }
+    if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk);
+  })();
+  </script>
+</helmet>
+
+<div class="ps-app" style="display:flex; height:100vh; overflow:hidden;">
+
+  <!-- ===== Controls ===== -->
+  <aside style="width:360px; flex-shrink:0; background:#fff; border-right:1px solid #e2e5ec; display:flex; flex-direction:column;">
+    <div style="padding:18px 20px; border-bottom:1px solid #eef0f4;">
+      <div style="font-size:11px; letter-spacing:.16em; font-weight:800; color:#c2632f;">CONVENTUS</div>
+      <div style="font-size:18px; font-weight:800; color:#1f2430; margin-top:2px;">Product Studio</div>
+    </div>
+    <div style="display:flex; padding:12px 16px 0;">
+      <button onClick="{{ goDesign }}" style="{{ tabDesignStyle }}">Design</button>
+      <button onClick="{{ goShare }}" style="{{ tabShareStyle }}">Share &amp; Email</button>
+    </div>
+
+    <div style="flex:1; overflow-y:auto; padding:14px 20px 30px;">
+
+      <!-- DESIGN MODE -->
+      <sc-if value="{{ onDesign }}" hint-placeholder-val="{{ true }}">
+        <span class="ps-lab">DATA SOURCE — REGISTRATION LIST</span>
+        <div style="font-size:11px; color:#9aa0ad; margin-bottom:6px;">Pull names, titles, organisations and emails straight from approved participants. Available to Admin and roles granted document-output permission.</div>
+        <div style="display:flex; gap:5px; margin-bottom:8px;">
+          <sc-for list="{{ sourceBtns }}" as="sb" hint-placeholder-count="3">
+            <button onClick="{{ sb.onClick }}" style="{{ sb.style }}">{{ sb.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ needPicker }}" hint-placeholder-val="{{ false }}">
+          <input class="ps-in" placeholder="Search name, rank, org, email…" value="{{ pSearch }}" onInput="{{ onPSearch }}" style="margin-bottom:6px;" />
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <span style="font-size:11px; color:#8a90a0;">{{ selCount }} selected</span>
+            <span style="display:flex; gap:6px;"><button onClick="{{ selectAllP }}" class="ps-btn" style="background:#f1f3f7; color:#3a4150; padding:3px 9px; font-size:11px;">Select all</button><button onClick="{{ clearSelP }}" class="ps-btn" style="background:#f1f3f7; color:#3a4150; padding:3px 9px; font-size:11px;">Clear</button></span>
+          </div>
+          <div style="max-height:190px; overflow-y:auto; border:1px solid #e2e5ec; border-radius:8px;">
+            <sc-for list="{{ participantList }}" as="p" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:8px; padding:7px 10px; border-bottom:1px solid #f0f2f6;">
+                <input type="checkbox" checked="{{ p.on }}" onChange="{{ p.onToggle }}" style="flex-shrink:0;" />
+                <div onClick="{{ p.onPreview }}" style="flex:1; min-width:0; cursor:pointer;">
+                  <div style="font-size:12px; font-weight:600; color:#1f2430; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.name }}</div>
+                  <div style="font-size:11px; color:#8a90a0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.meta }} · {{ p.email }}</div>
+                </div>
+                <sc-if value="{{ p.isPreview }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; font-weight:700; color:#c2632f; flex-shrink:0;">PREVIEW</span></sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noParticipants }}" hint-placeholder-val="{{ false }}"><div style="padding:16px; text-align:center; font-size:12px; color:#9aa0ad;">No approved participants yet.</div></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasPreview }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; background:#fdf1ea; border:1px solid #f0d3c4; border-radius:8px; padding:7px 11px;"><span style="font-size:12px; color:#c2632f; font-weight:600;">Previewing: {{ previewName }}</span><button onClick="{{ onClearPreview }}" class="ps-btn" style="background:none; color:#c2632f; padding:2px 6px; font-size:11px;">Use manual ✕</button></div>
+        </sc-if>
+
+        <span class="ps-lab">DOCUMENT TYPE</span>
+        <select class="ps-in" value="{{ kind }}" onChange="{{ onKind }}">
+          <option value="badge">Name Badge — A6, QR, double-sided</option>
+          <option value="tentDinner">Name Tent — Dinner/Lunch (folded A6)</option>
+          <option value="tentConf">Name Tent — Conference (folded A5)</option>
+          <option value="welcome">Welcome Letter — A4</option>
+          <option value="certificate">Certificate of Appreciation — A4</option>
+          <option value="receipt">Conference Fee Receipt — A4</option>
+        </select>
+
+        <span class="ps-lab">TEMPLATE</span>
+        <div style="font-size:11px; color:#9aa0ad; margin-bottom:7px;">Start from a ready-made layout, edit it freely, or build from scratch. Save your own as a named draft.</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:9px;">
+          <sc-for list="{{ templateCards }}" as="tp" hint-placeholder-count="4">
+            <button onClick="{{ tp.onClick }}" style="{{ tp.style }}">
+              <span style="display:flex; align-items:center; gap:7px; min-width:0;">
+                <span style="width:16px; height:16px; border-radius:4px; flex-shrink:0; background:{{ tp.swatch }};"></span>
+                <span style="font-size:12px; font-weight:700; color:#1f2430; text-align:left; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ tp.name }}</span>
+              </span>
+              <sc-if value="{{ tp.deletable }}" hint-placeholder-val="{{ false }}"><span onClick="{{ tp.onDelete }}" title="Delete draft" style="font-size:13px; font-weight:700; color:#c0392b; cursor:pointer; flex-shrink:0; padding:0 2px;">×</span></sc-if>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <input class="ps-in" placeholder="Name this draft…" value="{{ draftName }}" onInput="{{ onDraftName }}" style="flex:1; margin:0;" />
+          <button onClick="{{ saveDraft }}" class="ps-btn" style="background:#c2632f; color:#fff; padding:8px 13px; font-size:12px; white-space:nowrap;">Save draft</button>
+        </div>
+        <sc-if value="{{ draftSaved }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#1f9d57; font-weight:700; margin-top:5px;">✓ Draft saved to your templates</div></sc-if>
+
+        <span class="ps-lab">SIZE (mm)</span>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input class="ps-in" type="number" value="{{ dimW }}" onInput="{{ onW }}" style="width:50%;" />
+          <span style="color:#9aa0ad;">×</span>
+          <input class="ps-in" type="number" value="{{ dimH }}" onInput="{{ onH }}" style="width:50%;" />
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+          <sc-for list="{{ sizePresets }}" as="sp" hint-placeholder-count="4">
+            <button onClick="{{ sp.onClick }}" class="ps-btn" style="background:#f1f3f7; color:#3a4150; padding:6px 10px; font-size:12px;">{{ sp.label }}</button>
+          </sc-for>
+        </div>
+
+        <span class="ps-lab">STYLE</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <sc-for list="{{ presets }}" as="p" hint-placeholder-count="3">
+            <button onClick="{{ p.onClick }}" class="ps-btn" style="{{ p.style }}">{{ p.label }}</button>
+          </sc-for>
+        </div>
+        <span class="ps-lab">TEXT</span>
+        <div style="font-size:11px; color:#8a90a0; margin-bottom:3px;">Type</div>
+        <select class="ps-in" value="{{ font }}" onChange="{{ onFont }}" style="margin-bottom:9px;">
+          <option value="serif">EB Garamond (serif)</option>
+          <option value="times">Times New Roman</option>
+          <option value="georgia">Georgia</option>
+          <option value="sans">Inter (sans)</option>
+          <option value="arial">Arial</option>
+        </select>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <div style="font-size:11px; color:#8a90a0; margin-bottom:3px;">Size ({{ textPct }}%)</div>
+            <input type="range" min="70" max="160" step="5" value="{{ textPct }}" onInput="{{ onTextSize }}" style="width:100%; accent-color:#c2632f;" />
+          </div>
+          <div>
+            <div style="font-size:11px; color:#8a90a0; margin-bottom:3px;">Align</div>
+            <div style="display:flex; gap:4px;">
+              <sc-for list="{{ alignBtns }}" as="a" hint-placeholder-count="3">
+                <button onClick="{{ a.onClick }}" title="{{ a.title }}" style="{{ a.style }}">{{ a.icon }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <span class="ps-lab">COLOURS</span>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <sc-for list="{{ colorInputs }}" as="c" hint-placeholder-count="5">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#3a4150;"><input type="color" value="{{ c.value }}" onInput="{{ c.onInput }}" style="width:30px; height:26px; border:none; background:none; padding:0; cursor:pointer;" />{{ c.label }}</label>
+          </sc-for>
+        </div>
+
+        <span class="ps-lab">CONTENT</span>
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="6">
+          <div style="margin-bottom:9px;">
+            <div style="font-size:11px; color:#8a90a0; margin-bottom:3px;">{{ f.label }}</div>
+            <sc-if value="{{ f.area }}" hint-placeholder-val="{{ false }}"><textarea class="ps-in" rows="4" value="{{ f.value }}" onInput="{{ f.onInput }}" style="resize:vertical;"></textarea></sc-if>
+            <sc-if value="{{ f.text }}" hint-placeholder-val="{{ true }}"><input class="ps-in" value="{{ f.value }}" onInput="{{ f.onInput }}" /></sc-if>
+          </div>
+        </sc-for>
+
+        <span class="ps-lab">CUSTOM FIELDS — place any text anywhere</span>
+        <div style="font-size:11px; color:#9aa0ad; margin-bottom:6px;">Add a text block and position it by % across (X) and down (Y) the document.</div>
+        <sc-for list="{{ customFields }}" as="cf" hint-placeholder-count="0">
+          <div style="border:1px solid #e2e5ec; border-radius:8px; padding:9px; margin-bottom:8px;">
+            <input class="ps-in" value="{{ cf.text }}" onInput="{{ cf.onText }}" placeholder="Text" style="margin-bottom:6px;" />
+            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+              <label style="font-size:11px; color:#8a90a0; display:flex; align-items:center; gap:3px;">X% <input class="ps-in" type="number" value="{{ cf.x }}" onInput="{{ cf.onX }}" style="width:50px; padding:5px;" /></label>
+              <label style="font-size:11px; color:#8a90a0; display:flex; align-items:center; gap:3px;">Y% <input class="ps-in" type="number" value="{{ cf.y }}" onInput="{{ cf.onY }}" style="width:50px; padding:5px;" /></label>
+              <label style="font-size:11px; color:#8a90a0; display:flex; align-items:center; gap:3px;">mm <input class="ps-in" type="number" value="{{ cf.size }}" onInput="{{ cf.onSize }}" style="width:46px; padding:5px;" /></label>
+              <input type="color" value="{{ cf.color }}" onInput="{{ cf.onColor }}" style="width:28px; height:26px; border:none; background:none; padding:0; cursor:pointer;" />
+              <button onClick="{{ cf.onRemove }}" class="ps-btn" style="background:#fbe9e7; color:#c2632f; padding:5px 9px; font-size:12px;">✕</button>
+            </div>
+          </div>
+        </sc-for>
+        <button onClick="{{ addCustomField }}" class="ps-btn" style="width:100%; background:#f1f3f7; color:#3a4150; margin-bottom:4px;">+ Add custom field</button>
+
+        <span class="ps-lab">LOGOS / IMAGES</span>
+        <div style="font-size:11px; color:#9aa0ad; margin-bottom:6px;">Upload a logo or image, or paste a direct link. Center image shows on the name badge.</div>
+        <sc-for list="{{ logoSlots }}" as="ls" hint-placeholder-count="3">
+          <div style="border:1px solid #e2e5ec; border-radius:8px; padding:9px; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
+              <span style="font-size:12px; font-weight:700; color:#3a4150;">{{ ls.label }}</span>
+              <sc-if value="{{ ls.has }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ls.onClear }}" class="ps-btn" style="background:#fbe9e7; color:#c2632f; padding:4px 9px; font-size:11px;">Remove</button></sc-if>
+            </div>
+            <sc-if value="{{ ls.has }}" hint-placeholder-val="{{ false }}"><div style="height:46px; background-image:url({{ ls.src }}); background-size:contain; background-position:center; background-repeat:no-repeat; margin:0 auto 7px;"></div></sc-if>
+            <label class="ps-btn" style="display:block; text-align:center; background:#f1f3f7; color:#3a4150; cursor:pointer; margin-bottom:6px;">Upload image<input type="file" accept="image/*" onChange="{{ ls.onFile }}" style="display:none;" /></label>
+            <input class="ps-in" placeholder="…or paste image URL" value="{{ ls.url }}" onInput="{{ ls.onUrl }}" />
+          </div>
+        </sc-for>
+
+        <span class="ps-lab">OPTIONS</span>
+        <sc-for list="{{ toggles }}" as="tg" hint-placeholder-count="3">
+          <label style="display:flex; align-items:center; gap:9px; font-size:13px; color:#3a4150; padding:5px 0; cursor:pointer;"><input type="checkbox" checked="{{ tg.on }}" onChange="{{ tg.onToggle }}" />{{ tg.label }}</label>
+        </sc-for>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:9px; padding:5px 0;">
+          <label style="display:flex; align-items:center; gap:9px; font-size:13px; color:#3a4150; cursor:pointer;"><input type="checkbox" checked="{{ starsOn }}" onChange="{{ onStarsToggle }}" />Star Header</label>
+          <select class="ps-in" value="{{ starCount }}" onChange="{{ onStarCount }}" style="width:96px; padding:6px 8px;">
+            <option value="1">1 star ★</option>
+            <option value="2">2 stars ★★</option>
+            <option value="3">3 stars ★★★</option>
+            <option value="4">4 stars ★★★★</option>
+          </select>
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-size:11px; color:#8a90a0; margin-bottom:3px;">QR data (link / id)</div>
+          <input class="ps-in" value="{{ qr }}" onInput="{{ onQr }}" />
+        </div>
+
+        <span class="ps-lab">PRINT (A4 sheet)</span>
+        <div style="font-size:12px; color:#6b7282; margin-bottom:4px;">Output: <span style="font-weight:700; color:#3a4150;">{{ outCountLabel }}</span>. Badges print front &amp; back, aligned on A4.</div>
+        <sc-if value="{{ showCopies }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:8px; margin-top:4px;"><span style="font-size:12px; color:#8a90a0;">Copies</span><input class="ps-in" type="number" value="{{ copies }}" onInput="{{ onCopies }}" style="width:70px;" /><span style="font-size:12px; color:#9aa0ad;">{{ perSheetLabel }}</span></div>
+        </sc-if>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+          <span style="font-size:12px; color:#8a90a0;">Per A4 sheet</span>
+          <select class="ps-in" value="{{ perPage }}" onChange="{{ onPerPage }}" style="width:auto; padding:6px 8px;">
+            <option value="auto">Auto — {{ perSheetAuto }}</option>
+            <option value="1">1 per sheet</option>
+            <option value="2">2 per sheet</option>
+            <option value="4">4 per sheet</option>
+          </select>
+        </div>
+        <button onClick="{{ doPrint }}" class="ps-btn" style="width:100%; margin-top:12px; background:#c2632f; color:#fff;">Print / Save as PDF</button>
+      </sc-if>
+
+      <!-- SHARE MODE -->
+      <sc-if value="{{ onShare }}" hint-placeholder-val="{{ false }}">
+        <span class="ps-lab">RECIPIENTS</span>
+        <select class="ps-in" value="{{ audience }}" onChange="{{ onAudience }}">
+          <option value="all">All approved participants</option>
+          <option value="commander">VIP delegates</option>
+          <option value="speaker">Speakers</option>
+          <option value="guest">Guests</option>
+        </select>
+        <div style="font-size:12px; color:#6b7282; margin-top:6px;">{{ recipientCount }} recipient(s) match.</div>
+
+        <span class="ps-lab">EMAIL SUBJECT</span>
+        <input class="ps-in" value="{{ emailSubject }}" onInput="{{ onSubject }}" />
+        <span class="ps-lab">EMAIL BODY</span>
+        <textarea class="ps-in" rows="7" value="{{ emailBody }}" onInput="{{ onBody }}" style="resize:vertical;"></textarea>
+        <div style="font-size:11px; color:#9aa0ad; margin-top:4px;">Placeholders: {rank} {name} {surname} {event}</div>
+        <sc-for list="{{ emailToggles }}" as="tg" hint-placeholder-count="2">
+          <label style="display:flex; align-items:center; gap:9px; font-size:13px; color:#3a4150; padding:6px 0; cursor:pointer;"><input type="checkbox" checked="{{ tg.on }}" onChange="{{ tg.onToggle }}" />{{ tg.label }}</label>
+        </sc-for>
+
+        <div style="display:flex; gap:8px; margin-top:14px;">
+          <button onClick="{{ doPublish }}" class="ps-btn" style="flex:1; background:#1f8a5b; color:#fff;">Publish &amp; Send</button>
+          <button onClick="{{ doRevoke }}" class="ps-btn" style="flex:1; background:#fff; color:#d8453b; border:1px solid #f0c3bf;">Revoke</button>
+        </div>
+        <button onClick="{{ doSchedule }}" class="ps-btn" style="width:100%; margin-top:8px; background:#f1f3f7; color:#3a4150;">Schedule for later…</button>
+
+        <span class="ps-lab">STATUS</span>
+        <div style="background:#f7f8fb; border:1px solid #eef0f4; border-radius:8px; padding:12px 14px; font-size:13px; color:#3a4150;">
+          {{ publishStatus }}
+        </div>
+      </sc-if>
+
+    </div>
+  </aside>
+
+  <!-- ===== Preview ===== -->
+  <main style="flex:1; min-width:0; overflow:auto; display:flex; flex-direction:column;">
+
+    <!-- ===== Word-style ribbon + rich-text editor (letters & certificates) ===== -->
+    <sc-if value="{{ showRibbon }}" hint-placeholder-val="{{ false }}">
+      <div class="rb" ref="{{ ribbonRef }}">
+
+        <!-- Clipboard -->
+        <div class="rb-grp">
+          <div class="rb-row" style="flex:1; align-items:stretch; gap:6px;">
+            <button class="rb-paste" data-cmd="paste" title="Paste (Ctrl+V)"><span style="font-size:17px; line-height:1;">▤</span><span>Paste</span></button>
+            <div style="display:flex; flex-direction:column; justify-content:center; gap:1px;">
+              <button class="rb-b" data-cmd="cut" title="Cut" style="width:auto; height:20px; padding:0 7px; font-size:11px; justify-content:flex-start;">✂ Cut</button>
+              <button class="rb-b" data-cmd="copy" title="Copy" style="width:auto; height:20px; padding:0 7px; font-size:11px; justify-content:flex-start;">⧉ Copy</button>
+              <button class="rb-b" data-cmd="formatPainter" title="Format Painter" style="width:auto; height:20px; padding:0 7px; font-size:11px; justify-content:flex-start;">◫ Painter</button>
+            </div>
+          </div>
+          <div class="rb-lab">Clipboard</div>
+        </div>
+
+        <!-- Font -->
+        <div class="rb-grp">
+          <div class="rb-row">
+            <select class="rb-sel" data-cmd="fontName" title="Font" style="width:126px;">
+              <option value="EB Garamond">EB Garamond</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Arial">Arial</option>
+              <option value="Inter">Inter</option>
+              <option value="Courier New">Courier New</option>
+            </select>
+            <select class="rb-sel" data-cmd="fontSize" title="Font size" style="width:54px;">
+              <option value="1">8</option><option value="2">10</option><option value="3">12</option><option value="4">14</option><option value="5">18</option><option value="6">24</option><option value="7">36</option>
+            </select>
+            <button class="rb-b" data-cmd="grow" title="Grow font" style="font-weight:700;">A▴</button>
+            <button class="rb-b" data-cmd="shrink" title="Shrink font" style="font-size:11px; font-weight:700;">A▾</button>
+          </div>
+          <div class="rb-row">
+            <button class="rb-b" data-cmd="bold" title="Bold" style="font-weight:800;">B</button>
+            <button class="rb-b" data-cmd="italic" title="Italic" style="font-style:italic; font-family:Georgia,serif;">I</button>
+            <button class="rb-b" data-cmd="underline" title="Underline" style="text-decoration:underline;">U</button>
+            <button class="rb-b" data-cmd="strikeThrough" title="Strikethrough" style="text-decoration:line-through;">S</button>
+            <button class="rb-b" data-cmd="subscript" title="Subscript">x₂</button>
+            <button class="rb-b" data-cmd="superscript" title="Superscript">x²</button>
+            <button class="rb-b" data-cmd="changeCase" title="Change case (UPPER / lower / Title)">Aa</button>
+            <label class="rb-b" title="Font colour" style="position:relative; overflow:hidden; flex-direction:column; gap:0;"><span style="line-height:.85;">A</span><span style="height:3px; width:15px; background:#c2632f; border-radius:1px; margin-top:1px;"></span><input type="color" data-cmd="foreColor" value="#c2632f" style="position:absolute; inset:0; opacity:0; cursor:pointer;" /></label>
+            <label class="rb-b" title="Text highlight" style="position:relative; overflow:hidden;"><span style="background:#ffe14d; padding:0 3px; line-height:.9; border-radius:1px;">A</span><input type="color" data-cmd="hiliteColor" value="#ffe14d" style="position:absolute; inset:0; opacity:0; cursor:pointer;" /></label>
+          </div>
+          <div class="rb-lab">Font</div>
+        </div>
+
+        <!-- Paragraph -->
+        <div class="rb-grp">
+          <div class="rb-row">
+            <button class="rb-b" data-cmd="insertUnorderedList" title="Bullets">•≣</button>
+            <button class="rb-b" data-cmd="insertOrderedList" title="Numbering">1.≣</button>
+            <button class="rb-b" data-cmd="multilevel" title="Multilevel list">≣≣</button>
+            <button class="rb-b" data-cmd="outdent" title="Decrease indent">⇤</button>
+            <button class="rb-b" data-cmd="indent" title="Increase indent">⇥</button>
+            <button class="rb-b" data-cmd="sort" title="Sort selected lines A→Z">A↓Z</button>
+            <button class="rb-b" data-cmd="showMarks" title="Show/hide formatting marks">¶</button>
+          </div>
+          <div class="rb-row">
+            <button class="rb-b" data-cmd="justifyLeft" title="Align left"><span style="display:flex; flex-direction:column; gap:2px; align-items:flex-start; width:14px;"><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:62%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:88%; background:currentColor; border-radius:1px;"></i></span></button>
+            <button class="rb-b" data-cmd="justifyCenter" title="Center"><span style="display:flex; flex-direction:column; gap:2px; align-items:center; width:14px;"><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:62%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:82%; background:currentColor; border-radius:1px;"></i></span></button>
+            <button class="rb-b" data-cmd="justifyRight" title="Align right"><span style="display:flex; flex-direction:column; gap:2px; align-items:flex-end; width:14px;"><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:62%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:88%; background:currentColor; border-radius:1px;"></i></span></button>
+            <button class="rb-b" data-cmd="justifyFull" title="Justify"><span style="display:flex; flex-direction:column; gap:2px; align-items:center; width:14px;"><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i><i style="height:2px; width:100%; background:currentColor; border-radius:1px;"></i></span></button>
+            <select class="rb-sel" data-cmd="lineSpacing" title="Line spacing" style="width:58px;">
+              <option value="1.2">1.0</option><option value="1.5">1.5</option><option value="1.7">1.7</option><option value="2">2.0</option><option value="2.5">2.5</option>
+            </select>
+            <label class="rb-b" title="Paragraph shading" style="position:relative; overflow:hidden;"><span style="line-height:.9;">▦</span><input type="color" data-cmd="shading" value="#e9edf4" style="position:absolute; inset:0; opacity:0; cursor:pointer;" /></label>
+          </div>
+          <div class="rb-lab">Paragraph</div>
+        </div>
+
+        <!-- Editing -->
+        <div class="rb-grp">
+          <div class="rb-row" style="flex:1; align-items:center;">
+            <button class="rb-b" data-cmd="removeFormat" title="Clear all formatting" style="width:auto; padding:0 9px; gap:5px;">A⌫ Clear</button>
+          </div>
+          <div class="rb-lab">Editing</div>
+        </div>
+
+      </div>
+
+      <div style="padding:24px 24px 4px; background:#eef0f4;">
+        <div style="max-width:760px; margin:0 auto 8px; font-size:11px; font-weight:800; letter-spacing:.05em; color:#8a90a0;">BODY TEXT — TYPE &amp; FORMAT WITH THE TOOLBAR ABOVE</div>
+        <div class="rb-editor" ref="{{ setEditEl }}" onInput="{{ onEditInput }}"></div>
+        <div style="max-width:760px; margin:22px auto 0; font-size:11px; font-weight:800; letter-spacing:.05em; color:#8a90a0; text-align:center; border-top:1px solid #dfe3ea; padding-top:14px;">DOCUMENT PREVIEW</div>
+      </div>
+    </sc-if>
+
+    <div style="flex:1; display:flex; align-items:flex-start; justify-content:center; padding:30px;">
+      <div style="transform:scale({{ previewScale }}); transform-origin:top center; display:flex; gap:24px;">
+        <sc-if value="{{ isBadge }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+            <div style="font-size:13px; font-weight:600; color:#8a90a0;">Front</div>
+            <dc-import name="Artifact" type="{{ artType }}" side="front" w="{{ dimW }}" h="{{ dimH }}" data="{{ artData }}" colors="{{ colors }}" logos="{{ logos }}" show="{{ show }}" qr="{{ qr }}" font="{{ font }}" text-scale="{{ textScale }}" text-align="{{ textAlign }}" hint-size="397px,560px"></dc-import>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+            <div style="font-size:13px; font-weight:600; color:#8a90a0;">Back</div>
+            <dc-import name="Artifact" type="{{ artType }}" side="back" w="{{ dimW }}" h="{{ dimH }}" data="{{ artData }}" colors="{{ colors }}" logos="{{ logos }}" show="{{ show }}" qr="{{ qr }}" font="{{ font }}" text-scale="{{ textScale }}" text-align="{{ textAlign }}" hint-size="397px,560px"></dc-import>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isOther }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="Artifact" type="{{ artType }}" w="{{ dimW }}" h="{{ dimH }}" data="{{ artData }}" colors="{{ colors }}" logos="{{ logos }}" show="{{ show }}" qr="{{ qr }}" font="{{ font }}" text-scale="{{ textScale }}" text-align="{{ textAlign }}" hint-size="560px,560px"></dc-import>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== Print sheet ===== -->
+<div class="ps-print" style="display:none;">
+  <sc-for list="{{ printPages }}" as="pg" hint-placeholder-count="1">
+    <div style="{{ pg.sheetStyle }}">
+      <sc-for list="{{ pg.cells }}" as="cl" hint-placeholder-count="1">
+        <div style="{{ cl.cellStyle }}">
+          <div style="position:absolute; left:-1px; top:-1px; width:5mm; height:5mm; border-left:0.3mm solid #000; border-top:0.3mm solid #000;"></div>
+          <div style="position:absolute; right:-1px; top:-1px; width:5mm; height:5mm; border-right:0.3mm solid #000; border-top:0.3mm solid #000;"></div>
+          <div style="position:absolute; left:-1px; bottom:-1px; width:5mm; height:5mm; border-left:0.3mm solid #000; border-bottom:0.3mm solid #000;"></div>
+          <div style="position:absolute; right:-1px; bottom:-1px; width:5mm; height:5mm; border-right:0.3mm solid #000; border-bottom:0.3mm solid #000;"></div>
+          <dc-import name="Artifact" type="{{ artType }}" side="{{ pg.side }}" w="{{ dimW }}" h="{{ dimH }}" data="{{ cl.data }}" colors="{{ colors }}" logos="{{ logos }}" show="{{ show }}" qr="{{ qr }}" font="{{ font }}" flat="{{ true }}" hint-size="200px,280px"></dc-import>
+        </div>
+      </sc-for>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.editRef = { current: null };
+    this.setEditEl = (el) => { this.editRef.current = el; if (el) { el.contentEditable = "true"; el.spellcheck = true; this.fillEditor(); } };
+    this.ribbonRef = React.createRef();
+    this._size = 3;
+    this.state = {
+      mode: "design", kind: "badge",
+      activeTpl: "efdi", draftName: "", draftSaved: false,
+      sizes: { badge: { w: 105, h: 148 }, tentDinner: { w: 148, h: 210 }, tentConf: { w: 210, h: 297 }, welcome: { w: 210, h: 297 }, certificate: { w: 297, h: 210 }, receipt: { w: 210, h: 297 } },
+      preset: "plcc",
+      colors: { bg: "#ffffff", primary: "#1f3a63", accent: "#b8902f", text: "#1f3a63", band: "#1f3a63" },
+      font: "serif", textScale: 1, textAlign: "justify",
+      logos: { left: "", right: "" },
+      show: { qr: true, classification: true, stars: false },
+      qr: "https://conference.example.com/verify/GLC2026",
+      copies: 4, batch: false, perPage: "auto",
+      source: "manual", selected: [], previewEmail: "", pSearch: "",
+      data: this.seedData(),
+      audience: "all",
+      emailSubject: "Global Leadership Conference 2026 — Your document is available",
+      emailBody: "Dear {rank} {surname},\n\nPlease find your personalised document for {event} attached. You can also download it any time from your participant portal.\n\nBest regards,\nConference Organising Team",
+      attachPdf: true, includeQr: true,
+      printPages: [],
+    };
+  }
+  seedData() {
+    return {
+      badgeStyle: "standard",
+      event: "Global Leadership Conference 2026", badgeMark: "GLC",
+      location: "Tallinn, Estonia", rank: "Dr.", first: "Darryl A.", surname: "WILLIAMS",
+      position: "Delegate", org: "Head Office", nation: "TÜRKİYE",
+      footer: "CONFIDENTIAL", backNote: "If found, please return to the registration desk.",
+      orgFull: "GLOBAL CONFERENCE SECRETARIAT", role: "VISITOR", idNumber: "192222674", sponsorText: "Sponsored by", sponsorName: "PARTNER CO.", badgeName: "",
+      salutation: "Dear Dr. Darryl A. Williams,", dateLine: "18–20 February 2026",
+      docTitle: "WELCOME LETTER", presentedTo: "is proudly presented to", certTitle: "CERTIFICATE OF APPRECIATION",
+      certReason: "For outstanding contribution, professionalism and commitment demonstrated during the successful planning and execution of the Initial Planning Meeting.",
+      body: "On behalf of the Organising Committee, it is my distinct pleasure to welcome you to the Global Leadership Conference, hosted in Tallinn, Estonia, from 18–20 February 2026.\nYour participation in this high-level conference is highly valued. The event serves as a key platform for strengthening cooperation, enhancing collaboration and exchanging perspectives among delegates and partner organisations.\nWe look forward to your valuable contribution to the discussions and outcomes of this event.",
+      sign1Name: "John C. Thomson III", sign1Title: "Conference Chair · Organising Committee",
+      sign2Name: "Patrick O'Reilly", sign2Title: "Conference Director",
+      receiptTitle: "CONFERENCE FEE PAYMENT", receiptSub: "ADMINISTRATIVE FEE AND RECEIPT",
+      orgName: "GLOBAL CONFERENCE SECRETARIAT", addr1: "35380 Şirinyer, İzmir, Türkiye", addr2: "TEL: +90 232 411 1411 · FAX: +90 232 411 1536",
+      receiptForLabel: "RECEIPT FOR PARTICIPATION AT", participant: "SERKAN COPUL",
+      itemDesc: "Conference / Administrative fee", qty: "1", unitCost: "80", currency: "EUR",
+      repLabel: "Representative's name, surname and signature", totalLabel: "Total Payment",
+      customFields: [],
+    };
+  }
+  artType(k) { return (k === "tentDinner" || k === "tentConf") ? "tent" : k; }
+  curDim() { return this.state.sizes[this.state.kind] || { w: 105, h: 148 }; }
+  perSheetAuto() { const k = this.state.kind; return k === "badge" ? 4 : (k === "tentDinner" ? 2 : 1); }
+  perSheet() { const p = this.state.perPage; return (p && p !== "auto") ? (parseInt(p, 10) || 1) : this.perSheetAuto(); }
+
+  setData(k, v) { this.setState({ data: { ...this.state.data, [k]: v } }); }
+  readImg(e, key) { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => this.setState({ logos: { ...this.state.logos, [key]: r.result } }); r.readAsDataURL(f); }
+  setColor(k, v) { this.setState({ preset: "custom", colors: { ...this.state.colors, [k]: v } }); }
+
+  builtinTemplates() {
+    return [
+      { id: "efdi", name: "Conference — Navy", cfg: { kind: "badge", font: "serif",
+        colors: { bg: "#ffffff", primary: "#1f3a63", accent: "#b8902f", text: "#1f3a63", band: "#1f3a63" },
+        data: { badgeStyle: "standard", badgeMark: "GLC", event: "Global Leadership Conference 2026", orgFull: "GLOBAL CONFERENCE SECRETARIAT", role: "VISITOR", nation: "TÜRKİYE" },
+        show: { qr: true, classification: true, stars: false } } },
+      { id: "plcc", name: "Summit — Photo", cfg: { kind: "badge", font: "sans",
+        colors: { bg: "#ffffff", primary: "#26305f", accent: "#d0a43e", text: "#26305f", band: "#26305f" },
+        data: { badgeStyle: "plcc", badgeMark: "SUMMIT", event: "PARTNER LEADERS' SUMMIT", dateLine: "May 7-10, 2024 · Antalya, Türkiye", rank: "Mr.", first: "Serkan", surname: "Çopul", badgeName: "", nation: "TÜRKİYE", role: "Guest Speaker", orgFull: "SUMMIT SECRETARIAT · İZMİR / TÜRKİYE", idNumber: "" },
+        show: { qr: true, classification: false, stars: false } } },
+      { id: "landcorps", name: "Meeting — Green", cfg: { kind: "badge", font: "sans",
+        colors: { bg: "#ffffff", primary: "#1f9d4d", accent: "#1f9d4d", text: "#111111", band: "#1f9d4d" },
+        data: { badgeStyle: "landcorps", event: "23RD ANNUAL LEADERS' MEETING", dateLine: "07-09 November 2023", rank: "TITLE", first: "NAME", surname: "SURNAME", badgeName: "", position: "ROLE", org: "ORGANIZATION", orgFull: "CONFERENCE OFFICE · İZMİR / TÜRKİYE" },
+        show: { qr: false, classification: false, stars: false } } },
+      { id: "ceremonial", name: "Ceremonial — Gold", cfg: { kind: "badge", font: "serif",
+        colors: { bg: "#fffdf7", primary: "#6b4f1d", accent: "#b8902f", text: "#4a3a14", band: "#6b4f1d" },
+        data: { badgeStyle: "standard" },
+        show: { qr: true, classification: true, stars: false } } },
+      { id: "blank", name: "Start from scratch", cfg: { kind: "badge", font: "sans",
+        colors: { bg: "#ffffff", primary: "#23272e", accent: "#8a90a0", text: "#23272e", band: "#23272e" },
+        data: { badgeStyle: "standard", badgeMark: "", event: "", orgFull: "", role: "", nation: "", rank: "", first: "", surname: "" },
+        show: { qr: true, classification: false, stars: false } } },
+    ];
+  }
+  loadUserTpl() { try { return JSON.parse(localStorage.getItem("efdi_doc_templates") || "[]"); } catch (e) { return []; } }
+  applyTemplate(cfg, id) {
+    const s = { preset: "custom", activeTpl: id, draftSaved: false };
+    if (cfg.kind) s.kind = cfg.kind;
+    if (cfg.font) s.font = cfg.font;
+    if (cfg.colors) s.colors = { ...this.state.colors, ...cfg.colors };
+    if (cfg.show) s.show = { ...this.state.show, ...cfg.show };
+    if (cfg.data) s.data = { ...this.state.data, ...cfg.data };
+    this.setState(s);
+  }
+  saveDraft() {
+    const name = (this.state.draftName || "").trim();
+    if (!name) { alert("Please enter a name for your draft template."); return; }
+    const list = this.loadUserTpl();
+    const id = "usr-" + Date.now();
+    list.push({ id, name, cfg: { kind: this.state.kind, font: this.state.font, colors: { ...this.state.colors }, show: { ...this.state.show }, data: { ...this.state.data } } });
+    try { localStorage.setItem("efdi_doc_templates", JSON.stringify(list)); } catch (e) {}
+    this.setState({ draftName: "", draftSaved: true, activeTpl: id });
+  }
+  deleteDraft(id) {
+    const list = this.loadUserTpl().filter(t => t.id !== id);
+    try { localStorage.setItem("efdi_doc_templates", JSON.stringify(list)); } catch (e) {}
+    this.setState({ activeTpl: this.state.activeTpl === id ? "efdi" : this.state.activeTpl });
+  }
+  applyPreset(p) {
+    const map = {
+      plcc: { bg: "#ffffff", primary: "#1f3a63", accent: "#b8902f", text: "#1f3a63", band: "#1f3a63" },
+      landcom: { bg: "#ffffff", primary: "#1f6b34", accent: "#9aa6b2", text: "#1f6b34", band: "#1f6b34" },
+      ceremonial: { bg: "#fffdf7", primary: "#6b4f1d", accent: "#b8902f", text: "#4a3a14", band: "#6b4f1d" },
+      naval: { bg: "#ffffff", primary: "#13315c", accent: "#9c7a2e", text: "#13315c", band: "#13315c" },
+      maroon: { bg: "#fffafa", primary: "#6e1f2b", accent: "#b8902f", text: "#6e1f2b", band: "#6e1f2b" },
+      diana: { bg: "#ffffff", primary: "#0b2e4f", accent: "#1f9d8f", text: "#0b2e4f", band: "#0b2e4f" },
+      hq: { bg: "#ffffff", primary: "#23272e", accent: "#b8902f", text: "#23272e", band: "#23272e" },
+    };
+    if (map[p]) this.setState({ preset: p, colors: map[p] }); else this.setState({ preset: p });
+  }
+  setDim(axis, v) { const n = parseInt(v, 10) || 0; const s = { ...this.state.sizes, [this.state.kind]: { ...this.curDim(), [axis]: n } }; this.setState({ sizes: s }); }
+
+  builtData(base) {
+    const d = { ...base };
+    d.orgLine = (d.org || "") + (d.nation ? " · " + d.nation : "");
+    d.nameLine = ((d.rank || "") + " " + (d.first || "") + " " + (d.surname || "")).trim();
+    d.fullName = d.fullName || ((d.first || "") + " " + (d.surname || "")).trim();
+    d.signs = this.state.kind === "certificate"
+      ? [{ name: d.sign1Name, title: d.sign1Title }, { name: d.sign2Name, title: d.sign2Title }]
+      : [{ name: d.sign1Name, title: d.sign1Title }];
+    if (this.state.kind === "certificate") d.docTitle = d.certTitle;
+    else if (this.state.kind === "welcome") d.docTitle = d.docTitle || "WELCOME LETTER";
+    return d;
+  }
+  dataForApp(app) {
+    const b = { ...this.state.data };
+    b.rank = app.rank || b.rank; b.first = app.firstName || b.first;
+    b.surname = (app.lastName || b.surname || "").toUpperCase();
+    b.fullName = ((app.firstName || "") + " " + (app.lastName || "")).trim() || b.fullName;
+    b.org = app.org || b.org; b.nation = app.nation || b.nation;
+    b.position = app.category ? (app.category[0].toUpperCase() + app.category.slice(1)) : b.position;
+    b.salutation = "Dear " + (app.rank ? app.rank + " " : "") + (app.lastName || app.firstName || "") + ",";
+    return this.builtData(b);
+  }
+  approved() {
+    try { return (JSON.parse(localStorage.getItem("efdi_applications") || "[]")).filter(a => a.status === "approved"); } catch (e) { return []; }
+  }
+  toggleSelected(email) { const s = this.state.selected || []; this.setState({ selected: s.includes(email) ? s.filter(e => e !== email) : s.concat([email]) }); }
+  previewApp() { const em = this.state.previewEmail; return em ? this.approved().find(a => (a.email || "") === em) : null; }
+  previewData() { const a = this.previewApp(); return a ? this.dataForApp(a) : this.builtData(this.state.data); }
+  printSourceList() {
+    const apps = this.approved();
+    if (this.state.source === "all") return apps.map(a => this.dataForApp(a));
+    if (this.state.source === "selected") return apps.filter(a => (this.state.selected || []).includes(a.email)).map(a => this.dataForApp(a));
+    return [];
+  }
+  recipients() {
+    const a = this.approved();
+    const f = this.state.audience;
+    if (f === "all") return a;
+    return a.filter(x => (x.category || "participant") === f || (f === "commander" && /comm/i.test(x.category || "")) );
+  }
+
+  doPrint() {
+    const dim = this.curDim();
+    const sheetW = this.state.kind === "certificate" ? 297 : 210;
+    const sheetH = this.state.kind === "certificate" ? 210 : 297;
+    try { let st = document.getElementById("ps-page"); if (!st) { st = document.createElement("style"); st.id = "ps-page"; document.head.appendChild(st); } st.textContent = "@page{size:" + sheetW + "mm " + sheetH + "mm;margin:0}"; } catch (e) {}
+
+    const recs = this.state.batch ? this.recipients().map(a => this.dataForApp(a)) : [];
+    const cur = this.builtData(this.state.data);
+    const sheetStyle = { width: sheetW + "mm", height: sheetH + "mm", background: "#fff", position: "relative", pageBreakAfter: "always", display: "flex", flexWrap: "wrap", alignContent: "flex-start", justifyContent: "center", alignItems: "center", padding: "8mm", boxSizing: "border-box", gap: "6mm" };
+    const cell = (data) => ({ data, cellStyle: { position: "relative", margin: "4mm" } });
+
+    let pages = [];
+    const n = this.perSheet();
+    const srcList = this.printSourceList();
+    if (this.state.kind === "badge") {
+      let groups;
+      if (srcList.length) { groups = []; for (let i = 0; i < srcList.length; i += n) groups.push(srcList.slice(i, i + n)); }
+      else { groups = [Array(Math.max(1, Math.min(n, this.state.copies))).fill(cur)]; }
+      groups.forEach(g => { pages.push({ side: "front", sheetStyle, cells: g.map(cell) }); pages.push({ side: "back", sheetStyle, cells: g.map(cell) }); });
+    } else {
+      const src = srcList.length ? srcList : Array(Math.max(1, this.state.copies)).fill(cur);
+      for (let i = 0; i < src.length; i += n) pages.push({ side: "front", sheetStyle, cells: src.slice(i, i + n).map(cell) });
+      if (!pages.length) pages = [{ side: "front", sheetStyle, cells: [cell(cur)] }];
+    }
+    this.setState({ printPages: pages }, () => setTimeout(() => { try { window.print(); } catch (e) {} }, 400));
+  }
+
+  doPublish() {
+    const recs = this.recipients();
+    if (!recs.length) { alert("No matching approved recipients."); return; }
+    let store = [];
+    try { store = JSON.parse(localStorage.getItem("efdi_published_docs") || "[]"); } catch (e) {}
+    const title = this.builtData(this.state.data).docTitle || this.state.kind;
+    const snap = { kind: this.state.kind, type: this.artType(this.state.kind), w: this.curDim().w, h: this.curDim().h, colors: this.state.colors, logos: this.state.logos, show: this.state.show, qr: this.state.qr, font: this.state.font };
+    const now = new Date().toISOString();
+    recs.forEach(a => {
+      store = store.filter(x => !(x.recipientEmail === a.email && x.kind === this.state.kind));
+      store.push({ id: "pd" + Date.now() + Math.random().toString(36).slice(2, 6), recipientEmail: a.email, recipientName: ((a.firstName || "") + " " + (a.lastName || "")).trim(),
+        kind: this.state.kind, title, status: "published", at: now,
+        emailSubject: this.state.emailSubject, emailBody: this.state.emailBody, attachPdf: this.state.attachPdf, includeQr: this.state.includeQr,
+        design: { ...snap, data: this.dataForApp(a) } });
+    });
+    try { localStorage.setItem("efdi_published_docs", JSON.stringify(store)); } catch (e) {}
+    this.setState({ _pub: recs.length, _pubAt: new Date().toLocaleString() });
+    alert("Published to " + recs.length + " participant(s). Email \"" + this.state.emailSubject + "\" sent (simulated).");
+  }
+  doRevoke() {
+    const recs = this.recipients().map(r => r.email);
+    let store = [];
+    try { store = JSON.parse(localStorage.getItem("efdi_published_docs") || "[]"); } catch (e) {}
+    store = store.filter(x => !(x.kind === this.state.kind && recs.includes(x.recipientEmail)));
+    try { localStorage.setItem("efdi_published_docs", JSON.stringify(store)); } catch (e) {}
+    this.setState({ _pub: 0, _pubAt: new Date().toLocaleString(), _revoked: true });
+    alert("Revoked this document for the selected recipients.");
+  }
+  doSchedule() { const t = prompt("Schedule send date/time (e.g. 2026-05-15 09:00):", ""); if (t) alert("Scheduled to publish & email on " + t + " (simulated)."); }
+
+  fieldDefs() {
+    const k = this.state.kind;
+    const common = [["event", "Event title"], ["rank", "Rank"], ["first", "First name"], ["surname", "Surname"], ["position", "Position / role"], ["org", "Organisation"], ["nation", "Nation"], ["footer", "Classification footer"]];
+    if (k === "badge") {
+      const st = this.state.data.badgeStyle || "standard";
+      if (st === "plcc") return [["badgeMark", "Badge mark (e.g. SUMMIT)"], ["event", "Conference title"], ["dateLine", "Date · location line"], ["rank", "Rank"], ["first", "First name"], ["surname", "Surname"], ["badgeName", "Name override (optional)"], ["nation", "Nation"], ["role", "Role pill (e.g. Guest Speaker)"], ["orgFull", "Bottom org line"], ["backNote", "Back-of-badge note", "area"]];
+      if (st === "landcorps") return [["event", "Conference title"], ["dateLine", "Date line"], ["rank", "Rank"], ["first", "First name"], ["surname", "Surname"], ["position", "Duty"], ["org", "Organization"], ["orgFull", "Footer org line"], ["backNote", "Back-of-badge note", "area"]];
+      return [["badgeMark", "Badge mark (e.g. GLC)"], ["event", "Event tagline"], ["orgFull", "Organisation line"], ["first", "First name"], ["surname", "Surname"], ["badgeName", "Name override (optional)"], ["nation", "Nation"], ["idNumber", "ID number"], ["role", "Footer label (e.g. VISITOR)"], ["backNote", "Back-of-badge note", "area"]];
+    }
+    if (k === "tentDinner" || k === "tentConf") return common;
+    if (k === "welcome") return [["event", "Event title"], ["docTitle", "Document title"], ["dateLine", "Date line"], ["salutation", "Salutation"], ["body", "Body text", "area"], ["sign1Name", "Signatory name"], ["sign1Title", "Signatory title"], ["footer", "Classification footer"]];
+    if (k === "certificate") return [["event", "Event title"], ["location", "Location"], ["certTitle", "Certificate title"], ["presentedTo", "Presented-to line"], ["fullName", "Recipient full name"], ["position", "Recipient role"], ["certReason", "Reason text", "area"], ["dateLine", "Date line"], ["sign1Name", "Signatory 1 name"], ["sign1Title", "Signatory 1 title"], ["sign2Name", "Signatory 2 name"], ["sign2Title", "Signatory 2 title"], ["footer", "Classification footer"]];
+    if (k === "receipt") return [["receiptTitle", "Title"], ["receiptSub", "Subtitle"], ["orgName", "Organisation name"], ["addr1", "Address line"], ["addr2", "Tel / Fax line"], ["receiptForLabel", "Receipt-for label"], ["event", "Conference name"], ["location", "Location & year"], ["participant", "Participant"], ["itemDesc", "Service description"], ["qty", "Quantity"], ["unitCost", "Unit cost"], ["currency", "Currency"], ["repLabel", "Representative line"], ["totalLabel", "Total label"]];
+    return common;
+  }
+
+  addCustomField() { const cf = (this.state.data.customFields || []).concat([{ id: "cf" + Date.now(), text: "New text", x: 50, y: 50, size: 4, color: this.state.colors.primary, bold: true }]); this.setData("customFields", cf); }
+  updateCustomField(id, k, v) { this.setData("customFields", (this.state.data.customFields || []).map(f => f.id === id ? { ...f, [k]: v } : f)); }
+  removeCustomField(id) { this.setData("customFields", (this.state.data.customFields || []).filter(f => f.id !== id)); }
+
+  esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  textToHtml(t) { return String(t || "").split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => "<p>" + this.esc(p) + "</p>").join("") || "<p></p>"; }
+  richKey() { return this.state.kind === "certificate" ? "certReasonHtml" : "bodyHtml"; }
+  fillEditor() {
+    const el = this.editRef.current; if (!el) return;
+    const k = this.state.kind; let html = "";
+    if (k === "welcome") html = this.state.data.bodyHtml || this.textToHtml(this.state.data.body);
+    else if (k === "certificate") html = this.state.data.certReasonHtml || this.textToHtml(this.state.data.certReason);
+    else return;
+    if (el.innerHTML !== html) el.innerHTML = html;
+    if (!el._wired) { el._wired = true; el.addEventListener("keyup", () => this.saveRange()); el.addEventListener("mouseup", () => this.saveRange()); el.addEventListener("focus", () => this.saveRange()); }
+  }
+  saveRange() { const sel = window.getSelection(); if (sel && sel.rangeCount) { const r = sel.getRangeAt(0); const el = this.editRef.current; if (el && el.contains(r.commonAncestorContainer)) this._savedRange = r.cloneRange(); } }
+  restoreRange() { const el = this.editRef.current; if (!el) return; el.focus(); if (this._savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(this._savedRange); } }
+  syncBody() { const el = this.editRef.current; if (!el) return; this.setState({ data: { ...this.state.data, [this.richKey()]: el.innerHTML } }); }
+  async doPaste() { try { const t = await navigator.clipboard.readText(); this.restoreRange(); document.execCommand("insertText", false, t); } catch (e) { try { document.execCommand("paste"); } catch (e2) {} } this.saveRange(); this.syncBody(); }
+  changeCase() {
+    const sel = window.getSelection(); if (!sel || !sel.rangeCount) return; const txt = sel.toString(); if (!txt) return;
+    const st = (this._caseState || 0) % 3; this._caseState = (this._caseState || 0) + 1;
+    let out = st === 0 ? txt.toUpperCase() : st === 1 ? txt.toLowerCase() : txt.replace(/\b\w/g, c => c.toUpperCase());
+    document.execCommand("insertText", false, out);
+  }
+  sortLines() { const sel = window.getSelection(); if (!sel || !sel.rangeCount) return; const t = sel.toString(); if (!t.trim()) return; const lines = t.split(/\r?\n/).sort((a, b) => a.localeCompare(b)); document.execCommand("insertText", false, lines.join("\n")); }
+  formatPainter() {
+    if (!this._fp) { this._fp = { b: document.queryCommandState("bold"), i: document.queryCommandState("italic"), u: document.queryCommandState("underline"), color: document.queryCommandValue("foreColor") }; }
+    else { const f = this._fp; this._fp = null; if (document.queryCommandState("bold") !== f.b) document.execCommand("bold"); if (document.queryCommandState("italic") !== f.i) document.execCommand("italic"); if (document.queryCommandState("underline") !== f.u) document.execCommand("underline"); if (f.color) document.execCommand("foreColor", false, f.color); }
+  }
+  runCmd(cmd, val) {
+    const el = this.editRef.current; if (!el) return;
+    this.restoreRange();
+    try { document.execCommand("styleWithCSS", false, true); } catch (e) {}
+    const std = ["bold", "italic", "underline", "strikeThrough", "subscript", "superscript", "insertUnorderedList", "insertOrderedList", "indent", "outdent", "justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "removeFormat", "cut", "copy", "foreColor"];
+    if (cmd === "paste") { this.doPaste(); return; }
+    else if (cmd === "fontName") document.execCommand("fontName", false, val);
+    else if (cmd === "fontSize") { this._size = parseInt(val, 10) || 3; document.execCommand("fontSize", false, this._size); }
+    else if (cmd === "grow") { this._size = Math.min(7, (this._size || 3) + 1); document.execCommand("fontSize", false, this._size); }
+    else if (cmd === "shrink") { this._size = Math.max(1, (this._size || 3) - 1); document.execCommand("fontSize", false, this._size); }
+    else if (cmd === "hiliteColor") { if (!document.execCommand("hiliteColor", false, val)) document.execCommand("backColor", false, val); }
+    else if (cmd === "changeCase") this.changeCase();
+    else if (cmd === "multilevel") { document.execCommand("insertOrderedList", false); document.execCommand("indent", false); }
+    else if (cmd === "lineSpacing") el.style.lineHeight = val;
+    else if (cmd === "shading") { if (!document.execCommand("hiliteColor", false, "#e9edf4")) document.execCommand("backColor", false, "#e9edf4"); }
+    else if (cmd === "sort") this.sortLines();
+    else if (cmd === "showMarks") el.classList.toggle("show-marks");
+    else if (cmd === "formatPainter") this.formatPainter();
+    else if (std.includes(cmd)) document.execCommand(cmd, false, val || null);
+    this.saveRange(); this.syncBody();
+  }
+  wireRibbon() {
+    const rb = this.ribbonRef.current;
+    if (!rb) { this._wiredNode = null; return; }
+    if (this._wiredNode === rb) return;
+    this._wiredNode = rb;
+    rb.addEventListener("mousedown", this._rbDown = (e) => { if (e.target.closest("[data-cmd]")) e.preventDefault(); });
+    rb.addEventListener("click", this._rbClick = (e) => { const b = e.target.closest("button[data-cmd]"); if (!b) return; e.preventDefault(); this.runCmd(b.getAttribute("data-cmd")); });
+    rb.addEventListener("change", this._rbChange = (e) => { const t = e.target; if (t.matches && t.matches("select[data-cmd]")) this.runCmd(t.getAttribute("data-cmd"), t.value); });
+    rb.addEventListener("input", this._rbInput = (e) => { const t = e.target; if (t.matches && t.matches('input[type="color"][data-cmd]')) this.runCmd(t.getAttribute("data-cmd"), t.value); });
+  }
+  componentDidMount() { this.fillEditor(); this.wireRibbon(); }
+  componentDidUpdate(prevProps, prevState) { this.fillEditor(); this.wireRibbon(); }
+  componentWillUnmount() { const rb = this._wiredNode; if (rb) { rb.removeEventListener("mousedown", this._rbDown); rb.removeEventListener("click", this._rbClick); rb.removeEventListener("change", this._rbChange); rb.removeEventListener("input", this._rbInput); } }
+
+  renderVals() {
+    const tab = (active) => ({ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px", fontSize: "13px", fontWeight: 700, color: active ? "#c2632f" : "#8a90a0", borderBottom: "2.5px solid " + (active ? "#c2632f" : "transparent") });
+    const dim = this.curDim();
+    const wpx = dim.w * 3.78, hpx = dim.h * 3.78;
+    const isBadge = this.state.kind === "badge";
+    const maxW = isBadge ? (wpx * 2 + 48) : wpx;
+    const scale = Math.min(1.05, 560 / maxW, 600 / hpx);
+
+    const presetBtn = (key, label) => ({ label, onClick: () => this.applyPreset(key),
+      style: { border: "1px solid " + (this.state.preset === key ? "#c2632f" : "#e2e5ec"), background: this.state.preset === key ? "#fdf1ea" : "#fff", color: "#3a4150", borderRadius: "8px", padding: "7px 12px", fontSize: "12px", fontWeight: 600, cursor: "pointer", flex: "1 1 28%" } });
+
+    const sizePresetDefs = [["A6", 105, 148], ["A5", 148, 210], ["A4", 210, 297], ["A4↔", 297, 210]];
+
+    const fields = this.fieldDefs().map(f => ({ label: f[1], area: f[2] === "area", text: f[2] !== "area",
+      value: this.state.data[f[0]] || "", onInput: (e) => this.setData(f[0], e.target.value) }));
+
+    const colorInputs = [["primary", "Primary"], ["accent", "Accent"], ["text", "Text"], ["band", "Band"], ["bg", "Background"]]
+      .map(c => ({ label: c[1], value: this.state.colors[c[0]], onInput: (e) => this.setColor(c[0], e.target.value) }));
+
+    const toggles = [["qr", "Show QR code"], ["classification", "Classification banner"]]
+      .map(t => ({ label: t[1], on: !!this.state.show[t[0]], onToggle: () => this.setState({ show: { ...this.state.show, [t[0]]: !this.state.show[t[0]] } }) }));
+    const alignDef = [["left", "Left", "≡"], ["center", "Center", "≡"], ["justify", "Justify", "≡"]];
+    const alignBtns = [["left", "Left"], ["center", "Center"], ["right", "Right"], ["justify", "Justify"]].map(a => {
+      const on = this.state.textAlign === a[0];
+      const icons = { left: "☰", center: "☲", right: "☰", justify: "≡" };
+      return { title: a[1], icon: a[0] === "center" ? "☷" : (a[0] === "justify" ? "≡" : (a[0] === "right" ? "☵" : "☴")),
+        onClick: () => this.setState({ textAlign: a[0] }),
+        style: { width: "30px", height: "30px", border: "1px solid " + (on ? "#c2632f" : "#d8dce4"), background: on ? "#fdf1ea" : "#fff", color: on ? "#c2632f" : "#6b7282", borderRadius: "7px", cursor: "pointer", fontSize: "13px", lineHeight: 1 } };
+    });
+
+    const recs = this.recipients();
+    const apps = this.approved();
+    const q = (this.state.pSearch || "").toLowerCase();
+    const participantList = apps.filter(a => { if (!q) return true; return ((a.firstName || "") + " " + (a.lastName || "") + " " + (a.email || "") + " " + (a.org || "") + " " + (a.rank || "")).toLowerCase().includes(q); })
+      .map(a => ({ email: a.email, name: ((a.firstName || "") + " " + (a.lastName || "")).trim() || a.email, meta: [a.rank, a.org || a.nation].filter(Boolean).join(" \u00b7 "),
+        on: (this.state.selected || []).includes(a.email), isPreview: this.state.previewEmail === a.email,
+        onToggle: () => this.toggleSelected(a.email), onPreview: () => this.setState({ previewEmail: this.state.previewEmail === a.email ? "" : a.email }) }));
+    const srcDef = [["manual", "Manual"], ["selected", "Selected"], ["all", "All approved"]];
+    const sourceBtns = srcDef.map(s => ({ label: s[0] === "all" ? "All (" + apps.length + ")" : s[1], on: this.state.source === s[0],
+      onClick: () => this.setState({ source: s[0] }),
+      style: { flex: 1, border: "1px solid " + (this.state.source === s[0] ? "#c2632f" : "#d8dce4"), background: this.state.source === s[0] ? "#fdf1ea" : "#fff", color: this.state.source === s[0] ? "#c2632f" : "#6b7282", borderRadius: "7px", padding: "7px 6px", fontSize: "12px", fontWeight: 600, cursor: "pointer" } }));
+    const pApp = this.previewApp();
+    const pubLine = this.state._revoked && !this.state._pub ? ("Revoked · " + (this.state._pubAt || ""))
+      : (this.state._pub ? ("Published to " + this.state._pub + " recipient(s) · " + this.state._pubAt) : "Not yet published. Choose recipients and Publish & Send.");
+
+    return {
+      goDesign: () => this.setState({ mode: "design" }), goShare: () => this.setState({ mode: "share" }),
+      onDesign: this.state.mode === "design", onShare: this.state.mode === "share",
+      tabDesignStyle: tab(this.state.mode === "design"), tabShareStyle: tab(this.state.mode === "share"),
+      kind: this.state.kind, onKind: (e) => this.setState({ kind: e.target.value, preset: this.state.preset }),
+      artType: this.artType(this.state.kind),
+      dimW: dim.w, dimH: dim.h, onW: (e) => this.setDim("w", e.target.value), onH: (e) => this.setDim("h", e.target.value),
+      sizePresets: sizePresetDefs.map(s => ({ label: s[0], onClick: () => this.setState({ sizes: { ...this.state.sizes, [this.state.kind]: { w: s[1], h: s[2] } } }) })),
+      presets: [presetBtn("plcc", "Navy"), presetBtn("landcom", "Green"), presetBtn("diana", "Teal"), presetBtn("hq", "Charcoal"), presetBtn("ceremonial", "Gold"), presetBtn("naval", "Deep Navy"), presetBtn("maroon", "Maroon"), presetBtn("custom", "Custom")],
+      colorInputs, colors: this.state.colors,
+      templateCards: this.builtinTemplates().map(t => ({ id: t.id, name: t.name, swatch: (t.cfg.colors && (t.cfg.colors.band || t.cfg.colors.primary)) || "#e2e5ec", deletable: false, onDelete: null, onClick: () => this.applyTemplate(t.cfg, t.id), style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px", border: "1px solid " + (this.state.activeTpl === t.id ? "#c2632f" : "#e2e5ec"), background: this.state.activeTpl === t.id ? "#fdf1ea" : "#fff", borderRadius: "8px", padding: "9px 10px", cursor: "pointer" } }))
+        .concat(this.loadUserTpl().map(t => ({ id: t.id, name: t.name, swatch: (t.cfg.colors && (t.cfg.colors.band || t.cfg.colors.primary)) || "#e2e5ec", deletable: true, onClick: () => this.applyTemplate(t.cfg, t.id), onDelete: (e) => { if (e && e.stopPropagation) e.stopPropagation(); if (confirm('Delete draft \u201c' + t.name + '\u201d?')) this.deleteDraft(t.id); }, style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px", border: "1px solid " + (this.state.activeTpl === t.id ? "#c2632f" : "#e2e5ec"), background: this.state.activeTpl === t.id ? "#fdf1ea" : "#fff", borderRadius: "8px", padding: "9px 10px", cursor: "pointer" } }))),
+      draftName: this.state.draftName, onDraftName: (e) => this.setState({ draftName: e.target.value, draftSaved: false }),
+      saveDraft: () => this.saveDraft(), draftSaved: this.state.draftSaved,
+      fields,
+      logoLeft: this.state.logos.left, logoRight: this.state.logos.right,
+      logoSlots: [["left", "Left logo"], ["center", "Center logo / image"], ["right", "Right logo / crest"]].map(s => ({
+        label: s[1], url: this.state.logos[s[0]] || "", src: this.state.logos[s[0]] || "", has: !!this.state.logos[s[0]],
+        onUrl: (e) => this.setState({ logos: { ...this.state.logos, [s[0]]: e.target.value } }),
+        onFile: (e) => this.readImg(e, s[0]),
+        onClear: () => this.setState({ logos: { ...this.state.logos, [s[0]]: "" } }) })),
+      onLogoLeft: (e) => this.setState({ logos: { ...this.state.logos, left: e.target.value } }),
+      onLogoRight: (e) => this.setState({ logos: { ...this.state.logos, right: e.target.value } }),
+      toggles, show: this.state.show,
+      starsOn: !!this.state.show.stars, onStarsToggle: () => this.setState({ show: { ...this.state.show, stars: !this.state.show.stars } }),
+      starCount: String(this.state.data.starCount != null ? this.state.data.starCount : 4), onStarCount: (e) => this.setData("starCount", parseInt(e.target.value, 10) || 1),
+      font: this.state.font, onFont: (e) => this.setState({ font: e.target.value }),
+      textScale: this.state.textScale, textAlign: this.state.textAlign,
+      textPct: Math.round((this.state.textScale || 1) * 100),
+      onTextSize: (e) => this.setState({ textScale: (parseInt(e.target.value, 10) || 100) / 100 }),
+      alignBtns,
+      qr: this.state.qr, onQr: (e) => this.setState({ qr: e.target.value }),
+      batch: this.state.batch, onBatch: (e) => this.setState({ batch: e.target.checked }),
+      showCopies: this.state.source === "manual", copies: this.state.copies, onCopies: (e) => this.setState({ copies: parseInt(e.target.value, 10) || 1 }),
+      perSheetLabel: this.perSheet() + " per A4",
+      perPage: this.state.perPage, perSheetAuto: this.perSheetAuto() + " per sheet",
+      onPerPage: (e) => this.setState({ perPage: e.target.value }),
+      doPrint: () => this.doPrint(),
+      isBadge, isOther: !isBadge, artData: this.previewData(),
+      source: this.state.source, sourceBtns, needPicker: this.state.source !== "manual",
+      participantList, noParticipants: apps.length === 0,
+      pSearch: this.state.pSearch, onPSearch: (e) => this.setState({ pSearch: e.target.value }),
+      selCount: (this.state.selected || []).length,
+      selectAllP: () => this.setState({ selected: apps.map(a => a.email) }), clearSelP: () => this.setState({ selected: [] }),
+      previewName: pApp ? (((pApp.firstName || "") + " " + (pApp.lastName || "")).trim() || pApp.email) : "",
+      hasPreview: !!pApp, onClearPreview: () => this.setState({ previewEmail: "" }),
+      outCountLabel: this.state.source === "all" ? (apps.length + " participant(s)") : (this.state.source === "selected" ? ((this.state.selected || []).length + " selected") : "Manual design"),
+      logos: this.state.logos,
+      previewScale: scale.toFixed(3),
+      customFields: (this.state.data.customFields || []).map(f => ({ text: f.text, x: f.x, y: f.y, size: f.size, color: f.color,
+        onText: (e) => this.updateCustomField(f.id, "text", e.target.value),
+        onX: (e) => this.updateCustomField(f.id, "x", parseFloat(e.target.value) || 0),
+        onY: (e) => this.updateCustomField(f.id, "y", parseFloat(e.target.value) || 0),
+        onSize: (e) => this.updateCustomField(f.id, "size", parseFloat(e.target.value) || 4),
+        onColor: (e) => this.updateCustomField(f.id, "color", e.target.value),
+        onRemove: () => this.removeCustomField(f.id) })),
+      addCustomField: () => this.addCustomField(),
+      showRibbon: this.state.kind === "welcome" || this.state.kind === "certificate",
+      editRef: this.editRef, setEditEl: this.setEditEl, ribbonRef: this.ribbonRef, onEditInput: () => this.syncBody(),
+      printPages: this.state.printPages,
+      // share
+      audience: this.state.audience, onAudience: (e) => this.setState({ audience: e.target.value }),
+      recipientCount: recs.length,
+      emailSubject: this.state.emailSubject, onSubject: (e) => this.setState({ emailSubject: e.target.value }),
+      emailBody: this.state.emailBody, onBody: (e) => this.setState({ emailBody: e.target.value }),
+      emailToggles: [{ label: "Attach document as PDF", on: this.state.attachPdf, onToggle: () => this.setState({ attachPdf: !this.state.attachPdf }) }, { label: "Include QR verification link", on: this.state.includeQr, onToggle: () => this.setState({ includeQr: !this.state.includeQr }) }],
+      doPublish: () => this.doPublish(), doRevoke: () => this.doRevoke(), doSchedule: () => this.doSchedule(),
+      publishStatus: pubLine,
+    };
+  }
+}
+</script>
+</body>
+</html>

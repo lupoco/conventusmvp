@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergens · CIMIC Analytical Layers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* ============ 04 · CIMIC ANALYTICAL LAYERS — page styles ============ */
+  .intro{margin-bottom:18px}
+  .exportbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+    border:1px solid var(--panel-line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:18px;box-shadow:var(--sh-card)}
+  .exportbar .grp{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--mute)}
+  .exportbar label{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .selcount{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+  .spacer{margin-left:auto}
+
+  .layers{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .layer{background:linear-gradient(180deg,var(--panel),var(--navy-2));border:1px solid var(--panel-line);
+    border-radius:var(--r-lg);padding:17px 19px;transition:border-color .15s,box-shadow .15s;box-shadow:var(--sh-card)}
+  .layer.sel{border-color:rgba(168,118,240,.6);box-shadow:0 0 0 1px rgba(168,118,240,.3),var(--sh-card)}
+  .lhead{display:flex;align-items:flex-start;gap:12px}
+  .chk{appearance:none;width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:5px;margin-top:3px;
+    cursor:pointer;flex:none;position:relative;transition:.15s}
+  .chk:checked{background:var(--violet);border-color:var(--violet)}
+  .chk:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700}
+  .ltitle{font-family:var(--f-display);font-size:17px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+  .status{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;color:var(--mute);margin-top:5px}
+  .status .dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 7px -1px currentColor}
+  .updated{margin-left:auto}
+  .purpose{color:var(--ink-dim);font-size:13px;line-height:1.5;margin-top:11px}
+  .subheads{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+  .bluf{font-size:13.5px;line-height:1.5}
+  .bluf b{color:var(--cyan);font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;display:block;margin-bottom:3px;text-transform:uppercase}
+  .report{margin-top:12px;border-top:1px solid var(--panel-line);padding-top:12px;display:none}
+  .report.open{display:block}
+  .report h4{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+  .report ul{margin:0 0 12px 16px;font-size:13px;line-height:1.55;color:var(--ink-dim)}
+  .indicators{display:flex;gap:7px;flex-wrap:wrap}
+  .ind{font-size:11px;color:var(--mute);border:1px dashed var(--line-strong);border-radius:6px;padding:2px 8px}
+  .toggle{background:none;border:0;color:var(--cyan);font-family:var(--f-mono);font-size:11.5px;cursor:pointer;margin-top:10px;padding:0;letter-spacing:.03em}
+  .toggle:hover{color:var(--ink)}
+  @media(max-width:900px){.layers{grid-template-columns:1fr}.spacer{margin-left:0;width:100%}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<div id="shell-nav"></div>
+
+<div class="wrap">
+  <div class="banner sample"><span class="gem">◆</span> Sample analysis — <b>UI prototype; replace cimic.json with analyst-produced, sourced reporting</b></div>
+
+  <div class="intro">
+    <div class="eyebrow">03 — CIMIC Analytical Layers</div>
+    <h1>Analytical <span>Layers</span></h1>
+    <p class="lede">OSINT distilled into structured civil-military understanding — one analytical layer at a time, each with a BLUF, key findings and tracked indicators. Select layers and export an analyst-ready report.</p>
+  </div>
+
+  <div class="exportbar">
+    <div class="grp"><label>Format</label>
+      <div class="seg" id="fmt">
+        <button data-f="pdf" class="on">PDF</button>
+        <button data-f="md">Markdown</button>
+        <button data-f="html">HTML</button>
+        <button data-f="json">JSON</button>
+      </div>
+    </div>
+    <div class="grp"><label>Selected</label><span class="selcount" id="selcount">0 / 0</span></div>
+    <button class="btn ghost" id="selall">Select all</button>
+    <div class="spacer"></div>
+    <button class="btn ghost" id="exportSel">Export selected</button>
+    <button class="btn primary" id="exportAll">Export all reports ↓</button>
+  </div>
+
+  <div class="layers" id="layers"></div>
+</div>
+
+<div id="shell-footer"></div>
+
+<script src="shell.js"></script>
+<script>
+const FALLBACK = {
+  meta:{title:"CIMIC Analytical Layers",scope:"Civil-only · resilience awareness",generated:"2026-06-03",note:"Sample/illustrative analytical content for UI prototype. Replace with analyst-produced, sourced reporting."},
+  statuses:{current:{label:"Current",c:"var(--ok)"},updated:{label:"Updated",c:"var(--cyan)"},draft:{label:"Draft",c:"var(--gold)"},stale:{label:"Stale",c:"var(--mute)"},alert:{label:"Attention",c:"var(--danger)"}},
+  layers:[
+    {id:"gov",name:"Governance & Administration",status:"current",updated:"2026-05-28",subheads:["Authority mapping","Service continuity","Rule of law"],bluf:"Local administrative capacity is uneven; service continuity holds in urban centres but lapses in contested peripheries.",findings:["De facto authorities established in most governorates; coordination interfaces still maturing.","Civil registry and documentation gaps complicate returns and aid eligibility."],indicators:["Functional municipalities","Documentation backlog","Local dispute volume"]},
+    {id:"pop",name:"Population & Displacement",status:"updated",updated:"2026-06-01",subheads:["IDP movements","Returns","Camp profiles"],bluf:"Net displacement is declining as large-scale returns continue, but secondary displacement persists near friction lines.",findings:["Returns concentrated in a few governorates; absorption capacity strained.","Camp populations decreasing yet residual caseload remains highly vulnerable."],indicators:["Net IDP change","Return intentions","Camp decongestion rate"]},
+    {id:"infra",name:"Infrastructure & Essential Services",status:"alert",updated:"2026-05-30",subheads:["Energy","Water","Transport"],bluf:"Essential services operate well below capacity; water and energy shortfalls are the binding constraints on recovery.",findings:["Power availability intermittent; reliance on costly private generation.","Water systems degraded; drought compounds scarcity in agricultural zones."],indicators:["Grid availability hrs/day","Network water coverage","Road access status"]},
+    {id:"econ",name:"Economy & Livelihoods",status:"current",updated:"2026-05-27",subheads:["Markets","Employment","Prices (MEB)"],bluf:"Liquidity shortages and price volatility suppress purchasing power; livelihoods remain fragile.",findings:["Minimum Expenditure Basket cost rising faster than wages.","Cash access constrained; informal economy dominant."],indicators:["MEB trend","Wage-to-MEB ratio","Cash availability"]},
+    {id:"humco",name:"Humanitarian Actors & Coordination",status:"current",updated:"2026-05-29",subheads:["Cluster presence","Access","Funding"],bluf:"Coordination architecture is consolidating under a unified structure; funding shortfalls drive hard prioritization.",findings:["Cluster coverage strong in accessible areas, thin in periphery.","Appeal underfunded; activities reprioritized to highest-severity needs."],indicators:["Partner presence","Access incidents","Funding coverage %"]},
+    {id:"health",name:"Public Health",status:"alert",updated:"2026-05-31",subheads:["Facilities","Disease surveillance","Nutrition"],bluf:"Health system capacity is critically reduced; outbreak and malnutrition risks are elevated.",findings:["Significant share of facilities non- or partially functional; workforce depleted.","Water-related disease risk rising alongside drought and WASH gaps."],indicators:["Functional facilities %","Outbreak alerts","Malnutrition screening"]},
+    {id:"social",name:"Social & Cultural Dynamics",status:"draft",updated:"2026-05-22",subheads:["Community cohesion","Information environment","Protection"],bluf:"Inter-community tensions are localized but sensitive; the information environment is contested.",findings:["Returns and resource competition create friction in some communities.","Rumour and misinformation affect aid uptake and perceptions."],indicators:["Tension reports","Rumour tracking","Protection incidents"]},
+    {id:"hazard",name:"Hazard & Environment",status:"updated",updated:"2026-06-02",subheads:["Climate stress","Explosive ordnance","Disaster risk"],bluf:"Climate stress and explosive-ordnance contamination are persistent, cross-cutting drivers of need.",findings:["Severe drought reduces agricultural output and water access.","Explosive ordnance causes recurring civilian casualties and blocks land use."],indicators:["Rainfall anomaly","EO incident rate","Hazard exposure"]}
+  ]
+};
+
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const resolve=c=>c&&c.startsWith('var')?css(c.slice(4,-1)):c;
+const PURPOSE={gov:"Maps who governs and whether essential public functions keep running.",pop:"Tracks where people are moving, returning, and concentrating.",infra:"Monitors the condition and availability of essential services.",econ:"Assesses market function, prices, and household purchasing power.",humco:"Maps humanitarian presence, access, and funding against need.",health:"Monitors health-system capacity, disease risk, and nutrition.",social:"Reads community cohesion, the information environment, and protection.",hazard:"Tracks climate, explosive-ordnance, and disaster risk as cross-cutting drivers."};
+let DATA, FORMAT='pdf', SELECTED=new Set();
+
+function render(){
+  const wrap=document.getElementById('layers'); wrap.innerHTML='';
+  DATA.layers.forEach(L=>{
+    const st=DATA.statuses[L.status]||{label:L.status,c:'var(--mute)'};
+    const div=document.createElement('div'); div.className='layer'; div.dataset.id=L.id;
+    div.innerHTML=`
+      <div class="lhead">
+        <input type="checkbox" class="chk" data-id="${L.id}">
+        <div style="flex:1">
+          <div class="ltitle">${L.name}</div>
+          <div class="status"><span class="dot" style="background:${resolve(st.c)};color:${resolve(st.c)}"></span>${st.label}<span class="updated">upd ${L.updated}</span></div>
+        </div>
+      </div>
+      <div class="purpose">${L.purpose||PURPOSE[L.id]||''}</div>
+      <div class="subheads">${L.subheads.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+      <div class="bluf"><b>BLUF</b>${L.bluf}</div>
+      <button class="toggle" data-id="${L.id}">▸ View report</button>
+      <div class="report" id="rep-${L.id}">
+        <h4>Key findings</h4>
+        <ul>${L.findings.map(f=>`<li>${f}</li>`).join('')}</ul>
+        <h4>Indicators</h4>
+        <div class="indicators">${L.indicators.map(i=>`<span class="ind">${i}</span>`).join('')}</div>
+      </div>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('.chk').forEach(c=>c.addEventListener('change',e=>{
+    const id=e.target.dataset.id; const card=e.target.closest('.layer');
+    if(e.target.checked){SELECTED.add(id);card.classList.add('sel');}else{SELECTED.delete(id);card.classList.remove('sel');}
+    updateCount();
+  }));
+  wrap.querySelectorAll('.toggle').forEach(t=>t.addEventListener('click',e=>{
+    const r=document.getElementById('rep-'+e.target.dataset.id); const open=r.classList.toggle('open');
+    e.target.textContent=(open?'▾ Hide report':'▸ View report');
+  }));
+  updateCount();
+}
+function updateCount(){document.getElementById('selcount').textContent=`${SELECTED.size} / ${DATA.layers.length}`;}
+
+/* ---- export builders ---- */
+function pick(all){const ids=all?DATA.layers.map(l=>l.id):[...SELECTED];return DATA.layers.filter(l=>ids.includes(l.id));}
+function fname(ext){return `convergens-cimic-${DATA.meta.generated}.${ext}`;}
+
+function toMarkdown(layers){
+  let s=`# ${DATA.meta.title}\n\n*${DATA.meta.scope} · generated ${DATA.meta.generated}*\n\n`;
+  layers.forEach(L=>{
+    s+=`## ${L.name}\n`;
+    s+=`**Status:** ${(DATA.statuses[L.status]||{}).label||L.status} · updated ${L.updated}\n`;
+    s+=`**Sub-headings:** ${L.subheads.join(' · ')}\n\n`;
+    s+=`**BLUF.** ${L.bluf}\n\n**Key findings**\n`;
+    L.findings.forEach(f=>s+=`- ${f}\n`);
+    s+=`\n**Indicators:** ${L.indicators.join(', ')}\n\n---\n\n`;
+  });
+  s+=`> ${DATA.meta.note}\n`;
+  return s;
+}
+function toReportHTML(layers){
+  let body=`<h1>${DATA.meta.title}</h1><p><em>${DATA.meta.scope} · generated ${DATA.meta.generated}</em></p>`;
+  layers.forEach(L=>{
+    body+=`<section><h2>${L.name}</h2>
+      <p><strong>Status:</strong> ${(DATA.statuses[L.status]||{}).label||L.status} · updated ${L.updated}<br>
+      <strong>Sub-headings:</strong> ${L.subheads.join(' · ')}</p>
+      <p><strong>BLUF.</strong> ${L.bluf}</p>
+      <h3>Key findings</h3><ul>${L.findings.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <h3>Indicators</h3><p>${L.indicators.join(', ')}</p></section><hr>`;
+  });
+  body+=`<p style="color:#666"><em>${DATA.meta.note}</em></p>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${DATA.meta.title}</title>
+    <style>body{font-family:Georgia,serif;max-width:780px;margin:40px auto;padding:0 24px;color:#10243d;line-height:1.5}
+    h1{border-bottom:3px solid #0A1B33;padding-bottom:8px}h2{color:#0A1B33;margin-top:28px}h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#888}
+    hr{border:0;border-top:1px solid #ddd;margin:24px 0}</style></head><body>${body}</body></html>`;
+}
+function download(content,type,name){
+  const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function doExport(all){
+  const layers=pick(all);
+  if(!layers.length){alert('Select at least one layer, or use "Export all".');return;}
+  if(FORMAT==='md')   download(toMarkdown(layers),'text/markdown',fname('md'));
+  else if(FORMAT==='html') download(toReportHTML(layers),'text/html',fname('html'));
+  else if(FORMAT==='json') download(JSON.stringify({meta:DATA.meta,layers},null,2),'application/json',fname('json'));
+  else {
+    const w=window.open('','_blank');
+    if(!w){alert('Allow pop-ups to export PDF (uses browser print → Save as PDF).');return;}
+    w.document.write(toReportHTML(layers));w.document.close();
+    w.onload=()=>{w.focus();w.print();};
+  }
+}
+
+document.querySelectorAll('#fmt button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#fmt button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');FORMAT=b.dataset.f;
+}));
+document.getElementById('exportAll').addEventListener('click',()=>doExport(true));
+document.getElementById('exportSel').addEventListener('click',()=>doExport(false));
+document.getElementById('selall').addEventListener('click',()=>{
+  const boxes=document.querySelectorAll('.chk');const allOn=SELECTED.size===DATA.layers.length;
+  boxes.forEach(b=>{b.checked=!allOn;b.dispatchEvent(new Event('change'));});
+});
+
+(async function init(){
+  CONV.mount('layers','Reports are point-in-time analytical products.');
+  try{const r=await fetch('./cimic.json',{cache:'no-store'});if(!r.ok)throw 0;DATA=await r.json();}
+  catch(e){DATA=FALLBACK;}
+  render();
+})();
+</script>
+</body>
+</html>

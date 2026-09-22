@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/favicon-180.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convergens · CIMIC Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* ============ 08 · CIMIC COMMUNITY — page styles ============ */
+  .intro{margin-bottom:18px}
+  .controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .search{flex:1;min-width:220px;display:flex;align-items:center;gap:9px;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+    border:1px solid var(--panel-line);border-radius:11px;padding:0 14px}
+  .search input{flex:1;background:transparent;border:0;outline:0;color:var(--ink);font-family:var(--f-body);font-size:14px;padding:11px 0}
+  .search input::placeholder{color:var(--mute)}
+  .search svg{flex:none}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .fchip{background:transparent;border:1px solid var(--panel-line);color:var(--mute);border-radius:999px;padding:7px 13px;
+    font-family:var(--f-mono);font-size:11.5px;letter-spacing:.03em;cursor:pointer;transition:.15s}
+  .fchip:hover{color:var(--ink);border-color:var(--line-strong)}
+  .fchip.on{background:rgba(168,118,240,.18);border-color:rgba(168,118,240,.5);color:var(--violet)}
+
+  .actionbar{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+    border:1px solid var(--panel-line);border-radius:12px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap;box-shadow:var(--sh-card)}
+  .selcount{font-family:var(--f-mono);font-size:12.5px;color:var(--ink)}
+  .selcount b{color:var(--violet)}
+  .btn.sm{padding:8px 15px}
+  .spacer{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--mute)}
+
+  .list{display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:flex-start;gap:14px;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+    border:1px solid var(--panel-line);border-radius:12px;padding:14px 16px;transition:border-color .15s,background .15s}
+  .row:hover{border-color:var(--line-strong)}
+  .row.sel{border-color:rgba(168,118,240,.6);background:linear-gradient(180deg,#1a2f55,var(--navy-2))}
+  .chk{appearance:none;width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:5px;margin-top:2px;cursor:pointer;flex:none;position:relative;transition:.15s}
+  .chk:checked{background:var(--violet);border-color:var(--violet)}
+  .chk:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700}
+  .rmain{flex:1;min-width:0}
+  .rtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rname{font-family:var(--f-display);font-size:16px;font-weight:700}
+  .cat{font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(39,176,230,.35);border-radius:5px;padding:1px 7px}
+  .rdesc{color:var(--ink-dim);font-size:13px;line-height:1.5;margin-top:5px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .tag{font-size:10.5px;color:var(--mute);border:1px dashed var(--line-strong);border-radius:5px;padding:1px 7px}
+  .open{flex:none;color:var(--violet);font-family:var(--f-mono);font-size:11.5px;display:inline-flex;align-items:center;gap:5px;align-self:center}
+  .open.disabled{color:var(--mute);opacity:.6}
+  .empty{text-align:center;color:var(--mute);padding:40px;font-family:var(--f-mono);font-size:13px}
+
+  @media(max-width:760px){.open{display:none}}
+</style>
+<script src="/assets/js/cv-config.js"></script>
+</head>
+<body>
+
+<div id="shell-nav"></div>
+
+<div class="wrap">
+  <div class="banner sample"><span class="gem">◆</span> Starter directory — <b>curate &amp; extend community.json; verify links before publishing</b></div>
+
+  <div class="intro">
+    <div class="eyebrow">04 — Anchored in the CIMIC Community</div>
+    <h1>Community <span>Directory</span></h1>
+    <p class="lede">The institutions that set civil-military cooperation doctrine, training and reference — searchable, filterable, with sources and links. Select entries and open them together.</p>
+  </div>
+
+  <div class="controls">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8ba3c4" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="q" type="text" placeholder="Search name, description, or tag…">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="actionbar">
+    <span class="selcount" id="selcount"><b>0</b> selected</span>
+    <button class="btn ghost sm" id="selall">Select all (filtered)</button>
+    <button class="btn ghost sm" id="clear" disabled>Clear</button>
+    <button class="btn primary sm" id="open" disabled>Open selected ↗</button>
+    <span class="spacer" id="shown">—</span>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<div id="shell-footer"></div>
+
+<script src="shell.js"></script>
+<script>
+const FALLBACK = {
+  meta:{title:"Anchored in the CIMIC Community",scope:"Civil-only · reference network",generated:"2026-06-03",note:"Starter directory — curate and extend. Verify links before publishing."},
+  categories:[
+    {key:"coe",label:"Centres of Excellence"},{key:"org",label:"Organizations"},
+    {key:"doctrine",label:"Doctrine & Reference"},{key:"cop",label:"Communities of Practice"},
+    {key:"data",label:"Tools & Datasets"}
+  ],
+  entries:[
+    {id:"ccoe",name:"NATO CIMIC Centre of Excellence (CCOE)",cat:"coe",url:"https://www.cimic-coe.org",desc:"Lead NATO entity for CIMIC concepts, doctrine support, training and lessons learned.",tags:["NATO","CIMIC","doctrine","training"]},
+    {id:"ocha",name:"UN OCHA",cat:"org",url:"https://www.unocha.org",desc:"UN Office for the Coordination of Humanitarian Affairs — coordination, appeals, situation reporting.",tags:["UN","coordination","appeals"]},
+    {id:"iasc",name:"Inter-Agency Standing Committee (IASC)",cat:"org",url:"https://interagencystandingcommittee.org",desc:"Primary inter-agency forum for humanitarian coordination, policy and the cluster system.",tags:["coordination","clusters","policy"]},
+    {id:"icrc",name:"ICRC",cat:"org",url:"https://www.icrc.org",desc:"International Committee of the Red Cross — protection, IHL, civilian assistance.",tags:["protection","IHL","Red Cross"]},
+    {id:"reliefweb",name:"ReliefWeb",cat:"data",url:"https://reliefweb.int",desc:"OCHA-run information service for humanitarian reports, situation updates and analysis.",tags:["reports","OSINT","situation"]},
+    {id:"hdx",name:"Humanitarian Data Exchange (HDX)",cat:"data",url:"https://data.humdata.org",desc:"Open platform for sharing and accessing humanitarian datasets across crises.",tags:["datasets","open data"]},
+    {id:"dtm",name:"IOM Displacement Tracking Matrix (DTM)",cat:"data",url:"https://dtm.iom.int",desc:"Tracks and monitors displacement and population mobility.",tags:["displacement","IDP","mobility"]},
+    {id:"unhcrdp",name:"UNHCR Operational Data Portal",cat:"data",url:"https://data.unhcr.org",desc:"Refugee and operational data, dashboards and funding tracking.",tags:["refugees","dashboards"]},
+    {id:"acaps",name:"ACAPS",cat:"org",url:"https://www.acaps.org",desc:"Independent humanitarian needs analysis and severity scanning.",tags:["needs analysis","severity"]},
+    {id:"fews",name:"FEWS NET",cat:"data",url:"https://fews.net",desc:"Famine Early Warning Systems Network — food security analysis and projections.",tags:["food security","early warning"]},
+    {id:"alnap",name:"ALNAP",cat:"cop",url:"https://www.alnap.org",desc:"Community of practice on humanitarian learning, evaluation and effectiveness.",tags:["learning","evaluation"]},
+    {id:"hot",name:"Humanitarian OpenStreetMap Team (HOT)",cat:"data",url:"https://www.hotosm.org",desc:"Open mapping for humanitarian response and disaster preparedness.",tags:["mapping","GIS","open"]},
+    {id:"sphere",name:"Sphere Standards",cat:"doctrine",url:"https://spherestandards.org",desc:"Minimum standards for humanitarian response and quality.",tags:["standards","quality"]},
+    {id:"ajp319",name:"NATO AJP-3.19 — CIMIC Doctrine",cat:"doctrine",url:"#",desc:"Allied Joint Doctrine for Civil-Military Cooperation (reference — link to be set).",tags:["NATO","doctrine","CIMIC"]},
+    {id:"uncmcoord",name:"UN-CMCoord",cat:"cop",url:"#",desc:"UN Humanitarian Civil-Military Coordination guidance and practitioner network (link to be set).",tags:["civ-mil","coordination"]},
+    {id:"call",name:"Lessons-Learned Repository",cat:"coe",url:"#",desc:"Cross-mission lessons learned and after-action knowledge base (link to be set).",tags:["lessons learned","knowledge"]}
+  ]
+};
+
+let DATA, FILTER='all', QUERY='';
+const SEL=new Set();
+const catLabel=k=>{const c=(DATA.categories||[]).find(x=>x.key===k);return c?c.label:k;};
+
+function visible(e){
+  if(FILTER!=='all' && e.cat!==FILTER) return false;
+  if(QUERY){
+    const hay=(e.name+' '+e.desc+' '+(e.tags||[]).join(' ')).toLowerCase();
+    if(!hay.includes(QUERY)) return false;
+  }
+  return true;
+}
+
+function buildChips(){
+  const wrap=document.getElementById('chips');
+  const mk=(k,l)=>`<button class="fchip ${k===FILTER?'on':''}" data-k="${k}">${l}</button>`;
+  wrap.innerHTML=mk('all','All')+DATA.categories.map(c=>mk(c.key,c.label)).join('');
+  wrap.querySelectorAll('.fchip').forEach(b=>b.addEventListener('click',()=>{FILTER=b.dataset.k;buildChips();renderList();}));
+}
+
+function renderList(){
+  const list=document.getElementById('list'); list.innerHTML='';
+  const vis=DATA.entries.filter(visible);
+  document.getElementById('shown').textContent=`${vis.length} of ${DATA.entries.length} shown`;
+  if(!vis.length){list.innerHTML='<div class="empty">No matching entries.</div>';return;}
+  vis.forEach(e=>{
+    const sel=SEL.has(e.id), hasUrl=e.url && e.url!=='#';
+    const row=document.createElement('div'); row.className='row'+(sel?' sel':'');
+    row.innerHTML=`
+      <input type="checkbox" class="chk" data-id="${e.id}" ${sel?'checked':''}>
+      <div class="rmain">
+        <div class="rtop"><span class="rname">${e.name}</span><span class="cat">${catLabel(e.cat)}</span></div>
+        <div class="rdesc">${e.desc}</div>
+        <div class="tags">${(e.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      ${hasUrl?`<a class="open" href="${e.url}" target="_blank" rel="noopener">Open ↗</a>`:`<span class="open disabled">link TBD</span>`}`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.chk').forEach(c=>c.addEventListener('change',ev=>{
+    const id=ev.target.dataset.id;
+    if(ev.target.checked)SEL.add(id);else SEL.delete(id);
+    ev.target.closest('.row').classList.toggle('sel',ev.target.checked);
+    updateBar();
+  }));
+}
+
+function updateBar(){
+  document.getElementById('selcount').innerHTML=`<b>${SEL.size}</b> selected`;
+  document.getElementById('clear').disabled=SEL.size===0;
+  document.getElementById('open').disabled=SEL.size===0;
+}
+
+document.getElementById('q').addEventListener('input',e=>{QUERY=e.target.value.trim().toLowerCase();renderList();});
+document.getElementById('selall').addEventListener('click',()=>{
+  DATA.entries.filter(visible).forEach(e=>SEL.add(e.id));renderList();updateBar();
+});
+document.getElementById('clear').addEventListener('click',()=>{SEL.clear();renderList();updateBar();});
+document.getElementById('open').addEventListener('click',()=>{
+  const urls=DATA.entries.filter(e=>SEL.has(e.id)&&e.url&&e.url!=='#').map(e=>e.url);
+  if(!urls.length){alert('Selected entries have no live links yet.');return;}
+  if(urls.length>6 && !confirm(`Open ${urls.length} tabs?`)) return;
+  urls.forEach(u=>window.open(u,'_blank','noopener'));
+});
+
+(async function init(){
+  CONV.mount('community','Reference network · external links open in new tabs.');
+  try{const r=await fetch('./community.json',{cache:'no-store'});if(!r.ok)throw 0;DATA=await r.json();}
+  catch(e){DATA=FALLBACK;}
+  buildChips();renderList();updateBar();
+})();
+</script>
+</body>
+</html>

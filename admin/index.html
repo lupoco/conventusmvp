@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel · Conventity</title>
+  <script src="/assets/js/cv-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/cv-core.js"></script>
+  <script>
+    const _sb = window.cvClient();
+    const ADMIN_EMAIL = 'serkancopul@gmail.com';
+    (async () => {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (!session) { window.location.href = '/login.html'; return; }
+      if (session.user.email !== ADMIN_EMAIL) { window.location.href = '/dashboard/index.html'; return; }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold: #C9973A; --gold-light: #E8B84B; --gold-dim: rgba(201,151,58,0.12); --r: 12px; --ease: 0.2s ease; }
+
+    [data-resolved-theme="dark"] {
+      --bg: #060810; --panel: #0A0D1A; --surface: rgba(255,255,255,0.035);
+      --surface-hover: rgba(255,255,255,0.055); --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(201,151,58,0.2); --text: #EEE9E2; --sub: #8B95A8;
+      --muted: #525C6B; --btn-fg: #060810; --logo-outer: #1C3060; --logo-inner: #4F88C8;
+      --table-row-hover: rgba(255,255,255,0.025);
+    }
+    [data-resolved-theme="light"] {
+      --bg: #F2F1EE; --panel: #E8E6E1; --surface: rgba(0,0,0,0.04);
+      --surface-hover: rgba(0,0,0,0.065); --border: rgba(0,0,0,0.08);
+      --border-accent: rgba(201,151,58,0.3); --text: #111318; --sub: #555E6E;
+      --muted: #9CA3AF; --btn-fg: #060810; --logo-outer: #1C3060; --logo-inner: #3A72B0;
+      --table-row-hover: rgba(0,0,0,0.02);
+    }
+
+    body { min-height: 100vh; background: var(--bg); font-family: 'Manrope', system-ui, sans-serif; color: var(--text); transition: background var(--ease), color var(--ease); }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: var(--panel); border-bottom: 1px solid var(--border-accent); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
+    .nav-logo-icon { width: 30px; height: 30px; }
+    .nav-logo-name { font-family: 'Manrope', system-ui, sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.2em; color: var(--text); text-transform: uppercase; }
+    .nav-badge { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.18rem 0.5rem; background: rgba(201,151,58,0.12); color: var(--gold); border: 1px solid rgba(201,151,58,0.25); border-radius: 100px; }
+    .nav-right { display: flex; align-items: center; gap: 0.7rem; }
+    .theme-seg { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; overflow: hidden; }
+    .theme-seg button { padding: 0.28rem 0.55rem; background: transparent; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; transition: background var(--ease); }
+    .theme-seg button.active { background: var(--gold); color: #060810; border-radius: 100px; }
+    .theme-seg button svg { width: 11px; height: 11px; }
+    .btn-sm { display: flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; background: transparent; border: 1px solid var(--border); border-radius: 100px; cursor: pointer; font-family: 'Manrope', system-ui, sans-serif; font-size: 0.72rem; font-weight: 500; color: var(--sub); transition: border-color var(--ease), color var(--ease); }
+    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm svg { width: 12px; height: 12px; }
+    .btn-sm.danger:hover { border-color: #F87171; color: #F87171; }
+
+    /* LAYOUT */
+    .layout { display: flex; min-height: calc(100vh - 60px); }
+
+    /* SIDEBAR */
+    aside { width: 220px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 1.5rem 0; }
+    .sidebar-section { padding: 0 1rem; margin-bottom: 1.5rem; }
+    .sidebar-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); padding: 0 0.5rem; margin-bottom: 0.4rem; display: block; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; color: var(--sub); text-decoration: none; transition: background var(--ease), color var(--ease); margin-bottom: 0.15rem; border: none; background: none; width: 100%; text-align: left; font-family: 'Manrope', system-ui, sans-serif; }
+    .sidebar-link:hover { background: var(--surface); color: var(--text); }
+    .sidebar-link.active { background: var(--gold-dim); color: var(--gold); }
+    .sidebar-link svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* MAIN */
+    main { flex: 1; padding: 2rem 2.5rem; overflow-x: auto; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-title { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 0.3rem; }
+    .page-sub { font-size: 0.8rem; color: var(--sub); }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.9rem; margin-bottom: 2rem; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.2rem 1.4rem; }
+    .stat-value { font-family: 'Instrument Serif', Georgia, serif; font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 0.3rem; }
+    .stat-label { font-size: 0.72rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .stat.gold .stat-value { color: var(--gold); }
+    .stat.green .stat-value { color: #4ADE80; }
+    .stat.red .stat-value { color: #F87171; }
+
+    /* TABLE */
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    .table-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
+    .table-title { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .search-input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.78rem; color: var(--text); font-family: 'Manrope', system-ui, sans-serif; outline: none; width: 220px; transition: border-color var(--ease); }
+    .search-input:focus { border-color: var(--gold); }
+    .search-input::placeholder { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.7rem 1.2rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 0.85rem 1.2rem; font-size: 0.8rem; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--table-row-hover); }
+
+    .user-cell { display: flex; align-items: center; gap: 0.65rem; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--border-accent); display: grid; place-items: center; font-size: 0.68rem; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+    .user-name { font-weight: 500; }
+    .user-email { font-size: 0.72rem; color: var(--sub); }
+
+    .badge { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 100px; }
+    .badge-member { background: rgba(139,149,168,0.12); color: var(--sub); border: 1px solid var(--border); }
+    .badge-approved { background: rgba(74,222,128,0.1); color: #4ADE80; border: 1px solid rgba(74,222,128,0.2); }
+    .badge-pending { background: rgba(201,151,58,0.1); color: var(--gold); border: 1px solid rgba(201,151,58,0.2); }
+    .badge-admin { background: rgba(201,151,58,0.18); color: var(--gold); border: 1px solid rgba(201,151,58,0.35); }
+
+    .platforms-cell { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .plat-tag { font-size: 0.6rem; font-weight: 500; padding: 0.12rem 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--sub); }
+
+    .action-btns { display: flex; gap: 0.4rem; }
+    .btn-approve { padding: 0.28rem 0.65rem; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25); border-radius: 6px; cursor: pointer; font-size: 0.68rem; font-weight: 600; color: #4ADE80; font-family: 'Manrope', system-ui, sans-serif; transition: background var(--ease); }
+    .btn-approve:hover { background: rgba(74,222,128,0.2); }
+    .btn-reject { padding: 0.28rem 0.65rem; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); border-radius: 6px; cursor: pointer; font-size: 0.68rem; font-weight: 600; color: #F87171; font-family: 'Manrope', system-ui, sans-serif; transition: background var(--ease); }
+    .btn-reject:hover { background: rgba(248,113,113,0.2); }
+
+    .empty-state { padding: 3rem; text-align: center; color: var(--muted); font-size: 0.82rem; }
+
+    .loading { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+
+    /* PLATFORM STATUS PAGE */
+    .plat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .plat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.4rem; }
+    .plat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .plat-card-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1rem; font-weight: 700; color: var(--text); }
+    .toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
+    .toggle { width: 36px; height: 20px; border-radius: 100px; background: var(--border); border: none; cursor: pointer; position: relative; transition: background var(--ease); }
+    .toggle.on { background: #4ADE80; }
+    .toggle::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform var(--ease); }
+    .toggle.on::after { transform: translateX(16px); }
+    .toggle-label { font-size: 0.72rem; color: var(--sub); }
+    .plat-card-desc { font-size: 0.78rem; color: var(--sub); line-height: 1.6; margin-bottom: 1rem; }
+    .plat-card-stat { font-size: 0.72rem; color: var(--muted); }
+    .plat-card-stat span { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 768px) { aside { display: none; } main { padding: 1.5rem 1rem; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-left">
+      <a href="/dashboard/index.html" class="nav-logo">
+        <svg class="nav-logo-icon" viewBox="0 0 44 44" fill="none">
+          <path d="M37 16.5 A16 16 0 1 0 37 27.5" stroke="var(--logo-outer)" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <path d="M30.5 17.5 A10 10 0 1 0 30.5 26.5" stroke="var(--logo-inner)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <circle cx="22" cy="22" r="2.5" fill="var(--logo-outer)"/>
+          <circle cx="22" cy="22" r="1.1" fill="var(--logo-inner)"/>
+        </svg>
+        <span class="nav-logo-name">Conventity</span>
+      </a>
+      <span class="nav-badge">Admin</span>
+    </div>
+    <div class="nav-right">
+      <div class="theme-seg" id="theme-seg">
+        <button onclick="setTheme('light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+        <button onclick="setTheme('system')" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+        <button onclick="setTheme('dark')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+      </div>
+      <button class="btn-sm danger" onclick="handleLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </nav>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Management</span>
+        <button class="sidebar-link active" onclick="showPage('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Users
+        </button>
+        <button class="sidebar-link" onclick="showPage('pending')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Pending Approval
+        </button>
+        <button class="sidebar-link" onclick="showPage('platforms')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Platforms
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Navigate</span>
+        <a class="sidebar-link" href="/dashboard/index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Dashboard
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+
+      <!-- USERS PAGE -->
+      <div class="page active" id="page-users">
+        <div class="page-header">
+          <h1 class="page-title">Users</h1>
+          <p class="page-sub">All registered users across the Conventity ecosystem.</p>
+        </div>
+
+        <div class="stats" id="stats-users">
+          <div class="stat"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Total users</div></div>
+          <div class="stat green"><div class="stat-value" id="stat-approved">—</div><div class="stat-label">Approved</div></div>
+          <div class="stat gold"><div class="stat-value" id="stat-pending">—</div><div class="stat-label">Pending</div></div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <span class="table-title">All users</span>
+            <input class="search-input" id="user-search" placeholder="Search by name or email..." oninput="filterUsers()" />
+          </div>
+          <div id="users-table-body"><div class="loading">Loading users...</div></div>
+        </div>
+      </div>
+
+      <!-- PENDING PAGE -->
+      <div class="page" id="page-pending">
+        <div class="page-header">
+          <h1 class="page-title">Pending Approval</h1>
+          <p class="page-sub">Users awaiting access approval for restricted platforms.</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <span class="table-title">Awaiting review</span>
+          </div>
+          <div id="pending-table-body"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- PLATFORMS PAGE -->
+      <div class="page" id="page-platforms">
+        <div class="page-header">
+          <h1 class="page-title">Platform Status</h1>
+          <p class="page-sub">Control which platforms are visible and accessible to users.</p>
+        </div>
+        <div class="plat-grid">
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">Convergens</span>
+              <div class="toggle-wrap">
+                <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Live</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">First active platform. Open to all registered users.</p>
+            <p class="plat-card-stat">Access: <span>Open</span></p>
+          </div>
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">Convexus</span>
+              <div class="toggle-wrap">
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Off</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">Startup showcase and investor visibility platform.</p>
+            <p class="plat-card-stat">Access: <span>Approval required</span></p>
+          </div>
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">ConventLab</span>
+              <div class="toggle-wrap">
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Off</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">Innovation lab and R&D collaboration space.</p>
+            <p class="plat-card-stat">Access: <span>Coming soon</span></p>
+          </div>
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">Consultus</span>
+              <div class="toggle-wrap">
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Off</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">Expert consultation and advisory matchmaking.</p>
+            <p class="plat-card-stat">Access: <span>Coming soon</span></p>
+          </div>
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">Connectus</span>
+              <div class="toggle-wrap">
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Off</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">Professional networking and community platform.</p>
+            <p class="plat-card-stat">Access: <span>Coming soon</span></p>
+          </div>
+          <div class="plat-card">
+            <div class="plat-card-header">
+              <span class="plat-card-name">Conventus</span>
+              <div class="toggle-wrap">
+                <button class="toggle" onclick="this.classList.toggle('on')"></button>
+                <span class="toggle-label">Off</span>
+              </div>
+            </div>
+            <p class="plat-card-desc">Operational coordination and governance platform.</p>
+            <p class="plat-card-stat">Access: <span>Approval required</span></p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+<script>
+  // THEME
+  let theme='system';
+  const resolve=t=>t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;
+  function applyTheme(){document.documentElement.setAttribute('data-resolved-theme',resolve(theme));['light','system','dark'].forEach((m,i)=>document.querySelectorAll('#theme-seg button')[i].classList.toggle('active',m===theme));}
+  function setTheme(t){theme=t;localStorage.setItem('cv-theme',t);applyTheme();}
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(theme==='system')applyTheme();});
+  setTheme(localStorage.getItem('cv-theme')||'system');
+
+  // NAVIGATION
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // LOGOUT
+  async function handleLogout(){await _sb.auth.signOut();window.location.href='/login.html';}
+
+  // LOAD USERS
+  let allUsers = [];
+
+  async function loadUsers() {
+    const { data, error } = await _sb.auth.admin?.listUsers?.() || { data: null };
+
+    // Since we can't use admin API from browser, we'll use profiles table
+    const { data: profiles, error: profilesError } = await _sb.from('profiles').select('*');
+
+    if (profilesError || !profiles) {
+      document.getElementById('users-table-body').innerHTML = '<div class="empty-state">Could not load users. Make sure the profiles table has RLS policies set up.</div>';
+      return;
+    }
+
+    allUsers = profiles;
+    renderUsers(profiles);
+    updateStats(profiles);
+    renderPending(profiles);
+  }
+
+  function updateStats(users) {
+    document.getElementById('stat-total').textContent = users.length;
+    document.getElementById('stat-approved').textContent = users.filter(u=>u.role==='approved').length;
+    document.getElementById('stat-pending').textContent = users.filter(u=>u.role==='member'||!u.role).length;
+  }
+
+  function renderUsers(users) {
+    if (!users.length) {
+      document.getElementById('users-table-body').innerHTML = '<div class="empty-state">No users yet.</div>';
+      return;
+    }
+    document.getElementById('users-table-body').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>User</th>
+          <th>Role</th>
+          <th>Platforms requested</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>${users.map(u => `
+          <tr>
+            <td><div class="user-cell">
+              <div class="user-avatar">${(u.full_name||'?').charAt(0).toUpperCase()}</div>
+              <div><div class="user-name">${u.full_name||'—'}</div></div>
+            </div></td>
+            <td><span class="badge badge-${u.role||'member'}">${u.role||'member'}</span></td>
+            <td><div class="platforms-cell">${(u.requested_platforms||[]).map(p=>`<span class="plat-tag">${p}</span>`).join('')||'—'}</div></td>
+            <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+            <td><div class="action-btns">
+              <button class="btn-approve" onclick="approveUser('${u.id}')">Approve</button>
+              <button class="btn-reject" onclick="rejectUser('${u.id}')">Remove</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  function renderPending(users) {
+    const pending = users.filter(u=>u.role==='member'||!u.role);
+    if (!pending.length) {
+      document.getElementById('pending-table-body').innerHTML = '<div class="empty-state">No pending approvals. 🎉</div>';
+      return;
+    }
+    document.getElementById('pending-table-body').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>User</th>
+          <th>Platforms requested</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>${pending.map(u=>`
+          <tr>
+            <td><div class="user-cell">
+              <div class="user-avatar">${(u.full_name||'?').charAt(0).toUpperCase()}</div>
+              <div><div class="user-name">${u.full_name||'—'}</div></div>
+            </div></td>
+            <td><div class="platforms-cell">${(u.requested_platforms||[]).map(p=>`<span class="plat-tag">${p}</span>`).join('')||'—'}</div></td>
+            <td><div class="action-btns">
+              <button class="btn-approve" onclick="approveUser('${u.id}')">Approve</button>
+              <button class="btn-reject" onclick="rejectUser('${u.id}')">Reject</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  function filterUsers() {
+    const q = document.getElementById('user-search').value.toLowerCase();
+    const filtered = allUsers.filter(u=>(u.full_name||'').toLowerCase().includes(q));
+    renderUsers(filtered);
+  }
+
+  async function approveUser(id) {
+    const { error } = await _sb.from('profiles').update({ role: 'approved' }).eq('id', id);
+    if (!error) { await loadUsers(); }
+  }
+
+  async function rejectUser(id) {
+    if (!confirm('Remove this user?')) return;
+    const { error } = await _sb.from('profiles').update({ role: 'rejected' }).eq('id', id);
+    if (!error) { await loadUsers(); }
+  }
+
+  // INIT
+  loadUsers();
+</script>
+</body>
+</html><!-- Conventity Admin Panel -->

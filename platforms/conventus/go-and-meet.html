@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/assets/js/cv-config.js"></script>
+<script>
+/* ===== CONVENTITY KOPRUSU v2: Supabase -> DC motoru =====
+   1) Yayindaki etkinlikler -> kartlar   2) Akredite envanter -> otel/transfer/tur vitrini
+   Herhangi biri basarisiz olursa o bolum eski verisiyle kalir; sayfa asla bozulmaz. */
+(function(){
+  var SB_URL=window.__CV_SUPABASE_URL;
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNoYnd5bHJ3cGlvcXlwYmRoamduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjEzMTIsImV4cCI6MjA5Nzk5NzMxMn0.2bZSj_is-oDq_AfZ-llAHFwXCsgRVXrmLw9PoS54qlk';
+  var PALETTE=['#2f6fd1','#1f9d57','#b3541e','#7a3fd1','#0e7f8f','#c2367a'];
+  var USERTOK=null;
+  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+    if(k&&k.indexOf('sb-')===0&&k.indexOf('auth-token')>-1){
+      var v=JSON.parse(localStorage.getItem(k));
+      USERTOK=(v&&(v.access_token||(v.currentSession&&v.currentSession.access_token)))||null;
+      if(USERTOK)break;}}}catch(e){}
+  function J(p){return fetch(SB_URL+'/rest/v1/'+p,{headers:{apikey:SB_ANON,Authorization:'Bearer '+(USERTOK||SB_ANON)}})
+    .then(function(r){return r.ok?r.json():Promise.reject(r.status);});}
+  function boot(){var t=document.createElement('script');t.src='./support.js';document.body.appendChild(t);}
+  var done=false; function finish(){if(done)return;done=true;boot();}
+  setTimeout(finish,3000);
+
+  function iso(d){if(!d)return null;var p=String(d).slice(0,10).split('-');return [ +p[0], +p[1]-1, +p[2] ];}
+  var SYM={EUR:'\u20AC',USD:'$',GBP:'\u00A3',TRY:'\u20BA'};
+  function money(a,c){if(a==null||a==='')return '';c=(c||'EUR').toUpperCase();
+    var n=(+a).toLocaleString('en-US',{maximumFractionDigits:0});
+    return SYM[c]?SYM[c]+n:n+' '+c;}
+  function icsHref(ev){
+    function dd(x,plus){var t=new Date(String(x).slice(0,10)+'T00:00:00Z');if(plus)t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10).replace(/-/g,'');}
+    if(!ev.start_date)return null;
+    var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Conventity//EN','BEGIN:VEVENT',
+      'UID:cv-'+ev.id+'@conventity.org',
+      'DTSTART;VALUE=DATE:'+dd(ev.start_date),
+      'DTEND;VALUE=DATE:'+dd(ev.end_date||ev.start_date,true),
+      'SUMMARY:'+String(ev.title||'').replace(/[,;\n]/g,' '),
+      'LOCATION:'+String(([ev.city,ev.country].filter(Boolean).join(', '))||ev.location||'').replace(/[,;\n]/g,' '),
+      'END:VEVENT','END:VCALENDAR'];
+    return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(L.join('\r\n'));
+  }
+  function dstr(o,keys){for(var i=0;i<keys.length;i++){if(o&&o[keys[i]])return String(o[keys[i]]);}return '';}
+  function cap(x){return String(x||'').replace(/_/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});}
+
+  // ---- 1) ETKINLIK KARTLARI ----
+  var pEvents=J('conventus_managed_events?select=*&published=eq.true&order=start_date.asc.nullslast')
+  .then(function(rows){
+    if(!Array.isArray(rows)||!rows.length)return;
+    var mapped=rows.filter(function(ev){return ev.code&&ev.title;}).map(function(ev,i){
+      var e=encodeURIComponent(ev.code);
+      var st=iso(ev.start_date)||iso(ev.end_date)||[2026,0,1];
+      var en=iso(ev.end_date)||st;
+      var regOpen=ev.registration_open!==false;
+      var ics=icsHref(ev);
+      var cta=regOpen?{h:'register-conventus.html?e='+e,l:'REGISTER'}
+                     :{h:(ics||'programme.html?e='+e),l:'\uD83D\uDCC5 SAVE THE DATE'};
+      var regLink=regOpen?{icon:'\u270E', label:'Register / Manage', href:'register-conventus.html?e='+e}
+                         :{icon:'\uD83D\uDCC5', label:'Add to calendar \u2014 registration opens soon', href:(ics||'register-conventus.html?e='+e)};
+      return { id:String(ev.id), code:ev.code, title:ev.title, subtitle:ev.subtitle||'',
+        s:st, e:en, city:ev.city||ev.location||'', country:ev.country||'',
+        desc:ev.summary||'', pocName:ev.poc_name||'', pocEmail:ev.poc_email||'',
+        category:'conference', accent:PALETTE[i%PALETTE.length],
+        href:'programme.html?e='+e, ctaHref:cta.h, ctaLabel:cta.l,
+        back:{links:[
+          {icon:'\u25A6', label:'Programme & Agenda', href:'programme.html?e='+e},
+          regLink,
+          {icon:'\u2691', label:'Go & Meet - My Plan', href:'gm-plan.html?e='+e}
+        ]}};
+    });
+    if(mapped.length){try{localStorage.setItem('efdi_events_v2',JSON.stringify(mapped));}catch(x){}}
+  }).catch(function(){});
+
+  // ---- 2) LOJISTIK VITRINI (otel / transfer & arac / tur) ----
+  var pLogi=Promise.all([
+    J('gm_inventory?select=provider_id,category,title,details,price_amount,currency&is_active=eq.true&order=created_at.desc&limit=60'),
+    J('gm_providers_public?select=id,name,city,country')
+  ]).then(function(res){
+    var inv=res[0]||[], provs={};
+    (res[1]||[]).forEach(function(p){provs[p.id]=p;});
+    function pname(r){var p=provs[r.provider_id];return (p&&p.name)||'';}
+    var hotels=inv.filter(function(r){return r.category==='accommodation';}).map(function(r){
+      var d=r.details||{};
+      return { name:r.title||pname(r),
+        single:money(r.price_amount,r.currency),
+        double:d.price_double?money(d.price_double,r.currency):'',
+        discount:d.discount||'', promo:d.promo||'',
+        note:[cap(d.room_type),dstr(d,['note','description'])].filter(Boolean).join(' \u00B7 '),
+        partner:pname(r) };
+    });
+    var CATMAP={car_rental:'car',rental:'car',transfer:'transfer',airport_transfer:'transfer',shuttle:'shuttle'};
+    var trans=inv.filter(function(r){return r.category==='transfer_car';}).map(function(r){
+      var d=r.details||{};
+      var kind=String(d.service_kind||'').toLowerCase();
+      var bits=[cap(d.vehicle_class),d.pickup_point?('From '+d.pickup_point):'',d.dropoff?('to '+d.dropoff):'',
+                r.price_amount?money(r.price_amount,r.currency):''].filter(Boolean);
+      return { title:r.title||cap(kind)||'Transfer',
+        desc:bits.join(' \u00B7 ')||dstr(d,['note','description']),
+        category:CATMAP[kind]||'transfer', promo:d.promo||'', partner:pname(r) };
+    });
+    var tours=inv.filter(function(r){return r.category==='culture_spouse';}).map(function(r){
+      var d=r.details||{};
+      var bits=[dstr(d,['note','description']),r.price_amount?money(r.price_amount,r.currency):''].filter(Boolean);
+      return { badge:cap(d.programme_kind)||'Tour', title:r.title||'Cultural programme',
+        desc:bits.join(' \u00B7 '), promo:d.promo||'', partner:pname(r) };
+    });
+    if(!hotels.length&&!trans.length&&!tours.length)return;   // gercek veri yoksa dokunma
+    var base=null; try{base=JSON.parse(localStorage.getItem('efdi_logistics_v3')||'null');}catch(x){}
+    base=base&&base.destinations?base:{destinations:[],accommodation:{hotels:[]},transportation:{options:[]},tours:{items:[]}};
+    if(hotels.length)base.accommodation={hotels:hotels};
+    if(trans.length)base.transportation={options:trans};
+    if(tours.length)base.tours={items:tours};
+    // destinasyonlar: envanteri olan saglayicilarin sehirleri
+    var seen={},dest={};
+    inv.forEach(function(r){var p=provs[r.provider_id];if(!p||!p.city)return;
+      var co=p.country||'\u2014'; dest[co]=dest[co]||{}; dest[co][p.city]=1;});
+    var ds=Object.keys(dest).map(function(co){return {country:co,cities:Object.keys(dest[co])};});
+    if(ds.length)base.destinations=ds;
+    if(!base.destinations.length)base.destinations=[{country:'T\u00FCrkiye',cities:[]}];
+    try{localStorage.setItem('efdi_logistics_v3',JSON.stringify(base));}catch(x){}
+  }).catch(function(){});
+
+  Promise.all([pEvents,pLogi]).then(finish,finish);
+
+  // 🎫 erişim kodu kullanma
+  window.cvRedeem=function(){
+    if(!USERTOK){alert('Sign in first, then enter your event code.');location.href='/login.html';return;}
+    var c=prompt('Enter your event access code (e.g. CV-XXXXXXXX):');
+    if(!c)return;
+    fetch(SB_URL+'/rest/v1/rpc/cv_redeem_code',{method:'POST',
+      headers:{apikey:SB_ANON,Authorization:'Bearer '+USERTOK,'Content-Type':'application/json'},
+      body:JSON.stringify({p_code:c.trim()})})
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res&&res.ok){alert('Access granted: '+res.title+' \u2713');location.reload();}
+      else alert(res&&res.error==='exhausted'?'This code has reached its usage limit.':'Invalid or inactive code.');
+    })
+    .catch(function(){alert('Could not verify the code - try again.');});
+  };
+})();
+</script>
+<!-- Conventity gezinme haplari -->
+<div style="position:fixed;left:14px;bottom:14px;z-index:99999;display:flex;gap:7px;font-family:system-ui">
+  <a href="index.html" style="background:#0E2148;color:#fff;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25)">&#8592; Conventus</a>
+  <a href="event-studio.html" style="background:#fff;color:#0E2148;border:1px solid #d9d4c8;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.12)">Studio &#8594;</a>
+  <button onclick="cvRedeem()" style="background:#B8892B;color:#fff;border:none;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18)">&#127915; Event code</button>
+</div>
+</head>
+<body>
+<script>/* Conventity anahtar senkronu: tema+dil tum sayfalarda tasinir */
+(function(){try{
+  var l=localStorage.getItem('cv-lang'); if(l==='tr'||l==='en')localStorage.setItem('efdi_lang',l);
+  localStorage.setItem('efdi_theme',localStorage.getItem('cn-dark')==='1'?'dark':'light');
+}catch(e){}})();
+</script>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    input { font-family: inherit; }
+    input::placeholder { color: var(--muted, #9aa1ad); }
+    @keyframes psSweep { 0% { transform: translateX(-70%) skewX(-18deg); } 100% { transform: translateX(220%) skewX(-18deg); } }
+    @keyframes psTwinkle { 0%, 100% { opacity: .25; } 50% { opacity: .95; } }
+    @keyframes psFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    @keyframes psDash { to { stroke-dashoffset: -200; } }
+    .ps-banner { position: relative; height: 210px; border-radius: 16px; overflow: hidden; }
+    .ps-sweep { position: absolute; top: 0; left: 0; height: 100%; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent); animation: psSweep 6s ease-in-out infinite; pointer-events: none; }
+    .ps-stars { position: absolute; inset: 0; background-image: radial-gradient(1.6px 1.6px at 12% 28%, #fff, transparent), radial-gradient(1.2px 1.2px at 32% 60%, #fff, transparent), radial-gradient(1.8px 1.8px at 58% 22%, #ffe6c0, transparent), radial-gradient(1.2px 1.2px at 74% 52%, #fff, transparent), radial-gradient(1.5px 1.5px at 88% 32%, #fff, transparent), radial-gradient(1.1px 1.1px at 46% 38%, #cfe0ff, transparent); animation: psTwinkle 4s ease-in-out infinite; }
+    .ps-btitle { position: absolute; left: 30px; bottom: 22px; z-index: 3; }
+    @media (max-width: 760px) {
+      .ev-grid { grid-template-columns: 1fr !important; }
+      .ev-head { padding-left: 20px !important; padding-right: 20px !important; }
+      .ev-wrap { padding: 24px 16px !important; }
+    }
+  </style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+
+  <!-- animated network background (dark mode) -->
+  <canvas ref="{{ canvasRef }}" style="{{ canvasStyle }}"></canvas>
+
+  <div style="position:relative; z-index:2; min-height:100vh; display:flex; flex-direction:column;">
+
+    <!-- Header bar -->
+    <header style="background:var(--header,#fff); border-bottom:1px solid var(--headerBorder,#eceef2); backdrop-filter:blur(10px);">
+      <div style="max-width:1320px; margin:0 auto; padding:26px 40px 0 40px;">
+
+        <!-- top row: title + controls -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+          <h1 style="font-family:'Source Serif 4',Georgia,serif; font-size:34px; font-weight:600; letter-spacing:-.01em; margin:0; color:var(--text,#20242e);">{{ t.events }}</h1>
+
+          <div style="display:flex; align-items:center; gap:12px;">
+            <!-- language -->
+            <div style="display:flex; align-items:center; background:var(--chip,#f0f1f4); border:1px solid var(--pillBorder,#e2e4e9); border-radius:999px; padding:3px;">
+              <sc-for list="{{ langs }}" as="lg" hint-placeholder-count="3">
+                <button onClick="{{ lg.onClick }}" style="{{ lg.style }}">{{ lg.code }}</button>
+              </sc-for>
+            </div>
+            <!-- theme toggle -->
+            <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:999px; cursor:pointer; background:var(--chip,#f0f1f4); border:1px solid var(--pillBorder,#e2e4e9); color:var(--text,#20242e);">
+              {{ themeIcon }}
+            </button>
+            <!-- admin -->
+            <a href="event-studio.html" title="Event Studio" style="display:flex; align-items:center; gap:8px; text-decoration:none; background:var(--chip,#f0f1f4); border:1px solid var(--pillBorder,#e2e4e9); border-radius:999px; padding:0 16px; height:40px; color:var(--text2,#3a4150); font-size:12px; font-weight:600; letter-spacing:.05em;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15H4a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 6 9.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 2.91 1.18l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z"></path></svg>
+              {{ t.admin }}
+            </a>
+          </div>
+        </div>
+
+        <!-- filters row -->
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:20px;">
+          <div style="display:flex; align-items:center; gap:10px; background:var(--chip,#f4f5f8); border:1px solid var(--pillBorder,#eceef2); border-radius:999px; padding:9px 18px; min-width:230px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted,#9aa1ad)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input value="{{ query }}" onInput="{{ onSearch }}" placeholder="{{ t.search }}" style="border:none; outline:none; background:transparent; font-size:14px; color:var(--text2,#3a4150); width:100%;" />
+          </div>
+
+          <div style="display:flex; align-items:center; background:var(--chip,#f0f1f4); border:1px solid var(--pillBorder,#eceef2); border-radius:999px; padding:4px;">
+            <button onClick="{{ setNearest }}" style="{{ sortNearestStyle }}">{{ t.nearest }}</button>
+            <button onClick="{{ setLatest }}" style="{{ sortLatestStyle }}">{{ t.latest }}</button>
+          </div>
+
+          <button onClick="{{ setStatusAll }}" style="{{ statusAllStyle }}">{{ t.allEvents }}</button>
+          <button onClick="{{ setStatusUpcoming }}" style="{{ statusUpcomingStyle }}">{{ t.upcoming }}</button>
+          <button onClick="{{ setStatusPast }}" style="{{ statusPastStyle }}">{{ t.past }}</button>
+        </div>
+
+        <!-- quick navigation -->
+        <div style="display:flex; align-items:center; gap:10px; padding:22px 0 26px 0; flex-wrap:wrap;">
+          <button onClick="{{ goReg }}" style="{{ navRegStyle }}">{{ t.navReg }}</button>
+          <button onClick="{{ goAccom }}" style="{{ navStyle }}">{{ t.navAccom }}</button>
+          <button onClick="{{ goTrans }}" style="{{ navStyle }}">{{ t.navTrans }}</button>
+          <button onClick="{{ goTours }}" style="{{ navStyle }}">{{ t.navTours }}</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Grid section -->
+    <section id="sec-reg" style="flex:1;">
+      <div class="ev-wrap" style="max-width:1320px; margin:0 auto; padding:40px;">
+
+        <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+          <div class="ev-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:24px;">
+            <sc-for list="{{ events }}" as="event" hint-placeholder-count="4">
+              <article style="height:492px; display:flex; flex-direction:column; background:var(--card,#fbfbfc); border:1px solid var(--cardBorder,#e7e9ee); border-radius:16px; overflow:hidden;">
+          <div style="perspective:1500px; flex:1; min-height:0; position:relative;">
+          <div style="position:relative; width:100%; height:100%; transition:transform .6s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; transform:{{ event.flipT }};">
+          <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; flex-direction:column; background:var(--card,#fbfbfc); overflow:hidden;">
+
+                <div style="position:relative; height:96px; padding:0 22px; display:flex; align-items:center; background:linear-gradient(135deg, {{ event.accent }}, {{ event.accentDark }});">
+                  <div style="font-family:'Source Serif 4',Georgia,serif; font-size:20px; font-weight:800; color:#fff; letter-spacing:.01em; line-height:1.12; padding-right:78px; text-shadow:0 2px 10px rgba(0,0,0,.22); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">{{ event.title }}</div>
+                  <span style="position:absolute; top:13px; right:14px; background:rgba(255,255,255,.24); color:#fff; font-size:10px; font-weight:700; letter-spacing:.07em; padding:5px 10px; border-radius:999px;">{{ event.statusLabel }}</span>
+                  <div style="position:absolute; right:16px; bottom:-15px; background:var(--card,#fff); border:1px solid var(--cardBorder,#e7e9ee); border-radius:10px; padding:5px 12px; display:flex; align-items:baseline; gap:7px; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+                    <span style="font-family:'Source Serif 4',Georgia,serif; font-size:11px; font-weight:700; letter-spacing:.08em; color:{{ event.accent }};">{{ event.badgeMonth }}</span>
+                    <span style="font-family:'Source Serif 4',Georgia,serif; font-size:18px; font-weight:800; color:var(--text,#20242e);">{{ event.badgeDay }}</span>
+                  </div>
+                </div>
+
+                <div style="padding:24px 22px 22px; display:flex; flex-direction:column; flex:1;">
+                  <div style="font-family:'JetBrains Mono','Source Serif 4',monospace; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin:0; color:var(--muted,#9aa1ad);">{{ event.code }}</div>
+                  <div style="font-size:13px; font-weight:600; color:{{ event.accent }}; margin-top:4px;">{{ event.subtitle }}</div>
+
+                  <div style="display:flex; flex-direction:column; gap:9px; margin-top:16px;">
+                    <div style="display:flex; align-items:center; gap:9px;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted,#7c8392)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="2.5" x2="8" y2="6"></line><line x1="16" y1="2.5" x2="16" y2="6"></line></svg>
+                      <span style="font-size:13.5px; color:var(--text2,#3a4150);">{{ event.dateRange }}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:9px;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted,#7c8392)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg>
+                      <span style="font-size:13.5px; color:var(--text2,#3a4150);">{{ event.location }}</span>
+                    </div>
+                  </div>
+
+                  <p style="font-size:13px; line-height:1.55; color:var(--muted,#9aa1ad); margin:14px 0 0 0;">{{ event.desc }}</p>
+
+                  <div style="flex:1;"></div>
+
+                  <div style="border-top:1px solid var(--cardBorder,#e7e9ee); margin-top:16px; padding-top:12px; display:flex; align-items:flex-end; justify-content:space-between; gap:10px;">
+                    <div style="min-width:0;">
+                      <div style="font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--muted,#9aa1ad);">POINT OF CONTACT</div>
+                      <div style="font-size:13px; font-weight:600; color:var(--text,#20242e); margin-top:3px;">{{ event.pocName }}</div>
+                      <a href="mailto:{{ event.pocEmail }}" style="font-size:12px; color:{{ event.accent }}; text-decoration:none;">{{ event.pocEmail }}</a>
+                    </div>
+                    <button onClick="{{ event.onFlip }}" title="{{ event.backTitle }}" style="flex-shrink:0; width:34px; height:34px; border-radius:9px; border:1px solid var(--cardBorder,#e7e9ee); background:var(--card,#fff); color:{{ event.accent }}; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path></svg>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+          <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:rotateY(180deg); overflow:hidden; display:flex; flex-direction:column; padding:22px; color:#fff; background:linear-gradient(160deg, {{ event.accent }}, {{ event.accentDark }});">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div style="font-family:'Source Serif 4',Georgia,serif; font-size:18px; font-weight:800; letter-spacing:.01em; line-height:1.12; padding-right:12px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">{{ event.title }}</div>
+              <button onClick="{{ event.onUnflip }}" title="Back" style="flex-shrink:0; width:34px; height:34px; border-radius:9px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.14); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+              </button>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; opacity:.72; margin-top:4px;">{{ event.code }}</div>
+            <div style="height:1px; background:rgba(255,255,255,.2); margin:13px 0 11px 0;"></div>
+            <div style="font-size:10px; letter-spacing:.13em; font-weight:700; opacity:.6;">{{ event.backTitle }}</div>
+            <div style="display:flex; flex-direction:column; margin-top:6px;">
+              <sc-for list="{{ event.backLinks }}" as="ln" hint-placeholder-count="4">
+                <a href="{{ ln.href }}" style="display:flex; align-items:center; gap:11px; color:#fff; text-decoration:none; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.12); font-size:13.5px;"><span style="width:18px; text-align:center; opacity:.9;">{{ ln.icon }}</span>{{ ln.label }}<span style="margin-left:auto; opacity:.5;">&#8594;</span></a>
+              </sc-for>
+            </div>
+            <div style="flex:1;"></div>
+            <div style="font-size:10px; letter-spacing:.12em; font-weight:700; opacity:.6;">POINT OF CONTACT</div>
+            <div style="font-size:13.5px; font-weight:600; margin-top:3px;">{{ event.pocName }}</div>
+            <a href="mailto:{{ event.pocEmail }}" style="font-size:12px; color:#fff; opacity:.82; text-decoration:none;">{{ event.pocEmail }}</a>
+          </div>
+          </div>
+          </div>
+          <div style="padding:14px 22px 18px 22px; border-top:1px solid var(--cardBorder,#e7e9ee);">
+            <a href="{{ event.ctaHref }}" style="display:flex; align-items:center; justify-content:center; gap:9px; text-decoration:none; background:{{ event.accent }}; border-radius:11px; padding:13px; color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-9 9"></path><path d="M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"></path></svg>
+              {{ event.ctaLabel }}
+            </a>
+          </div>
+        </article>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center; padding:90px 20px; color:var(--muted,#8a90a0);">
+            <p style="font-family:'Source Serif 4',Georgia,serif; font-size:20px; color:var(--text2,#5a6170); margin:0 0 6px 0;">{{ t.noResults }}</p>
+            <p style="font-size:14px; margin:0;">{{ t.noResultsSub }}</p>
+          </div>
+        </sc-if>
+
+      </div>
+    </section>
+
+    <!-- ===== Destination & Logistics (4 sections) ===== -->
+    <section style="position:relative;">
+      <div class="ev-wrap" style="max-width:1320px; margin:0 auto; padding:6px 40px 64px 40px;">
+        <div style="border-top:1px solid var(--cardBorder,#e7e9ee); padding-top:38px; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+          <div>
+            <h2 style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ t.logiTitle }}</h2>
+            <p style="font-size:14px; color:var(--muted,#9aa1ad); margin:8px 0 0 0;">{{ t.logiSub }}</p>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <div>
+              <div style="font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--muted,#9aa1ad); margin-bottom:5px;">{{ t.country }}</div>
+              <select value="{{ selCountry }}" onChange="{{ onCountry }}" style="background:var(--selBg,#fff); border:1px solid var(--pillBorder,#e2e4e9); color:var(--text,#20242e); border-radius:10px; padding:10px 14px; font-size:14px; min-width:150px; cursor:pointer;">
+                <sc-for list="{{ countryOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}" style="background:var(--selBg,#fff); color:var(--text,#20242e);">{{ o.label }}</option></sc-for>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--muted,#9aa1ad); margin-bottom:5px;">{{ t.city }}</div>
+              <select value="{{ selCity }}" onChange="{{ onCity }}" style="background:var(--selBg,#fff); border:1px solid var(--pillBorder,#e2e4e9); color:var(--text,#20242e); border-radius:10px; padding:10px 14px; font-size:14px; min-width:150px; cursor:pointer;">
+                <sc-for list="{{ cityOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}" style="background:var(--selBg,#fff); color:var(--text,#20242e);">{{ o.label }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accommodation -->
+        <div id="sec-accom" style="margin-top:34px; scroll-margin-top:90px;">
+          <div class="ps-banner" style="background:linear-gradient(135deg,#16204a 0%,#3b2a66 52%,#6a3f72 100%);">
+            <div class="ps-stars"></div>
+            <div style="position:absolute; top:30px; right:64px; width:48px; height:48px; border-radius:50%; background:radial-gradient(circle at 36% 34%, #ffffff, #ffe6bf); box-shadow:0 0 34px rgba(255,228,191,.65); animation:psFloat 7s ease-in-out infinite;"></div>
+            <svg viewBox="0 0 1200 210" preserveAspectRatio="none" style="position:absolute; bottom:0; left:0; width:100%; height:128px;"><path d="M0,210 L0,168 L70,168 L70,138 L120,138 L120,168 L185,168 L185,116 L225,116 L225,168 L285,168 L285,150 L320,150 L320,96 L334,80 L348,96 L348,168 L415,168 L415,132 L470,132 L470,168 L560,168 L560,150 L600,150 L600,104 L614,90 L628,104 L628,168 L705,168 L705,138 L765,138 L765,168 L855,168 L855,120 L905,120 L905,168 L995,168 L995,150 L1040,150 L1040,108 L1054,94 L1068,108 L1068,168 L1140,168 L1140,140 L1200,140 L1200,210 Z" fill="rgba(8,12,28,.55)"></path></svg>
+            <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(8,12,28,.5) 100%);"></div>
+            <div class="ps-sweep"></div>
+            <div class="ps-btitle"><div style="font-family:'Source Serif 4',Georgia,serif; font-size:32px; font-weight:700; color:#fff; margin-top:2px; text-shadow:0 2px 12px rgba(0,0,0,.4);">{{ t.accomTitle }}</div></div>
+          </div>
+          <div style="display:flex; align-items:baseline; gap:14px; margin:22px 0 16px 0; flex-wrap:wrap;">
+            <h3 style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ t.accomTitle }}</h3>
+            <span style="font-size:13px; color:var(--muted,#9aa1ad);">{{ t.accomSub }} · {{ locLabel }}</span>
+          </div>
+          <div class="ev-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:22px;">
+            <sc-for list="{{ hotels }}" as="h" hint-placeholder-count="3">
+              <article style="background:var(--card,#fbfbfc); border:1px solid var(--cardBorder,#e7e9ee); border-radius:14px; padding:22px; display:flex; flex-direction:column;">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                  <h4 style="font-family:'Source Serif 4',Georgia,serif; font-size:18px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ h.name }}</h4>
+                  <span style="flex-shrink:0; background:var(--badge,#c15f3c); color:#fff; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">{{ h.discount }} {{ t.off }}</span>
+                </div>
+                <div style="font-size:13px; color:var(--muted,#9aa1ad); margin-top:4px;">{{ locLabel }}</div>
+                <div style="display:flex; gap:22px; margin-top:16px;">
+                  <div><div style="font-size:11px; color:var(--muted,#9aa1ad); letter-spacing:.05em;">{{ t.single }}</div><div style="font-size:20px; font-weight:700; color:var(--text,#20242e);">{{ h.single }}<span style="font-size:12px; color:var(--muted,#9aa1ad); font-weight:500;">{{ t.perNight }}</span></div></div>
+                  <div><div style="font-size:11px; color:var(--muted,#9aa1ad); letter-spacing:.05em;">{{ t.double }}</div><div style="font-size:20px; font-weight:700; color:var(--text,#20242e);">{{ h.double }}<span style="font-size:12px; color:var(--muted,#9aa1ad); font-weight:500;">{{ t.perNight }}</span></div></div>
+                </div>
+                <div style="font-size:12px; color:var(--text2,#3a4150); margin-top:14px;">{{ h.note }}</div>
+                <div style="flex:1;"></div>
+                <button onClick="{{ h.onBook }}" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; background:var(--pillActiveBg,#111418); color:var(--pillActiveText,#fff); border:none; border-radius:10px; padding:13px; margin-top:18px; font-size:12px; font-weight:600; letter-spacing:.05em;">{{ t.book }}</button>
+              </article>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Transportation -->
+        <div id="sec-trans" style="margin-top:44px; scroll-margin-top:90px;">
+          <div class="ps-banner" style="background:linear-gradient(135deg,#06243a 0%,#0e4a5e 50%,#1f7d7d 100%);">
+            <div class="ps-stars" style="opacity:.5;"></div>
+            <svg viewBox="0 0 1200 210" preserveAspectRatio="none" style="position:absolute; inset:0; width:100%; height:100%;">
+              <path d="M-20,150 C320,30 880,30 1220,150" stroke="rgba(190,230,255,.45)" stroke-width="2" stroke-dasharray="7 9" fill="none" style="animation:psDash 5s linear infinite;"></path>
+              <circle cx="60" cy="150" r="5" fill="#bfe9ff"></circle>
+              <circle cx="1140" cy="150" r="5" fill="#ffd9a8"></circle>
+              <g transform="translate(600,40)" fill="#eaf6ff"><path d="M0,-9 L26,4 L8,4 L4,16 L-2,4 L-26,4 Z"></path></g>
+            </svg>
+            <svg viewBox="0 0 1200 210" preserveAspectRatio="none" style="position:absolute; bottom:0; left:0; width:100%; height:96px;"><path d="M0,210 L0,176 C120,168 220,182 360,176 C520,168 680,186 840,176 C980,168 1100,182 1200,176 L1200,210 Z" fill="rgba(3,18,28,.5)"></path></svg>
+            <div class="ps-sweep"></div>
+            <div class="ps-btitle"><div style="font-family:'Source Serif 4',Georgia,serif; font-size:32px; font-weight:700; color:#fff; margin-top:2px; text-shadow:0 2px 12px rgba(0,0,0,.4);">{{ t.transTitle }}</div></div>
+          </div>
+          <div style="display:flex; align-items:baseline; gap:14px; margin:22px 0 16px 0; flex-wrap:wrap;">
+            <h3 style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ t.transTitle }}</h3>
+            <span style="font-size:13px; color:var(--muted,#9aa1ad);">{{ t.transSub }}</span>
+          </div>
+          <div class="ev-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+            <sc-for list="{{ transport }}" as="tr" hint-placeholder-count="4">
+              <article style="background:var(--card,#fbfbfc); border:1px solid var(--cardBorder,#e7e9ee); border-radius:14px; padding:20px; display:flex; flex-direction:column;">
+                <h4 style="font-size:16px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ tr.title }}</h4>
+                <p style="font-size:13px; color:var(--muted,#9aa1ad); margin:8px 0 0 0; line-height:1.5;">{{ tr.desc }}</p>
+                <div style="flex:1;"></div>
+                <button onClick="{{ tr.onAct }}" style="align-self:flex-start; cursor:pointer; background:none; border:none; color:var(--badge,#c15f3c); font-size:13px; font-weight:700; margin-top:16px; padding:0;">{{ tr.action }} →</button>
+              </article>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Cultural Tours -->
+        <div id="sec-tours" style="margin-top:44px; scroll-margin-top:90px;">
+          <div class="ps-banner" style="background:linear-gradient(135deg,#34204f 0%,#7a3b6e 50%,#c2632f 100%);">
+            <div class="ps-stars" style="opacity:.45;"></div>
+            <div style="position:absolute; top:34px; left:50%; transform:translateX(-50%); width:70px; height:70px; border-radius:50%; background:radial-gradient(circle, #ffe7b3 0%, #ffb15e 60%, rgba(255,177,94,0) 72%); box-shadow:0 0 40px rgba(255,190,120,.5); animation:psFloat 8s ease-in-out infinite;"></div>
+            <svg viewBox="0 0 1200 210" preserveAspectRatio="none" style="position:absolute; bottom:0; left:0; width:100%; height:120px;"><path d="M0,210 L0,150 L120,150 L150,170 L210,168 L240,150 L250,150 L250,120 L258,108 L266,120 L266,168 L360,168 L420,140 L520,166 L560,150 L560,96 L568,84 L576,96 L576,166 L640,166 L720,134 L840,168 L900,150 L900,150 L980,168 L1080,140 L1140,160 L1200,150 L1200,210 Z" fill="rgba(28,12,40,.5)"></path></svg>
+            <g></g>
+            <svg viewBox="0 0 200 40" style="position:absolute; top:54px; left:120px; width:60px; height:18px; opacity:.7;"><path d="M0,20 Q10,8 20,20 Q30,8 40,20" stroke="#ffe7c0" stroke-width="2" fill="none"></path></svg>
+            <div class="ps-sweep"></div>
+            <div class="ps-btitle"><div style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:700; color:#fff; margin-top:2px; text-shadow:0 2px 12px rgba(0,0,0,.4);">{{ t.toursTitle }}</div></div>
+          </div>
+          <div style="display:flex; align-items:baseline; gap:14px; margin:22px 0 16px 0; flex-wrap:wrap;">
+            <h3 style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:700; margin:0; color:var(--text,#20242e);">{{ t.toursTitle }}</h3>
+            <span style="font-size:13px; color:var(--muted,#9aa1ad);">{{ t.toursSub }}</span>
+          </div>
+          <div class="ev-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+            <sc-for list="{{ tours }}" as="to" hint-placeholder-count="4">
+              <article style="background:var(--card,#fbfbfc); border:1px solid var(--cardBorder,#e7e9ee); border-radius:14px; padding:20px; display:flex; flex-direction:column;">
+                <span style="align-self:flex-start; background:var(--info,#f1f3f6); color:var(--text2,#3a4150); font-size:11px; font-weight:700; letter-spacing:.05em; padding:4px 10px; border-radius:999px;">{{ to.badge }}</span>
+                <h4 style="font-size:16px; font-weight:700; margin:12px 0 0 0; color:var(--text,#20242e);">{{ to.title }}</h4>
+                <p style="font-size:13px; color:var(--muted,#9aa1ad); margin:8px 0 0 0; line-height:1.5;">{{ to.desc }}</p>
+                <div style="flex:1;"></div>
+                <button onClick="{{ to.onAct }}" style="width:100%; display:flex; align-items:center; justify-content:center; gap:7px; cursor:pointer; background:var(--btnBg,#fff); border:1px solid var(--pillBorder,#e2e4e9); color:var(--text,#2b3140); border-radius:10px; padding:12px; margin-top:16px; font-size:12px; font-weight:600; letter-spacing:.05em;">{{ t.reserve }}</button>
+              </article>
+            </sc-for>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Booking / reservation modal ===== -->
+    <sc-if value="{{ booking.open }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; inset:0; background:rgba(8,12,20,.62); display:flex; align-items:center; justify-content:center; z-index:90; padding:20px;">
+        <div style="background:var(--card,#fff); border:1px solid var(--cardBorder,#e7e9ee); border-radius:16px; width:460px; max-width:100%; max-height:90vh; overflow:auto; padding:26px; color:var(--text,#20242e);">
+          <sc-if value="{{ booking.isForm }}" hint-placeholder-val="{{ true }}">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--badge,#c15f3c);">{{ booking.kicker }}</div>
+            <h3 style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; margin:4px 0 2px; color:var(--text,#20242e);">{{ booking.title }}</h3>
+            <p style="font-size:13px; color:var(--muted,#9aa1ad); margin:0 0 16px;">{{ booking.sub }}</p>
+            <sc-for list="{{ booking.fields }}" as="f" hint-placeholder-count="3">
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px; font-weight:600; color:var(--muted,#9aa1ad); margin-bottom:4px;">{{ f.label }}</div>
+                <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}"><select value="{{ f.value }}" onChange="{{ f.onInput }}" style="width:100%; box-sizing:border-box; border:1px solid var(--pillBorder,#e2e4e9); background:var(--pillBg,#fff); color:var(--text,#20242e); border-radius:9px; padding:10px 12px; font-size:14px;"><sc-for list="{{ f.options }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select></sc-if>
+                <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}"><input type="{{ f.type }}" value="{{ f.value }}" onInput="{{ f.onInput }}" style="width:100%; box-sizing:border-box; border:1px solid var(--pillBorder,#e2e4e9); background:var(--pillBg,#fff); color:var(--text,#20242e); border-radius:9px; padding:10px 12px; font-size:14px;" /></sc-if>
+              </div>
+            </sc-for>
+            <div style="background:var(--info,#f1f3f6); border-radius:10px; padding:12px 14px; margin-top:6px; font-size:12px; color:var(--text2,#3a4150);">Routed to <strong>{{ booking.partner }}</strong> with promo <strong>{{ booking.promo }}</strong> for the conference rate.</div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+              <button onClick="{{ closeBooking }}" style="background:none; border:1px solid var(--pillBorder,#e2e4e9); color:var(--text,#20242e); border-radius:9px; padding:10px 18px; font-size:14px; font-weight:600; cursor:pointer;">Cancel</button>
+              <button onClick="{{ submitBooking }}" style="background:var(--pillActiveBg,#111418); color:var(--pillActiveText,#fff); border:none; border-radius:9px; padding:10px 18px; font-size:14px; font-weight:600; cursor:pointer;">Send request</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ booking.confirmed }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center; padding:6px 0;">
+              <div style="width:54px; height:54px; border-radius:50%; background:rgba(31,157,87,.14); color:#1f9d57; display:flex; align-items:center; justify-content:center; margin:0 auto 14px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></div>
+              <h3 style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; margin:0; color:var(--text,#20242e);">Request sent</h3>
+              <p style="font-size:13px; color:var(--muted,#9aa1ad); margin:8px 0 16px;">Routed to <strong style="color:var(--text2,#3a4150);">{{ booking.partner }}</strong>. Use the promo code below for your conference rate.</p>
+              <div style="border:1.5px dashed var(--badge,#c15f3c); border-radius:12px; padding:14px; margin-bottom:14px;"><div style="font-size:10px; letter-spacing:.12em; color:var(--muted,#9aa1ad); font-weight:700;">PROMO CODE</div><div style="font-family:'Source Serif 4',Georgia,serif; font-size:26px; font-weight:800; color:var(--badge,#c15f3c); letter-spacing:.06em;">{{ booking.promo }}</div></div>
+              <div style="font-size:12px; color:var(--muted,#9aa1ad);">Reference: {{ booking.ref }}</div>
+              <button onClick="{{ closeBooking }}" style="width:100%; margin-top:16px; background:var(--pillActiveBg,#111418); color:var(--pillActiveText,#fff); border:none; border-radius:10px; padding:12px; font-size:13px; font-weight:600; cursor:pointer;">Done</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.canvasRef = React.createRef();
+    let theme = "light", lang = "en";
+    try {
+      theme = localStorage.getItem("efdi_theme") || "light";
+      lang = localStorage.getItem("efdi_lang") || "en";
+    } catch (e) {}
+    this.state = { query: "", sort: "nearest", status: "all", category: "all", theme, lang, flipped: {}, selCountry: "Türkiye", selCity: "İstanbul", booking: null };
+  }
+
+  get today() { return new Date(2026, 5, 25); }
+
+  STR() {
+    return {
+      en: { events: "Events", admin: "Studio", search: "Search events...", nearest: "NEAREST FIRST", latest: "LATEST FIRST",
+        allEvents: "ALL EVENTS", upcoming: "UPCOMING", past: "PAST", all: "ALL", conferences: "CONFERENCES",
+        view: "VIEW EVENT", noResults: "No events found", noResultsSub: "Try adjusting your search or filters.",
+        sOngoing: "REG OPEN", sUpcoming: "UPCOMING", sEnded: "ENDED",
+        logiTitle: "Destination & Logistics", logiSub: "Plan your stay, transfers and cultural program for the host city.", country: "Country", city: "City", accomTitle: "Accommodation", accomSub: "Recommended hotels with conference rates", transTitle: "Transportation & Transfers", transSub: "Car rental, airport transfers and venue shuttle", toursTitle: "Cultural Tours & Spouse Program", toursSub: "Half-day and full-day tours for you and your spouse", single: "Single", double: "Double", perNight: "/night", book: "Book at discounted rate", reserve: "Reserve", off: "OFF", navReg: "Event Registration", navAccom: "Accommodation", navTrans: "Transportation", navTours: "Tours" },
+      tr: { events: "Etkinlikler", admin: "Stüdyo", search: "Etkinlik ara...", nearest: "EN YAKIN", latest: "EN YENİ",
+        allEvents: "TÜM ETKİNLİKLER", upcoming: "YAKLAŞAN", past: "GEÇMİŞ", all: "TÜMÜ", conferences: "KONFERANSLAR",
+        view: "ETKİNLİĞİ GÖR", noResults: "Etkinlik bulunamadı", noResultsSub: "Arama veya filtreleri değiştirmeyi deneyin.",
+        sOngoing: "KAYIT AÇIK", sUpcoming: "YAKLAŞAN", sEnded: "SONA ERDİ",
+        logiTitle: "Konaklama & Lojistik", logiSub: "Ev sahibi şehir için konaklama, transfer ve kültür programınızı planlayın.", country: "Ülke", city: "Şehir", accomTitle: "Konaklama", accomSub: "Konferans indirimli oteller", transTitle: "Ulaşım & Transfer", transSub: "Araç kiralama, havalimanı transferi ve servis", toursTitle: "Kültür Turları & Eş Programı", toursSub: "Sizin ve eşiniz için yarım ve tam gün turlar", single: "Tek", double: "Çift", perNight: "/gece", book: "İndirimli rezervasyon", reserve: "Rezerve et", off: "İNDİRİM", navReg: "Etkinlik Kaydı", navAccom: "Konaklama", navTrans: "Ulaşım", navTours: "Turlar" },
+      fr: { events: "Événements", admin: "Studio", search: "Rechercher des événements...", nearest: "PLUS PROCHE", latest: "PLUS RÉCENT",
+        allEvents: "TOUS", upcoming: "À VENIR", past: "PASSÉS", all: "TOUS", conferences: "CONFÉRENCES",
+        view: "VOIR L'ÉVÉNEMENT", noResults: "Aucun événement trouvé", noResultsSub: "Essayez d'ajuster votre recherche ou vos filtres.",
+        sOngoing: "INSCRIPTIONS", sUpcoming: "À VENIR", sEnded: "TERMINÉ",
+        logiTitle: "Destination & Logistique", logiSub: "Planifiez séjour, transferts et programme culturel.", country: "Pays", city: "Ville", accomTitle: "Hébergement", accomSub: "Hôtels recommandés au tarif conférence", transTitle: "Transport & Transferts", transSub: "Location, transferts aéroport et navette", toursTitle: "Visites & Programme conjoint", toursSub: "Excursions d'une demi-journée et journée", single: "Simple", double: "Double", perNight: "/nuit", book: "Réserver au tarif réduit", reserve: "Réserver", off: "OFF", navReg: "Inscription", navAccom: "Hébergement", navTrans: "Transport", navTours: "Visites" },
+    };
+  }
+
+  locale() { return { en: "en-GB", tr: "tr-TR", fr: "fr-FR" }[this.state.lang]; }
+
+  allEvents() { return this.loadEvents(); }
+  darken(hex, f) { try { const n = parseInt(hex.slice(1), 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; r = Math.round(r * (1 - f)); g = Math.round(g * (1 - f)); b = Math.round(b * (1 - f)); return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); } catch (e) { return hex; } }
+  loadEvents() {
+    let raw; try { raw = JSON.parse(localStorage.getItem("efdi_events_v2") || "null"); } catch (e) {}
+    if (!raw || !raw.length) { raw = this.seedEvents(); try { localStorage.setItem("efdi_events_v2", JSON.stringify(raw)); } catch (e) {} }
+    return raw.map(e => ({ ...e, start: new Date(e.s[0], e.s[1], e.s[2]), end: new Date(e.e[0], e.e[1], e.e[2]), location: e.city + ", " + e.country, accentDark: this.darken(e.accent || "#2f6fd1", 0.32), hasDesc: !!e.desc }));
+  }
+  seedEvents() {
+    return [
+      { id: "ipc", code: "IPC", title: "EFDI IPC 2026", subtitle: "Initial Planning Conference", s: [2026, 1, 18], e: [2026, 1, 20], country: "Estonia", city: "Tallinn", desc: "Kick-off planning conference setting the objectives, scope and milestones for the EFDI 2026 cycle.", pocName: "Maj. Liis Saar", pocEmail: "liis.saar@efdi.nato.int", category: "conference", accent: "#2f6fd1", href: "EFDI%20IPC%202026.dc.html" },
+      { id: "mpc", code: "MPC", title: "EFDI MPC 2026", subtitle: "Main Planning Conference", s: [2026, 4, 12], e: [2026, 4, 14], country: "Latvia", city: "Riga", desc: "Detailed coordination of scenario, participation and logistics across partner nations.", pocName: "Lt. Col. Janis Berzins", pocEmail: "janis.berzins@efdi.nato.int", category: "conference", accent: "#1f9d57", href: "#" },
+      { id: "fpc", code: "FPC", title: "EFDI FPC 2026", subtitle: "Final Planning Conference", s: [2026, 8, 9], e: [2026, 8, 11], country: "Lithuania", city: "Vilnius", desc: "Final confirmation of exercise design, schedules and readiness before execution.", pocName: "Cdr. Tomas Kazlauskas", pocEmail: "tomas.kazlauskas@efdi.nato.int", category: "conference", accent: "#7c3aed", href: "#" },
+      { id: "livex", code: "LIVEX", title: "EFDI LIVEX 2026", subtitle: "Live Exercise", s: [2026, 10, 17], e: [2026, 10, 21], country: "Poland", city: "Warsaw", desc: "Multinational live exercise validating interoperability and the EFDI operational concept.", pocName: "Col. Marek Nowak", pocEmail: "marek.nowak@efdi.nato.int", category: "exercise", accent: "#c2632f", href: "#" },
+    ];
+  }
+
+  loadLogistics() {
+    try { const r = JSON.parse(localStorage.getItem("efdi_logistics_v4") || "null"); if (r && r.destinations) return r; } catch (e) {}
+    const s = this.seedLogistics(); try { localStorage.setItem("efdi_logistics_v4", JSON.stringify(s)); } catch (e) {} return s;
+  }
+  seedLogistics() {
+    return {
+      destinations: [
+        { country: "Türkiye", cities: ["İstanbul", "İzmir", "Ankara", "Antalya"] },
+        { country: "Lithuania", cities: ["Vilnius", "Kaunas"] },
+        { country: "Estonia", cities: ["Tallinn"] },
+        { country: "Latvia", cities: ["Riga"] },
+        { country: "Poland", cities: ["Warsaw", "Kraków"] },
+        { country: "Belgium", cities: ["Brussels", "Mons"] },
+      ],
+      accommodation: { hotels: [
+        { name: "Hilton İstanbul Bosphorus", single: "€160", double: "€195", discount: "25%", note: "Conference check-in desk available", partner: "Hilton İstanbul", promo: "EFDI25", commission: 8 },
+        { name: "Swissôtel The Bosphorus", single: "€175", double: "€210", discount: "22%", note: "Conference rate · city centre", partner: "Swissôtel İstanbul", promo: "EFDI25", commission: 8 },
+        { name: "Swissôtel Büyük Efes İzmir", single: "€140", double: "€170", discount: "25%", note: "Seafront · İzmir delegates", partner: "Swissôtel İzmir", promo: "EFDI25", commission: 8 },
+        { name: "Hilton İzmir", single: "€135", double: "€165", discount: "23%", note: "Conference check-in desk · İzmir", partner: "Hilton İzmir", promo: "EFDI25", commission: 8 },
+      ] },
+      transportation: { options: [
+        { title: "Car Rental", desc: "Self-drive vehicles at preferential conference rates in İstanbul & İzmir.", action: "Reserve a car", category: "car", partner: "Avis Türkiye", promo: "EFDI-CAR10", commission: 10 },
+        { title: "Airport → Hotel", desc: "Pre-booked arrival transfers (IST / SAW / ADB).", action: "Request transfer", category: "transfer", partner: "Türkiye VIP Transfers", promo: "EFDI-TRF", commission: 12 },
+        { title: "Hotel → Airport", desc: "Departure transfers on request.", action: "Request transfer", category: "transfer", partner: "Türkiye VIP Transfers", promo: "EFDI-TRF", commission: 12 },
+        { title: "Venue Shuttle", desc: "Scheduled shuttle between hotels and the venue.", action: "Request seat", category: "transfer", partner: "HNS Shuttle Desk", promo: "EFDI-SHTL", commission: 0 },
+      ] },
+      tours: { items: [
+        { badge: "Half Day", title: "İstanbul Historic Peninsula", desc: "Hagia Sophia, Blue Mosque & Topkapı Palace highlights.", partner: "Bosphorus Heritage Tours", promo: "EFDI-TOUR", commission: 15 },
+        { badge: "Full Day", title: "Bosphorus Cruise & Two Continents", desc: "Sail the Bosphorus between Europe and Asia.", partner: "Bosphorus Heritage Tours", promo: "EFDI-TOUR", commission: 15 },
+        { badge: "Full Day", title: "Ephesus & Ancient İzmir", desc: "Explore the ruins of Ephesus and the İzmir coast.", partner: "Aegean Heritage Tours", promo: "EFDI-TOUR", commission: 15 },
+        { badge: "Half Day", title: "İzmir Kemeraltı & Kordon", desc: "Historic bazaar, waterfront promenade & local cuisine.", partner: "Aegean Heritage Tours", promo: "EFDI-TOUR", commission: 15 },
+      ] },
+    };
+  }
+  statusCode(ev) {
+    if (ev.end < this.today) return "ended";
+    if (ev.start > this.today) return "upcoming";
+    return "ongoing";
+  }
+
+  fmtRange(ev) {
+    const loc = this.locale();
+    const optD = { day: "numeric", month: "short" };
+    const a = ev.start.toLocaleDateString(loc, optD);
+    const y = ev.end.getFullYear();
+    if (ev.start.getTime() === ev.end.getTime()) return a + " " + y;
+    return a + " \u2013 " + ev.end.toLocaleDateString(loc, optD) + " " + y;
+  }
+
+  computed() {
+    const t = this.today;
+    const str = this.STR()[this.state.lang];
+    const loc = this.locale();
+    let list = this.allEvents();
+
+    const q = this.state.query.trim().toLowerCase();
+    if (q) list = list.filter(ev => ev.title.toLowerCase().includes(q) || ev.location.toLowerCase().includes(q));
+    if (this.state.status === "upcoming") list = list.filter(ev => ev.start > t);
+    else if (this.state.status === "past") list = list.filter(ev => ev.end < t);
+    if (this.state.category === "conferences") list = list.filter(ev => ev.category === "conference");
+
+    if (this.state.sort === "nearest") list.sort((a, b) => a.start - b.start);
+    else list.sort((a, b) => b.start - a.start);
+
+    const sBg = { ongoing: this.dark ? "rgba(46,168,122,.18)" : "#e7f6ee", upcoming: this.dark ? "rgba(107,143,196,.2)" : "#eaf1ff", ended: this.dark ? "rgba(255,255,255,.07)" : "#eceef2" };
+    const sCol = { ongoing: this.dark ? "#4cd0a0" : "#1f9d57", upcoming: this.dark ? "#e8927a" : "#d97757", ended: this.dark ? "#9aa6ba" : "#737a87" };
+
+    return list.map((ev, i) => {
+      const code = this.statusCode(ev);
+      const fkey = (ev.code || "ev") + "-" + i;
+      return {
+        ...ev,
+        flipT: this.state.flipped[fkey] ? "rotateY(180deg)" : "none",
+        onFlip: (e) => { if (e) e.preventDefault(); this.setState(s => ({ flipped: { ...s.flipped, [fkey]: true } })); },
+        onUnflip: (e) => { if (e) e.preventDefault(); this.setState(s => ({ flipped: { ...s.flipped, [fkey]: false } })); },
+        badgeMonth: ev.start.toLocaleDateString(loc, { month: "short" }).toUpperCase().replace(".", ""),
+        badgeDay: String(ev.start.getDate()).padStart(2, "0"),
+        dateRange: this.fmtRange(ev),
+        statusLabel: str["s" + code.charAt(0).toUpperCase() + code.slice(1)],
+        statusBg: sBg[code], statusColor: sCol[code],
+        hasDesc: !!ev.desc,
+        ctaLabel: code === "ended" ? str.view : (ev.ctaLabel || str.register || "REGISTER"),
+        ctaHref: code === "ended" ? ev.href : (ev.ctaHref || ev.href),
+        backTitle: code === "ended" ? (str.postEvent || "POST-EVENT RESOURCES") : (str.quickLinks || "QUICK LINKS & DOCUMENTS"),
+        backLinks: (ev.back && ev.back.links) || (code === "ended" ? [
+          { icon: "\u25A6", label: "Final Agenda", href: ev.href },
+          { icon: "\u270E", label: "Lessons Learned", href: "#" },
+          { icon: "\u25A4", label: "After-Action Report (PDF)", href: "#" },
+          { icon: "\u2691", label: "Photo Gallery", href: "#" },
+        ] : [
+          { icon: "\u25A6", label: "Programme & Agenda", href: ev.href },
+          { icon: "\u270E", label: "Register / Manage", href: ev.href },
+          { icon: "\u25A4", label: "Concept Note (PDF)", href: "#" },
+          { icon: "\u2691", label: "Venue & Logistics", href: "#" },
+        ]),
+      };
+    });
+  }
+
+  get dark() { return this.state.theme === "dark"; }
+
+  // ---- style builders ----
+  segStyle(active) {
+    return { border: "none", cursor: "pointer", borderRadius: "999px", padding: "8px 16px", fontSize: "11px", fontWeight: 600, letterSpacing: ".06em",
+      background: active ? (this.dark ? "rgba(255,255,255,.12)" : "#ffffff") : "transparent",
+      color: active ? "var(--text)" : "var(--muted)",
+      boxShadow: active ? "0 1px 3px rgba(20,24,32,.18)" : "none" };
+  }
+  pillStyle(active) {
+    return { cursor: "pointer", borderRadius: "999px", padding: "11px 20px", fontSize: "11px", fontWeight: 600, letterSpacing: ".06em",
+      background: active ? "var(--pillActiveBg)" : "var(--pillBg)",
+      color: active ? "var(--pillActiveText)" : "var(--text2)",
+      border: "1px solid " + (active ? "var(--pillActiveBg)" : "var(--pillBorder)") };
+  }
+  chipStyle(active) {
+    return { cursor: "pointer", borderRadius: "999px", padding: "9px 20px", fontSize: "12px", fontWeight: 600, letterSpacing: ".05em",
+      background: "var(--pillBg)",
+      color: active ? "var(--badge)" : "var(--muted)",
+      border: (active ? "1.5px solid var(--badge)" : "1px solid var(--pillBorder)") };
+  }
+  langStyle(active) {
+    return { border: "none", cursor: "pointer", borderRadius: "999px", padding: "7px 13px", fontSize: "12px", fontWeight: 700, letterSpacing: ".04em",
+      background: active ? "var(--pillActiveBg)" : "transparent",
+      color: active ? "var(--pillActiveText)" : "var(--muted)" };
+  }
+
+  themeVars() {
+    if (this.dark) {
+      return { "--bg": "#050a16", "--header": "rgba(8,14,26,.66)", "--headerBorder": "rgba(120,150,200,.14)",
+        "--text": "#eef2f8", "--text2": "#c2cbd9", "--muted": "#7e8aa0", "--card": "rgba(16,24,42,.62)", "--cardBorder": "rgba(120,150,200,.18)",
+        "--chip": "rgba(255,255,255,.06)", "--info": "rgba(255,255,255,.045)", "--pillBg": "rgba(255,255,255,.05)", "--pillBorder": "rgba(255,255,255,.14)", "--selBg": "#0f1830",
+        "--pillActiveBg": "#d97757", "--pillActiveText": "#0c1322", "--badge": "#e8927a", "--accent": "rgba(217,119,87,.55)", "--btnBg": "rgba(255,255,255,.05)", "--btnHover": "rgba(255,255,255,.1)" };
+    }
+    return { "--bg": "#eef0f4", "--header": "#ffffff", "--headerBorder": "#eceef2",
+      "--text": "#20242e", "--text2": "#3a4150", "--muted": "#9aa1ad", "--card": "#fbfbfc", "--cardBorder": "#e7e9ee",
+      "--chip": "#f4f5f8", "--info": "#f1f3f6", "--pillBg": "#ffffff", "--pillBorder": "#e2e4e9", "--selBg": "#ffffff",
+      "--pillActiveBg": "#111418", "--pillActiveText": "#ffffff", "--badge": "#c15f3c", "--accent": "#e8927a", "--btnBg": "#ffffff", "--btnHover": "#f4f5f8" };
+  }
+
+  setTheme(theme) {
+    try { localStorage.setItem("efdi_theme", theme); } catch (e) {}
+    this.setState({ theme }, () => this.setupCanvas());
+  }
+  setLang(lang) {
+    try { localStorage.setItem("efdi_lang", lang); } catch (e) {}
+    this.setState({ lang });
+  }
+
+  componentDidMount() { this.setupCanvas(); window.addEventListener("resize", this._rz = () => this.resizeCanvas()); }
+  componentWillUnmount() { if (this._raf) cancelAnimationFrame(this._raf); if (this._rz) window.removeEventListener("resize", this._rz); }
+
+  resizeCanvas() {
+    const c = this.canvasRef.current; if (!c) return;
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    this._build && this._build();
+  }
+
+  setupCanvas() {
+    const c = this.canvasRef.current; if (!c) return;
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (!this.dark) { const ctx = c.getContext("2d"); ctx && ctx.clearRect(0, 0, c.width, c.height); return; }
+    const ctx = c.getContext("2d");
+    let W, H, nodes = [], packets = [], time = 0;
+    const NODES = 26;
+    const build = () => {
+      W = c.width = c.offsetWidth; H = c.height = c.offsetHeight;
+      nodes = []; packets = [];
+      for (let i = 0; i < NODES; i++) nodes.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, r: Math.random() < .25 ? 4 : 2, phase: Math.random() * 6.28 });
+      for (let i = 0; i < 7; i++) spawn();
+    };
+    const spawn = () => {
+      const th = Math.min(W, H) * .28; const edges = [];
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) { const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y; if (Math.sqrt(dx * dx + dy * dy) < th) edges.push([i, j]); }
+      if (!edges.length) return; const e = edges[Math.floor(Math.random() * edges.length)];
+      packets.push({ from: e[0], to: e[1], t: 0, speed: .003 + Math.random() * .004, gold: Math.random() < .35 });
+    };
+    this._build = build;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      const g = ctx.createRadialGradient(W * .5, H * .42, 0, W * .5, H * .42, Math.max(W, H) * .75);
+      g.addColorStop(0, "rgba(12,26,58,.9)"); g.addColorStop(.5, "rgba(6,14,32,.96)"); g.addColorStop(1, "rgba(3,8,15,1)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const th = Math.min(W, H) * .28;
+      nodes.forEach(n => { n.x += n.vx; n.y += n.vy; if (n.x < 0 || n.x > W) n.vx *= -1; if (n.y < 0 || n.y > H) n.vy *= -1; });
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < th) { const a = (1 - d / th) * .3; ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.strokeStyle = "rgba(90,125,185," + a + ")"; ctx.lineWidth = .5; ctx.stroke(); }
+      }
+      for (let pi = packets.length - 1; pi >= 0; pi--) { const p = packets[pi]; p.t += p.speed; if (p.t >= 1) { packets.splice(pi, 1); spawn(); continue; }
+        const a = nodes[p.from], b = nodes[p.to]; if (!a || !b) continue; const x = a.x + (b.x - a.x) * p.t, y = a.y + (b.y - a.y) * p.t;
+        ctx.beginPath(); ctx.arc(x, y, 2, 0, 6.28); ctx.fillStyle = p.gold ? "#d97757" : "#6b8fc4"; ctx.fill(); }
+      nodes.forEach(n => { const pulse = 1 + .3 * Math.sin(time * .03 + n.phase);
+        if (n.r >= 4) { ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 2 * pulse, 0, 6.28); ctx.strokeStyle = "rgba(217,119,87,.2)"; ctx.lineWidth = .7; ctx.stroke();
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 6.28); ctx.fillStyle = "#d97757"; ctx.fill(); }
+        else { ctx.beginPath(); ctx.arc(n.x, n.y, n.r * pulse, 0, 6.28); ctx.fillStyle = "rgba(90,125,185,.6)"; ctx.fill(); } });
+      time++; this._raf = requestAnimationFrame(draw);
+    };
+    build(); draw();
+  }
+
+  bookingFieldDefs(cat) {
+    if (cat === "hotel") return [{ key: "checkIn", label: "Check-in", type: "date" }, { key: "checkOut", label: "Check-out", type: "date" }, { key: "room", label: "Room type", type: "select", options: ["Single", "Double"] }, { key: "guests", label: "Guests", type: "number" }];
+    if (cat === "car") return [{ key: "pickup", label: "Pick-up date", type: "date" }, { key: "ret", label: "Return date", type: "date" }, { key: "type", label: "Vehicle class", type: "select", options: ["Economy", "Sedan", "SUV", "Van"] }];
+    if (cat === "transfer") return [{ key: "direction", label: "Direction", type: "select", options: ["Arrival (Airport → Hotel)", "Departure (Hotel → Airport)"] }, { key: "flightNo", label: "Flight no.", type: "text" }, { key: "date", label: "Date", type: "date" }, { key: "time", label: "Time", type: "time" }, { key: "pax", label: "Passengers", type: "number" }];
+    return [{ key: "date", label: "Preferred date", type: "date" }, { key: "pax", label: "Participants", type: "number" }];
+  }
+  loadBookings() { try { return JSON.parse(localStorage.getItem("efdi_bookings") || "[]"); } catch (e) { return []; } }
+  openBooking(cat, item) { this.setState({ booking: { category: cat, item, fields: {}, confirmed: false } }); }
+  onBookingField(k, v) { const b = this.state.booking; this.setState({ booking: { ...b, fields: { ...b.fields, [k]: v } } }); }
+  submitBooking() {
+    const b = this.state.booking; if (!b) return;
+    const ref = "EFDI-" + Date.now().toString().slice(-6);
+    const store = this.loadBookings();
+    store.push({ id: "bk" + Date.now(), ref, category: b.category, item: b.item.name || b.item.title, partner: b.item.partner, promo: b.item.promo, commission: b.item.commission, fields: b.fields, status: "requested", at: new Date().toISOString() });
+    try { localStorage.setItem("efdi_bookings", JSON.stringify(store)); } catch (e) {}
+    this.setState({ booking: { ...b, confirmed: true, ref } });
+  }
+  scrollToId(id) { try { const el = document.getElementById(id); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 84; window.scrollTo({ top: y, behavior: "smooth" }); } } catch (e) {} }
+  renderVals() {
+    const s = this.state;
+    const str = this.STR()[s.lang];
+    const events = this.computed();
+    const L = this.loadLogistics();
+    const bk = s.booking;
+    let bkVals = null;
+    if (bk) {
+      const defs = this.bookingFieldDefs(bk.category);
+      const titles = { hotel: "Book accommodation", car: "Reserve a car", transfer: "Request transfer", tour: "Reserve tour" };
+      bkVals = { open: true, confirmed: !!bk.confirmed, isForm: !bk.confirmed,
+        kicker: titles[bk.category] || "Reserve", title: bk.item.name || bk.item.title,
+        sub: "Your request is routed to our partner — use the promo code below for the conference rate.",
+        partner: bk.item.partner, promo: bk.item.promo, ref: bk.ref || "",
+        fields: defs.map(d => ({ label: d.label, isSelect: d.type === "select", isInput: d.type !== "select", type: d.type === "select" ? "text" : d.type,
+          options: (d.options || []).map(o => ({ v: o, label: o })), value: bk.fields[d.key] || "", onInput: (e) => this.onBookingField(d.key, e.target.value) })) };
+    }
+    const country = L.destinations.find(d => d.country === s.selCountry) || L.destinations[0];
+    const cities = country ? country.cities : [];
+    const langs = ["en", "tr", "fr"].map(code => ({ code: code.toUpperCase(), style: this.langStyle(s.lang === code), onClick: () => this.setLang(code) }));
+
+    const sun = React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" },
+      React.createElement("circle", { cx: 12, cy: 12, r: 4 }),
+      React.createElement("path", { d: "M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" }));
+    const moon = React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" },
+      React.createElement("path", { d: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" }));
+
+    return {
+      rootStyle: { ...this.themeVars(), position: "relative", minHeight: "100vh", background: "var(--bg)", transition: "background .3s ease" },
+      canvasStyle: { position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 1, display: this.dark ? "block" : "none", pointerEvents: "none" },
+      canvasRef: this.canvasRef,
+      t: str, langs,
+      themeIcon: this.dark ? sun : moon,
+      toggleTheme: () => this.setTheme(this.dark ? "light" : "dark"),
+      query: s.query, events, hasResults: events.length > 0, noResults: events.length === 0,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      setNearest: () => this.setState({ sort: "nearest" }), setLatest: () => this.setState({ sort: "latest" }),
+      setStatusAll: () => this.setState({ status: "all" }), setStatusUpcoming: () => this.setState({ status: "upcoming" }), setStatusPast: () => this.setState({ status: "past" }),
+      setCatAll: () => this.setState({ category: "all" }), setCatConf: () => this.setState({ category: "conferences" }),
+      sortNearestStyle: this.segStyle(s.sort === "nearest"), sortLatestStyle: this.segStyle(s.sort === "latest"),
+      statusAllStyle: this.pillStyle(s.status === "all"), statusUpcomingStyle: this.pillStyle(s.status === "upcoming"), statusPastStyle: this.pillStyle(s.status === "past"),
+      catAllStyle: this.chipStyle(s.category === "all"), catConfStyle: this.chipStyle(s.category === "conferences"),
+      navRegStyle: this.chipStyle(true), navStyle: this.chipStyle(false),
+      goReg: () => this.scrollToId("sec-reg"), goAccom: () => this.scrollToId("sec-accom"), goTrans: () => this.scrollToId("sec-trans"), goTours: () => this.scrollToId("sec-tours"),
+      selCountry: s.selCountry, selCity: s.selCity,
+      countryOpts: L.destinations.map(d => ({ v: d.country, label: d.country })),
+      cityOpts: cities.map(c => ({ v: c, label: c })),
+      onCountry: (e) => { const d = L.destinations.find(x => x.country === e.target.value); this.setState({ selCountry: e.target.value, selCity: (d && d.cities[0]) ? d.cities[0] : "" }); },
+      onCity: (e) => this.setState({ selCity: e.target.value }),
+      locLabel: s.selCity + ", " + s.selCountry,
+      hotels: L.accommodation.hotels.map(h => ({ ...h, onBook: () => this.openBooking("hotel", h) })),
+      transport: L.transportation.options.map(o => ({ ...o, onAct: () => this.openBooking(o.category || "transfer", o) })),
+      tours: L.tours.items.map(to => ({ ...to, onAct: () => this.openBooking("tour", to) })),
+      booking: bkVals, closeBooking: () => this.setState({ booking: null }), submitBooking: () => this.submitBooking(),
+    };
+  }
+}
+</script>
+<script>
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    if(document.body && document.body.innerHTML.indexOf('{{')>-1 && typeof DCLogic==='undefined'){
+      document.body.innerHTML='<div style="max-width:520px;margin:18vh auto;font-family:system-ui;padding:2rem;border:1px solid #e2e4e9;border-radius:16px;text-align:center;color:#3a4150"><h2 style="margin:0 0 .5rem">Go &amp; Meet demo</h2><p style="line-height:1.6;font-size:14px">Bu ekran <b>support.js</b> ile çalışır. L\u00fctfen <code>support.js</code> dosyas\u0131n\u0131 bu sayfayla ayn\u0131 klas\u00f6re (<code>/platforms/conventus/</code>) y\u00fckleyin ve sayfay\u0131 yenileyin.</p><a href="index.html" style="color:#004990;font-weight:600;font-size:13px">\u2190 Conventus</a></div>';
+    }
+  },800);
+});
+</script></body>
+</html>

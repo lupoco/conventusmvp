@@ -1,0 +1,42 @@
+{
+  "meta": { "country": "Sudan", "generated": "2026-06-03", "sector_unit": "$B", "sector_hint": "2025 appeal requirement by cluster · US$ billions", "note": "Sourced from OCHA HNRP 2025 + FTS plan 1220 + GHO 2026. Figures vary by source/date." },
+  "kpis": [
+    { "label": "People in Need",       "value": "30.4M",  "sub": "over half the population (OCHA, 2025)",   "gold": true },
+    { "label": "Internally Displaced",  "value": "8.9M",   "sub": "world's largest displacement crisis",     "gold": false },
+    { "label": "2025 Appeal",           "value": "$4.2B",  "sub": "20.9M targeted (OCHA)",                   "gold": false },
+    { "label": "Funding Coverage",      "value": "~37%",   "sub": "~$1.55B of $4.2B (FTS, Jan 2026)",        "gold": true }
+  ],
+  "sectors_need": [
+    { "name": "Food Security", "v": 1.54 },
+    { "name": "Refugee Resp.", "v": 0.63 },
+    { "name": "Nutrition",     "v": 0.47 },
+    { "name": "WASH",          "v": 0.30 },
+    { "name": "Protection",    "v": 0.28 },
+    { "name": "Health",        "v": 0.26 }
+  ],
+  "funding": { "required": 4.16, "received": 1.55, "unit": "$B", "pct": 0.37 },
+  "requirements": [
+    { "t": "2025",            "v": 4.16 },
+    { "t": "2025 prioritized","v": 3.01 },
+    { "t": "2026*",           "v": 2.90 }
+  ],
+  "displacement": [
+    { "name": "IDPs (internal)",    "v": 8.9,  "c": "var(--cyan)" },
+    { "name": "Fled to neighbours", "v": 3.0,  "c": "var(--gold)" },
+    { "name": "Total displaced",    "v": 12.0, "c": "var(--ok)" }
+  ],
+  "context": [
+    { "big": "Famine", "lab": "confirmed in parts of North Darfur; millions more at risk (OCHA, 2025)" },
+    { "big": "2.3M",   "lab": "facing catastrophic need in the most critical states (OCHA, 2025)" },
+    { "big": "70%+",   "lab": "of health facilities non-functional (IOM, 2024–25)" },
+    { "big": "~37%",   "lab": "of the $4.2B appeal funded — food security at 48%, nutrition 16% (FTS, Jan 2026)" }
+  ],
+  "sources": [
+    { "t": "OCHA — Sudan country page (30M+ PiN; 9M+ IDPs; $4.2B for 20.9M)", "u": "https://www.unocha.org/sudan", "d": "Apr 2026" },
+    { "t": "OCHA — Sudan HNRP 2025 Overview (30.4M PiN; 8.9M IDPs; composition)", "u": "https://www.unocha.org/publications/report/sudan/sudan-humanitarian-needs-and-response-plan-2025-overview", "d": "Dec 2024" },
+    { "t": "OCHA — Sudan HNRP 2025 Executive Summary ($4.2B / ~21M; famine N. Darfur)", "u": "https://www.unocha.org/publications/report/sudan/sudan-humanitarian-needs-and-response-plan-2025-executive-summary-december-2024-enar", "d": "Dec 2024" },
+    { "t": "FTS — Sudan HNRP 2025 (cluster funding; ~37% coverage; prioritized $3.01B)", "u": "https://fts.unocha.org/plans/1220/summary", "d": "Jan 2026" },
+    { "t": "UN News — GHO 2026 ($2.9B for 20M in-country; +$2B refugees)", "u": "https://news.un.org/en/story/2025/12/1166526", "d": "Dec 2025" },
+    { "t": "IOM — Sudan Crisis Response Plan 2024–2025 (70%+ facilities non-functional)", "u": "https://crisisresponse.iom.int/response/sudan-crisis-response-plan-2024-2025", "d": "2025" }
+  ]
+}

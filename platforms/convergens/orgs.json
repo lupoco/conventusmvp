@@ -1,0 +1,95 @@
+{
+  "meta": { "title": "Organization Profiles", "scope": "Civil-only · Humanitarian Response as a Network", "generated": "2026-06-03", "note": "Illustrative/sample profiles demonstrating the Cognis org-profile schema. Replace with Cognis-generated, source-attributed records." },
+  "organizations": [
+    {
+      "organization": "World Food Programme (WFP)", "type": "UN agency",
+      "mandate_summary": "Food assistance and emergency logistics in crisis and food-insecure settings.",
+      "profile": {
+        "annual_budget": { "value": "9.8B", "currency": "USD", "year": "2023" },
+        "staff_count": { "value": "23,000", "year": "2023" },
+        "areas_of_operation": ["Syria","Sudan","Yemen","DRC","Afghanistan","Horn of Africa"],
+        "domains_of_expertise": ["Food security","Logistics","Cash transfers"],
+        "funding_sources": [ {"donor":"United States","share_pct":42}, {"donor":"Germany","share_pct":12}, {"donor":"EU","share_pct":8} ]
+      },
+      "evaluation": {
+        "reliability": {"score":5,"rationale":"Audited, consistent reporting; strong operational footprint."},
+        "effectiveness": {"score":5,"rationale":"Large verified reach; mature logistics."},
+        "transparency": {"score":4,"rationale":"Public financials and dashboards."},
+        "overall": 4.8
+      },
+      "confidence": "high", "last_updated": "2026-05-20"
+    },
+    {
+      "organization": "UNHCR", "type": "UN agency",
+      "mandate_summary": "Protection and assistance for refugees, returnees, and stateless people.",
+      "profile": {
+        "annual_budget": { "value": "5.0B", "currency": "USD", "year": "2023" },
+        "staff_count": { "value": "20,000", "year": "2023" },
+        "areas_of_operation": ["Syria","Türkiye","Jordan","Bangladesh","Uganda"],
+        "domains_of_expertise": ["Protection","Registration","Shelter"],
+        "funding_sources": [ {"donor":"United States","share_pct":38}, {"donor":"EU","share_pct":11}, {"donor":"Private","share_pct":10} ]
+      },
+      "evaluation": {
+        "reliability": {"score":4,"rationale":"Established reporting; some donor concentration risk."},
+        "effectiveness": {"score":4,"rationale":"Broad protection reach; access-dependent outcomes."},
+        "transparency": {"score":4,"rationale":"Open data portal with funding tracking."},
+        "overall": 4.0
+      },
+      "confidence": "high", "last_updated": "2026-05-18"
+    },
+    {
+      "organization": "ICRC", "type": "Red Cross/Crescent",
+      "mandate_summary": "Protection and assistance for people affected by armed conflict; promotion of IHL.",
+      "profile": {
+        "annual_budget": { "value": "2.4B", "currency": "CHF", "year": "2023" },
+        "staff_count": { "value": "20,000", "year": "2023" },
+        "areas_of_operation": ["Syria","Ukraine","Sudan","Gaza","Sahel"],
+        "domains_of_expertise": ["Protection","IHL","Health","Water"],
+        "funding_sources": [ {"donor":"Switzerland","share_pct":15}, {"donor":"United States","share_pct":22}, {"donor":"EU members","share_pct":30} ]
+      },
+      "evaluation": {
+        "reliability": {"score":5,"rationale":"Strong neutrality record and audited accounts."},
+        "effectiveness": {"score":4,"rationale":"Effective in access-constrained zones."},
+        "transparency": {"score":4,"rationale":"Detailed annual reporting."},
+        "overall": 4.5
+      },
+      "confidence": "high", "last_updated": "2026-05-15"
+    },
+    {
+      "organization": "IOM", "type": "UN agency",
+      "mandate_summary": "Migration management, displacement tracking, and reintegration support.",
+      "profile": {
+        "annual_budget": { "value": "3.4B", "currency": "USD", "year": "2023" },
+        "staff_count": { "value": "20,000", "year": "2023" },
+        "areas_of_operation": ["Syria","Libya","Bangladesh","Ethiopia","Yemen"],
+        "domains_of_expertise": ["Displacement tracking","Mobility","Reintegration"],
+        "funding_sources": [ {"donor":"United States","share_pct":35}, {"donor":"EU","share_pct":14}, {"donor":"Germany","share_pct":9} ]
+      },
+      "evaluation": {
+        "reliability": {"score":4,"rationale":"Solid data products (DTM); project-funded model."},
+        "effectiveness": {"score":4,"rationale":"Authoritative displacement data."},
+        "transparency": {"score":3,"rationale":"Project-level transparency varies."},
+        "overall": 3.8
+      },
+      "confidence": "medium", "last_updated": "2026-05-22"
+    },
+    {
+      "organization": "Example Relief Foundation", "type": "INGO",
+      "mandate_summary": "Emergency food security and WASH delivery in protracted-crisis settings.",
+      "profile": {
+        "annual_budget": { "value": "180M", "currency": "USD", "year": "2024" },
+        "staff_count": { "value": "2,400", "year": "2024" },
+        "areas_of_operation": ["Syria","Türkiye","Jordan"],
+        "domains_of_expertise": ["Food security","WASH","Emergency logistics"],
+        "funding_sources": [ {"donor":"ECHO","share_pct":34}, {"donor":"Private","share_pct":28}, {"donor":"Not available","share_pct":0} ]
+      },
+      "evaluation": {
+        "reliability": {"score":4,"rationale":"Audited financials; consistent reporting."},
+        "effectiveness": {"score":4,"rationale":"Third-party-evaluated reach."},
+        "transparency": {"score":3,"rationale":"Partial donor disclosure."},
+        "overall": 3.8
+      },
+      "confidence": "medium", "last_updated": "2026-05-10"
+    }
+  ]
+}

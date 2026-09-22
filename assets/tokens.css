@@ -1,0 +1,196 @@
+/* ============================================================
+   CONVENTITY — DESIGN TOKENS  (TEK KANONİK KAYNAK)
+   Kimlik index.html / shared.css'ten türetildi.
+   Koyu tema = navy (S1 kararı). Altın = ikincil vurgu (S2).
+   Tema mekanizması = html[data-theme="dark"] (prefs.js kurar).
+
+   KURAL: Sayfa CSS'inde renk/font sabit yazma — hep bu
+   değişkenleri kullan. Bu dosya değişir, her yer değişir.
+
+   Bölümler:
+     1) Kanonik token'lar (shared.css isimleri = birincil)
+     2) Geriye-uyum alias'ları (eski tokens.css + core.html)
+     3) Koyu tema (navy) — data-theme + geçiş uyumu (.dark / data-dark)
+   ============================================================ */
+
+/* Tipografi — ekosistem geneli tek kez yükle */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---- 1) KANONİK ---------------------------------------- */
+
+  /* Fontlar */
+  --font-body:    'Manrope', system-ui, -apple-system, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* Marka + logo */
+  --brand-ink:  #0E2148;
+  --logo-outer: #0E2148;
+  --logo-inner: #2A6FDB;
+  --brand-blue: #2A6FDB;
+  --brand-sky:  #6FA8E6;
+  --brand-gold: #C8A24B;
+  --brand-teal: #4A8A8A;
+
+  /* Birincil renk = NATO mavisi. Altın ikincil (S2). */
+  --pf:        #004990;
+  --pf-glow:   rgba(0,73,144,.15);
+  --gold:      #E2B65E;
+
+  /* Platform aksanları (açık temada canlı) */
+  --pf-convexus:   #6366F1;   /* indigo   */
+  --pf-conventus:  #004990;   /* NATO mavi */
+  --pf-consultus:  #0BB8C4;   /* cyan-teal */
+  --pf-connectus:  #16A34A;   /* yeşil    */
+  --pf-convergens: #8B3DD6;   /* mor      */
+  --pf-connovus:   #D97757;   /* Conventlab mercan */
+
+  /* Aktif platform aksanı — [data-platform] tek attribute ile değişir */
+  --accent: var(--pf-conventus);
+
+  /* Açık tema yüzeyleri (index/shared.css ile birebir) */
+  --bg:        #F5F2EC;
+  --bg-soft:   #EDE7DA;
+  --paper:     #FFFFFF;
+  --paper-2:   #FAF7F1;
+  --ink:       #0E2148;
+  --ink-2:     #1F2D55;
+  --muted:     #5A6486;
+  --line:      #E5DFD2;
+  --line-2:    #D6CFBE;
+  --chip:      #ECE6D6;
+
+  /* Durum renkleri */
+  --danger: #B23B3B;
+  --ok:     #1F7A4D;
+  --warn:   #B8791F;
+
+  /* Boşluk ölçeği */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  /* Yarıçap */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+
+  /* Gölge (minimum — derinlik çizgi/katmanla) */
+  --shadow-1: 0 1px 2px rgba(14,33,72,.06);
+  --shadow-2: 0 4px 16px rgba(14,33,72,.10);
+  --shadow-3: 0 12px 32px rgba(14,33,72,.14);
+
+  /* Hareket */
+  --ease: cubic-bezier(.4,0,.2,1);
+  --dur:  .18s;
+
+  /* Yerleşim */
+  --nav-h:    60px;
+  --subnav-h: 44px;
+  --maxw:     1200px;
+  --z-nav:    1000;
+
+  /* Nav yüzeyi (açık tema) */
+  --nav-bg:          #FBF9F4;
+  --nav-fg:          #20283F;
+  --nav-border:      #E6E2D8;
+  --nav-tint:        rgba(14,33,72,.05);
+  --nav-tint-hover:  rgba(14,33,72,.09);
+  --nav-chip-border: rgba(14,33,72,.12);
+
+  /* Cam efekti (yalnız üst katmanlar; §6) */
+  --glass-blur:    12px;
+  --glass-surface: color-mix(in srgb, var(--nav-bg) 82%, transparent);
+
+  /* ---- 2) GERİYE-UYUM ALIAS'LARI ------------------------ */
+  /* Eski tokens.css sözlüğü */
+  --page-bg:   var(--bg);
+  --surface:   var(--paper);
+  --surface-2: var(--paper-2);
+  --ink-soft:  var(--ink-2);
+  --ink-muted: var(--muted);
+  --acc-conventity: var(--gold);
+  --acc-convexus:   var(--pf-convexus);
+  --acc-conventus:  var(--pf-conventus);
+  --acc-consultus:  var(--pf-consultus);
+  --acc-connectus:  var(--pf-connectus);
+  --acc-convergens: var(--pf-convergens);
+  --acc-conventlab: var(--pf-connovus);
+
+  /* core.html sözlüğü */
+  --cream:   var(--bg);
+  --navy:    var(--brand-ink);
+  --blue:    var(--pf);
+  --blue2:   var(--pf-conventus);
+  --paper2:  var(--paper-2);
+  --ink2:    var(--ink-2);
+  --ink3:    var(--muted);
+  --line2:   var(--line-2);
+  --mono:    var(--font-mono);
+  --body:    var(--font-body);
+  --serif:   var(--font-display);
+  --radius:    var(--r-md);
+  --radius-sm: var(--r-sm);
+  --shadow:  var(--shadow-1);
+}
+
+/* Platform aksanı [data-platform] ile ayarlanır */
+[data-platform="conventity"] { --accent: var(--acc-conventity); }
+[data-platform="convexus"]   { --accent: var(--pf-convexus); }
+[data-platform="convergens"] { --accent: var(--pf-convergens); }
+[data-platform="conventus"]  { --accent: var(--pf-conventus); }
+[data-platform="consultus"]  { --accent: var(--pf-consultus); }
+[data-platform="connectus"]  { --accent: var(--pf-connectus); }
+[data-platform="conventlab"] { --accent: var(--pf-connovus); }
+
+/* ============================================================
+   3) KOYU TEMA — navy (S1). Yalnız semantik yüzey/metin
+   token'ları döner; marka/altın sabit. prefs.js
+   html[data-theme="dark"] kurar. Geçiş döneminde .dark ve
+   [data-dark] de desteklenir (sayfalar göçmeden çalışsın).
+   Alias'lar var() ile bağlı olduğu için otomatik döner.
+   ============================================================ */
+html[data-theme="dark"],
+html.dark,
+html[data-dark] {
+  --bg:       #0B1428;
+  --bg-soft:  #0E1A32;
+  --paper:    #101C36;
+  --paper-2:  #0E1A32;
+  --ink:      #EEF1F7;
+  --ink-2:    #AAB4C8;
+  --muted:    #7F8AA2;
+  --line:     #243456;
+  --line-2:   #2A3A5E;
+  --chip:     #16233F;
+
+  /* Aksanlar koyuda okunaklılık için hafif parlatılır */
+  --pf:            #4B92DB;
+  --pf-glow:       rgba(75,146,219,.18);
+  --brand-blue:    #3DA5FF;
+  --brand-sky:     #5BC0FF;
+  --logo-outer:    #EEF1F7;
+  --logo-inner:    #5BC0FF;
+  --pf-conventus:  #4B92DB;
+  --pf-consultus:  #22D3DB;
+  --pf-convergens: #A876F0;
+  --pf-connovus:   #E0926E;
+
+  /* Nav yüzeyi (koyu navy) */
+  --nav-bg:          #0B1A30;
+  --nav-fg:          #EEF1F7;
+  --nav-border:      rgba(255,255,255,.10);
+  --nav-tint:        rgba(255,255,255,.08);
+  --nav-tint-hover:  rgba(255,255,255,.14);
+  --nav-chip-border: rgba(255,255,255,.16);
+  --glass-surface:   color-mix(in srgb, var(--nav-bg) 88%, transparent);
+
+  /* Gölge koyuda derinleşir */
+  --shadow-1: 0 1px 2px rgba(0,0,0,.30);
+  --shadow-2: 0 4px 16px rgba(0,0,0,.35);
+  --shadow-3: 0 12px 32px rgba(0,0,0,.45);
+}
+
+/* Az hareket tercihi */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0s; }
+  * { animation: none !important; scroll-behavior: auto !important; }
+}
