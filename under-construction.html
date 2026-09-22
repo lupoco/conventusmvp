@@ -131,6 +131,31 @@ h1.hero-title em{
   font-size:1.04em; letter-spacing:-.02em;
 }
 .hero-lead{font-size:18px; line-height:1.55; color:var(--muted); max-width:520px; margin:26px 0 34px}
+.hero-note{
+  display:inline-flex; align-items:flex-start; gap:11px;
+  max-width:540px; margin:0 0 32px; padding:13px 17px 13px 15px;
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  font-size:14px; line-height:1.5; color:var(--ink-2); text-align:left;
+}
+.hero-note b{
+  font-weight:700;
+  background:linear-gradient(110deg,var(--brand-blue) 0%,var(--pf-convexus) 55%,#D97757 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.live-dot{
+  position:relative; flex:none; width:9px; height:9px; margin-top:5px;
+  border-radius:50%; background:var(--brand-blue);
+}
+.live-dot::after{
+  content:""; position:absolute; inset:-5px; border-radius:50%;
+  border:1.5px solid var(--brand-blue); opacity:.6;
+  animation:livePulse 2.2s ease-out infinite;
+}
+@keyframes livePulse{
+  0%{transform:scale(.55); opacity:.7}
+  70%{transform:scale(1.5); opacity:0}
+  100%{transform:scale(1.5); opacity:0}
+}
 .hero-actions{display:flex; gap:12px; flex-wrap:wrap}
 .btn{
   display:inline-flex; align-items:center; gap:8px;
@@ -164,7 +189,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 
 @media (max-width:1080px){
   .hero-grid{grid-template-columns:1fr; gap:34px; text-align:center}
-  .hero-lead{margin-left:auto; margin-right:auto}
+  .hero-lead,.hero-note{margin-left:auto; margin-right:auto}
   .hero-actions{justify-content:center}
   .hero-globe-wrap{max-width:400px; order:-1}
 }
@@ -178,6 +203,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 }
 @media (prefers-reduced-motion:reduce){
   .brand-name{animation:none}
+  .live-dot::after{animation:none; opacity:.35}
 }
 </style>
 </head>
@@ -211,21 +237,26 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
     <div class="hero-copy">
       <span class="eyebrow">
         <span class="eyebrow-dot">✦</span>
-        <span data-i="eyebrow">KAPALI TEST · DAVETLİ ERİŞİM</span>
+        <span data-i="eyebrow">KAPALI TEST · GELİŞTİRME SÜRÜYOR</span>
       </span>
-      <h1 class="hero-title"><em data-i="title">Çalışma altında.</em></h1>
+      <h1 class="hero-title"><em data-i="title">Yakında tekrar sizlerle.</em></h1>
       <p class="hero-lead">
         <span data-i="lead1">Tasarımdan güvenli. Doğası gereği birlikte çalışabilir.</span><br/>
         <span data-i="lead2">Altı platform — tek operasyonel ekosistem.</span>
       </p>
+      <p class="hero-note">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span><b data-i="noteLead">Geliştirme sürüyor.</b>
+          <span data-i="note">Yeni iş birlikleri ve entegrasyonlarla, daha fazlasıyla
+          kısa süre içinde tekrar sizlerle olacağız.</span></span>
+      </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="/">
-          <span data-i="retry">Tekrar dene</span>
+        <a class="btn btn-primary" href="mailto:serkancopul@gmail.com?subject=Conventity%20erisim">
+          <span data-i="contact">Erişim iste</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
-        <a class="btn btn-ghost" href="mailto:serkancopul@gmail.com?subject=Conventity%20erisim"
-           data-i="contact">Erişim iste</a>
+        <a class="btn btn-ghost" href="/" data-i="retry">Tekrar dene</a>
       </div>
     </div>
 
@@ -235,7 +266,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   </div>
 </section>
 
-<div class="foot"><span class="ver">v0.3</span></div>
+<div class="foot"><span class="ver">v0.4</span></div>
 
 <script>
 (function(){
@@ -247,18 +278,22 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 
   var I18N = {
     /* lead1/lead2 index.html sozlugundeki resmi cevirilerle ayni */
-    tr:{ eyebrow:'KAPALI TEST · DAVETLİ ERİŞİM',
-         title:'Çalışma altında.',
+    tr:{ eyebrow:'KAPALI TEST · GELİŞTİRME SÜRÜYOR',
+         title:'Yakında tekrar sizlerle.',
          lead1:'Tasarımdan güvenli. Doğası gereği birlikte çalışabilir.',
          lead2:'Altı platform — tek operasyonel ekosistem.',
+         noteLead:'Geliştirme sürüyor.',
+         note:'Yeni iş birlikleri ve entegrasyonlarla, daha fazlasıyla kısa süre içinde tekrar sizlerle olacağız.',
          retry:'Tekrar dene', contact:'Erişim iste',
-         docTitle:'Conventity — Çalışma altında' },
-    en:{ eyebrow:'CLOSED PREVIEW · INVITED ACCESS',
-         title:'Under construction.',
+         docTitle:'Conventity — Yakında' },
+    en:{ eyebrow:'CLOSED PREVIEW · ACTIVELY BUILDING',
+         title:'Back with you soon.',
          lead1:'Secure by design. Interoperable by nature.',
          lead2:'Six platforms — one operational ecosystem.',
+         noteLead:'Actively building.',
+         note:'We are returning shortly with new collaborations, new integrations and more.',
          retry:'Try again', contact:'Request access',
-         docTitle:'Conventity — Under construction' }
+         docTitle:'Conventity — Coming soon' }
   };
 
   var root = document.documentElement;
