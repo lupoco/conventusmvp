@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex, nofollow"/>
 <title>Conventity — Çalışma altında</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<!-- Supabase URL + publishable anon key TEK KAYNAK. .htaccess'te auth muafı. -->
+<script src="/assets/js/cv-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -157,6 +159,31 @@ h1.hero-title em{
   100%{transform:scale(1.5); opacity:0}
 }
 .hero-actions{display:flex; gap:12px; flex-wrap:wrap}
+
+/* ---- erisim talebi formu ---- */
+.req{
+  max-width:540px; margin:22px 0 0; padding:18px;
+  background:var(--paper); border:1px solid var(--line); border-radius:16px;
+  text-align:left;
+}
+.req[hidden]{display:none}
+.req-row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.req label{display:block; font-size:11.5px; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 5px}
+.req input,.req textarea{
+  width:100%; font-family:inherit; font-size:14px; color:var(--ink);
+  background:var(--paper-2); border:1px solid var(--line); border-radius:10px;
+  padding:10px 12px; transition:border-color .15s;
+}
+.req input:focus,.req textarea:focus{outline:none; border-color:var(--brand-blue)}
+.req textarea{resize:vertical; min-height:74px}
+.req .field{margin:0 0 12px}
+.req-foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:4px}
+.req-msg{font-size:13px; line-height:1.5; margin:12px 0 0}
+.req-msg.ok{color:#1E8E5A}
+.req-msg.err{color:#C0392B}
+.hp{position:absolute!important; left:-9999px!important; width:1px!important; height:1px!important}
+@media (max-width:560px){ .req-row{grid-template-columns:1fr} }
 .btn{
   display:inline-flex; align-items:center; gap:8px;
   padding:11px 20px; border-radius:999px;
@@ -189,7 +216,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 
 @media (max-width:1080px){
   .hero-grid{grid-template-columns:1fr; gap:34px; text-align:center}
-  .hero-lead,.hero-note{margin-left:auto; margin-right:auto}
+  .hero-lead,.hero-note,.req{margin-left:auto; margin-right:auto}
   .hero-actions{justify-content:center}
   .hero-globe-wrap{max-width:400px; order:-1}
 }
@@ -251,13 +278,40 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
           kısa süre içinde tekrar sizlerle olacağız.</span></span>
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="mailto:serkancopul@gmail.com?subject=Conventity%20erisim">
+        <button class="btn btn-primary" type="button" id="reqOpen" aria-expanded="false" aria-controls="reqForm">
           <span data-i="contact">Erişim iste</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
+        </button>
         <a class="btn btn-ghost" href="/" data-i="retry">Tekrar dene</a>
       </div>
+
+      <form class="req" id="reqForm" hidden novalidate>
+        <div class="req-row">
+          <div class="field">
+            <label for="rqName" data-i="fName">Ad Soyad</label>
+            <input id="rqName" name="full_name" type="text" required maxlength="120" autocomplete="name"/>
+          </div>
+          <div class="field">
+            <label for="rqMail" data-i="fMail">E-posta</label>
+            <input id="rqMail" name="email" type="email" required maxlength="254" autocomplete="email"/>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rqOrg" data-i="fOrg">Kurum (isteğe bağlı)</label>
+          <input id="rqOrg" name="org_name" type="text" maxlength="160" autocomplete="organization"/>
+        </div>
+        <div class="field">
+          <label for="rqWhy" data-i="fWhy">Nasıl ilgileniyorsun? (isteğe bağlı)</label>
+          <textarea id="rqWhy" name="purpose" maxlength="1000"></textarea>
+        </div>
+        <!-- bot tuzagi: gercek kullanici gormez, doldurulmussa gonderilmez -->
+        <input class="hp" type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+        <div class="req-foot">
+          <button class="btn btn-primary" type="submit" id="rqSend" data-i="fSend">Gönder</button>
+          <span class="req-msg" id="rqMsg" role="status" aria-live="polite"></span>
+        </div>
+      </form>
     </div>
 
     <div class="hero-globe-wrap">
@@ -266,7 +320,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   </div>
 </section>
 
-<div class="foot"><span class="ver">v0.4</span></div>
+<div class="foot"><span class="ver">v0.5</span></div>
 
 <script>
 (function(){
@@ -285,6 +339,13 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          noteLead:'Geliştirme sürüyor.',
          note:'Yeni iş birlikleri ve entegrasyonlarla, daha fazlasıyla kısa süre içinde tekrar sizlerle olacağız.',
          retry:'Tekrar dene', contact:'Erişim iste',
+         fName:'Ad Soyad', fMail:'E-posta', fOrg:'Kurum (isteğe bağlı)',
+         fWhy:'Nasıl ilgileniyorsun? (isteğe bağlı)', fSend:'Gönder',
+         mSending:'Gönderiliyor…',
+         mOk:'Talebin alındı. Erişim açıldığında bu e-postaya yazacağız.',
+         mDup:'Bu e-posta için zaten açık bir talep var — sırada, döneceğiz.',
+         mNeed:'Ad ve geçerli bir e-posta gerekli.',
+         mErr:'Gönderilemedi. Tekrar dener misin? Sorun sürerse:',
          docTitle:'Conventity — Yakında' },
     en:{ eyebrow:'CLOSED PREVIEW · ACTIVELY BUILDING',
          title:'Back with you soon.',
@@ -293,6 +354,13 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          noteLead:'Actively building.',
          note:'We are returning shortly with new collaborations, new integrations and more.',
          retry:'Try again', contact:'Request access',
+         fName:'Full name', fMail:'Email', fOrg:'Organisation (optional)',
+         fWhy:'How are you interested? (optional)', fSend:'Send',
+         mSending:'Sending…',
+         mOk:'Request received. We will write to this address once access opens.',
+         mDup:'There is already an open request for this address — you are in the queue.',
+         mNeed:'A name and a valid email are required.',
+         mErr:'Could not send. Please try again. If it keeps failing:',
          docTitle:'Conventity — Coming soon' }
   };
 
@@ -333,6 +401,70 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   });
 
   applyLang(); applyTheme();
+
+  /* ---- erisim talebi formu -------------------------------------------- */
+  var FALLBACK_MAIL = 'serkancopul@gmail.com';
+  var form = document.getElementById('reqForm');
+  var openBtn = document.getElementById('reqOpen');
+  var msg = document.getElementById('rqMsg');
+  var sendBtn = document.getElementById('rqSend');
+
+  openBtn.addEventListener('click', function(){
+    var showing = form.hasAttribute('hidden');
+    form.toggleAttribute('hidden', !showing);
+    openBtn.setAttribute('aria-expanded', String(showing));
+    if (showing) document.getElementById('rqName').focus();
+  });
+
+  function say(text, kind, withMail){
+    msg.className = 'req-msg' + (kind ? ' ' + kind : '');
+    msg.textContent = text;
+    if (withMail){
+      var a = document.createElement('a');
+      a.href = 'mailto:' + FALLBACK_MAIL + '?subject=Conventity';
+      a.textContent = ' ' + FALLBACK_MAIL;
+      a.style.color = 'inherit'; a.style.textDecoration = 'underline';
+      msg.appendChild(a);
+    }
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var d = I18N[lang];
+    if (form.company_website.value) return;          // bot tuzagina dustu
+
+    var body = {
+      full_name: form.full_name.value.trim(),
+      email:     form.email.value.trim(),
+      org_name:  form.org_name.value.trim() || null,
+      purpose:   form.purpose.value.trim() || null,
+      lang:      lang
+    };
+    if (body.full_name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email)){
+      say(d.mNeed, 'err'); return;
+    }
+    if (!window.__CV_SUPABASE_URL || !window.__CV_ANON_KEY){
+      say(d.mErr, 'err', true); return;              // seam yuklenmemis — sessiz dusme yok
+    }
+
+    sendBtn.disabled = true; say(d.mSending, '');
+    fetch(window.__CV_SUPABASE_URL + '/rest/v1/conventity_access_requests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': window.__CV_ANON_KEY,
+        'Authorization': 'Bearer ' + window.__CV_ANON_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(body)
+    }).then(function(r){
+      if (r.ok){ form.reset(); say(d.mOk, 'ok'); return; }
+      if (r.status === 409){ form.reset(); say(d.mDup, 'ok'); return; }
+      say(d.mErr, 'err', true);
+    }).catch(function(){
+      say(d.mErr, 'err', true);
+    }).then(function(){ sendBtn.disabled = false; });
+  });
 })();
 
 // ── ANIMATED GLOBE CANVAS ──

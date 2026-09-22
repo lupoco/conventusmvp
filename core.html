@@ -533,6 +533,8 @@ var I18N = {
   st_draft:'Taslak', st_published:'Yayında', st_matched:'Eşleşti', st_closed:'Kapalı',
   st_planned:'Planlandı', st_open:'Açık', st_running:'Yürüyor', st_completed:'Tamamlandı', st_archived:'Arşiv',
   st_active:'Aktif', st_retired:'Emekli',
+  st_new:'Yeni', st_contacted:'İletişime geçildi', st_invited:'Davet edildi',
+  st_declined:'Elendi', st_spam:'Spam',
   tab_capabilities:'Yetenekler', eb_capabilities:'talep · conventity_capabilities',
   info_capabilities:'Yetenek alanları — problemlerin ihtiyaç duyduğu, çözümlerin karşıladığı yetkinlikler. Eşleştirmenin ortak sözlüğü.',
   cap_code:'Kod', cap_name:'Ad', cap_domain:'Alan', cap_desc:'Açıklama', cap_ref:'Kaynak referans (source_ref)',
@@ -605,6 +607,13 @@ var I18N = {
   ad_detail:'Denetim kaydı', ad_f_all:'Tümü', ad_none_actor:'(sistem / bilinmiyor)',
   ad_ro:'Denetim kayıtları append-only’dir — düzenlenmez, silinmez.',
   act_insert:'ekleme', act_update:'güncelleme', act_delete:'silme'
+  ,tab_access:'Erişim talepleri', eb_access:'gelen · conventity_access_requests',
+  info_access:'"Yakında" sayfasındaki formdan gelen erişim talepleri. Form site parolasının <b>önünde</b> çalışır — talebi bırakan henüz siteye giremiyor. Yalnız ekosistem yöneticisi okur; durum ve not yalnız buradan değişir.',
+  ent_access:'talep',
+  ar_when:'Tarih', ar_name:'Ad Soyad', ar_email:'E-posta', ar_org:'Kurum',
+  ar_why:'İlgi', ar_status:'Durum', ar_note:'Not (yalnız sana görünür)',
+  ar_detail:'Erişim talebi', ar_f_all:'Tüm durumlar', ar_none:'Henüz talep yok.',
+  ar_handled:'İşleyen', ar_handled_at:'İşlem tarihi'
   ,tab_signins:'Girişler', eb_signins:'erişim · conventity_signin_log',
   info_signins:'Siteye başarılı her giriş (parola + Google/LinkedIn). <b>Append-only</b> — kimse silemez. Yalnız ekosistem yöneticisi okur: kim, ne zaman, hangi yöntemle giriş yaptı.',
   ent_signins:'giriş',
@@ -689,6 +698,8 @@ var I18N = {
   st_draft:'Draft', st_published:'Published', st_matched:'Matched', st_closed:'Closed',
   st_planned:'Planned', st_open:'Open', st_running:'Running', st_completed:'Completed', st_archived:'Archived',
   st_active:'Active', st_retired:'Retired',
+  st_new:'New', st_contacted:'Contacted', st_invited:'Invited',
+  st_declined:'Declined', st_spam:'Spam',
   tab_capabilities:'Capabilities', eb_capabilities:'demand · conventity_capabilities',
   info_capabilities:'Capability areas — the competencies problems need and solutions provide. The shared vocabulary of matching.',
   cap_code:'Code', cap_name:'Name', cap_domain:'Domain', cap_desc:'Description', cap_ref:'Source ref (source_ref)',
@@ -761,6 +772,13 @@ var I18N = {
   ad_detail:'Audit record', ad_f_all:'All', ad_none_actor:'(system / unknown)',
   ad_ro:'Audit records are append-only — never edited or deleted.',
   act_insert:'insert', act_update:'update', act_delete:'delete'
+  ,tab_access:'Access requests', eb_access:'inbound · conventity_access_requests',
+  info_access:'Access requests from the form on the "coming soon" page. The form runs <b>in front of</b> the site password — whoever submits it cannot reach the site yet. Read by ecosystem admins only; status and notes change here and nowhere else.',
+  ent_access:'request',
+  ar_when:'Date', ar_name:'Full name', ar_email:'Email', ar_org:'Organisation',
+  ar_why:'Interest', ar_status:'Status', ar_note:'Note (visible only to you)',
+  ar_detail:'Access request', ar_f_all:'All statuses', ar_none:'No requests yet.',
+  ar_handled:'Handled by', ar_handled_at:'Handled at'
   ,tab_signins:'Sign-ins', eb_signins:'access · conventity_signin_log',
   info_signins:'Every successful sign-in to the site (password + Google/LinkedIn). <b>Append-only</b> — no one can delete it. Read by ecosystem admins only: who, when, and by which method.',
   ent_signins:'sign-in',
@@ -820,6 +838,7 @@ $('#themeBtn').addEventListener('click',function(){
 var TABS = [
   {k:'overview',   accent:'var(--gold)', ic:'▤'},
   {k:'ecomap',     accent:'#06488A', ic:'◍'},
+  {k:'access',     accent:'#B8892B', ic:'✉', tbl:'conventity_access_requests'},
   {k:'orgs',       accent:'#5B5BD6', ic:'◭', tbl:'conventity_orgs'},
   {k:'import',     accent:'#06488A', ic:'▽'},
   {k:'problems',   accent:'#004990', ic:'◇', tbl:'conventity_problems'},
@@ -838,7 +857,7 @@ var TABS = [
 ];
 // sekmelerin sol menü grupları (çekirdek döngü sırasına göre)
 var NAVGROUPS=[
-  {h:'navg_general',   keys:['overview','ecomap']},
+  {h:'navg_general',   keys:['overview','ecomap','access']},
   {h:'navg_loop',      keys:['problems','matching','activities','evidence']},
   {h:'navg_ecosystem', keys:['orgs','people','solutions','capabilities','communities']},
   {h:'navg_gov',       keys:['roles','users','audit','signins']},
@@ -1497,6 +1516,71 @@ PANELS.audit = async function(p){
   $('#adAction').addEventListener('change',load);
   await load();
 };    /* __PANEL_audit__ */
+
+PANELS.access = async function(p){
+  var STATUS=['new','contacted','invited','declined','spam'];
+  var SMAP={new:'gold',contacted:'blue',invited:'green',declined:'grey',spam:'red'};
+  function fmtWhen(ts){var s=''+ts;var d=s.slice(0,10),t=s.slice(11,16);
+    var m=d.match(/^(\d{4})-(\d{2})-(\d{2})$/);var dd=m?m[3]+'.'+m[2]+'.'+m[1]:d;
+    return t?(dd+' '+t):dd;}
+
+  p.innerHTML=panelHeader('access',{countId:'arCount',actions:
+    '<select id="arFilter" class="btn btn-ghost btn-sm" style="height:32px;font-weight:600"><option value="">'+esc(T('ar_f_all'))+'</option>'+
+      STATUS.map(function(v){return '<option value="'+v+'">'+esc(T('st_'+v))+'</option>';}).join('')+'</select>'+
+    '<button class="btn btn-ghost btn-sm" id="arRefresh">'+esc(T('c_refresh'))+'</button>'});
+  applyI18n(p);
+  p.insertAdjacentHTML('beforeend','<div id="arList" class="tablewrap"><div class="loading">'+esc(T('c_loading'))+'</div></div>');
+
+  var rows=[];
+  function draw(){
+    $('#arList').innerHTML=rows.length?('<table class="grid"><thead><tr>'+
+      '<th>'+esc(T('ar_when'))+'</th><th>'+esc(T('ar_name'))+'</th><th>'+esc(T('ar_email'))+'</th>'+
+      '<th>'+esc(T('ar_org'))+'</th><th>'+esc(T('c_status'))+'</th></tr></thead><tbody>'+
+      rows.map(function(r){return '<tr data-id="'+r.id+'">'+
+        '<td class="mono" style="font-size:12px;color:var(--ink);font-weight:600">'+esc(fmtWhen(r.created_at))+'</td>'+
+        '<td style="color:var(--ink);font-weight:600">'+esc(r.full_name)+'</td>'+
+        '<td>'+esc(r.email)+'</td>'+
+        '<td>'+esc(r.org_name||T('c_none'))+'</td>'+
+        '<td>'+statusChip(r.status,SMAP)+'</td></tr>';}).join('')+
+      '</tbody></table>'):'<div class="empty">'+esc(T('ar_none'))+'</div>';
+    $$('#arList tbody tr').forEach(function(tr){
+      tr.addEventListener('click',function(){detail(tr.getAttribute('data-id'));});});}
+
+  async function load(){
+    var q=sb().from('conventity_access_requests').select('*')
+             .order('created_at',{ascending:false}).limit(500);
+    var f=$('#arFilter').value; if(f)q=q.eq('status',f);
+    var r=await q;
+    if(r.error){$('#arList').innerHTML='<div class="empty">'+esc(r.error.message)+'</div>';return;}
+    rows=r.data||[]; setCount('arCount',rows.length,'access'); draw();}
+
+  function detail(id){
+    var r=rows.find(function(x){return x.id===id;}); if(!r)return;
+    openDrawer(T('ar_detail'),
+      '<dl class="kv">'+
+        '<dt>'+esc(T('ar_when'))+'</dt><dd>'+esc(fmtWhen(r.created_at))+'</dd>'+
+        '<dt>'+esc(T('ar_name'))+'</dt><dd>'+esc(r.full_name)+'</dd>'+
+        '<dt>'+esc(T('ar_email'))+'</dt><dd><a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a></dd>'+
+        '<dt>'+esc(T('ar_org'))+'</dt><dd>'+esc(r.org_name||T('c_none'))+'</dd>'+
+        '<dt>'+esc(T('ar_why'))+'</dt><dd style="white-space:pre-wrap">'+esc(r.purpose||T('c_none'))+'</dd>'+
+        (r.handled_at?'<dt>'+esc(T('ar_handled_at'))+'</dt><dd>'+esc(fmtWhen(r.handled_at))+'</dd>':'')+
+      '</dl>'+
+      fWrap(fSelect('f_arst','ar_status',STATUS,r.status,'st_',true)+
+            fArea('f_arnote','ar_note',r.note),'arErr'),
+      footEdit(false));
+    bindFoot(async function(){
+      var st=$('#f_arst').value||'new';
+      var note=($('#f_arnote').value||'').trim()||null;
+      var patch={status:st,note:note,handled_at:new Date().toISOString()};
+      var u=await sb().from('conventity_access_requests').update(patch).eq('id',r.id);
+      if(u.error){$('#arErr').textContent=u.error.message;return;}
+      closeDrawer(); await load();
+    });}
+
+  $('#arRefresh').addEventListener('click',load);
+  $('#arFilter').addEventListener('change',load);
+  await load();
+};    /* __PANEL_access__ */
 
 PANELS.signins = async function(p){
   var METHODS=['password','google','linkedin_oidc','other'];

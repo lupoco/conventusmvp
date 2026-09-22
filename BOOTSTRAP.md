@@ -142,6 +142,40 @@ guard'lı (SQL Editor tek transaction — bir satır patlarsa hepsi rollback) ·
 Sonrasında `core.html` → Topluluklar'dan LANDCOM kurulabilir, etkinlik
 yöneticisi atanabilir.
 
+## Erişim talepleri (§6 ile birlikte)
+
+"Yakında" sayfasındaki form → `conventity_access_requests` → core.html
+"Erişim talepleri" sekmesi.
+
+Kurulum: **`sql/04_access_requests.sql`**'i conventity-prod'da çalıştır.
+(Yanlış proje koruması var; tekrar çalıştırılabilir.)
+
+Güvenlik sınırı — form site parolasının ÖNÜNDE çalıştığı için yazma yetkisi
+`anon` rolünde olmak zorunda; sınırı RLS çiziyor:
+
+| Deneme | Sonuç |
+|---|---|
+| Geçerli talep bırakma | ✅ kabul |
+| `status='invited'` yazma | ❌ RLS reddetti |
+| Başkasının talebine `note` düşme | ❌ RLS reddetti |
+| Talepleri okuma | ❌ yetki yok |
+| Bozuk e-posta | ❌ CHECK reddetti |
+| Aynı e-postayla ikinci açık talep | ❌ tekil indeks reddetti |
+| 1000+ karakter açıklama | ❌ CHECK reddetti |
+| Ekosistem admin okuma/güncelleme | ✅ |
+| Admin olmayan giriş yapmış kullanıcı | 0 satır görüyor |
+
+Testler: `scripts/test-access-requests.sql` (RLS),
+`scripts/test-access-form.mjs` (form davranışı),
+`scripts/test-core-access-panel.mjs` (konsol paneli).
+
+**Dikkat:** `02_clean_install.sql`, `.org`'un yapılandırmasını birebir taşıdığı
+için public'teki tüm tablolara `anon` dahil üç role de tam yetki veriyor ve
+`alter default privileges` yüzünden yeni tablolar da aynı yetkiyi otomatik
+alıyor. `04` bu tabloda yetkiyi açıkça geri alıyor. Genel sertleştirme
+(`anon`'dan gereksiz yetkileri toplu geri alma) ayrı bir iş — `.org`'daki
+"RLS sertleştirme" açık işiyle aynı sınıf.
+
 ## §6 — Deploy · ŞU AN BURADA
 
 ### Kapalı test kilidi (yayına çıkana kadar)

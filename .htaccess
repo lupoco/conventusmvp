@@ -46,6 +46,10 @@ ErrorDocument 401 /under-construction.html
 ErrorDocument 403 /under-construction.html
 
 # --- O ekranın kendisi parolasız açılabilmeli (yoksa 401 döngüsü) ----------
+# cv-config.js de muaf: "Yakında" sayfasındaki erişim talebi formu Supabase'e
+# yazıyor ve URL/anon key'i TEK KAYNAKTAN okumalı. Muaf tutmazsak anahtarı
+# sayfanın içine kopyalamak gerekirdi — config seam'in varlık sebebine aykırı.
+# İçerdiği anahtar publishable; zaten her istemcide açık, sınır RLS.
 <Files "under-construction.html">
   <IfModule mod_authz_core.c>
     Require all granted
@@ -62,6 +66,11 @@ ErrorDocument 403 /under-construction.html
   </IfModule>
 </Files>
 <Files "robots.txt">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</Files>
+<Files "cv-config.js">
   <IfModule mod_authz_core.c>
     Require all granted
   </IfModule>
