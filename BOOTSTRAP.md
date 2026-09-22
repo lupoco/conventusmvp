@@ -37,7 +37,7 @@ artık `event-studio.html`'e yönlendiren bir stub ("Consolidated into
 event-studio.html"). Yeni bir dosya uydurulmadı. Bootstrap notundaki
 `my-event_dc.html` de burada `platforms/conventus/my-event.html`.
 
-## §2 — Config seam · TAMAM (değerler yer tutucu)
+## §2 — Config seam · TAMAM (değerler dolu)
 
 `/assets/js/cv-config.js` tek kaynak. 66 HTML sayfasının `<head>`'ine, diğer
 **tüm** JS'ten önce eklendi (67. dosya `docs/conventus-architecture.html`'in
@@ -51,20 +51,20 @@ yüklenmemişse `null` döner ve konsola yazar. `cv-config.js` yer tutucu
 değerleri görürse sayfanın üstüne kırmızı bir uyarı şeridi basar — sessiz
 düşme yok.
 
-## §3 — SIRADAKİ: temiz Supabase (Serkan)
+Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
+`https://tstlireeidnpchadgjly.supabase.co`. Publishable anon key dolu;
+`sb_secret_…` bu repoya **hiç girmez**.
 
-1. Supabase → New project (**"conventity-prod"**).
-2. `ref` + publishable anon key'i `/assets/js/cv-config.js` içindeki iki
-   yer tutucuya yaz:
-   ```js
-   window.__CV_SUPABASE_URL = 'https://<PROD-REF>.supabase.co';
-   window.__CV_ANON_KEY     = '<PROD-PUBLISHABLE-KEY>';
-   ```
-3. Auth → URL Configuration:
-   - Site URL: `https://conventity.com`
-   - Redirect URLs: `https://conventity.com/**` ve `http://localhost:8000/**`
+## §3 — Temiz Supabase
 
-Bunlar geldikten sonra yazılacak SQL sırası (bu repoda henüz **yok**):
+- [x] Supabase → New project (**"conventity-prod"**) açıldı.
+- [x] `ref` + publishable anon key `/assets/js/cv-config.js`'e yazıldı.
+- [ ] **Auth → URL Configuration** (Serkan):
+  - Site URL: `https://conventity.com`
+  - Redirect URLs: `https://conventity.com/**` ve `http://localhost:8000/**`
+- [ ] SQL sırası (aşağıda) — henüz yazılmadı.
+
+SQL sırası (bu repoda henüz **yok**):
 
 1. **Boş omurga DDL — seed INSERT'siz.** `sql/00_introspect_v2.sql` ile `.org`
    şemasından introspect; DDL'i al, 147 org / demo veri INSERT'lerini **atla**.

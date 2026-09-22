@@ -17,9 +17,9 @@
      <script src="/assets/cv-core.js"></script>
    ============================================================ */
 
-/* conventity.com — PROD.  Serkan Supabase projesini açınca doldurulacak. */
-window.__CV_SUPABASE_URL = 'https://<PROD-REF>.supabase.co';
-window.__CV_ANON_KEY     = '<PROD-PUBLISHABLE-KEY>';
+/* conventity.com — PROD (Supabase projesi: conventity-prod). */
+window.__CV_SUPABASE_URL = 'https://tstlireeidnpchadgjly.supabase.co';
+window.__CV_ANON_KEY     = 'sb_publishable_RAr2pN-_WDwBwg_6w1sn-g_lgvCw67p';
 
 /* ---- Görünür uyarı --------------------------------------------------
    Yapılandırma doldurulmadıysa SESSİZCE düşme: her Supabase çağrısı

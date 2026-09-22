@@ -12,8 +12,8 @@ kalır ve bu repodan hiç etkilenmez.** İki taraf arasında kod tek yönde akar
 | Adım | Durum |
 |---|---|
 | §1 Repo + frontend kopyası, yarım sayfalar nav dışı | ✅ |
-| §2 Config seam (`/assets/js/cv-config.js`) | ✅ — **değerler yer tutucu** |
-| §3 Temiz Supabase + SQL sırası | ⏸ Supabase `ref` + anon key bekleniyor |
+| §2 Config seam (`/assets/js/cv-config.js`) | ✅ — `conventity-prod` değerleri dolu |
+| §3 Temiz Supabase + SQL sırası | 🔄 proje açıldı; Auth URL config + SQL sırası kaldı |
 | §4 İlk admin (bootstrap owner) | ⏸ |
 | §6 Hostinger → conventity.com deploy | ⏸ |
 
@@ -34,7 +34,10 @@ Her zaman kökten HTTP sunucu.
 ## Ortam yapılandırması
 
 Supabase URL + publishable anon key **tek dosyada**: `/assets/js/cv-config.js`.
-Hiçbir sayfa bu iki değeri kendi içine gömmez. Doldurulmadığı sürece her sayfa
+Hiçbir sayfa bu iki değeri kendi içine gömmez. Yer tutucu kalırsa her sayfa
 kırmızı bir uyarı şeridi gösterir.
+
+Bağlı proje: `conventity-prod` — `https://tstlireeidnpchadgjly.supabase.co`.
+Şema henüz kurulmadı (bkz. `BOOTSTRAP.md` §3).
 
 Lisans/telif: Conventity.

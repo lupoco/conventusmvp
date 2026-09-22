@@ -84,13 +84,13 @@ hedef; döngü yeşil olana kadar yalnız local).
 
 ## Supabase
 
-**Yeni, temiz proje ("conventity-prod") — henüz açılmadı.** URL + publishable
-anon key `/assets/js/cv-config.js` içinde yer tutucu; Serkan projeyi açınca
-o iki satır doldurulur. Başka hiçbir yere yazılmaz.
+**Yeni, temiz proje: `conventity-prod`** (ref `tstlireeidnpchadgjly`).
+URL + publishable anon key **yalnız** `/assets/js/cv-config.js` içinde durur;
+başka hiçbir yere yazılmaz. `sb_secret_…` bu repoya hiç girmez.
 
 ```js
-window.__CV_SUPABASE_URL = 'https://<PROD-REF>.supabase.co';
-window.__CV_ANON_KEY     = '<PROD-PUBLISHABLE-KEY>';
+window.__CV_SUPABASE_URL = 'https://tstlireeidnpchadgjly.supabase.co';
+window.__CV_ANON_KEY     = 'sb_publishable_…';
 ```
 
 anon key publishable → istemcide durması normal, sızıntı değil. Gerçek sınır RLS.
