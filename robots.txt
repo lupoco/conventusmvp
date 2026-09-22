@@ -1,0 +1,4 @@
+# Conventity — kapalı test sürümü. Hiçbir şey dizine eklenmemeli.
+# Yayına çıkarken bu dosya güncellenecek.
+User-agent: *
+Disallow: /

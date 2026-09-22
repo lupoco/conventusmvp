@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Conventity — Çalışma altında</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* Tek dosya — /assets'e bağımlı DEĞİL. 401 ekranı auth'suz servis edilir,
+   dolayısıyla korumalı bir asset'e bağlanamaz. */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F2EC; --paper:#FFFFFF; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#40495E; --muted:#6F7A92;
+  --line:#E5DFD2; --gold:#B8892B; --goldSoft:rgba(184,137,43,.12);
+  --serif:'Instrument Serif',Georgia,serif;
+  --body:'Manrope',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+}
+body[data-dark]{
+  --bg:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+  --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+  --line:#243456; --gold:#E0A63C; --goldSoft:rgba(224,166,60,.14);
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);
+  min-height:100vh;display:flex;flex-direction:column;
+  transition:background .18s,color .18s}
+.strip{font-family:var(--mono);font-size:10px;letter-spacing:.24em;
+  text-transform:uppercase;text-align:center;padding:6px 12px;
+  color:var(--muted);background:var(--paper2);border-bottom:1px solid var(--line)}
+.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1.25rem}
+.card{width:100%;max-width:560px;background:var(--paper);
+  border:1px solid var(--line);border-radius:18px;padding:2.6rem 2.2rem;
+  box-shadow:0 1px 2px rgba(14,33,72,.04),0 16px 46px rgba(14,33,72,.07)}
+.logo{width:56px;height:56px;margin-bottom:1.6rem}
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:.7rem}
+h1{font-family:var(--serif);font-size:2.5rem;font-weight:400;line-height:1.12;
+  letter-spacing:-.01em;margin-bottom:.9rem}
+h1 em{font-style:italic;color:var(--gold)}
+p{color:var(--ink2);font-size:.95rem;line-height:1.65;margin-bottom:1rem}
+p.small{color:var(--muted);font-size:.83rem}
+.hair{height:1px;background:var(--line);margin:1.7rem 0}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.btn{font-family:var(--body);font-size:.82rem;font-weight:700;padding:9px 16px;
+  border-radius:9px;border:1px solid var(--line);background:var(--paper2);
+  color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block;
+  transition:border-color .15s,transform .15s}
+.btn:hover{border-color:var(--gold);transform:translateY(-1px)}
+.btn-primary{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn-primary:hover{opacity:.92}
+.sp{flex:1}
+.ver{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;
+  padding:3px 8px;border:1px solid var(--line);border-radius:100px;color:var(--muted)}
+.foot{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);text-align:center;
+  padding:1.1rem;border-top:1px solid var(--line)}
+@media(max-width:560px){
+  .card{padding:2rem 1.4rem;border-radius:14px}
+  h1{font-size:2rem}
+  /* dar ekranda ara bosluk butonlari alt satira itiyordu */
+  .sp{flex:0 0 100%;height:0}
+  .row{gap:.5rem}
+}
+</style>
+</head>
+<body>
+<div class="strip" data-i="strip">Unclassified · Conventity</div>
+
+<div class="wrap">
+  <div class="card">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M 76.2 68.4 A 32 32 0 1 1 76.2 31.6" fill="none" stroke="var(--ink)" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M 64.7 60.3 A 18 18 0 1 1 64.7 39.7" fill="none" stroke="var(--gold)" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="var(--gold)"/>
+    </svg>
+
+    <div class="eyebrow" data-i="eyebrow">Kapalı sürüm</div>
+    <h1><span data-i="t1">Bu site</span> <em data-i="t2">çalışma altında.</em></h1>
+    <p data-i="lead">Conventity şu anda kapalı bir test sürümünde. Erişim yalnızca
+      davetli hesaplara açık.</p>
+    <p class="small" data-i="hint">Erişimin olması gerekiyorsa sayfayı yenile ve sana
+      verilen site kullanıcı adı ile parolayı gir. Hesap girişi bundan ayrıdır —
+      site parolasından sonra kendi hesabınla oturum açarsın.</p>
+
+    <div class="hair"></div>
+
+    <div class="row">
+      <a class="btn btn-primary" href="/" data-i="retry">Tekrar dene</a>
+      <a class="btn" href="mailto:serkancopul@gmail.com?subject=Conventity%20erisim" data-i="contact">Erişim iste</a>
+      <span class="sp"></span>
+      <button class="btn" id="lang" type="button">EN</button>
+      <button class="btn" id="theme" type="button" aria-label="Tema">🌙</button>
+    </div>
+  </div>
+</div>
+
+<div class="foot"><span data-i="foot">Conventity · kapalı test</span> &nbsp;·&nbsp; <span class="ver">v0.1</span></div>
+
+<script>
+(function(){
+  'use strict';
+  /* localStorage engellenmis tarayicida firlatiyor — proje kurali: try/catch */
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  var I18N = {
+    tr:{ strip:'Tasnif dışı · Conventity', eyebrow:'Kapalı sürüm',
+         t1:'Bu site', t2:'çalışma altında.',
+         lead:'Conventity şu anda kapalı bir test sürümünde. Erişim yalnızca davetli hesaplara açık.',
+         hint:'Erişimin olması gerekiyorsa sayfayı yenile ve sana verilen site kullanıcı adı ile parolayı gir. Hesap girişi bundan ayrıdır — site parolasından sonra kendi hesabınla oturum açarsın.',
+         retry:'Tekrar dene', contact:'Erişim iste', foot:'Conventity · kapalı test' },
+    en:{ strip:'Unclassified · Conventity', eyebrow:'Private preview',
+         t1:'This site is', t2:'under construction.',
+         lead:'Conventity is in a closed preview. Access is limited to invited accounts.',
+         hint:'If you should have access, reload the page and enter the site username and password you were given. Your account sign-in is separate — you log in with your own account after the site password.',
+         retry:'Try again', contact:'Request access', foot:'Conventity · closed preview' }
+  };
+
+  var lang = lsGet('cv-lang') === 'en' ? 'en' : 'tr';
+  function applyLang(){
+    var d = I18N[lang];
+    document.documentElement.lang = lang;
+    var nodes = document.querySelectorAll('[data-i]');
+    for (var i = 0; i < nodes.length; i++){
+      var k = nodes[i].getAttribute('data-i');
+      if (d[k] != null) nodes[i].textContent = d[k];
+    }
+    document.getElementById('lang').textContent = lang === 'tr' ? 'EN' : 'TR';
+    document.title = lang === 'tr' ? 'Conventity — Çalışma altında'
+                                   : 'Conventity — Under construction';
+  }
+  document.getElementById('lang').addEventListener('click', function(){
+    lang = lang === 'tr' ? 'en' : 'tr'; lsSet('cv-lang', lang); applyLang();
+  });
+
+  function applyTheme(){
+    var dark = lsGet('cn-dark') === '1';
+    document.body.toggleAttribute('data-dark', dark);
+    document.getElementById('theme').textContent = dark ? '☀️' : '🌙';
+  }
+  document.getElementById('theme').addEventListener('click', function(){
+    lsSet('cn-dark', lsGet('cn-dark') === '1' ? '0' : '1'); applyTheme();
+  });
+
+  applyLang(); applyTheme();
+})();
+</script>
+</body>
+</html>

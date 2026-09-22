@@ -1,7 +1,80 @@
-# Conventity — Apache rewrite rules (Hostinger public_html)
+# ============================================================================
+# Conventity — Apache yapılandırması (Hostinger public_html)
+# ============================================================================
 
 RewriteEngine On
 
-# Taşınabilir doğrulama: verified/<slug> -> verified.html
+# ---- Taşınabilir doğrulama: verified/<slug> -> verified.html ---------------
 # verified.html getSlug() slug'ı hem ?s= hem de /verified/<slug> yolundan okur.
 RewriteRule ^verified/([^/]+)/?$ /verified.html [L,QSA]
+
+
+# ============================================================================
+# KAPALI TEST KİLİDİ
+#
+# İki ayrı katman:
+#   1) SİTE PAROLASI (burası)  — ortak kullanıcı adı/parola. Bilmeyene hiçbir
+#      sayfa açılmaz; arama motorları da giremez.
+#   2) HESAP GİRİŞİ (Supabase) — site parolasından sonra kendi hesabınla
+#      oturum açarsın. Yetkiyi RLS belirler.
+#
+# Parolayı bilmeyen ya da iptal edene tarayıcının çirkin hata sayfası yerine
+# /under-construction.html gösterilir.
+#
+# AÇMAK İÇİN:
+#   a) Hostinger hPanel → Gelişmiş → "Dizin Şifreleme" (Password Protect
+#      Directories) ile public_html'i koru. hPanel .htpasswd dosyasını kendi
+#      oluşturur — önerilen yol.
+#      Bu durumda aşağıdaki AuthType/AuthUserFile/Require satırlarını
+#      YORUMDA BIRAK; sadece ErrorDocument ve <Files> bloklarını aç.
+#   b) Ya da elle: .htpasswd'yi public_html DIŞINA koy ve aşağıdaki
+#      AuthUserFile yolunu gerçek mutlak yolla değiştir
+#      (hPanel → Dosya Yöneticisi adres çubuğunda görünür, ör.
+#       /home/u123456789/domains/conventity.com/.htpasswd).
+#
+# KAPATMAK İÇİN (yayına çıkarken): bu bloğun tamamını sil.
+# ============================================================================
+
+# --- (b) elle kurulum: yolu düzelttikten sonra bu 4 satırın # işaretini kaldır
+# AuthType Basic
+# AuthName "Conventity - kapali test"
+# AuthUserFile /home/DEGISTIR/domains/conventity.com/.htpasswd
+# Require valid-user
+
+# --- Parolasız gelenin göreceği markalı ekran ------------------------------
+ErrorDocument 401 /under-construction.html
+ErrorDocument 403 /under-construction.html
+
+# --- O ekranın kendisi parolasız açılabilmeli (yoksa 401 döngüsü) ----------
+<Files "under-construction.html">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+    Satisfy any
+  </IfModule>
+</Files>
+<Files "favicon.svg">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</Files>
+<Files "robots.txt">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</Files>
+
+# --- .htpasswd hiçbir koşulda servis edilmesin -----------------------------
+<FilesMatch "^\.(htpasswd|htaccess|env)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
+
+# --- Kapalı testte arama motoruna hiç görünme ------------------------------
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+</IfModule>

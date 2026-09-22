@@ -15,7 +15,7 @@ kalır ve bu repodan hiç etkilenmez.** İki taraf arasında kod tek yönde akar
 | §2 Config seam (`/assets/js/cv-config.js`) | ✅ — `conventity-prod` değerleri dolu |
 | §3 Temiz Supabase + SQL sırası | ✅ şema kuruldu (seed'siz, 73 tablo) |
 | §4 İlk admin (bootstrap owner) | ✅ ekosistem admin verildi |
-| §6 Hostinger → conventity.com deploy | ⏸ |
+| §6 Hostinger → conventity.com deploy | 🔄 kapalı test kilidi hazır (`.htaccess` + `under-construction.html`) |
 
 Ayrıntı: [`BOOTSTRAP.md`](BOOTSTRAP.md).
 

@@ -142,7 +142,40 @@ guard'lı (SQL Editor tek transaction — bir satır patlarsa hepsi rollback) ·
 Sonrasında `core.html` → Topluluklar'dan LANDCOM kurulabilir, etkinlik
 yöneticisi atanabilir.
 
-## §6 — Deploy
+## §6 — Deploy · ŞU AN BURADA
+
+### Kapalı test kilidi (yayına çıkana kadar)
+
+İki ayrı katman:
+
+| Katman | Ne yapar | Nerede |
+|---|---|---|
+| **Site parolası** | Ortak kullanıcı adı/parola. Bilmeyene hiçbir sayfa açılmaz, arama motoru giremez. | `.htaccess` (Apache Basic Auth) |
+| **Hesap girişi** | Site parolasından sonra kendi Supabase hesabınla oturum. Yetkiyi RLS belirler. | Supabase Auth |
+
+Parolayı bilmeyen ya da iptal eden `under-construction.html`'i görür
+(`ErrorDocument 401/403`) — tarayıcının çirkin hata sayfası yerine markalı
+"Çalışma altında" ekranı. O sayfa auth'suz servis edilmek zorunda olduğu için
+**tek dosya**: `/assets`'e hiç bağımlı değil (aksi halde 401 döngüsü).
+
+`robots.txt` → `Disallow: /`, ayrıca `.htaccess`'te
+`X-Robots-Tag: noindex, nofollow, noarchive`.
+
+**Kurulum (Hostinger hPanel):**
+1. Websites → conventity.com → GitHub bağlantısı: `lupoco/conventusmvp`, dal `main`.
+   Hedef dizin `.org`'unkinden **ayrı** olmalı.
+2. Gelişmiş → **Dizin Şifreleme** (Password Protect Directories) → `public_html`
+   → kullanıcı adı + parola. hPanel `.htpasswd`'yi kendi üretir.
+   *(Elle kurulum istenirse `.htaccess`'teki `AuthType/AuthUserFile/Require`
+   satırlarının yorumu kaldırılıp `AuthUserFile` yolu gerçek mutlak yolla
+   değiştirilir.)*
+3. Test: gizli sekmede `https://conventity.com` → parola sorulmalı; iptal
+   edince "Çalışma altında" ekranı çıkmalı.
+
+**Yayına çıkarken:** `.htaccess`'teki "KAPALI TEST KİLİDİ" bloğunu sil,
+`robots.txt`'i güncelle.
+
+## §6 — Deploy (genel)
 
 Hostinger'da `conventity.com` **ayrı** bir dizine/siteye bağlanır (`.org`'un
 hedefine değil). `lupoco/conventusmvp` → `main` → conventity.com. Döngü yeşil
