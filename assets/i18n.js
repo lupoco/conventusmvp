@@ -82,7 +82,6 @@
     'cs.badge':       { tr: 'Yakında',                    en: 'Coming soon' },
     'cs.back':        { tr: '← Ekosisteme dön',           en: '← Back to ecosystem' },
     'cs.meta_soon':   { tr: 'Yakında — Conventity',       en: 'Coming soon — Conventity' },
-    'cs.unclass':     { tr: 'UNCLASSIFIED',               en: 'UNCLASSIFIED' },
     'cs.brand':       { tr: 'Conventity',                 en: 'Conventity' },
     'cs.pf_connectus':  { tr: 'Connectus',  en: 'Connectus' },
     'cs.pf_conventlab': { tr: 'ConventLab', en: 'ConventLab' },

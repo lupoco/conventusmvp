@@ -71,7 +71,7 @@
     return `<footer class="site"><div class="foot-in">
       <div><div class="b">CON<b>VERGENS</b> · Conventity</div>
       <div style="color:var(--mute);font-size:12px;margin-top:5px">Civil-only resilience awareness · Augment, not replace.</div></div>
-      <div class="foot-meta"><span class="classif">UNCLASSIFIED · OPEN SOURCE</span><br>${note || "Cross-domain situational awareness."}</div>
+      <div class="foot-meta"><span class="classif">OPEN SOURCE</span><br>${note || "Cross-domain situational awareness."}</div>
     </div></footer>`;
   }
 

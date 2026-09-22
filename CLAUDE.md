@@ -122,7 +122,11 @@ Platform aksanları: Convexus `#5B5BD6` · Conventus `#06488A` · Consultus `#18
 localStorage anahtarları: `cn-dark` (koyu tema) · `cv-lang` (TR/EN)
 
 **Panel deseni:** mono gold eyebrow → serif başlık → açıklama → hairline → sayaç/aksiyon → tablo.
-Üstte `UNCLASSIFIED` şeridi (nötr; NATO'ya özel etiket YAZMA).
+
+**Tasnif şeridi YOK.** Conventity sivil, dual-use bir web platformu; açık internette
+duran bir sayfaya tasnif işareti basmak yanlış sinyal verir (zaten tasnif dışı —
+burada kısıtlı hiçbir şey tutulmuyor). `UNCLASSIFIED` / `Tasnif dışı` / `Hizmete özel`
+gibi şeritleri hiçbir sayfaya ekleme; eskiden vardı, 2026-09'da hepsi kaldırıldı.
 
 ## i18n (zorunlu)
 
@@ -198,6 +202,8 @@ Döngü yeşil olana kadar yalnız local (`python3 -m http.server 8000`).
 ## YASAKLAR
 
 - Artefaktlara **"SACEUR"** veya toplantıya özgü etiket (Top Ten, SHAPE HLSG, FA-numaraları) yazma. Nötr tut.
+- **Tasnif şeridi/etiketi ekleme** (`UNCLASSIFIED`, `Tasnif dışı`, `Hizmete özel`).
+  Platform sivil ve dual-use; açık web'de tasnif işaretinin yeri yok.
 - Kanıtta **NATO mührü basma** — "nato" yalnızca referans; mühür Conventity'nindir.
 - Orion FIT çıktısını asla "validated" diye sunma — **tavsiye**dir, karar DPP'nindir.
 - `conventity_evidence` append-only: edit/delete arayüzü ekleme.

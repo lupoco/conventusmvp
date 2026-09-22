@@ -23,7 +23,7 @@
       body:['Countering small uncrewed aerial systems is no longer treated as a single technology problem. The emerging consensus across open literature is that sensors, effectors and command-and-control must be integrated into a layered, continuously-tested defensive network rather than fielded in isolation.',
         'The pattern that keeps recurring is cadence: short, repeated cycles in which operators, agencies and industry bring systems into the same learning environment, test against realistic threats, and refine before the next round. Speed matters, but only when it produces capability that interoperates and endures.',
         'For planners, the practical takeaway is that adoption is becoming a habit, not an event. The organisations that win are those that can absorb a new effector or sensor, prove it in a shared data environment, and scale it without a multi-year programme.'],
-      sources:['Public command transformation releases','Open exercise reporting','Industry briefings (unclassified)'] },
+      sources:['Public command transformation releases','Open exercise reporting','Industry briefings'] },
 
     { id:'edgeai', cat:'tech', kicker:'AUTONOMY', title:'Edge AI holds the line when the network does not',
       dek:'Inference that runs on-device — in denied, disrupted and degraded conditions — is quietly becoming a baseline requirement.',
@@ -67,7 +67,7 @@
       author:'Convexus Magazine', role:'OSINT desk', read:'5 min', clr:'OSINT · CLEARED FOR RELEASE',
       body:['This week\u2019s open-source picture is dominated by the maritime grey zone: recurring AIS anomalies near chokepoints, shadow-fleet patterns, and renewed attention to undersea-cable monitoring.',
         'Read with care — open signals indicate, they do not confirm. The value is in correlation: pairing AIS gaps with infrastructure exposure to flag where to look next.'],
-      sources:['Open AIS aggregators','Public maritime reporting','Commercial SAR imagery (unclassified)'] },
+      sources:['Open AIS aggregators','Public maritime reporting','Commercial SAR imagery'] },
 
     { id:'radar', cat:'trends', kicker:'TREND RADAR', title:'Five technologies to track this quarter',
       dek:'Where the open evidence suggests momentum is building.',
