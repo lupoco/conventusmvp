@@ -89,7 +89,14 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
       `conventity_activities` satırı da yazıldı) → kayıt → trigger'lar
       (kayıt olayı, rol olayı, denetim kaydı) → **yetkisiz kullanıcı RLS'e
       takıldı.**
-- [ ] **`sql/02_clean_install.sql` conventity-prod'da çalıştırılacak.**
+- [x] **`sql/02_clean_install.sql` conventity-prod'da çalıştırıldı** —
+      73 tablo kuruldu, doğrulandı.
+- [x] **Sayfa ↔ şema kontrolü:** launch kapsamındaki 30 sayfanın çağırdığı
+      25 tablo/view ve 5 RPC'nin hepsi şemada var
+      (`scripts/check-page-schema-refs.py`).
+- [x] *(kapatıldı)* `02_clean_install.sql` ilk denemede `.org` sekmesinde
+      çalıştı; idempotent olduğu için sessizce "Success" dedi ve hiçbir şey
+      yapmadı — kurulum yapıldı sanıldı.
       *Tuzak:* iki proje açıkken sekmeler karışıyor. Dosya idempotent olduğu
       için `.org`'da çalıştırılırsa sessizce "Success" der ve hiçbir şey
       yapmaz — kurulum yapıldı sanılır. Bu yüzden dosyanın başına
@@ -117,7 +124,10 @@ SQL kuralları (depo standardı): idempotent · `IF NOT EXISTS` · `text + CHECK
 guard'lı (SQL Editor tek transaction — bir satır patlarsa hepsi rollback) ·
 `ALTER TABLE ... ADD COLUMN` sonrası `notify pgrst, 'reload schema';`
 
-## §4 — İlk admin (chicken-egg)
+## §4 — İlk admin (chicken-egg) · TAMAM
+
+`serkancopul@gmail.com` → `ecosystem/admin/active`, `auth_user_id` dolu
+(RLS'te etkili). Aşağıdaki adımlar kayıt için duruyor.
 
 1. **Hesabı aç.** Supabase → Authentication → Users → **Add user** →
    e-posta + parola (*Auto Confirm User* açık). Alternatif: local'de
