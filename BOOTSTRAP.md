@@ -59,10 +59,16 @@ Bağlı proje: **`conventity-prod`** · ref `tstlireeidnpchadgjly` ·
 
 - [x] Supabase → New project (**"conventity-prod"**) açıldı.
 - [x] `ref` + publishable anon key `/assets/js/cv-config.js`'e yazıldı.
-- [ ] **Auth → URL Configuration** (Serkan):
-  - Site URL: `https://conventity.com`
-  - Redirect URLs: `https://conventity.com/**` ve `http://localhost:8000/**`
-- [ ] SQL sırası (aşağıda) — henüz yazılmadı.
+- [x] Auth → URL Configuration yapıldı (Site URL + iki redirect).
+- [ ] **Keşif (şimdi burada):** `sql/01_dump_org_schema.sql`'i **`.org`** projesinin
+      SQL Editor'ünde çalıştır → "Download CSV" → çıktıyı paylaş.
+      Salt okunur tek `select`; hiçbir şeyi değiştirmez, veri dökmez.
+      *Neden:* `conventity_orgs · people · roles · activities ·
+      conventus_managed_events · conventus_registrations` gibi temel tabloların
+      ilk `create table`'ı bu depoda **yok** (`sql/` yalnız migration tutuyor).
+      Koddan tahmin edilirse kolon tipleri/CHECK'leri yanlış çıkar —
+      "discovery before DDL".
+- [ ] SQL sırası (aşağıda) — dökümden türetilecek.
 
 SQL sırası (bu repoda henüz **yok**):
 
