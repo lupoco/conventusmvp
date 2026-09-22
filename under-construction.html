@@ -43,13 +43,6 @@ body{
 }
 a{color:inherit;text-decoration:none}
 
-.strip{
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  font-size:10px; letter-spacing:.24em; text-transform:uppercase;
-  text-align:center; padding:6px 12px; color:var(--muted);
-  background:var(--paper-2); border-bottom:1px solid var(--line);
-}
-
 /* ---- marka (index.html topbar ile ayni) ---- */
 .topbar{border-bottom:1px solid var(--line); position:relative; z-index:2}
 .topbar-inner{
@@ -137,8 +130,7 @@ h1.hero-title em{
   -webkit-background-clip:text; background-clip:text; color:transparent;
   font-size:1.04em; letter-spacing:-.02em;
 }
-.hero-lead{font-size:18px; line-height:1.55; color:var(--muted); max-width:520px; margin:24px 0 10px}
-.hero-hint{font-size:13.5px; line-height:1.6; color:var(--muted); max-width:520px; margin:0 0 30px; opacity:.85}
+.hero-lead{font-size:18px; line-height:1.55; color:var(--muted); max-width:520px; margin:26px 0 34px}
 .hero-actions{display:flex; gap:12px; flex-wrap:wrap}
 .btn{
   display:inline-flex; align-items:center; gap:8px;
@@ -172,7 +164,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 
 @media (max-width:1080px){
   .hero-grid{grid-template-columns:1fr; gap:34px; text-align:center}
-  .hero-lead,.hero-hint{margin-left:auto; margin-right:auto}
+  .hero-lead{margin-left:auto; margin-right:auto}
   .hero-actions{justify-content:center}
   .hero-globe-wrap{max-width:400px; order:-1}
 }
@@ -190,8 +182,6 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 </style>
 </head>
 <body>
-
-<div class="strip" data-i="strip">Unclassified · Conventity</div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -224,11 +214,10 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
         <span data-i="eyebrow">KAPALI TEST · DAVETLİ ERİŞİM</span>
       </span>
       <h1 class="hero-title"><em data-i="title">Çalışma altında.</em></h1>
-      <p class="hero-lead" data-i="lead">Conventity kapalı bir test sürümünde.
-        Erişim yalnızca davetli hesaplara açık.</p>
-      <p class="hero-hint" data-i="hint">Erişimin olması gerekiyorsa sayfayı yenile ve
-        sana verilen site kullanıcı adı ile parolayı gir. Hesap girişi bundan ayrıdır —
-        site parolasından sonra kendi hesabınla oturum açarsın.</p>
+      <p class="hero-lead">
+        <span data-i="lead1">Tasarımdan güvenli. Doğası gereği birlikte çalışabilir.</span><br/>
+        <span data-i="lead2">Altı platform — tek operasyonel ekosistem.</span>
+      </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="/">
           <span data-i="retry">Tekrar dene</span>
@@ -246,7 +235,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   </div>
 </section>
 
-<div class="foot"><span data-i="foot">Conventity · kapalı test</span> &nbsp;·&nbsp; <span class="ver">v0.2</span></div>
+<div class="foot"><span class="ver">v0.3</span></div>
 
 <script>
 (function(){
@@ -257,19 +246,18 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
   var I18N = {
-    tr:{ strip:'Tasnif dışı · Conventity',
-         eyebrow:'KAPALI TEST · DAVETLİ ERİŞİM',
+    /* lead1/lead2 index.html sozlugundeki resmi cevirilerle ayni */
+    tr:{ eyebrow:'KAPALI TEST · DAVETLİ ERİŞİM',
          title:'Çalışma altında.',
-         lead:'Conventity kapalı bir test sürümünde. Erişim yalnızca davetli hesaplara açık.',
-         hint:'Erişimin olması gerekiyorsa sayfayı yenile ve sana verilen site kullanıcı adı ile parolayı gir. Hesap girişi bundan ayrıdır — site parolasından sonra kendi hesabınla oturum açarsın.',
-         retry:'Tekrar dene', contact:'Erişim iste', foot:'Conventity · kapalı test',
+         lead1:'Tasarımdan güvenli. Doğası gereği birlikte çalışabilir.',
+         lead2:'Altı platform — tek operasyonel ekosistem.',
+         retry:'Tekrar dene', contact:'Erişim iste',
          docTitle:'Conventity — Çalışma altında' },
-    en:{ strip:'Unclassified · Conventity',
-         eyebrow:'CLOSED PREVIEW · INVITED ACCESS',
+    en:{ eyebrow:'CLOSED PREVIEW · INVITED ACCESS',
          title:'Under construction.',
-         lead:'Conventity is in a closed preview. Access is limited to invited accounts.',
-         hint:'If you should have access, reload the page and enter the site username and password you were given. Your account sign-in is separate — you log in with your own account after the site password.',
-         retry:'Try again', contact:'Request access', foot:'Conventity · closed preview',
+         lead1:'Secure by design. Interoperable by nature.',
+         lead2:'Six platforms — one operational ecosystem.',
+         retry:'Try again', contact:'Request access',
          docTitle:'Conventity — Under construction' }
   };
 
