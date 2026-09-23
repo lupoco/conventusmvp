@@ -168,6 +168,11 @@ HEADER = """\
 -- NEREDE ÇALIŞIR: conventity-prod (tstlireeidnpchadgjly) → SQL Editor.
 --                 .org'da ÇALIŞTIRMA.
 --
+-- SONRASINDA: 02, .org'un yetki satirlarini da sadik biçimde tasir —
+--             her tabloda `grant all to anon`. Bu dosyayi her calistirdiktan
+--             sonra `sql/05_harden_grants.sql` de calistirilmali; yoksa anon
+--             rolu, RLS'i atlayan view'ler uzerinden yazma yetkisi kazanir.
+--
 -- İdempotent: tekrar çalıştırılabilir, ikinci çalıştırma hiçbir şey değiştirmez.
 -- SQL Editor tek transaction çalıştırır: bir satır patlarsa hepsi geri alınır.
 -- ============================================================================

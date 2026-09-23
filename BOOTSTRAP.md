@@ -169,12 +169,63 @@ Testler: `scripts/test-access-requests.sql` (RLS),
 `scripts/test-access-form.mjs` (form davranışı),
 `scripts/test-core-access-panel.mjs` (konsol paneli).
 
-**Dikkat:** `02_clean_install.sql`, `.org`'un yapılandırmasını birebir taşıdığı
-için public'teki tüm tablolara `anon` dahil üç role de tam yetki veriyor ve
-`alter default privileges` yüzünden yeni tablolar da aynı yetkiyi otomatik
-alıyor. `04` bu tabloda yetkiyi açıkça geri alıyor. Genel sertleştirme
-(`anon`'dan gereksiz yetkileri toplu geri alma) ayrı bir iş — `.org`'daki
-"RLS sertleştirme" açık işiyle aynı sınıf.
+## Yetki sertleştirme — `sql/05_harden_grants.sql`
+
+`02_clean_install.sql`, `.org`'un yapılandırmasını birebir taşıdığı için
+public'teki **her tabloya ve her view'e** `anon` dahil üç role de tam yetki
+veriyor (`grant all`); `alter default privileges` yüzünden yeni tablolar da
+aynı yetkiyi otomatik alıyor. `04` yalnızca kendi tablosunda yetkiyi geri
+alıyordu; genel sertleştirme bu dosyada.
+
+**Bu teorik bir risk değildi — yerelde üretip doğruladım.** `public` şemasındaki
+10 view `security_invoker=off` ve sahibi `postgres`, yani taban tablonun
+RLS'ini atlıyor. Okuma tarafında bu kasıtlı (kamuya açık vitrinler). Ama üçü
+aynı zamanda otomatik-güncellenebilir:
+
+- `gm_providers_public`
+- `convexus_demand_signals_public`
+- `conventus_selection_verification_status`
+
+`anon` bunlarda `UPDATE`/`DELETE` yetkisine sahip olduğu için taban tablodaki
+satırları **RLS hiç devreye girmeden** değiştirip silebiliyordu. PostgREST
+view'leri de endpoint olarak açtığından bu, internetten anon anahtarıyla
+erişilebilir bir açıktı.
+
+Öncesi/sonrası kanıtı (`scripts/test-harden-grants.sh`):
+
+| Deneme (anon) | 05 öncesi | 05 sonrası |
+|---|---|---|
+| `gm_providers_public` SELECT (vitrin) | ✅ | ✅ |
+| `conventus_managed_events` SELECT | ✅ | ✅ |
+| `conventity_access_requests` INSERT (form) | ✅ | ✅ |
+| `gm_providers_public` UPDATE → taban tablo | ✅ **geçti** | ❌ yetki yok |
+| `gm_providers_public` DELETE → taban tablo | ✅ **satır silindi** | ❌ yetki yok |
+
+`05` **SELECT'e dokunmuyor** — okuma sınırını RLS ve definer view'ler çiziyor,
+mevcut durum kasıtlı (`04`, `conventity_access_requests`'te `anon`'a SELECT'i
+bilerek hiç vermiyor; oraya blanket `grant select` eklemek onu geri açardı).
+Sertleştirme sonrası `anon` yetki matrisi: 73 tabloda `SELECT`, 10 view'de
+`SELECT`, ve yalnız politikayla izin verilmiş 7 tabloda `INSERT`
+(`conventity_access_requests`, `conventus_selection_app_criteria`,
+`conventus_selection_app_needs`, `conventus_selection_applications`,
+`conventus_selection_materials`, `convexus_activity_records`,
+`convexus_engagement_requests`). `UPDATE`/`DELETE`/`TRUNCATE`/`REFERENCES`/
+`TRIGGER` hiçbir yerde yok.
+
+Çalıştırma sırası: **02 → 04 → 05**. `02`'yi her yeniden çalıştırdığında `04`
+ve `05`'i de tekrar çalıştır (02 yetkileri geri açıyor). Geri alma:
+`sql/05_harden_grants_ROLLBACK.sql` — ardından `04`'ü tekrar çalıştır,
+çünkü rollback her tabloya `grant all` verip `04`'ün revoke'unu da siliyor.
+
+> **Aynı açık canlı `.org` sitesinde de var.** Şema oradan kopyalandı; view'ler,
+> yetkiler ve `alter default privileges` aynı. `.org`'da `05`'i olduğu gibi
+> çalıştırma (yanlış proje koruması zaten durdurur) — orası için ayrı bir
+> sürüm gerekiyor, `.org`'un "RLS sertleştirme" açık işiyle birlikte.
+
+**Kalan açık iş:** `authenticated` rolü de her tabloda `TRUNCATE`/`REFERENCES`/
+`TRIGGER` yetkisine sahip. `TRUNCATE` RLS'i tamamen atlar. PostgREST bu
+komutları doğrudan açmadığı için pratik erişim yolu görünmüyor; yine de
+gereksiz. View'lerde `authenticated`'ın yazma yetkisi `05` ile kaldırıldı.
 
 ## §6 — Deploy · ŞU AN BURADA
 
