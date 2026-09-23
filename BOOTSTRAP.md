@@ -227,6 +227,27 @@ ve `05`'i de tekrar çalıştır (02 yetkileri geri açıyor). Geri alma:
 komutları doğrudan açmadığı için pratik erişim yolu görünmüyor; yine de
 gereksiz. View'lerde `authenticated`'ın yazma yetkisi `05` ile kaldırıldı.
 
+## SQL sırası — CANLIDA TAMAM (2026-09-23)
+
+`conventity-prod` (`tstlireeidnpchadgjly`) üzerinde çalıştırıldı ve doğrulandı:
+
+| Dosya | Ne yapar | Durum |
+|---|---|---|
+| `02_clean_install.sql` | boş omurga + Conventus/Convexus/Connectus şeması | ✅ |
+| `03_bootstrap_owner.sql` | ilk ekosistem admini | ✅ |
+| `04_access_requests.sql` | erişim talebi tablosu + RLS | ✅ |
+| `05_harden_grants.sql` | anon'un tablo/view yazma yetkileri | ✅ |
+| `06_pending_members.sql` | bekleyen kayıtlar RPC'leri | ✅ |
+| `07_harden_functions.sql` | anon'un fonksiyon yetkileri | ✅ |
+
+`07` canlı doğrulaması: **64 fonksiyon · anon 12 · politika bekçisi 12 ·
+açıkta kalan 0 · authenticated 64.**
+
+Sayfa ↔ şema kontrolü (`scripts/check-page-schema-refs.py`): launch
+kapsamındaki **30 sayfanın** çağırdığı 26 tablo/view ve 7 RPC'nin hepsi
+şemada var. Yani Conventus etkinlik sayfalarının tesisatı hazır — eksik olan
+tek şey veri.
+
 ## Fonksiyon yetkileri — `sql/07_harden_functions.sql`
 
 `06` çalıştıktan sonra doğrulama çıktısı `anon=X/postgres` gösterdi: ekosistem
