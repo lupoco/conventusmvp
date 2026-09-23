@@ -102,6 +102,30 @@
    tr:{ back:'Etkinliklerim', signin:'Giriş gerekli', signin_d:'Bu konsol etkinlik yöneticileri içindir.', signin_b:'Giriş yap',
      notfound:'Etkinlik bulunamadı', notfound_d:'Bağlantı geçersiz ya da bu etkinliği yönetme yetkin yok.',
      tab_general:'Genel', tab_reg:'Kayıtlar', tab_agenda:'Ajanda', tab_ann:'Duyurular', tab_docs:'Dokümanlar', tab_log:'İdari & Lojistik',
+     tab_form:'Kayıt formu',
+     fm_intro:'Kayıt sihirbazının adımlarını burada tanımlarsınız. Tanımlamadığınız adım katılımcıya <b>hiç gösterilmez</b>.',
+     fm_types_h:'Kayıt tipleri', fm_types_d:'Katılımcı hangi sıfatla geldiğini seçer. Not alanına uygunluk kuralını yazın.',
+     fm_tracks_h:'Katılım bölümleri', fm_tracks_d:'Gün / parkur blokları. Katılımcı birden fazla seçebilir.',
+     fm_cons_h:'Onaylar', fm_cons_d:'Her metin için Evet/Hayır sorulur. Yanıt, metnin sürümüyle birlikte saklanır.',
+     fm_key:'Anahtar', fm_label:'Etiket', fm_note:'Not (uygunluk açıklaması)', fm_other:'“Diğer” serbest metin istesin',
+     fm_title:'Başlık', fm_desc:'Açıklama', fm_from:'Başlangıç', fm_to:'Bitiş',
+     fm_tfrom:'Saat (başlangıç)', fm_tto:'Saat (bitiş)', fm_cap:'Kontenjan', fm_ext:'Dış kayıt notu',
+     fm_body:'Onay metni', fm_req:'Zorunlu (Hayır ⇒ kayıt onaylanamaz)',
+     fm_sort:'Sıra', fm_active:'Etkin', fm_ver:'Sürüm',
+     fm_add_type:'+ Kayıt tipi ekle', fm_add_track:'+ Bölüm ekle', fm_add_cons:'+ Onay ekle',
+     fm_empty_type:'Henüz kayıt tipi yok — bu adım gösterilmiyor.',
+     fm_empty_track:'Henüz bölüm yok — bu adım gösterilmiyor.',
+     fm_empty_cons:'Henüz onay yok — bu adım gösterilmiyor.',
+     fm_save:'Kaydet', fm_cancel:'Vazgeç', fm_edit:'Düzenle', fm_del:'Sil',
+     fm_need_key:'Anahtar gerekli (küçük harf, rakam, alt çizgi).',
+     fm_need_label:'Etiket gerekli.', fm_need_title:'Başlık gerekli.', fm_need_body:'Onay metni gerekli.',
+     fm_bad_date:'Tarih GG.AA.YYYY biçiminde olmalı.',
+     fm_bad_time:'Saat SS:DD biçiminde olmalı.',
+     fm_bad_cap:'Kontenjan pozitif bir sayı olmalı.',
+     fm_saved:'Kaydedildi.', fm_deleted:'Silindi.',
+     fm_delq:'Bu satır silinsin mi?',
+     fm_cons_delq:'Bu onay metni silinsin mi? Verilmiş yanıtlar silinmez, metin kayıttan kalkar.',
+     fm_newver:'Metni değiştirdiğiniz için <b>yeni sürüm</b> açıldı (v%s). Eski sürüm pasife alındı; ona verilmiş yanıtlar olduğu gibi duruyor.',
      g_code:'Kod', g_dates:'Tarih', g_loc:'Yer', g_host:'Ev sahibi', g_comm:'Topluluk', g_pub:'Durum', g_reg:'Kayıt',
      g_cap:'Kontenjan', g_paf:'PAF alanı', published:'Yayında', draft:'Taslak', open:'Açık', closed:'Kapalı',
      r_all:'Tümü', r_pending:'Bekleyen', r_approved:'Onaylı', r_rejected:'Reddedilen', r_wait:'Bekleme',
@@ -129,6 +153,30 @@
    en:{ back:'My events', signin:'Sign in required', signin_d:'This console is for event managers.', signin_b:'Sign in',
      notfound:'Event not found', notfound_d:'Invalid link, or you cannot manage this event.',
      tab_general:'General', tab_reg:'Registrations', tab_agenda:'Agenda', tab_ann:'Announcements', tab_docs:'Documents', tab_log:'Admin & Logistics',
+     tab_form:'Registration form',
+     fm_intro:'Define the steps of the registration wizard here. A step you do not define is <b>never shown</b> to the participant.',
+     fm_types_h:'Registration types', fm_types_d:'The participant picks the capacity they attend in. Put the eligibility rule in the note.',
+     fm_tracks_h:'Portions', fm_tracks_d:'Day / track blocks. Participants may select more than one.',
+     fm_cons_h:'Consents', fm_cons_d:'Each statement is asked as Yes/No. The answer is stored with the version of the text.',
+     fm_key:'Key', fm_label:'Label', fm_note:'Note (eligibility)', fm_other:'Ask for free text on “Other”',
+     fm_title:'Title', fm_desc:'Description', fm_from:'Start', fm_to:'End',
+     fm_tfrom:'Time (from)', fm_tto:'Time (to)', fm_cap:'Capacity', fm_ext:'External registration note',
+     fm_body:'Consent text', fm_req:'Required (No ⇒ cannot be approved)',
+     fm_sort:'Order', fm_active:'Active', fm_ver:'Version',
+     fm_add_type:'+ Add type', fm_add_track:'+ Add portion', fm_add_cons:'+ Add consent',
+     fm_empty_type:'No registration types yet — this step is not shown.',
+     fm_empty_track:'No portions yet — this step is not shown.',
+     fm_empty_cons:'No consents yet — this step is not shown.',
+     fm_save:'Save', fm_cancel:'Cancel', fm_edit:'Edit', fm_del:'Delete',
+     fm_need_key:'A key is required (lowercase, digits, underscore).',
+     fm_need_label:'A label is required.', fm_need_title:'A title is required.', fm_need_body:'Consent text is required.',
+     fm_bad_date:'Dates must be DD.MM.YYYY.',
+     fm_bad_time:'Times must be HH:MM.',
+     fm_bad_cap:'Capacity must be a positive number.',
+     fm_saved:'Saved.', fm_deleted:'Deleted.',
+     fm_delq:'Delete this row?',
+     fm_cons_delq:'Delete this consent text? Answers already given are kept; the text is removed from the form.',
+     fm_newver:'Because you changed the text a <b>new version</b> was created (v%s). The old one was deactivated; answers given to it stay as they are.',
      g_code:'Code', g_dates:'Dates', g_loc:'Location', g_host:'Host', g_comm:'Community', g_pub:'Status', g_reg:'Registration',
      g_cap:'Capacity', g_paf:'PAF fields', published:'Published', draft:'Draft', open:'Open', closed:'Closed',
      r_all:'All', r_pending:'Pending', r_approved:'Approved', r_rejected:'Rejected', r_wait:'Waitlist',
@@ -205,7 +253,7 @@
 
   function render(){
     $('#backLbl').textContent=T('back');
-    var tabs=[['general','tab_general'],['reg','tab_reg'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
+    var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
     $('#wrap').innerHTML=
       '<div class="head"><div class="eyebrow">conventus_managed_events</div><h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
       '<div class="subline"><span class="mono">'+esc(EVENT.code)+'</span>·'+
@@ -216,7 +264,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
       b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
     });
-    ({general:tGeneral,reg:tReg,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
+    ({general:tGeneral,reg:tReg,form:tFormTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
   }
   function tSoon(){ $('#tb').innerHTML='<div class="soon">'+esc(T('soon'))+'</div>'; }
   function editorLink(page, descKey){
@@ -256,6 +304,201 @@
   var DOCS=[], docEdit=null;
   var DOC_CATS=['general','agenda','venue','travel','security','forms','other'];
   var DOC_AUDS=['all','approved','pending','community_members','organizers'];
+  /* ===================== KAYIT FORMU SEKMESI =============================
+     Sihirbazin uc adimi (kayit tipi · bolum · onay) burada yonetiliyor.
+     Tanimlanmayan adim katilimciya hic gosterilmiyor — bos liste = adim yok.  */
+  var FM={types:[],tracks:[],consents:[]}, fmEdit=null, fmKind=null;
+
+  function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||'')); return m?m[3]+'.'+m[2]+'.'+m[1]:''; }
+  function dmyToISO(v){
+    v=(v||'').trim(); if(!v) return {ok:true, val:null};
+    var m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v); if(!m) return {ok:false};
+    var d=new Date(m[3]+'-'+m[2]+'-'+m[1]+'T00:00:00Z');
+    if(isNaN(d)||d.getUTCFullYear()!=+m[3]||(d.getUTCMonth()+1)!=+m[2]||d.getUTCDate()!=+m[1]) return {ok:false};
+    return {ok:true, val:m[3]+'-'+m[2]+'-'+m[1]};
+  }
+  function okTime(v){ v=(v||'').trim(); return !v || /^([01]\d|2[0-3]):[0-5]\d$/.test(v); }
+  function maskDate(el){ if(!el) return; el.addEventListener('input',function(){
+    var d=this.value.replace(/\D/g,'').slice(0,8), o=d.slice(0,2);
+    if(d.length>2) o+='.'+d.slice(2,4);
+    if(d.length>4) o+='.'+d.slice(4,8);
+    this.value=o; }); }
+
+  async function tFormTab(){
+    $('#tb').innerHTML='<div class="card"><div class="empty" style="border:none">…</div></div>';
+    var q=function(t){ return sb.from(t).select('*').eq('event_id',EVENT.id).order('sort',{ascending:true}); };
+    var r=await Promise.all([q('conventus_event_reg_types'),q('conventus_event_tracks'),q('conventus_event_consents')]);
+    var bad=r.filter(function(x){return x.error;})[0];
+    if(bad){ $('#tb').innerHTML='<div class="card"><span class="ferr">'+esc(bad.error.message)+'</span></div>'; return; }
+    FM={types:r[0].data||[],tracks:r[1].data||[],consents:r[2].data||[]};
+    renderForm();
+  }
+
+  function fmChip(on){ return on?'✓':'—'; }
+  function fmCard(kind,titleKey,descKey,head,rows,emptyKey,addKey){
+    return '<div class="card"><h3>'+esc(T(titleKey))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T(descKey))+'</div>'+
+      (rows?('<div class="table-wrap"><table class="grid"><thead><tr>'+head+'<th></th></tr></thead><tbody>'+rows+'</tbody></table></div>')
+           :('<div class="empty">'+esc(T(emptyKey))+'</div>'))+
+      '<div class="actions" style="margin-top:12px"><button class="btn btn-primary btn-sm" data-fmadd="'+kind+'">'+esc(T(addKey))+'</button></div>'+
+      '<div id="fmForm_'+kind+'"></div></div>';
+  }
+
+  function renderForm(){
+    var tRows=FM.types.map(function(x){
+      return '<tr><td class="mono">'+esc(x.key)+'</td><td>'+esc(x.label)+'</td>'+
+        '<td style="max-width:280px">'+esc(x.note||'')+'</td><td>'+fmChip(x.allow_other)+'</td>'+
+        '<td>'+fmChip(x.is_active)+'</td>'+fmActs('types',x.id)+'</tr>'; }).join('');
+    var kRows=FM.tracks.map(function(x){
+      var when=[dmy(x.starts_on),dmy(x.ends_on)].filter(Boolean).join(' – ');
+      var tm=[x.time_from,x.time_to].filter(Boolean).join('–');
+      return '<tr><td class="mono">'+esc(x.key)+'</td><td>'+esc(x.title)+'</td>'+
+        '<td class="mono" style="font-size:11px">'+esc([when,tm].filter(Boolean).join(' · '))+'</td>'+
+        '<td>'+(x.capacity==null?'—':esc(String(x.capacity)))+'</td>'+
+        '<td>'+fmChip(x.is_active)+'</td>'+fmActs('tracks',x.id)+'</tr>'; }).join('');
+    var cRows=FM.consents.map(function(x){
+      return '<tr><td class="mono">'+esc(x.key)+'</td><td class="mono">v'+esc(String(x.version))+'</td>'+
+        '<td style="max-width:340px">'+esc(x.body)+'</td><td>'+fmChip(x.is_required)+'</td>'+
+        '<td>'+fmChip(x.is_active)+'</td>'+fmActs('consents',x.id)+'</tr>'; }).join('');
+
+    $('#tb').innerHTML =
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 12px">'+T('fm_intro')+'</div>'+
+      fmCard('types','fm_types_h','fm_types_d',
+        '<th>'+esc(T('fm_key'))+'</th><th>'+esc(T('fm_label'))+'</th><th>'+esc(T('fm_note'))+'</th><th>'+esc(T('fm_other'))+'</th><th>'+esc(T('fm_active'))+'</th>',
+        tRows,'fm_empty_type','fm_add_type')+
+      fmCard('tracks','fm_tracks_h','fm_tracks_d',
+        '<th>'+esc(T('fm_key'))+'</th><th>'+esc(T('fm_title'))+'</th><th>'+esc(T('fm_from'))+'/'+esc(T('fm_to'))+'</th><th>'+esc(T('fm_cap'))+'</th><th>'+esc(T('fm_active'))+'</th>',
+        kRows,'fm_empty_track','fm_add_track')+
+      fmCard('consents','fm_cons_h','fm_cons_d',
+        '<th>'+esc(T('fm_key'))+'</th><th>'+esc(T('fm_ver'))+'</th><th>'+esc(T('fm_body'))+'</th><th>'+esc(T('fm_req'))+'</th><th>'+esc(T('fm_active'))+'</th>',
+        cRows,'fm_empty_cons','fm_add_cons');
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fmadd]'),function(b){
+      b.addEventListener('click',function(){ openFmForm(b.getAttribute('data-fmadd'),null); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fme]'),function(b){
+      b.addEventListener('click',function(){ openFmForm(b.getAttribute('data-fmk'), b.getAttribute('data-fme')); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fmd]'),function(b){
+      b.addEventListener('click',function(){ delFm(b.getAttribute('data-fmk'), b.getAttribute('data-fmd')); }); });
+  }
+  function fmActs(kind,id){
+    return '<td class="actions"><button class="btn btn-ghost btn-sm" data-fme="'+id+'" data-fmk="'+kind+'">'+esc(T('fm_edit'))+'</button>'+
+      '<button class="btn btn-ghost btn-sm" data-fmd="'+id+'" data-fmk="'+kind+'">'+esc(T('fm_del'))+'</button></td>';
+  }
+
+  var FM_TABLE={types:'conventus_event_reg_types',tracks:'conventus_event_tracks',consents:'conventus_event_consents'};
+  function fmRow(kind,id){ return FM[kind].filter(function(x){return String(x.id)===String(id);})[0]||null; }
+
+  function openFmForm(kind,id){
+    fmKind=kind; fmEdit=id;
+    var d=id?fmRow(kind,id):null;
+    var f=function(lbl,inner){ return '<div><label>'+esc(T(lbl))+'</label>'+inner+'</div>'; };
+    var inp=function(i,v,ph){ return '<input id="'+i+'" value="'+esc(v==null?'':v)+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'>'; };
+    var chk=function(i,on,lbl){ return '<label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:13px;letter-spacing:0">'+
+      '<input type="checkbox" id="'+i+'" style="width:auto"'+(on?' checked':'')+'> '+esc(T(lbl))+'</label>'; };
+    var body='';
+    if(kind==='types'){
+      body = f('fm_key', inp('fm_key',d?d.key:'','delegate'))+
+             f('fm_label', inp('fm_label',d?d.label:''))+
+             f('fm_note','<textarea id="fm_note" rows="2">'+esc(d?(d.note||''):'')+'</textarea>')+
+             chk('fm_other', d?d.allow_other:false,'fm_other');
+    } else if(kind==='tracks'){
+      body = f('fm_key', inp('fm_key',d?d.key:'','main'))+
+             f('fm_title', inp('fm_title',d?d.title:''))+
+             f('fm_desc','<textarea id="fm_desc" rows="2">'+esc(d?(d.description||''):'')+'</textarea>')+
+             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+               f('fm_from', inp('fm_from',d?dmy(d.starts_on):'','GG.AA.YYYY'))+
+               f('fm_to',   inp('fm_to',  d?dmy(d.ends_on):'','GG.AA.YYYY'))+
+             '</div>'+
+             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'+
+               f('fm_tfrom', inp('fm_tfrom',d?(d.time_from||''):'','09:00'))+
+               f('fm_tto',   inp('fm_tto',  d?(d.time_to||''):'','17:00'))+
+               f('fm_cap',   inp('fm_cap',  d&&d.capacity!=null?d.capacity:''))+
+             '</div>'+
+             f('fm_ext', inp('fm_ext',d?(d.external_note||''):''));
+    } else {
+      body = f('fm_key', inp('fm_key',d?d.key:'','participant_list'))+
+             f('fm_body','<textarea id="fm_body" rows="3">'+esc(d?d.body:'')+'</textarea>')+
+             chk('fm_req', d?d.is_required:true,'fm_req');
+    }
+    $('#fmForm_'+kind).innerHTML =
+      '<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:grid;gap:10px">'+body+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        f('fm_sort','<input id="fm_sort" value="'+esc(d?String(d.sort):'0')+'">')+
+        '<div style="align-self:end">'+chk('fm_active', d?d.is_active:true,'fm_active')+'</div>'+
+      '</div>'+
+      '<div class="actions"><button class="btn btn-primary btn-sm" id="fmSave">'+esc(T('fm_save'))+'</button>'+
+      '<button class="btn btn-ghost btn-sm" id="fmCancel">'+esc(T('fm_cancel'))+'</button>'+
+      '<span class="ferr" id="fmErr" style="align-self:center"></span></div></div>';
+    maskDate($('#fm_from')); maskDate($('#fm_to'));
+    $('#fmSave').addEventListener('click',saveFm);
+    $('#fmCancel').addEventListener('click',function(){ $('#fmForm_'+kind).innerHTML=''; fmEdit=null; fmKind=null; });
+    var first=$('#fm_key'); if(first) first.focus();
+  }
+
+  function fv(id){ var el=$('#'+id); return el?el.value.trim():''; }
+  function fc(id){ var el=$('#'+id); return !!(el&&el.checked); }
+
+  async function saveFm(){
+    var err=function(m){ $('#fmErr').innerHTML=m; };
+    var kind=fmKind, d=fmEdit?fmRow(kind,fmEdit):null;
+    var key=fv('fm_key').toLowerCase();
+    if(!/^[a-z0-9_]{2,40}$/.test(key)) return err(esc(T('fm_need_key')));
+    var sort=parseInt(fv('fm_sort'),10); if(isNaN(sort)) sort=0;
+    var row={event_id:EVENT.id, key:key, sort:sort, is_active:fc('fm_active')};
+    var newVersion=null;
+
+    if(kind==='types'){
+      if(!fv('fm_label')) return err(esc(T('fm_need_label')));
+      row.label=fv('fm_label'); row.note=fv('fm_note')||null; row.allow_other=fc('fm_other');
+    } else if(kind==='tracks'){
+      if(!fv('fm_title')) return err(esc(T('fm_need_title')));
+      var a=dmyToISO(fv('fm_from')), b=dmyToISO(fv('fm_to'));
+      if(!a.ok||!b.ok) return err(esc(T('fm_bad_date')));
+      if(!okTime(fv('fm_tfrom'))||!okTime(fv('fm_tto'))) return err(esc(T('fm_bad_time')));
+      var cap=fv('fm_cap');
+      if(cap && !(/^\d+$/.test(cap) && +cap>0)) return err(esc(T('fm_bad_cap')));
+      row.title=fv('fm_title'); row.description=fv('fm_desc')||null;
+      row.starts_on=a.val; row.ends_on=b.val;
+      row.time_from=fv('fm_tfrom')||null; row.time_to=fv('fm_tto')||null;
+      row.capacity=cap?+cap:null; row.external_note=fv('fm_ext')||null;
+    } else {
+      if(!fv('fm_body')) return err(esc(T('fm_need_body')));
+      row.body=fv('fm_body'); row.is_required=fc('fm_req');
+      /* Onay metni DEGISTIYSE ustune yazmiyoruz: verilmis yanitlar
+         (key+version) o metne isaret ediyor. Yeni surum acip eskisini
+         pasife aliyoruz — gecmis oldugu gibi kaliyor. */
+      if(d && d.body !== row.body){
+        newVersion = (d.version||1)+1; row.version=newVersion;
+      } else if(d){
+        row.version=d.version;
+      } else {
+        row.version=1;
+      }
+    }
+
+    var res;
+    if(kind==='consents' && newVersion){
+      res = await sb.from(FM_TABLE[kind]).insert(row);
+      if(!res.error) await sb.from(FM_TABLE[kind]).update({is_active:false}).eq('id',d.id);
+    } else if(d){
+      res = await sb.from(FM_TABLE[kind]).update(row).eq('id',d.id);
+    } else {
+      res = await sb.from(FM_TABLE[kind]).insert(row);
+    }
+    if(res.error) return err(esc(res.error.message));
+    fmEdit=null; fmKind=null;
+    await tFormTab();
+    toast(newVersion ? T('fm_newver').replace('%s',newVersion).replace(/<[^>]+>/g,'') : T('fm_saved'));
+  }
+
+  async function delFm(kind,id){
+    var q = kind==='consents' ? T('fm_cons_delq') : T('fm_delq');
+    if(!confirm(q)) return;
+    var r=await sb.from(FM_TABLE[kind]).delete().eq('id',id);
+    if(r.error){ toast(r.error.message,true); return; }
+    await tFormTab(); toast(T('fm_deleted'));
+  }
+
   async function tDocsTab(){
     $('#tb').innerHTML='<div class="card"><div class="empty" style="border:none">…</div></div>';
     var r=await sb.from('conventus_documents').select('*').eq('event_id',EVENT.id)
