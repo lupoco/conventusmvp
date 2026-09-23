@@ -4,6 +4,14 @@
 
 RewriteEngine On
 
+# ---- Kok adres (/) -> "Yakinda" ekrani -------------------------------------
+# Kapali test suresince conventity.com'a gelen ziyaretci markali karsilama
+# ekranini gorur, ana sayfayi degil. Alt dizinlerde under-construction.html
+# bulunmadigi icin oralarda index.html'e dusulur (ornegin
+# /platforms/conventus/ calismaya devam eder).
+# YAYINA CIKARKEN: asagidaki satiri sil, kok yeniden index.html'e dussun.
+DirectoryIndex under-construction.html index.html
+
 # ---- Taşınabilir doğrulama: verified/<slug> -> verified.html ---------------
 # verified.html getSlug() slug'ı hem ?s= hem de /verified/<slug> yolundan okur.
 RewriteRule ^verified/([^/]+)/?$ /verified.html [L,QSA]
