@@ -67,6 +67,43 @@
   .status-pill{display:inline-block;margin-top:.9rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .8rem;border-radius:100px;border:1px solid var(--border-accent);color:var(--gold);background:var(--gold-dim)}
   .center-note{text-align:center;font-size:.72rem;color:var(--muted);margin-top:1rem}
   .center-note a{color:var(--gold);cursor:pointer;text-decoration:none}
+  /* sihirbaz */
+  .wz-top{margin-bottom:1.2rem}
+  .wz-bar{height:4px;background:var(--surface);border:1px solid var(--border);border-radius:100px;overflow:hidden}
+  .wz-bar i{display:block;height:100%;background:var(--gold);transition:width .25s ease}
+  .wz-step{display:flex;justify-content:space-between;align-items:baseline;margin-top:.5rem}
+  .wz-step b{font-size:.72rem;font-weight:700;color:var(--sub)}
+  .wz-step span{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--muted)}
+  .wz-nav{display:flex;gap:.6rem;margin-top:1.4rem}
+  .wz-nav .btn{margin-top:0}
+  .btn-ghost{padding:.82rem 1.1rem;border:1px solid var(--border-accent);border-radius:11px;background:transparent;color:var(--sub);font:600 .86rem 'Manrope';cursor:pointer;transition:all var(--ease)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+  /* secim kartlari */
+  .pick{display:block;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:.9rem 1rem;margin-bottom:.7rem;cursor:pointer;transition:border-color var(--ease),background var(--ease)}
+  .pick:hover{border-color:var(--border-accent)}
+  .pick.on{border-color:var(--gold);background:var(--gold-dim)}
+  .pick .t{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:.86rem}
+  .pick .t input{width:16px;height:16px;accent-color:var(--gold);flex:none;pointer-events:none}
+  .pick:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .pick .n{font-size:.74rem;color:var(--muted);line-height:1.55;margin-top:.4rem;padding-left:1.6rem}
+  .pick .when{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--sub);margin-top:.35rem;padding-left:1.6rem}
+  .pick .ext{font-size:.72rem;color:var(--gold);margin-top:.4rem;padding-left:1.6rem;font-weight:600}
+  /* onaylar */
+  .cons{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:1rem;margin-bottom:.8rem}
+  .cons p{font-size:.8rem;line-height:1.6;color:var(--text)}
+  .cons .yn{display:flex;gap:1.2rem;margin-top:.7rem}
+  .cons .yn label{display:flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:600;color:var(--sub);cursor:pointer}
+  .cons .yn input{accent-color:var(--gold)}
+  .cons .warn{font-size:.72rem;color:var(--muted);margin-top:.5rem;line-height:1.5}
+  /* ozet */
+  .rev{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:1rem;margin-bottom:.8rem}
+  .rev .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+  .rev .h b{font-size:.78rem;font-weight:700}
+  .rev .h a{font-size:.72rem;color:var(--gold);cursor:pointer;text-decoration:none;font-weight:600}
+  .rev dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem .9rem;font-size:.78rem}
+  .rev dt{color:var(--muted)}
+  .rev dd{color:var(--text);word-break:break-word}
+  .code{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;letter-spacing:.14em;color:var(--gold);background:var(--gold-dim);border:1px solid var(--border-accent);border-radius:10px;padding:.7rem 1rem;display:inline-block;margin:.9rem 0}
   @media(max-width:440px){.row2{grid-template-columns:1fr}}
 </style>
 <script src="cv-skin.js"></script>
@@ -75,19 +112,150 @@
 <header>
   <div class="brand">
     <svg viewBox="0 0 56 56" fill="none"><path d="M47 21A21 21 0 1 0 47 35" stroke="#1C3060" stroke-width="3.5" stroke-linecap="round"/><path d="M39 23A13 13 0 1 0 39 33" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" fill="#1C3060"/></svg>
-    <span><b>Conventus</b><small>Event Registration</small></span>
+    <span><b>Conventus</b><small id="brandSub">Event Registration</small></span>
   </div>
   <div id="whoami"></div>
 </header>
 
 <main>
   <div id="evHead"></div>
-  <div id="panel" class="card"><div class="state"><p>Loading…</p></div></div>
+  <div id="panel" class="card"><div class="state"><p id="bootMsg">Loading…</p></div></div>
 </main>
 
 <script>
   // theme
   (function(){var t=localStorage.getItem('cv-theme')||'system';function r(x){return x==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):x;}document.documentElement.setAttribute('data-resolved-theme',r(t));})();
+
+  /* ---- i18n ----------------------------------------------------------------
+     Bu sayfa daha once tamamen sabit Ingilizce metindi (proje kurali: executable
+     JS'te sabit metin olmaz). Sihirbaza cevirirken yarisi TR yarisi EN bir ekran
+     cikmasin diye mevcut metinler de sozluge alindi. */
+  const I18N = {
+    tr:{
+      brand_sub:'Etkinlik Kaydı', doc_title:'Kayıt · Conventus',
+      ev_for:'Şunun için kayıt oluyorsunuz', ev_nodate:'Tarih henüz kesin değil',
+      ev_host:'Ev sahibi', ev_prog:'Programı gör →',
+      loading:'Yükleniyor…',
+      bad_link:'Bu kayıt bağlantısı geçersiz.', bad_link_d:'Etkinlik kodu verilmemiş.',
+      err_title:'Bir şeyler ters gitti.',
+      closed:'Kayıt şu an kapalı.', closed_d:'Bu etkinlik için kayıt penceresi açık değil.',
+      notopen:'Kayıt açılmadı.', notopen_d:'Bu etkinlik henüz yayında değil.',
+      notfound:'Kayıt yapılamıyor.', notfound_d:'Bu bağlantı kapalı ya da böyle bir etkinlik yok.',
+      signout:'Çıkış', signedin:'Giriş yapıldı:',
+      /* adimlar */
+      st_type:'Kayıt tipi', st_tracks:'Katılım bölümleri', st_info:'Kişisel bilgiler',
+      st_consents:'Onaylar', st_review:'Özet',
+      step_of:'Adım %s / %s',
+      nav_prev:'Geri', nav_next:'İleri', nav_submit:'Kaydı gönder', nav_sending:'Gönderiliyor…',
+      /* tip */
+      type_h:'Hangi sıfatla katılıyorsunuz?',
+      type_hint:'Temsil ettiğiniz kuruma en uygun seçeneği işaretleyin.',
+      type_other_ph:'Lütfen açıklayın',
+      type_need:'Lütfen bir kayıt tipi seçin.',
+      type_other_need:'Lütfen “Diğer” için açıklama yazın.',
+      /* parkur */
+      tracks_h:'Katılmayı planladığınız bölümler',
+      tracks_hint:'Birden fazla seçebilirsiniz.',
+      tracks_need:'Lütfen en az bir bölüm seçin.',
+      /* onay */
+      cons_h:'Onaylar',
+      cons_hint:'Aşağıdaki metinleri okuyup yanıtlayın. Yanıtınız, metnin hangi sürümüne verildiğiyle birlikte kaydedilir.',
+      cons_yes:'Evet', cons_no:'Hayır',
+      cons_required:'Bu onay olmadan kayıt onaylanamaz.',
+      cons_need:'Lütfen tüm onayları yanıtlayın.',
+      cons_blocked:'Zorunlu bir onaya “Hayır” dediniz — bu hâliyle kayıt onaylanamaz. Devam etmek isterseniz yanıtı değiştirin.',
+      /* ozet */
+      rev_h:'Gözden geçirin',
+      rev_hint:'Bilgileri kontrol edin. Değiştirmek istediğiniz bölümün yanındaki “Düzenle”ye basın.',
+      rev_edit:'Düzenle',
+      rev_none:'—',
+      rev_submit_note:'Gönderdikten sonra kaydınız <b>incelemeye</b> düşer. Gönderim katılımınızı onaylamaz.',
+      /* sonuc */
+      done_h:'Kaydınız incelemede',
+      done_p:'Kaydınız alındı. <b>Onaylanmadan katılımınız kesinleşmez</b> — organizatör inceleyip e-posta ile haber verecek.',
+      done_code:'Onay numaranız',
+      done_code_note:'Bir değişiklik gerekirse bu numarayla bize yazın.',
+      done_cal:'Takvime ekle',
+      done_my:'Etkinliklerim →',
+      already_h:'Bu etkinliğe zaten başvurdunuz',
+      already_p:'Başvurunuz kayıtlı.',
+      partial:'Kaydınız açıldı (numara: %s) ancak bazı ayrıntılar yazılamadı. Lütfen bu numarayla organizatöre yazın.',
+      /* mevcut form */
+      info_h:'Kişisel bilgiler', info_hint:'Yıldızlı alanlar akreditasyon için zorunludur.',
+      f_first:'Ad', f_last:'Soyad', f_email:'E-posta', f_verified:'Doğrulandı',
+      f_phone:'Telefon', f_pass:'Pasaport numarası', f_dob:'Doğum tarihi', f_nation:'Ülke',
+      f_ns:'NS/NR e-posta', f_org:'Kurum', f_rank:'Rütbe / derece', f_duty:'Görev / pozisyon',
+      f_role:'Katılım sıfatı', f_note:'Organizatöre not (isteğe bağlı)',
+      f_rank_sel:'Rütbe / derece seçin…', f_rank_other:'Diğer (elle yazın)',
+      f_rank_other_ph:'Rütbe / derecenizi yazın', f_nation_sel:'Ülke seçin…', f_sel:'Seçin…',
+      f_custom_h:'Etkinliğe özel bilgiler',
+      e_name:'Lütfen ad ve soyadınızı girin.', e_phone:'Lütfen telefon numaranızı girin.',
+      e_pass:'Lütfen pasaport numaranızı girin.', e_dob:'Geçerli bir doğum tarihi girin (GG.AA.YYYY).',
+      e_nation:'Lütfen ülkenizi seçin.', e_org:'Lütfen kurumunuzu girin.',
+      e_rank:'Lütfen rütbe / derecenizi seçin.', e_duty:'Lütfen görevinizi girin.',
+      e_role:'Lütfen katılım sıfatınızı seçin.', e_missing:'Lütfen şunları tamamlayın: %s'
+    },
+    en:{
+      brand_sub:'Event Registration', doc_title:'Register · Conventus',
+      ev_for:"You're registering for", ev_nodate:'Date to be confirmed',
+      ev_host:'Hosted by', ev_prog:'View programme →',
+      loading:'Loading…',
+      bad_link:'This registration link is invalid.', bad_link_d:'No event code was provided.',
+      err_title:'Something went wrong.',
+      closed:'Registration is closed.', closed_d:'The registration window for this event is not open.',
+      notopen:'Registration unavailable.', notopen_d:'This event is not open yet.',
+      notfound:'Registration unavailable.', notfound_d:'This event link is closed or does not exist.',
+      signout:'Sign out', signedin:'Signed in as',
+      st_type:'Registration type', st_tracks:'Portions', st_info:'Personal information',
+      st_consents:'Consents', st_review:'Review',
+      step_of:'Step %s of %s',
+      nav_prev:'Back', nav_next:'Next', nav_submit:'Submit registration', nav_sending:'Submitting…',
+      type_h:'In what capacity are you attending?',
+      type_hint:'Select the option that best matches the organisation you represent.',
+      type_other_ph:'Please specify',
+      type_need:'Please select a registration type.',
+      type_other_need:'Please describe your “Other” selection.',
+      tracks_h:'Portions you plan to attend',
+      tracks_hint:'You may select more than one.',
+      tracks_need:'Please select at least one portion.',
+      cons_h:'Consents',
+      cons_hint:'Read each statement and answer. Your answer is stored together with the version of the text it was given for.',
+      cons_yes:'Yes', cons_no:'No',
+      cons_required:'Registration cannot be approved without this consent.',
+      cons_need:'Please answer every consent.',
+      cons_blocked:'You answered “No” to a required consent — your registration cannot be approved as it stands. Change the answer to continue.',
+      rev_h:'Review your registration',
+      rev_hint:'Check the details. Use “Edit” next to a section to change it.',
+      rev_edit:'Edit',
+      rev_none:'—',
+      rev_submit_note:'Once submitted your registration goes <b>under review</b>. Submitting does not confirm your attendance.',
+      done_h:'Your registration is under review',
+      done_p:'We have your registration. <b>Your attendance is not confirmed until it is approved</b> — the organiser will review it and let you know by email.',
+      done_code:'Your confirmation number',
+      done_code_note:'Quote this number if you need anything changed.',
+      done_cal:'Add to calendar',
+      done_my:'My events →',
+      already_h:"You've already applied to this event",
+      already_p:'Your application is on file.',
+      partial:'Your registration was created (number: %s) but some details could not be saved. Please contact the organiser quoting this number.',
+      info_h:'Personal information', info_hint:'Fields marked with a star are required for accreditation.',
+      f_first:'First name', f_last:'Last name', f_email:'Email address', f_verified:'Verified',
+      f_phone:'Phone number', f_pass:'Passport number', f_dob:'Date of birth', f_nation:'Nation',
+      f_ns:'NS/NR email address', f_org:'Organization', f_rank:'Rank / grade', f_duty:'Duty / position',
+      f_role:'Attending as', f_note:'Note to organiser (optional)',
+      f_rank_sel:'Select rank / grade…', f_rank_other:'Other (specify manually)',
+      f_rank_other_ph:'Type your rank / grade', f_nation_sel:'Select nation…', f_sel:'Select…',
+      f_custom_h:'Event-specific details',
+      e_name:'Please enter your first and last name.', e_phone:'Please enter your phone number.',
+      e_pass:'Please enter your passport number.', e_dob:'Please enter a valid date of birth (DD.MM.YYYY).',
+      e_nation:'Please select your nation.', e_org:'Please enter your organization.',
+      e_rank:'Please select your rank / grade.', e_duty:'Please enter your duty / position.',
+      e_role:'Please select how you are attending.', e_missing:'Please complete: %s'
+    }
+  };
+  function LANG(){ try{ return (localStorage.getItem('cv-lang')||'en').toLowerCase()==='tr'?'tr':'en'; }catch(_){ return 'en'; } }
+  function T(k){ const d=I18N[LANG()]||I18N.en; return d[k]!=null?d[k]:(I18N.en[k]!=null?I18N.en[k]:k); }
+  function Tf(k,...v){ let out=String(T(k)); v.forEach(x=>{ out=out.replace('%s',x); }); return out; }
 
   const $ = id => document.getElementById(id);
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -99,24 +267,34 @@
   const ICON_CHECK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>';
 
   function evHeader(e){
-    const when=[e.start_date,e.end_date].filter(Boolean).join(' → ')||'Date to be confirmed';
+    const when=[e.start_date,e.end_date].filter(Boolean).join(' → ')||T('ev_nodate');
     $('evHead').innerHTML = `<div class="ev-head">
-      <div class="eyebrow">You're registering for</div>
+      <div class="eyebrow">${esc(T('ev_for'))}</div>
       <h1>${esc(e.title)}</h1>
-      <div class="meta">${esc(when)}${e.location?' · '+esc(e.location):''}${e.host_org?'<br>Hosted by '+esc(e.host_org):''}</div>
+      <div class="meta">${esc(when)}${e.location?' · '+esc(e.location):''}${e.host_org?'<br>'+esc(T('ev_host'))+' '+esc(e.host_org):''}</div>
       ${e.description?`<div class="desc">${esc(e.description)}</div>`:''}
-      <a class="prog-link" href="programme.html?e=${encodeURIComponent(e.code)}" target="_blank" rel="noopener">📋 View programme →</a>
+      <a class="prog-link" href="programme.html?e=${encodeURIComponent(e.code)}" target="_blank" rel="noopener">📋 ${esc(T('ev_prog'))}</a>
     </div>`;
   }
 
+  function applyPageLang(){
+    try{
+      document.title = T('doc_title');
+      const bs=$('brandSub'); if(bs) bs.textContent=T('brand_sub');
+      const bm=$('bootMsg');  if(bm) bm.textContent=T('loading');
+      document.documentElement.setAttribute('lang', LANG());
+    }catch(_){}
+  }
+
   async function init(){
-    if(!CODE){ return fail('This registration link is invalid.', 'No event code was provided.'); }
+    applyPageLang();
+    if(!CODE){ return fail(T('bad_link'), T('bad_link_d')); }
     // fetch event (public read allowed for open events)
     const { data:ev, error } = await _sb.from('conventus_managed_events').select('*').eq('code', CODE).maybeSingle();
-    if(error){ return fail('Something went wrong.', error.message); }
-    if(!ev){ return fail('Registration unavailable.', 'This event link is closed or does not exist.'); }
+    if(error){ return fail(T('err_title'), error.message); }
+    if(!ev){ return fail(T('notfound'), T('notfound_d')); }
     EVENT = ev; evHeader(ev);
-    if(ev.published===false){ return fail('Registration unavailable.', 'This event is not open yet.'); }
+    if(ev.published===false){ return fail(T('notopen'), T('notopen_d')); }
     if(!ev.registration_open){ return stdGate(ev); }
     route();
   }
@@ -144,13 +322,13 @@ function icsHref(ev){
   }
   async function route(){
     const { data:{ session } } = await _sb.auth.getSession();
-    if(session){ showWho(session.user); infoForm(session.user); }
+    if(session){ showWho(session.user); startWizard(session.user); }
     else { $('whoami').innerHTML=''; authPanel('register'); }
   }
 
   function showWho(user){
     const m=user.user_metadata||{}; const name=m.first_name||user.email.split('@')[0];
-    $('whoami').innerHTML = `${esc(name)} · <a id="signout">Sign out</a>`;
+    $('whoami').innerHTML = `${esc(name)} · <a id="signout">${esc(T('signout'))}</a>`;
     $('signout').onclick = async ()=>{ await _sb.auth.signOut(); location.reload(); };
   }
 
@@ -238,73 +416,77 @@ function icsHref(ev){
     "Civilian / Industry":["Civilian — Government","Civilian — Industry","Civilian — Academia","Civilian — Other"]
   };
   function optList(arr,sel){ return arr.map(function(o){ return '<option'+(o===sel?' selected':'')+'>'+esc(o)+'</option>'; }).join(''); }
-  function rankOptions(){
-    var h='<option value="">Select rank / grade…</option>';
-    for(var g in RANKS){ h+='<optgroup label="'+esc(g)+'">'+optList(RANKS[g])+'</optgroup>'; }
-    h+='<option value="__other__">Other (specify manually)</option>';
+  function rankOptions(sel){
+    var h='<option value="">'+esc(T('f_rank_sel'))+'</option>';
+    for(var g in RANKS){ h+='<optgroup label="'+esc(g)+'">'+optList(RANKS[g],sel)+'</optgroup>'; }
+    h+='<option value="__other__"'+(sel==='__other__'?' selected':'')+'>'+esc(T('f_rank_other'))+'</option>';
     return h;
   }
 
-  async function infoForm(user){
-    const m=user.user_metadata||{};
-    const fn=m.first_name||'', ln=m.last_name||'', email=user.email||'';
-    const hasName = !!(fn && ln);
-    // already applied?
-    const { data:existing } = await _sb.from('conventus_registrations')
-      .select('status').eq('event_id', EVENT.id).eq('user_id', user.id).maybeSingle();
-    if(existing){ return applied(existing.status); }
-
-    $('panel').innerHTML = `
-      <h2>Personal information</h2>
-      <div class="hint">Your registration enters review once submitted. Fields marked <span class="req">*</span> are required for accreditation.</div>
+  /* ---- ADIM: kisisel bilgiler -------------------------------------------
+     Eskiden tek sayfalik formun tamamiydi; artik sihirbazin bir adimi.
+     Alan gorunurlugu/zorunlulugu yine registration_field_defs'ten geliyor. */
+  function infoFormHtml(){
+    const m=(USER&&USER.user_metadata)||{};
+    const d=DRAFT.info||{};
+    const fn=d.first_name??m.first_name??'', ln=d.last_name??m.last_name??'';
+    const hasName = !!((m.first_name&&m.last_name) && !DRAFT.info);
+    const v=(x)=>esc(x==null?'':x);
+    return `
+      <h2>${esc(T('info_h'))}</h2>
+      <div class="hint">${esc(T('info_hint'))}</div>
       <div class="row2">
-        <div class="field"><label>First name <span class="req">*</span></label><input id="fnm" type="text" maxlength="80" value="${esc(fn)}" ${hasName?'readonly':''}></div>
-        <div class="field"><label>Last name <span class="req">*</span></label><input id="lnm" type="text" maxlength="80" value="${esc(ln)}" ${hasName?'readonly':''}></div>
+        <div class="field"><label>${esc(T('f_first'))} <span class="req">*</span></label><input id="fnm" type="text" maxlength="80" value="${v(fn)}" ${hasName?'readonly':''}></div>
+        <div class="field"><label>${esc(T('f_last'))} <span class="req">*</span></label><input id="lnm" type="text" maxlength="80" value="${v(ln)}" ${hasName?'readonly':''}></div>
       </div>
-      <div class="field"><label>Email address</label><input type="text" value="${esc(email)}" readonly>
-        <div class="verified">${ICON_CHECK.replace('width="24" height="24"','width="12" height="12"')} Verified</div></div>
+      <div class="field"><label>${esc(T('f_email'))}</label><input type="text" value="${v(EMAIL)}" readonly>
+        <div class="verified">${ICON_CHECK.replace('width="24" height="24"','width="12" height="12"')} ${esc(T('f_verified'))}</div></div>
       <div class="row2">
-        <div class="field"><label>Phone number <span class="req">*</span></label><input id="phn" type="tel" maxlength="40" placeholder="+90 5xx xxx xx xx"></div>
-        <div class="field"><label>Passport number <span class="req">*</span></label><input id="pss" type="text" maxlength="40" placeholder="e.g. A12345678"></div>
+        <div class="field"><label>${esc(T('f_phone'))} <span class="req">*</span></label><input id="phn" type="tel" maxlength="40" value="${v(d.phone)}" placeholder="+90 5xx xxx xx xx"></div>
+        <div class="field"><label>${esc(T('f_pass'))} <span class="req">*</span></label><input id="pss" type="text" maxlength="40" value="${v(d.passport_no)}" placeholder="A12345678"></div>
       </div>
       <div class="row2">
-        <div class="field"><label>Date of birth <span class="req">*</span></label><input id="dob" type="text" maxlength="10" inputmode="numeric" placeholder="DD.MM.YYYY"></div>
-        <div class="field"><label>Nation <span class="req">*</span></label>
-          <select id="cty"><option value="">Select nation…</option>${optList(NATIONS)}</select></div>
+        <div class="field"><label>${esc(T('f_dob'))} <span class="req">*</span></label><input id="dob" type="text" maxlength="10" inputmode="numeric" value="${v(d.dobRaw)}" placeholder="GG.AA.YYYY"></div>
+        <div class="field"><label>${esc(T('f_nation'))} <span class="req">*</span></label>
+          <select id="cty"><option value="">${esc(T('f_nation_sel'))}</option>${optList(NATIONS, d.country)}</select></div>
       </div>
-      <div class="field"><label>NS/NR email address</label><input id="nse" type="email" maxlength="120" placeholder="name@ns.nato.int"></div>
-      <div class="field"><label>Organization <span class="req">*</span></label><input id="inst" type="text" maxlength="140" placeholder="e.g. NATO LANDCOM"></div>
+      <div class="field"><label>${esc(T('f_ns'))}</label><input id="nse" type="email" maxlength="120" value="${v(d.ns_email)}" placeholder="name@ns.nato.int"></div>
+      <div class="field"><label>${esc(T('f_org'))} <span class="req">*</span></label><input id="inst" type="text" maxlength="140" value="${v(d.institution)}" placeholder="NATO LANDCOM"></div>
       <div class="row2">
-        <div class="field"><label>Rank / grade <span class="req">*</span></label>
-          <select id="rk">${rankOptions()}</select>
-          <input id="rkOther" type="text" maxlength="100" placeholder="Type your rank / grade" style="margin-top:9px;display:none"></div>
-        <div class="field"><label>Duty / position <span class="req">*</span></label><input id="duty" type="text" maxlength="120" placeholder="e.g. Branch Chief"></div>
+        <div class="field"><label>${esc(T('f_rank'))} <span class="req">*</span></label>
+          <select id="rk">${rankOptions(d.rank_sel)}</select>
+          <input id="rkOther" type="text" maxlength="100" value="${v(d.rank_other)}" placeholder="${esc(T('f_rank_other_ph'))}" style="margin-top:9px;display:none"></div>
+        <div class="field"><label>${esc(T('f_duty'))} <span class="req">*</span></label><input id="duty" type="text" maxlength="120" value="${v(d.duty)}"></div>
       </div>
-      <div class="field"><label>Attending as <span class="req">*</span></label>
+      <div class="field"><label>${esc(T('f_role'))} <span class="req">*</span></label>
         <select id="role">
-          <option value="">Select…</option>
-          <option>Delegate</option><option>Speaker</option><option>Observer</option>
-          <option>Media / Press</option><option>Support staff</option><option>Other</option>
+          <option value="">${esc(T('f_sel'))}</option>
+          ${optList(['Delegate','Speaker','Observer','Media / Press','Support staff','Other'], d.role)}
         </select></div>
-      <div class="field"><label>Note to organiser (optional)</label><textarea id="note" maxlength="400" placeholder="Anything the organiser should know."></textarea></div>
-      ${pafFieldsHtml()}
-      <button class="btn" id="doApply">Submit registration</button>
-      <div class="msg" id="applyMsg"></div>`;
+      <div class="field"><label>${esc(T('f_note'))}</label><textarea id="note" maxlength="400">${v(d.note)}</textarea></div>
+      ${pafFieldsHtml()}`;
+  }
 
-    // rank "Other" toggle
-    $('rk').onchange=function(){
-      const other=this.value==='__other__';
-      $('rkOther').style.display=other?'block':'none';
-      if(other) $('rkOther').focus();
-    };
-    // DD.MM.YYYY mask (native date input banned)
-    $('dob').oninput=function(){
-      let d=this.value.replace(/\D/g,'').slice(0,8), out=d.slice(0,2);
-      if(d.length>2) out+='.'+d.slice(2,4);
-      if(d.length>4) out+='.'+d.slice(4,8);
-      this.value=out;
-    };
-    $('doApply').onclick=()=>submitApplication(user, email);
+  function bindInfoForm(){
+    const rk=$('rk'); if(rk){
+      const tog=()=>{ const o=rk.value==='__other__'; $('rkOther').style.display=o?'block':'none'; };
+      rk.onchange=tog; tog();
+    }
+    const dob=$('dob'); if(dob){
+      dob.oninput=function(){
+        let d=this.value.replace(/\D/g,'').slice(0,8), out=d.slice(0,2);
+        if(d.length>2) out+='.'+d.slice(2,4);
+        if(d.length>4) out+='.'+d.slice(4,8);
+        this.value=out;
+      };
+    }
+    // kayitli ozel alan cevaplarini geri yaz
+    const a=(DRAFT.info&&DRAFT.info.answers)||{};
+    customDefs().forEach(def=>{
+      const el=document.getElementById('paf_'+def.key); if(!el) return;
+      if(a[def.key]==null) return;
+      if(el.type==='checkbox') el.checked=!!a[def.key]; else el.value=a[def.key];
+    });
     applyFieldConfig();
   }
 
@@ -364,70 +546,335 @@ function icsHref(ev){
     });
   }
 
-  async function submitApplication(user, email){
-    const err=(msg)=>{ const e=$('applyMsg'); e.className='msg err'; e.textContent=msg; };
-    const val=(id)=>{ const el=$(id); return el ? el.value.trim() : ''; };
+  /* ======================= SIHIRBAZ =======================================
+     Adimlar etkinlige gore kuruluyor: kayit tipi ve parkur tanimli degilse
+     o adim HIC cikmiyor. Cevaplar DRAFT'ta tutuluyor, gonderim tek yerde. */
+  let USER=null, EMAIL='';
+  let CFG={types:[],tracks:[],consents:[]};
+  let DRAFT={type:null,typeOther:'',tracks:[],info:null,consents:{}};
+  let STEPS=[], STEP=0, BUSY=false;
 
-    const fn=val('fnm'), ln=val('lnm');
-    let rank=val('rk'); if(rank==='__other__') rank=val('rkOther');
-    const phone=val('phn'), pss=val('pss'), dobRaw=val('dob'), nation=val('cty');
-    const org=val('inst'), duty=val('duty'), role=val('role'), nse=val('nse');
-
-    if((reqOf('first_name')&&!fn) || (reqOf('last_name')&&!ln)) return err('Please enter your first and last name.');
-    if(reqOf('phone') && !phone) return err('Please enter your phone number.');
-    if(reqOf('passport') && !pss) return err('Please enter your passport number.');
-    const dob=dobToISO(dobRaw);
-    if(reqOf('dob') && !dob) return err('Please enter a valid date of birth (DD.MM.YYYY).');
-    if(reqOf('nation') && !nation) return err('Please select your nation.');
-    if(reqOf('organisation') && !org) return err('Please enter your organization.');
-    if(reqOf('rank') && !rank) return err('Please select your rank / grade.');
-    if(reqOf('duty') && !duty) return err('Please enter your duty / position.');
-    if(reqOf('attending_as') && !role) return err('Please select how you are attending.');
-    const paf=pafCollect();
-    if(paf.missing.length) return err('Please complete: '+paf.missing.join(', '));
-
-    $('doApply').disabled=true; $('doApply').textContent='Submitting…';
-    const md=user.user_metadata||{};
-    if(fn && ln && (md.first_name!==fn || md.last_name!==ln)){
-      try{ await _sb.auth.updateUser({ data:{ first_name:fn, last_name:ln } }); }catch(_){}
+  async function loadCfg(){
+    const [t,k,c] = await Promise.all([
+      _sb.from('conventus_event_reg_types').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort'),
+      _sb.from('conventus_event_tracks').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort'),
+      _sb.from('conventus_event_consents').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort')
+    ]);
+    // Sessiz dusme yok: yapilandirma okunamazsa adim atlanir ama konsola yazilir.
+    if(t.error||k.error||c.error){
+      try{ console.error('[register] yapilandirma okunamadi',t.error||k.error||c.error); }catch(_){}
     }
-    const row={
-      event_id:EVENT.id, user_id:user.id, email,
-      first_name: shownOf('first_name')?(fn||null):null,
-      last_name:  shownOf('last_name') ?(ln||null):null,
-      phone:      shownOf('phone')     ?(phone||null):null,
-      passport_no:shownOf('passport')  ?(pss||null):null,
-      dob:        shownOf('dob')       ?dob:null,
-      ns_email:   shownOf('ns_email')  ?(nse||null):null,
-      institution:shownOf('organisation')?(org||null):null,
-      country:    shownOf('nation')    ?(nation||null):null,
-      rank_title: shownOf('rank')      ?(rank||null):null,
-      duty:       shownOf('duty')      ?(duty||null):null,
-      role:       shownOf('attending_as')?(role||null):null,
-      note:       shownOf('note')      ?(val('note')||null):null,
-      answers:paf.answers,
-      status:'submitted'
-    };
-    const { error } = await _sb.from('conventus_registrations').insert(row);
-    $('doApply').disabled=false; $('doApply').textContent='Submit registration';
-    if(error){
-      if(error.code==='23505') return applied('pending');
-      return err(error.message);
-    }
-    applied('submitted', true);
+    CFG={types:t.data||[],tracks:k.data||[],consents:c.data||[]};
   }
 
-  function applied(status, justNow){
-    const label = {pending:'Pending review', submitted:'Under review', under_review:'Under review',
-      waitlisted:'Waitlisted', approved:'Approved', rejected:'Not approved', checked_in:'Checked in'}[status] || status;
+  async function startWizard(user){
+    USER=user; EMAIL=user.email||'';
+    const { data:existing } = await _sb.from('conventus_registrations')
+      .select('status, confirmation_code').eq('event_id',EVENT.id).eq('user_id',user.id).maybeSingle();
+    if(existing) return alreadyApplied(existing);
+    await loadCfg();
+    STEPS=[];
+    if(CFG.types.length)    STEPS.push('type');
+    if(CFG.tracks.length)   STEPS.push('tracks');
+    STEPS.push('info');
+    if(CFG.consents.length) STEPS.push('consents');
+    STEPS.push('review');
+    STEP=0; render();
+  }
+
+  function stepTitle(k){ return T({type:'st_type',tracks:'st_tracks',info:'st_info',
+    consents:'st_consents',review:'st_review'}[k]||k); }
+
+  function render(){
+    const k=STEPS[STEP];
+    const pct=Math.round(((STEP+1)/STEPS.length)*100);
+    const body = k==='type'?stepTypeHtml():k==='tracks'?stepTracksHtml():
+                 k==='info'?infoFormHtml():k==='consents'?stepConsentsHtml():stepReviewHtml();
+    const last = k==='review';
+    $('panel').innerHTML = `
+      <div class="wz-top">
+        <div class="wz-bar"><i style="width:${pct}%"></i></div>
+        <div class="wz-step"><b>${esc(stepTitle(k))}</b><span>${esc(Tf('step_of',STEP+1,STEPS.length))}</span></div>
+      </div>
+      ${body}
+      <div class="msg" id="wzMsg"></div>
+      <div class="wz-nav">
+        ${STEP>0?`<button class="btn-ghost" id="wzPrev">${esc(T('nav_prev'))}</button>`:''}
+        <button class="btn" id="wzNext">${esc(last?T('nav_submit'):T('nav_next'))}</button>
+      </div>`;
+    if(k==='info') bindInfoForm();
+    if(k==='type') bindPickers('rt', true);
+    if(k==='tracks') bindPickers('tr', false);
+    if($('wzPrev')) $('wzPrev').onclick=()=>{ if(collectStep(true)!==false){ STEP--; render(); } };
+    $('wzNext').onclick=()=>{ if(collectStep()===false) return; if(last) return submitAll(); STEP++; render(); };
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function wzErr(msg){ const e=$('wzMsg'); e.className='msg err'; e.innerHTML=msg; e.scrollIntoView({block:'nearest'}); return false; }
+
+  /* soft=true: geri giderken dogrulama yapma, sadece yazileni sakla */
+  function collectStep(soft){
+    const k=STEPS[STEP];
+    if(k==='type')     return collectType(soft);
+    if(k==='tracks')   return collectTracks(soft);
+    if(k==='info')     return collectInfo(soft);
+    if(k==='consents') return collectConsents(soft);
+    return true;
+  }
+
+  // ---------- ADIM: kayit tipi ----------
+  function stepTypeHtml(){
+    /* <label> icine konan input tiklamada olayi IKI KEZ tetikliyor (label + input)
+       ve secim aninda geri kapaniyordu. Bu yuzden kutular div, input'lar
+       pointer-events:none; erisilebilirlik icin role/aria-checked ve klavye var. */
+    const list = CFG.types.map(t=>{
+      const on=DRAFT.type===t.key;
+      return `<div class="pick${on?' on':''}" data-pick="rt" data-key="${esc(t.key)}"
+                   role="radio" aria-checked="${on?'true':'false'}" tabindex="0">
+        <span class="t"><input type="radio" tabindex="-1" ${on?'checked':''}> ${esc(t.label)}</span>
+        ${t.note?`<span class="n">${esc(t.note)}</span>`:''}
+      </div>`;
+    }).join('');
+    const sel=CFG.types.find(x=>x.key===DRAFT.type);
+    const other = (sel&&sel.allow_other)
+      ? `<div class="field" style="margin-top:.2rem"><label>${esc(sel.label)} — ${esc(T('type_other_ph'))} <span class="req">*</span></label>
+           <input id="rtOther" type="text" maxlength="120" value="${esc(DRAFT.typeOther||'')}"></div>`
+      : '';
+    return `<h2>${esc(T('type_h'))}</h2><div class="hint">${esc(T('type_hint'))}</div>
+            <div role="radiogroup">${list}</div>${other}`;
+  }
+
+  function collectType(soft){
+    const other=$('rtOther'); if(other) DRAFT.typeOther=other.value.trim();
+    if(soft) return true;
+    if(!DRAFT.type) return wzErr(esc(T('type_need')));
+    const t=CFG.types.find(x=>x.key===DRAFT.type);
+    if(t && t.allow_other && !DRAFT.typeOther) return wzErr(esc(T('type_other_need')));
+    return true;
+  }
+
+  // ---------- ADIM: parkurlar ----------
+  function fmtRange(a,b){
+    const f=(x)=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(x||'')); return m?m[3]+'.'+m[2]+'.'+m[1]:'';};
+    const A=f(a), B=f(b);
+    return (A&&B&&A!==B)?A+' – '+B:(A||B||'');
+  }
+  function stepTracksHtml(){
+    return `<h2>${esc(T('tracks_h'))}</h2><div class="hint">${esc(T('tracks_hint'))}</div>` +
+      CFG.tracks.map(t=>{
+        const on=DRAFT.tracks.indexOf(t.key)>=0;
+        const when=[fmtRange(t.starts_on,t.ends_on),[t.time_from,t.time_to].filter(Boolean).join('–')].filter(Boolean).join(' · ');
+        return `<div class="pick${on?' on':''}" data-pick="tr" data-key="${esc(t.key)}"
+                     role="checkbox" aria-checked="${on?'true':'false'}" tabindex="0">
+          <span class="t"><input type="checkbox" tabindex="-1" ${on?'checked':''}> ${esc(t.title)}</span>
+          ${when?`<span class="when">${esc(when)}</span>`:''}
+          ${t.description?`<span class="n">${esc(t.description)}</span>`:''}
+          ${t.external_note?`<span class="ext">${esc(t.external_note)}</span>`:''}
+        </div>`;
+      }).join('');
+  }
+  function collectTracks(soft){
+    if(soft) return true;
+    if(!DRAFT.tracks.length) return wzErr(esc(T('tracks_need')));
+    return true;
+  }
+  function bindPickers(kind, single){
+    const pick=(el)=>{
+      const key=el.getAttribute('data-key');
+      if(single){ DRAFT.type=key; }
+      else { const i=DRAFT.tracks.indexOf(key); if(i>=0) DRAFT.tracks.splice(i,1); else DRAFT.tracks.push(key); }
+      const other=$('rtOther'); if(other) DRAFT.typeOther=other.value.trim();
+      render();
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-pick="'+kind+'"]'), el=>{
+      el.addEventListener('click', ()=>pick(el));
+      el.addEventListener('keydown', ev=>{
+        if(ev.key===' '||ev.key==='Enter'){ ev.preventDefault(); pick(el); }
+      });
+    });
+  }
+
+  // ---------- ADIM: onaylar ----------
+  function stepConsentsHtml(){
+    return `<h2>${esc(T('cons_h'))}</h2><div class="hint">${esc(T('cons_hint'))}</div>` +
+      CFG.consents.map(c=>{
+        const v=DRAFT.consents[c.key];
+        return `<div class="cons">
+          <p>${esc(c.body)}</p>
+          <div class="yn">
+            <label><input type="radio" name="c_${esc(c.key)}" value="yes" ${v===true?'checked':''}> ${esc(T('cons_yes'))}</label>
+            <label><input type="radio" name="c_${esc(c.key)}" value="no"  ${v===false?'checked':''}> ${esc(T('cons_no'))}</label>
+          </div>
+          ${c.is_required?`<div class="warn">${esc(T('cons_required'))}</div>`:''}
+        </div>`;
+      }).join('');
+  }
+  function collectConsents(soft){
+    CFG.consents.forEach(c=>{
+      const el=document.querySelector('input[name="c_'+c.key+'"]:checked');
+      if(el) DRAFT.consents[c.key] = el.value==='yes';
+    });
+    if(soft) return true;
+    const unanswered=CFG.consents.some(c=>DRAFT.consents[c.key]==null);
+    if(unanswered) return wzErr(esc(T('cons_need')));
+    const blocked=CFG.consents.some(c=>c.is_required && DRAFT.consents[c.key]===false);
+    if(blocked) return wzErr(esc(T('cons_blocked')));
+    return true;
+  }
+
+  // ---------- ADIM: ozet ----------
+  function revRow(k,v){ return `<dt>${esc(k)}</dt><dd>${v?esc(v):esc(T('rev_none'))}</dd>`; }
+  function stepReviewHtml(){
+    const d=DRAFT.info||{};
+    const idx=(k)=>STEPS.indexOf(k);
+    const sect=(key,title,rows)=>`<div class="rev">
+        <div class="h"><b>${esc(title)}</b><a data-goto="${idx(key)}">${esc(T('rev_edit'))}</a></div>
+        <dl>${rows}</dl></div>`;
+    let out='';
+    if(CFG.types.length){
+      const t=CFG.types.find(x=>x.key===DRAFT.type);
+      out+=sect('type',T('st_type'),revRow(T('st_type'),(t?t.label:'')+(DRAFT.typeOther?' — '+DRAFT.typeOther:'')));
+    }
+    if(CFG.tracks.length){
+      const names=DRAFT.tracks.map(k=>{const t=CFG.tracks.find(x=>x.key===k);return t?t.title:k;});
+      out+=sect('tracks',T('st_tracks'),revRow(T('st_tracks'),names.join(', ')));
+    }
+    out+=sect('info',T('st_info'),
+      revRow(T('f_first'),d.first_name)+revRow(T('f_last'),d.last_name)+
+      revRow(T('f_email'),EMAIL)+
+      (shownOf('phone')?revRow(T('f_phone'),d.phone):'')+
+      (shownOf('passport')?revRow(T('f_pass'),d.passport_no?String(d.passport_no).replace(/./g,'*'):''):'')+
+      (shownOf('dob')?revRow(T('f_dob'),d.dobRaw):'')+
+      (shownOf('nation')?revRow(T('f_nation'),d.country):'')+
+      (shownOf('organisation')?revRow(T('f_org'),d.institution):'')+
+      (shownOf('rank')?revRow(T('f_rank'),d.rank_title):'')+
+      (shownOf('duty')?revRow(T('f_duty'),d.duty):'')+
+      (shownOf('attending_as')?revRow(T('f_role'),d.role):''));
+    if(CFG.consents.length){
+      out+=sect('consents',T('st_consents'),
+        CFG.consents.map(c=>revRow(c.body, DRAFT.consents[c.key]?T('cons_yes'):T('cons_no'))).join(''));
+    }
+    out+=`<div class="hint" style="margin:.2rem 0 0">${T('rev_submit_note')}</div>`;
+    setTimeout(()=>{
+      Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), a=>{
+        a.onclick=()=>{ STEP=parseInt(a.getAttribute('data-goto'),10); render(); };
+      });
+    },0);
+    return `<h2>${esc(T('rev_h'))}</h2><div class="hint">${esc(T('rev_hint'))}</div>`+out;
+  }
+
+  // ---------- kisisel bilgi toplama ----------
+  function collectInfo(soft){
+    const val=(id)=>{ const el=$(id); return el ? el.value.trim() : ''; };
+    let rank_sel=val('rk'); const rank_other=val('rkOther');
+    const rank = rank_sel==='__other__' ? rank_other : rank_sel;
+    const dobRaw=val('dob');
+    const paf=pafCollect();
+    const d={
+      first_name:val('fnm'), last_name:val('lnm'),
+      phone:val('phn'), passport_no:val('pss'), dobRaw:dobRaw, dob:dobToISO(dobRaw),
+      country:val('cty'), ns_email:val('nse'), institution:val('inst'),
+      rank_sel:rank_sel, rank_other:rank_other, rank_title:rank,
+      duty:val('duty'), role:val('role'), note:val('note'), answers:paf.answers
+    };
+    DRAFT.info=d;
+    if(soft) return true;
+    if((reqOf('first_name')&&!d.first_name) || (reqOf('last_name')&&!d.last_name)) return wzErr(esc(T('e_name')));
+    if(reqOf('phone') && !d.phone) return wzErr(esc(T('e_phone')));
+    if(reqOf('passport') && !d.passport_no) return wzErr(esc(T('e_pass')));
+    if(reqOf('dob') && !d.dob) return wzErr(esc(T('e_dob')));
+    if(reqOf('nation') && !d.country) return wzErr(esc(T('e_nation')));
+    if(reqOf('organisation') && !d.institution) return wzErr(esc(T('e_org')));
+    if(reqOf('rank') && !d.rank_title) return wzErr(esc(T('e_rank')));
+    if(reqOf('duty') && !d.duty) return wzErr(esc(T('e_duty')));
+    if(reqOf('attending_as') && !d.role) return wzErr(esc(T('e_role')));
+    if(paf.missing.length) return wzErr(esc(Tf('e_missing',paf.missing.join(', '))));
+    return true;
+  }
+
+  // ---------- gonderim ----------
+  async function submitAll(){
+    if(BUSY) return; BUSY=true;
+    const btn=$('wzNext'); btn.disabled=true; btn.textContent=T('nav_sending');
+    const d=DRAFT.info||{};
+    const md=USER.user_metadata||{};
+    if(d.first_name && d.last_name && (md.first_name!==d.first_name || md.last_name!==d.last_name)){
+      try{ await _sb.auth.updateUser({ data:{ first_name:d.first_name, last_name:d.last_name } }); }catch(_){}
+    }
+    const row={
+      event_id:EVENT.id, user_id:USER.id, email:EMAIL,
+      first_name: shownOf('first_name')?(d.first_name||null):null,
+      last_name:  shownOf('last_name') ?(d.last_name||null):null,
+      phone:      shownOf('phone')     ?(d.phone||null):null,
+      passport_no:shownOf('passport')  ?(d.passport_no||null):null,
+      dob:        shownOf('dob')       ?d.dob:null,
+      ns_email:   shownOf('ns_email')  ?(d.ns_email||null):null,
+      institution:shownOf('organisation')?(d.institution||null):null,
+      country:    shownOf('nation')    ?(d.country||null):null,
+      rank_title: shownOf('rank')      ?(d.rank_title||null):null,
+      duty:       shownOf('duty')      ?(d.duty||null):null,
+      role:       shownOf('attending_as')?(d.role||null):null,
+      note:       shownOf('note')      ?(d.note||null):null,
+      reg_type:DRAFT.type||null, reg_type_other:DRAFT.typeOther||null,
+      answers:d.answers||{}, status:'submitted'
+    };
+    const ins = await _sb.from('conventus_registrations').insert(row)
+      .select('id, confirmation_code, status').single();
+    if(ins.error){
+      BUSY=false; btn.disabled=false; btn.textContent=T('nav_submit');
+      if(ins.error.code==='23505') return alreadyApplied({status:'submitted'});
+      return wzErr(esc(ins.error.message));
+    }
+    const reg=ins.data;
+
+    /* Kayit acildi. Parkur/onay yazimi patlarsa SESSIZ GECMIYORUZ: kullaniciya
+       numarasini veriyoruz ve organizatore yazmasini soyluyoruz — yoksa eksik
+       kayitla yola devam eder. */
+    let partial=false;
+    if(DRAFT.tracks.length){
+      const ids=CFG.tracks.filter(t=>DRAFT.tracks.indexOf(t.key)>=0).map(t=>({registration_id:reg.id,track_id:t.id}));
+      const r=await _sb.from('conventus_registration_tracks').insert(ids);
+      if(r.error){ partial=true; try{ console.error('[register] parkur yazilamadi',r.error); }catch(_){} }
+    }
+    if(CFG.consents.length){
+      const rows=CFG.consents.map(c=>({registration_id:reg.id, consent_key:c.key,
+        consent_version:c.version, answer:!!DRAFT.consents[c.key]}));
+      const r=await _sb.from('conventus_registration_consents').insert(rows);
+      if(r.error){ partial=true; try{ console.error('[register] onay yazilamadi',r.error); }catch(_){} }
+    }
+    BUSY=false;
+    doneScreen(reg.confirmation_code, partial);
+  }
+
+  function doneScreen(code, partial){
+    const ics=icsHref(EVENT);
     $('panel').innerHTML = `<div class="state">
       <div class="ic">${ICON_CHECK}</div>
-      <h2>${justNow?'Application submitted':"You've already applied"}</h2>
-      <p>${justNow?'Thanks — the organiser will review your application.':'Your application for this event is on file.'}</p>
+      <h2>${esc(T('done_h'))}</h2>
+      <p>${T('done_p')}</p>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:1.1rem">${esc(T('done_code'))}</div>
+      <div class="code">${esc(code||'—')}</div>
+      <p style="font-size:.74rem">${esc(T('done_code_note'))}</p>
+      ${partial?`<div class="msg err" style="display:block;text-align:left;margin-top:1rem">${esc(Tf('partial',code||''))}</div>`:''}
+      <div style="margin-top:1.3rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+        ${ics?`<a class="prog-link" href="${ics}" download="${esc(EVENT.code||'event')}.ics">${esc(T('done_cal'))}</a>`:''}
+        <a class="prog-link" href="my-events.html">${esc(T('done_my'))}</a>
+      </div>
+    </div>`;
+  }
+
+  function alreadyApplied(reg){
+    const status=reg.status||'submitted';
+    const label={pending:'pending',submitted:'submitted',under_review:'under_review',
+      waitlisted:'waitlisted',approved:'approved',rejected:'rejected',checked_in:'checked_in'}[status]||status;
+    $('panel').innerHTML = `<div class="state">
+      <div class="ic">${ICON_CHECK}</div>
+      <h2>${esc(T('already_h'))}</h2>
+      <p>${esc(T('already_p'))}</p>
+      ${reg.confirmation_code?`<div class="code">${esc(reg.confirmation_code)}</div>`:''}
       <div class="status-pill">${esc(label)}</div>
       <div style="margin-top:1.3rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
-        <a class="prog-link" href="my-events.html">My Events →</a>
-        <a class="prog-link" href="go-and-test.html">Browse more events</a>
+        <a class="prog-link" href="my-events.html">${esc(T('done_my'))}</a>
       </div>
     </div>`;
   }
