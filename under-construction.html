@@ -223,6 +223,14 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 }
 .foot-mail:hover{color:var(--brand-blue); border-bottom-color:var(--brand-blue)}
 .foot-mail svg{opacity:.7; flex:none}
+.foot-signin{
+  display:inline-block; margin-top:14px;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); border-bottom:1px solid var(--line-2);
+  padding-bottom:2px; transition:color .15s, border-color .15s;
+}
+.foot-signin:hover{color:var(--brand-blue); border-bottom-color:var(--brand-blue)}
 .foot-meta{
   display:flex; align-items:center; justify-content:center; gap:12px;
   flex-wrap:wrap; text-align:center;
@@ -351,10 +359,11 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
         </svg>
         info@conventity.com
       </a>
+      <div><a class="foot-signin" href="/login.html" data-i="ftSignin">Kayıtlı üye girişi →</a></div>
     </div>
     <div class="foot-meta">
       <span class="foot-copy" data-i="ftCopy">© 2026 Conventity. Lupoco A.Ş. tarafından geliştirilir ve işletilir. Tüm hakları saklıdır.</span>
-      <span class="ver">v0.7</span>
+      <span class="ver">v0.8</span>
     </div>
   </div>
 </footer>
@@ -383,7 +392,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          mDup:'Bu e-posta için zaten açık bir talep var — sırada, döneceğiz.',
          mNeed:'Ad ve geçerli bir e-posta gerekli.',
          mErr:'Gönderilemedi. Tekrar dener misin? Sorun sürerse:',
-         ftContact:'İLETİŞİM',
+         ftContact:'İLETİŞİM', ftSignin:'Kayıtlı üye girişi →',
          ftCopy:'© 2026 Conventity. Lupoco A.Ş. tarafından geliştirilir ve işletilir. Tüm hakları saklıdır.',
          docTitle:'Conventity — Yakında' },
     en:{ eyebrow:'CLOSED PREVIEW · ACTIVELY BUILDING',
@@ -400,7 +409,7 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          mDup:'There is already an open request for this address — you are in the queue.',
          mNeed:'A name and a valid email are required.',
          mErr:'Could not send. Please try again. If it keeps failing:',
-         ftContact:'CONTACT US',
+         ftContact:'CONTACT US', ftSignin:'Member sign in →',
          ftCopy:'© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.',
          docTitle:'Conventity — Coming soon' }
   };

@@ -254,6 +254,7 @@
     'lg.btn_wait':   { tr: 'Giriş yapılıyor…',     en: 'Signing in…' },
     'lg.err_empty':  { tr: 'Lütfen e-posta/kullanıcı adı ve parolanı gir.', en: 'Please enter your email/username and password.' },
     'lg.err_nouser': { tr: 'Kullanıcı adı bulunamadı.', en: 'Username not found.' },
+    'rg.verify_box3': { tr: 'Conventity kapalı test aşamasında: e-postanı doğruladıktan sonra erişimini bir ekosistem yöneticisi onaylar. Açıldığında sana yazacağız.', en: 'Conventity is in closed preview: after you confirm your email, an ecosystem administrator approves your access. We will write to you once it is open.' },
     'lg.err_notmember': { tr: 'Üyeliğiniz henüz aktif değil. Conventity şu an yalnızca onaylı üyelere açık. Erişim için ekosistem yöneticisiyle iletişime geçin.', en: 'Your membership is not active yet. Conventity is currently open to approved members only. Contact the ecosystem administrator for access.' },
 
     /* ---- forgot-password ---- */
