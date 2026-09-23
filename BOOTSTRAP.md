@@ -227,6 +227,37 @@ ve `05`'i de tekrar çalıştır (02 yetkileri geri açıyor). Geri alma:
 komutları doğrudan açmadığı için pratik erişim yolu görünmüyor; yine de
 gereksiz. View'lerde `authenticated`'ın yazma yetkisi `05` ile kaldırıldı.
 
+## LANDCOM Konferansı 2026 — ilk dikey dilim
+
+Kurulum: **`sql/08_landcom_conference.sql`** → LANDCOM topluluğu + konferans +
+omurga bağı (`conventity_activities`) + sahibe `community/owner` rolü.
+Tekrar çalıştırılabilir; mevcut kaydı **ezmez** (arayüzden düzenlediğini bozmaz).
+
+Yeni kod yazılmadı — Conventus etkinlik makinesi `.org`'dan taşındı ve
+çağırdığı her şey şemada var. Şema iki katılım yolunu zaten destekliyor:
+
+| Yol | Nasıl | Politika |
+|---|---|---|
+| **Başvuru** | aday kendi kaydını açar, organizatör onaylar | `reg_self_insert_open` (yalnız `registration_open=true` iken) |
+| **Davet** | organizatör `event-manage` → "adına kayıt" (tekli/toplu) | `reg_manager_insert` (`registered_by = auth.uid()`) |
+
+Etkinlik ayarı: `visibility='public'` · `invite_only=false` ·
+`requires_approval=true` · `waitlist_enabled=true` · kontenjan 150.
+
+Duman testi `scripts/smoke-landcom-conference.sql` — 8 senaryo, tekrar
+çalıştırılabilir: aday başvurur · yalnız kendi kaydını görür · ilgisiz
+kullanıcı hiçbir şey görmez · yabancı onaylayamaz · organizatör görür ve
+onaylar · davet yoluyla adına kayıt açılır · kayıt kapanınca başvuru
+reddedilir · omurga bağı duruyor.
+
+> **Bilinmesi gereken davranış:** `conventus_managed_events` üzerinde
+> `cme_visibility_gate` RESTRICTIVE, permissive tarafta ise dışarıya açık tek
+> politika `events: public read open` ve o `registration_open=true` istiyor.
+> Yani **kayıt kapandığı anda etkinlik ilgisiz kullanıcılara tamamen görünmez
+> oluyor** — sadece başvuru kapanmıyor, ajanda/duyuru sayfası da kayboluyor.
+> `.org`'dan gelen davranış; konferans için muhtemelen istenmeyen bir şey.
+> Değiştirmek ayrı bir iş (yeni bir permissive SELECT politikası yeter).
+
 ## SQL sırası — CANLIDA TAMAM (2026-09-23)
 
 `conventity-prod` (`tstlireeidnpchadgjly`) üzerinde çalıştırıldı ve doğrulandı:
