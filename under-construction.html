@@ -36,7 +36,10 @@ html[data-theme="dark"]{
   --logo-outer:#E8ECF5; --logo-inner:#5BC0FF;
 }
 
-html,body{height:100%}
+/* body sabit 100% yuksekligindeyken .hero{flex:1; overflow:hidden} icerigi
+   kirpiyordu: dar ekranda "Erisim iste" dugmesi gorunmuyordu. Sabit
+   yukseklik yerine min-height — sayfa icerik kadar uzayip kayabiliyor. */
+html{min-height:100%}
 body{
   background:var(--bg); color:var(--ink);
   font-family:'Manrope',system-ui,-apple-system,sans-serif;
@@ -203,11 +206,29 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
 #globeCanvas{width:100%; height:100%; display:block}
 
 .foot{
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--muted); text-align:center; padding:14px;
+  color:var(--muted); padding:26px 22px 20px;
   border-top:1px solid var(--line); position:relative; z-index:2;
 }
+.foot-inner{max-width:1180px; margin:0 auto; display:grid; gap:18px; justify-items:center}
+.foot-label{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--brand-gold); margin-bottom:8px;
+}
+.foot-contact{text-align:center}
+.foot-mail{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:14px; color:var(--ink-2); text-decoration:none;
+  border-bottom:1px solid transparent; transition:color .15s, border-color .15s;
+}
+.foot-mail:hover{color:var(--brand-blue); border-bottom-color:var(--brand-blue)}
+.foot-mail svg{opacity:.7; flex:none}
+.foot-meta{
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  flex-wrap:wrap; text-align:center;
+  border-top:1px solid var(--line); padding-top:16px; width:100%;
+}
+.foot-copy{font-size:12px; color:var(--muted); line-height:1.6}
 .ver{
   font-family:'JetBrains Mono',ui-monospace,monospace;
   font-size:9.5px; font-weight:700; letter-spacing:.1em;
@@ -319,7 +340,24 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
   </div>
 </section>
 
-<div class="foot"><span class="ver">v0.6</span></div>
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="foot-contact">
+      <div class="foot-label" data-i="ftContact">İLETİŞİM</div>
+      <a class="foot-mail" href="mailto:info@conventity.com">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6.5 9 6.5 9-6.5"/>
+        </svg>
+        info@conventity.com
+      </a>
+    </div>
+    <div class="foot-meta">
+      <span class="foot-copy" data-i="ftCopy">© 2026 Conventity. Lupoco A.Ş. tarafından geliştirilir ve işletilir. Tüm hakları saklıdır.</span>
+      <span class="ver">v0.7</span>
+    </div>
+  </div>
+</footer>
 
 <script>
 (function(){
@@ -345,6 +383,8 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          mDup:'Bu e-posta için zaten açık bir talep var — sırada, döneceğiz.',
          mNeed:'Ad ve geçerli bir e-posta gerekli.',
          mErr:'Gönderilemedi. Tekrar dener misin? Sorun sürerse:',
+         ftContact:'İLETİŞİM',
+         ftCopy:'© 2026 Conventity. Lupoco A.Ş. tarafından geliştirilir ve işletilir. Tüm hakları saklıdır.',
          docTitle:'Conventity — Yakında' },
     en:{ eyebrow:'CLOSED PREVIEW · ACTIVELY BUILDING',
          title:'Back with you soon.',
@@ -360,6 +400,8 @@ html[data-theme="dark"] .btn-primary{background:var(--brand-blue)}
          mDup:'There is already an open request for this address — you are in the queue.',
          mNeed:'A name and a valid email are required.',
          mErr:'Could not send. Please try again. If it keeps failing:',
+         ftContact:'CONTACT US',
+         ftCopy:'© 2026 Conventity. Developed and operated by Lupoco A.Ş. All rights reserved.',
          docTitle:'Conventity — Coming soon' }
   };
 
