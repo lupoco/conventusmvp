@@ -132,17 +132,31 @@ alter default privileges in schema public grant execute on functions to authenti
 alter default privileges for role postgres in schema public grant execute on functions to authenticated, service_role;
 
 -- ---- 3) DOĞRULAMA -----------------------------------------------------------
-select 'anon EXECUTE yetkisi olan public fonksiyon (0 olmali)' as rapor,
-       count(*)::text as adet
-from pg_proc p
-join pg_namespace n on n.oid = p.pronamespace
-where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'EXECUTE')
-  and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e');
-
-select 'authenticated EXECUTE (degismemeli)' as rapor, count(*)::text as adet
-from pg_proc p
-join pg_namespace n on n.oid = p.pronamespace
-where n.nspname = 'public'
-  and has_function_privilege('authenticated', p.oid, 'EXECUTE')
-  and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e');
+-- TEK sorgu: Supabase SQL Editor yalnız son ifadenin sonucunu gösteriyor,
+-- ayrı SELECT'ler yazınca üsttekiler kayboluyor.
+-- Eklenti fonksiyonları (pgcrypto vb.) sayılmaz.
+with f as (
+  select p.oid
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
+),
+pol as (   -- politika ifadelerinde adı geçen, yani anon'da KALMASI gereken fonksiyonlar
+  select distinct p.oid
+  from f join pg_proc p on p.oid = f.oid
+  where exists (
+    select 1 from pg_policies pl,
+         lateral regexp_matches(coalesce(pl.qual,'') || ' ' || coalesce(pl.with_check,''),
+                                '([a-z_][a-z0-9_]*)\(', 'g') m
+    where pl.schemaname = 'public' and m[1] = p.proname)
+)
+select
+  (select count(*) from f)                                                        as "public fonksiyon",
+  (select count(*) from f where has_function_privilege('anon', f.oid, 'EXECUTE')) as "anon cagirabilir",
+  (select count(*) from pol)                                                      as "politika bekcisi (beklenen)",
+  (select count(*) from f
+    where has_function_privilege('anon', f.oid, 'EXECUTE')
+      and f.oid not in (select oid from pol))                                     as "ACIKTA KALAN (0 olmali)",
+  (select count(*) from f where has_function_privilege('authenticated', f.oid, 'EXECUTE'))
+                                                                                  as "authenticated (degismemeli)";
