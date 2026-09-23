@@ -607,6 +607,16 @@ var I18N = {
   ad_detail:'Denetim kaydı', ad_f_all:'Tümü', ad_none_actor:'(sistem / bilinmiyor)',
   ad_ro:'Denetim kayıtları append-only’dir — düzenlenmez, silinmez.',
   act_insert:'ekleme', act_update:'güncelleme', act_delete:'silme'
+  ,tab_pending:'Bekleyen kayıtlar', eb_pending:'kayıt · conventity_pending_members()',
+  info_pending:'Siteye kayıt olmuş ama <b>henüz erişimi olmayan</b> hesaplar. Kapalı testte kayıt tek başına kapı açmaz: rolü ya da kişi kaydı olmayan hesabı <code>conventity_is_member()</code> içeri almaz. Onayladığında kişi + rol kaydı açılır ve kişi hemen girebilir. Liste <code>auth.users</code>\'tan gelir ve yalnız ekosistem yöneticisine açıktır.',
+  ent_pending:'kayıt',
+  pm_when:'Kayıt', pm_name:'Ad', pm_email:'E-posta', pm_org:'Kurum', pm_confirmed:'E-posta',
+  pm_country:'Ülke', pm_account:'Hesap tipi', pm_last:'Son giriş',
+  pm_conf_yes:'doğrulandı', pm_conf_no:'doğrulanmadı',
+  pm_none:'Bekleyen kayıt yok.', pm_detail:'Bekleyen kayıt',
+  pm_role:'Verilecek rol', pm_scope:'Kapsam', pm_approve:'Onayla',
+  pm_hint:'Onaylayınca kişi kaydı açılır ve seçtiğin rol verilir. Kişi bir sonraki girişinde içeri alınır.',
+  pm_ok:'Onaylandı — kişi artık girebilir.', pm_already:'Bu rol zaten verilmiş.'
   ,tab_access:'Erişim talepleri', eb_access:'gelen · conventity_access_requests',
   info_access:'"Yakında" sayfasındaki formdan gelen erişim talepleri. Form site parolasının <b>önünde</b> çalışır — talebi bırakan henüz siteye giremiyor. Yalnız ekosistem yöneticisi okur; durum ve not yalnız buradan değişir.',
   ent_access:'talep',
@@ -772,6 +782,16 @@ var I18N = {
   ad_detail:'Audit record', ad_f_all:'All', ad_none_actor:'(system / unknown)',
   ad_ro:'Audit records are append-only — never edited or deleted.',
   act_insert:'insert', act_update:'update', act_delete:'delete'
+  ,tab_pending:'Pending signups', eb_pending:'signup · conventity_pending_members()',
+  info_pending:'Accounts that signed up but <b>do not have access yet</b>. In closed preview a signup alone opens nothing: <code>conventity_is_member()</code> turns away any account without a role or a person record. Approving creates the person + role record and the person can sign in right away. The list comes from <code>auth.users</code> and is visible to ecosystem admins only.',
+  ent_pending:'signup',
+  pm_when:'Signed up', pm_name:'Name', pm_email:'Email', pm_org:'Organisation', pm_confirmed:'Email',
+  pm_country:'Country', pm_account:'Account type', pm_last:'Last sign in',
+  pm_conf_yes:'confirmed', pm_conf_no:'unconfirmed',
+  pm_none:'No pending signups.', pm_detail:'Pending signup',
+  pm_role:'Role to grant', pm_scope:'Scope', pm_approve:'Approve',
+  pm_hint:'Approving creates the person record and grants the selected role. The person is let in on their next sign in.',
+  pm_ok:'Approved — they can sign in now.', pm_already:'That role is already granted.'
   ,tab_access:'Access requests', eb_access:'inbound · conventity_access_requests',
   info_access:'Access requests from the form on the "coming soon" page. The form runs <b>in front of</b> the site password — whoever submits it cannot reach the site yet. Read by ecosystem admins only; status and notes change here and nowhere else.',
   ent_access:'request',
@@ -839,6 +859,7 @@ var TABS = [
   {k:'overview',   accent:'var(--gold)', ic:'▤'},
   {k:'ecomap',     accent:'#06488A', ic:'◍'},
   {k:'access',     accent:'#B8892B', ic:'✉', tbl:'conventity_access_requests'},
+  {k:'pending',    accent:'#1F9E50', neu:true, ic:'◷'},
   {k:'orgs',       accent:'#5B5BD6', ic:'◭', tbl:'conventity_orgs'},
   {k:'import',     accent:'#06488A', ic:'▽'},
   {k:'problems',   accent:'#004990', ic:'◇', tbl:'conventity_problems'},
@@ -857,7 +878,7 @@ var TABS = [
 ];
 // sekmelerin sol menü grupları (çekirdek döngü sırasına göre)
 var NAVGROUPS=[
-  {h:'navg_general',   keys:['overview','ecomap','access']},
+  {h:'navg_general',   keys:['overview','ecomap','access','pending']},
   {h:'navg_loop',      keys:['problems','matching','activities','evidence']},
   {h:'navg_ecosystem', keys:['orgs','people','solutions','capabilities','communities']},
   {h:'navg_gov',       keys:['roles','users','audit','signins']},
@@ -1581,6 +1602,77 @@ PANELS.access = async function(p){
   $('#arFilter').addEventListener('change',load);
   await load();
 };    /* __PANEL_access__ */
+
+/* Bekleyen kayıtlar — auth.users istemciye kapalı, bu yüzden liste ve onay
+   iki SECURITY DEFINER RPC üzerinden geliyor (sql/06_pending_members.sql).
+   Yetki kontrolü fonksiyonun içinde; burada tekrar etmiyoruz, admin olmayan
+   zaten 42501 alıyor. */
+PANELS.pending = async function(p){
+  var ROLES =['member','organizer','vendor','event_manager','admin'];
+  var SCOPES=['ecosystem','conventus','convexus','conventlab','connectus','consultus','convergens'];
+  function fmtWhen(ts){if(!ts)return '';var s=''+ts;var d=s.slice(0,10),t=s.slice(11,16);
+    var m=d.match(/^(\d{4})-(\d{2})-(\d{2})$/);var dd=m?m[3]+'.'+m[2]+'.'+m[1]:d;
+    return t?(dd+' '+t):dd;}
+
+  p.innerHTML=panelHeader('pending',{countId:'pmCount',actions:
+    '<button class="btn btn-ghost btn-sm" id="pmRefresh">'+esc(T('c_refresh'))+'</button>'});
+  applyI18n(p);
+  p.insertAdjacentHTML('beforeend','<div id="pmList" class="tablewrap"><div class="loading">'+esc(T('c_loading'))+'</div></div>');
+
+  var rows=[];
+  function draw(){
+    $('#pmList').innerHTML=rows.length?('<table class="grid"><thead><tr>'+
+      '<th>'+esc(T('pm_when'))+'</th><th>'+esc(T('pm_name'))+'</th><th>'+esc(T('pm_email'))+'</th>'+
+      '<th>'+esc(T('pm_org'))+'</th><th>'+esc(T('pm_confirmed'))+'</th></tr></thead><tbody>'+
+      rows.map(function(r){return '<tr data-uid="'+esc(r.auth_user_id)+'">'+
+        '<td class="mono" style="font-size:12px;color:var(--ink);font-weight:600">'+esc(fmtWhen(r.created_at))+'</td>'+
+        '<td style="color:var(--ink);font-weight:600">'+esc(r.full_name||T('c_none'))+'</td>'+
+        '<td>'+esc(r.email||T('c_none'))+'</td>'+
+        '<td>'+esc(r.org_name||T('c_none'))+'</td>'+
+        '<td><span class="chip '+(r.email_confirmed?'green':'grey')+'">'+
+          esc(T(r.email_confirmed?'pm_conf_yes':'pm_conf_no'))+'</span></td></tr>';}).join('')+
+      '</tbody></table>'):'<div class="empty">'+esc(T('pm_none'))+'</div>';
+    $$('#pmList tbody tr').forEach(function(tr){
+      tr.addEventListener('click',function(){detail(tr.getAttribute('data-uid'));});});}
+
+  async function load(){
+    var r=await sb().rpc('conventity_pending_members');
+    if(r.error){$('#pmList').innerHTML='<div class="empty">'+esc(r.error.message)+'</div>';return;}
+    rows=r.data||[]; setCount('pmCount',rows.length,'pending'); draw();}
+
+  function detail(uid){
+    var r=rows.find(function(x){return x.auth_user_id===uid;}); if(!r)return;
+    openDrawer(T('pm_detail'),
+      '<dl class="kv">'+
+        '<dt>'+esc(T('pm_when'))+'</dt><dd>'+esc(fmtWhen(r.created_at))+'</dd>'+
+        '<dt>'+esc(T('pm_name'))+'</dt><dd>'+esc(r.full_name||T('c_none'))+'</dd>'+
+        '<dt>'+esc(T('pm_email'))+'</dt><dd><a href="mailto:'+esc(r.email||'')+'">'+esc(r.email||T('c_none'))+'</a> '+
+          '<span class="chip '+(r.email_confirmed?'green':'grey')+'">'+
+          esc(T(r.email_confirmed?'pm_conf_yes':'pm_conf_no'))+'</span></dd>'+
+        '<dt>'+esc(T('pm_org'))+'</dt><dd>'+esc(r.org_name||T('c_none'))+'</dd>'+
+        '<dt>'+esc(T('pm_country'))+'</dt><dd>'+esc(r.country||T('c_none'))+'</dd>'+
+        '<dt>'+esc(T('pm_account'))+'</dt><dd>'+esc(r.account_type||T('c_none'))+'</dd>'+
+        '<dt>'+esc(T('pm_last'))+'</dt><dd>'+esc(fmtWhen(r.last_sign_in_at)||T('c_none'))+'</dd>'+
+      '</dl>'+
+      fWrap(fSelect('f_pmrole','pm_role',ROLES,'member','role_')+
+            fSelect('f_pmscope','pm_scope',SCOPES,'ecosystem',null)+
+            '<div class="full" style="font-size:12.5px;color:var(--muted);line-height:1.6">'+esc(T('pm_hint'))+'</div>','pmErr'),
+      '<button class="btn btn-ghost" id="dCancel">'+esc(T('c_cancel'))+'</button>'+
+      '<button class="btn btn-primary" id="dSave">'+esc(T('pm_approve'))+'</button>');
+    applyI18n($('#drawerBody'));
+    bindFoot(async function(){
+      var role=$('#f_pmrole').value||'member';
+      var scope=$('#f_pmscope').value||'ecosystem';
+      var res=await sb().rpc('conventity_approve_member',{p_uid:r.auth_user_id,p_role:role,p_scope:scope});
+      if(res.error){$('#pmErr').textContent=res.error.message;return;}
+      closeDrawer();
+      toast(T(res.data==='zaten onayli'?'pm_already':'pm_ok'));
+      await load();
+    });}
+
+  $('#pmRefresh').addEventListener('click',load);
+  await load();
+};    /* __PANEL_pending__ */
 
 PANELS.signins = async function(p){
   var METHODS=['password','google','linkedin_oidc','other'];
