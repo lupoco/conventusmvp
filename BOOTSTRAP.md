@@ -227,6 +227,66 @@ ve `05`'i de tekrar çalıştır (02 yetkileri geri açıyor). Geri alma:
 komutları doğrudan açmadığı için pratik erişim yolu görünmüyor; yine de
 gereksiz. View'lerde `authenticated`'ın yazma yetkisi `05` ile kaldırıldı.
 
+## Fonksiyon yetkileri — `sql/07_harden_functions.sql`
+
+`06` çalıştıktan sonra doğrulama çıktısı `anon=X/postgres` gösterdi: ekosistem
+yöneticisine özel iki fonksiyonu `anon` da çağırabiliyordu. `06`'daki
+`revoke all ... from public` bir role **doğrudan** verilmiş yetkiyi kaldırmaz,
+Supabase ise `alter default privileges ... grant all on functions to anon` ile
+geliyor. Yani `public` şemasında açılan her fonksiyon anon'a açık doğuyordu.
+
+`06` için sızıntı değildi (gövdenin ilk satırı admin kontrolü) ama aynı
+varsayılan başka fonksiyonlarda ciddiydi: iç yetki kontrolü **olmayan** 9
+SECURITY DEFINER fonksiyon var ve definer oldukları için RLS'i atlıyorlar —
+`connectus_directory`, `connectus_org_detail`, `connectus_post_comments`,
+`convexus_import_pool_to_event`, `conventus_clone_rating_dims`,
+`conventus_sel_clone_default_form` ve üç boolean yardımcı. PostgREST
+fonksiyonları `/rest/v1/rpc/<ad>` olarak açtığı için bunlar internetten anon
+anahtarıyla çağrılabiliyordu. (Şema boş olduğu için eldeki veri yoktu.)
+
+**İki tur sürdü, ikisini de test yakaladı:**
+
+1. Yalnız `anon`dan geri aldım — hiçbir şey değişmedi. PostgreSQL fonksiyonlara
+   varsayılan olarak `PUBLIC`'e de EXECUTE veriyor, `anon` onu rol olarak
+   devralıyor. İki kanal da kapatılmalı.
+2. `PUBLIC`'i de kaldırınca `conventus_managed_events` okuması
+   `permission denied for function is_cv_admin` ile patladı. Meğer **RLS
+   politikasının içindeki fonksiyon, sorguyu atan rolün yetkisiyle çalışıyor.**
+   İlk testimde bunu kaçırmıştım: yalnız `anon`dan almıştım, `PUBLIC` durduğu
+   için politika çalışmaya devam etmiş ve testi yanıltmıştı.
+
+Çözüm: beyaz liste elle yazılmıyor, **`pg_policies`ten türetiliyor** — adı
+herhangi bir politika ifadesinde geçen fonksiyonun EXECUTE'u korunuyor.
+Politikalar değişince liste kendiliğinden güncelleniyor.
+
+Sonuç: anon 63 fonksiyondan **12**'sini çağırabiliyor, hepsi boolean/uid
+döndüren kapı bekçisi (`conventity_is_admin`, `can_manage_*`,
+`cn_is_group_member`, …); veri kümesi döndüren hiçbiri yok.
+
+| Deneme (anon) | 07 öncesi | 07 sonrası |
+|---|---|---|
+| `connectus_directory(5)` | ✅ çalıştı | ❌ yetki yok |
+| `convexus_import_pool_to_event()` | ✅ çalıştı | ❌ yetki yok |
+| `conventity_pending_members()` | ❌ (iç kontrol) | ❌ yetki yok |
+| `gm_providers_public` SELECT | ✅ | ✅ |
+| `conventus_managed_events` SELECT | ✅ | ✅ |
+| `conventity_access_requests` INSERT | ✅ | ✅ |
+
+Regresyon: anon'un SELECT yetkisi olan **83 tablo/view'in hepsi** hatasız
+okunuyor (`scripts/test-anon-read-regression.sql`), `04`/`05` testleri 10/10,
+`06` testleri 8/8. Geri alma: `sql/07_harden_functions_ROLLBACK.sql`.
+
+## Bekleyen kayıtlar — `sql/06_pending_members.sql`
+
+Kapalı testte kayıt olmak tek başına erişim vermiyor: `conventity_is_member()`
+fail-closed, rolü ya da `conventity_people` kaydı olmayan hesabı içeri almıyor.
+Yöneticinin kimin kayıt olduğunu görebileceği yer yoktu (`auth.users` istemciye
+kapalı, öyle kalmalı). İki admin-only RPC + `core.html` → **Bekleyen kayıtlar**
+sekmesi bunu kapatıyor. Onay tek tıkla kişi + rol kaydı açıyor.
+
+Testler: `scripts/test-pending-members.sql` (8 senaryo),
+`scripts/test-core-pending-panel.mjs` (sahte RPC ile tarayıcı).
+
 ## §6 — Deploy · ŞU AN BURADA
 
 ### Kapalı test kilidi (yayına çıkana kadar)

@@ -186,8 +186,11 @@ $fn$;
 -- ---- 3) YETKİLER ------------------------------------------------------------
 -- anon hiçbir şekilde çağıramaz. authenticated çağırabilir ama gövdedeki
 -- admin kontrolüne takılır — yetki kontrolü tek yerde, fonksiyonun içinde.
-revoke all on function public.conventity_pending_members()                 from public;
-revoke all on function public.conventity_approve_member(uuid, text, text)  from public;
+-- `from public` tek basina yetmez: Supabase `anon`a DOGRUDAN yetki veriyor,
+-- o ayrica geri alinmali. (Bu dosyanin ilk surumunde eksikti; `07` genel
+-- cozumu kuruyor, burasi kendi basina da dogru olsun diye tekrarliyor.)
+revoke all on function public.conventity_pending_members()                 from public, anon;
+revoke all on function public.conventity_approve_member(uuid, text, text)  from public, anon;
 grant execute on function public.conventity_pending_members()                to authenticated;
 grant execute on function public.conventity_approve_member(uuid, text, text) to authenticated;
 
