@@ -100,7 +100,8 @@ say "tarayici testleri"
 if ! curl -s -o /dev/null http://localhost:8099/index.html; then
   (npx --yes http-server -p 8099 -s . >/dev/null 2>&1 &) ; sleep 3
 fi
-for t in scripts/test-register-wizard.mjs scripts/test-event-form-tab.mjs \
+for t in scripts/test-register-wizard.mjs scripts/test-register-ref-degraded.mjs \
+         scripts/test-event-form-tab.mjs \
          scripts/test-core-pending-panel.mjs scripts/test-core-access-panel.mjs \
          scripts/test-access-form.mjs; do
   out=$(node "$t" 2>&1)
