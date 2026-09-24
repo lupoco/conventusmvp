@@ -23,6 +23,21 @@ if ! su postgres -c "$PSQL -Atc 'select 1'" >/dev/null 2>&1; then
 fi
 su postgres -c "$PSQL -Atc 'select 1'" >/dev/null 2>&1 && ok "ayakta" || { no "baslatilamadi"; exit 1; }
 
+say "kanonik duruma getir"
+# Testler onceki kosunun biraktigi duruma bagimli olmamali. Yetki tanimlayan
+# migration'lar idempotent; her kosunun basinda kurulum sirasini tekrar
+# uyguluyoruz. (Ilk surumde bu yoktu: harden-grants'in ROLLBACK'i anon'a
+# SELECT birakiyordu ve BIR SONRAKI kosuda registration-wizard testi
+# "anon onaylari okudu" diye patliyordu.)
+for f in sql/04_access_requests.sql sql/06_pending_members.sql \
+         sql/09_registration_wizard.sql sql/05_harden_grants.sql \
+         sql/07_harden_functions.sql; do
+  cp "$f" "$RUN/_m.sql"; chmod 644 "$RUN/_m.sql"
+  out=$(su postgres -c "$PSQL -q -v ON_ERROR_STOP=1 -f $RUN/_m.sql" 2>&1)
+  if echo "$out" | grep -qiE "ERROR:"; then no "$(basename "$f")"; echo "$out" | grep -i "ERROR:" | head -2 | sed 's/^/       /'
+  else ok "$(basename "$f")"; fi
+done
+
 say "SQL testleri"
 for f in scripts/test-access-requests.sql scripts/test-pending-members.sql \
          scripts/test-registration-wizard.sql scripts/smoke-landcom-conference.sql \

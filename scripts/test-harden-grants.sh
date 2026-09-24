@@ -17,18 +17,21 @@ if ! su postgres -c "$PSQL -Atc 'select 1'" >/dev/null 2>&1; then
   sleep 2
 fi
 
-for f in sql/04_access_requests.sql sql/05_harden_grants.sql sql/05_harden_grants_ROLLBACK.sql scripts/test-harden-grants.sql; do
+for f in sql/04_access_requests.sql sql/09_registration_wizard.sql sql/05_harden_grants.sql sql/05_harden_grants_ROLLBACK.sql scripts/test-harden-grants.sql; do
   cp "$ROOT/$f" "$RUN/$(basename "$f")"; chmod 644 "$RUN/$(basename "$f")"
 done
 
 run() { su postgres -c "$PSQL -q -v ON_ERROR_STOP=1 -f $RUN/$1" 2>&1; }
 
-echo "== 0) 02'deki yetki durumuna don (ROLLBACK) + 04'u yeniden uygula =="
-# ROLLBACK her tabloya `grant all to anon` verdigi icin 04'un kendi
-# `revoke ... from anon` satirlarini da siliyor; 05 SELECT'e dokunmadigina gore
-# dogru baslangic noktasi 02+04. Sira: 02 -> 04 -> 05.
+echo "== 0) 02'deki yetki durumuna don (ROLLBACK) + 04 ve 09'u yeniden uygula =="
+# ROLLBACK her tabloya `grant all to anon` veriyor; 05 SELECT'e DOKUNMADIGI icin
+# kendi basina yetmez. Kendi `revoke ... from anon` satirlari olan her dosya
+# tekrar calistirilmali: 04 (erisim talepleri) ve 09 (onay/parkur tablolari).
+# Ilk surumde 09 unutulmustu ve test-registration-wizard.sql "anon onaylari
+# okudu" diye patladi — dogru yakaladi.
 run 05_harden_grants_ROLLBACK.sql >/dev/null
 run 04_access_requests.sql >/dev/null
+run 09_registration_wizard.sql >/dev/null
 echo "   tamam"
 
 echo

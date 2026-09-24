@@ -214,8 +214,10 @@ Sertleştirme sonrası `anon` yetki matrisi: 73 tabloda `SELECT`, 10 view'de
 
 Çalıştırma sırası: **02 → 04 → 05**. `02`'yi her yeniden çalıştırdığında `04`
 ve `05`'i de tekrar çalıştır (02 yetkileri geri açıyor). Geri alma:
-`sql/05_harden_grants_ROLLBACK.sql` — ardından `04`'ü tekrar çalıştır,
-çünkü rollback her tabloya `grant all` verip `04`'ün revoke'unu da siliyor.
+`sql/05_harden_grants_ROLLBACK.sql` — ardından **`04` ve `09`**'u tekrar
+çalıştır: rollback her tabloya `grant all` veriyor ve `05` SELECT'e
+dokunmadığı için kendi yetkisini daraltan dosyaların revoke'ları geri
+gelmiyor. Bu listeyi, kendi yetkisini daraltan her yeni migration'da güncelle.
 
 > **Aynı açık canlı `.org` sitesinde de var.** Şema oradan kopyalandı; view'ler,
 > yetkiler ve `alter default privileges` aynı. `.org`'da `05`'i olduğu gibi

@@ -10,9 +10,12 @@
 -- tabloya yazabilir hale gelir. Yalnızca 05 bir sayfayı kırdıysa ve nedenini
 -- teşhis etmek için geçici olarak kullan.
 --
--- SONRASINDA: `sql/04_access_requests.sql`'i tekrar çalıştır — bu dosya her
---             tabloya `grant all` verdiği için 04'ün kendi `revoke ... from
---             anon` satırlarını da siliyor.
+-- SONRASINDA: kendi `revoke ... from anon` satırları olan HER dosyayı tekrar
+--             çalıştır — bu dosya her tabloya `grant all` verdiği için onları
+--             da siliyor ve `05` SELECT'e dokunmadığı için geri getirmiyor:
+--               · sql/04_access_requests.sql   (erişim talepleri)
+--               · sql/09_registration_wizard.sql (onay / parkur tabloları)
+--             Yeni bir migration kendi yetkisini daraltıyorsa bu listeye ekle.
 -- ============================================================================
 
 do $cvblock$
