@@ -244,6 +244,7 @@
     render();
   }
   function gate(kind,detail){
+    setChrome();
     var map={signin:['signin','signin_d','/login.html','signin_b'],notfound:['notfound','notfound_d',null,null]};
     var g=map[kind];
     $('#wrap').innerHTML='<div class="gate"><h2>'+esc(T(g[0]))+'</h2><p>'+esc(T(g[1]))+
@@ -251,8 +252,10 @@
       (g[2]?'<a class="btn btn-primary" href="'+g[2]+'">'+esc(T(g[3]))+'</a>':'')+'</div>';
   }
 
+  function setChrome(){ var b=$('#backLbl'); if(b) b.textContent=T('back'); }
+
   function render(){
-    $('#backLbl').textContent=T('back');
+    setChrome();
     var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
     $('#wrap').innerHTML=
       '<div class="head"><div class="eyebrow">conventus_managed_events</div><h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
