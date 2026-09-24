@@ -25,6 +25,15 @@
 --   sürümlü (`conventus_event_consents`), cevap append-only
 --   (`conventus_registration_consents` — UPDATE/DELETE politikası YOK).
 --
+-- BAKIM KURALI: bu dosya yeni RLS politikaları ekliyor. `07_harden_functions.sql`
+--   beyaz listesini `pg_policies`ten TÜRETİYOR; yani 07'den SONRA eklenen bir
+--   politika YENİ bir fonksiyon çağırıyorsa o fonksiyon anon'da kapalı kalır ve
+--   ilgili okuma "permission denied for function …" ile PATLAR.
+--   Bu dosyanın politikaları yalnız `conventity_can_manage_event` çağırıyor ve o
+--   zaten listede — bu yüzden 07'yi tekrar çalıştırmak GEREKMİYOR. Ama bundan
+--   sonraki her politika eklemesinde 07'yi tekrar çalıştır.
+--   Kontrol: `scripts/test-all.sh` bunu ayrı bir adım olarak sınıyor.
+--
 -- KULLANIM: 08'den sonra. Tekrar çalıştırılabilir.
 -- ============================================================================
 

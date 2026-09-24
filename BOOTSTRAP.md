@@ -258,6 +258,23 @@ reddedilir · omurga bağı duruyor.
 > `.org`'dan gelen davranış; konferans için muhtemelen istenmeyen bir şey.
 > Değiştirmek ayrı bir iş (yeni bir permissive SELECT politikası yeter).
 
+## Test takımı — tek komut
+
+```bash
+scripts/test-all.sh
+```
+
+SQL testleri · yetki sertleştirme öncesi/sonrası · anon okuma regresyonu ·
+politika fonksiyonlarının anon'a açık olup olmadığı · sayfa↔şema kontrolü ·
+JS sözdizimi + bütünlük · tarayıcı testleri. Çıkış kodu 0 = hepsi yeşil.
+
+**Bakım kuralı:** `07_harden_functions.sql` beyaz listeyi `pg_policies`ten
+türetir. 07'den sonra eklenen bir politika **yeni** bir fonksiyon çağırırsa o
+fonksiyon anon'da kapalı kalır ve ilgili okuma
+`permission denied for function …` ile patlar. Yeni politika eklediğin her
+migration'dan sonra **07'yi tekrar çalıştır**; `test-all.sh` bunu ayrı bir
+adım olarak sınıyor.
+
 ## SQL sırası — CANLIDA TAMAM (2026-09-23)
 
 `conventity-prod` (`tstlireeidnpchadgjly`) üzerinde çalıştırıldı ve doğrulandı:

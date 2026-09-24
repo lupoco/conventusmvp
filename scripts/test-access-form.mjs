@@ -1,4 +1,22 @@
 import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+/* Sahte PostgREST ucunu test kendisi baslatiyor — eskiden elle ayaga
+   kaldirilmasi gerekiyordu ve test tek basina kosulamiyordu. */
+const HERE = dirname(fileURLToPath(import.meta.url));
+const mock = spawn(process.execPath, [join(HERE,'mock-rest-8098.mjs')],
+  { stdio:'ignore', env:{...process.env, MOCK_QUIET:'1'} });
+process.on('exit', ()=>{ try{ mock.kill(); }catch(_){} });
+async function waitMock(){
+  for(let i=0;i<40;i++){
+    try{ await fetch('http://localhost:8098/__mode/201'); return true; }
+    catch(_){ await new Promise(r=>setTimeout(r,150)); }
+  }
+  throw new Error('sahte REST ucu (8098) ayaga kalkmadi');
+}
+await waitMock();
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const errs = [];
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
@@ -54,9 +72,14 @@ console.log('  mailto yedegi var mi   :', await p.locator('#rqMsg a[href^="mailt
 await setMode('201');
 await fill('Bot', 'bot@example.org', '', '');
 await p.fill('input[name=company_website]', 'spam');
-const before = (await (await fetch('http://localhost:8098/__mode/201')).text(), 0);
-await p.click('#rqSend'); await p.waitForTimeout(300);
-console.log('5 bot tuzagi             : gonderim yok ->', (await p.locator('#rqMsg').innerText()).slice(0,45) || '(mesaj degismedi)');
+/* Dolayli olcum yetmez ("mesaj degismedi" gonderimin basarisiz olmasiyla da
+   olusur). Sahte uctaki POST sayacini once/sonra karsilastiriyoruz. */
+const before = Number(await (await fetch('http://localhost:8098/__count')).text());
+await p.click('#rqSend'); await p.waitForTimeout(400);
+const after = Number(await (await fetch('http://localhost:8098/__count')).text());
+console.log('5 bot tuzagi             : sunucuya giden POST', before, '->', after,
+  after===before ? '✓ gonderim yok' : '✗ GONDERIM YAPILDI');
+if(after!==before) errs.push('bot tuzagi dolu oldugu halde form gonderildi');
 
 // 6) EN'e gecince form etiketleri cevriliyor mu
 await p.click('#lang'); await p.waitForTimeout(150);
@@ -64,4 +87,5 @@ console.log('6 EN etiketi             :', await p.locator('label[data-i=fName]')
 
 await p.screenshot({ path: '/var/tmp/form.png' });
 await b.close();
+try{ mock.kill(); }catch(_){}
 console.log(errs.length ? 'HATA:\n' + errs.join('\n') : 'JS hatasi yok');
