@@ -74,6 +74,74 @@ h1 em{font-style:normal;color:var(--pf)}
   color:var(--muted);text-decoration:none;background:var(--paper);transition:all .15s}
 .jump a:hover{color:var(--pf);border-color:var(--pf)}
 
+/* ---- ETKINLIK LISTESI ---- */
+.araclar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:0 0 1rem}
+.ara{flex:1 1 240px;min-width:190px;position:relative;display:block}
+.ara input{width:100%;padding:9px 14px 9px 36px;border:1px solid var(--line);border-radius:100px;
+  background:var(--paper);color:var(--ink);font-family:inherit;font-size:.85rem}
+.ara input:focus{outline:none;border-color:var(--pf)}
+.ara svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px!important;height:14px!important;color:var(--muted)}
+.grup{display:inline-flex;background:var(--paper2);border:1px solid var(--line);border-radius:100px;padding:2px}
+.grup button{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:6px 12px;border-radius:100px;border:none;background:none;
+  color:var(--muted);cursor:pointer;white-space:nowrap}
+.grup button.on{background:var(--ink);color:#fff}
+.cip{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:7px 13px;border-radius:100px;border:1px solid var(--line2);
+  background:var(--paper);color:var(--muted);cursor:pointer;white-space:nowrap}
+.cip.on{color:#fff;background:var(--pf);border-color:var(--pf)}
+.sayac{font-size:.78rem;color:var(--muted);margin:0 0 1.2rem}
+
+/* Donebilen kart. Yuzler ust uste; .yuz mutlak konumlu, kapsayici yuksekligi verir. */
+.fkart{perspective:1500px;min-height:352px}
+.fyuz{position:relative;width:100%;height:100%;min-height:352px;
+  transition:transform .62s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.fkart.donuk .fyuz{transform:rotateY(180deg)}
+@media (prefers-reduced-motion: reduce){ .fyuz{transition:none} }
+.yuz{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--paper);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.yuz.arka{transform:rotateY(180deg)}
+.fkart:hover .yuz{border-color:var(--line2)}
+.bant{min-height:76px;position:relative;display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;padding:13px 15px;color:#fff}
+.bant h3{font-size:1rem;font-weight:800;line-height:1.25;margin:0;color:#fff;max-width:70%;
+  overflow-wrap:anywhere;text-shadow:0 1px 6px rgba(0,0,0,.25)}
+.rozet2{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.09em;
+  background:rgba(255,255,255,.22);color:#fff;border-radius:100px;padding:4px 9px;white-space:nowrap;
+  align-self:flex-start}
+.tarih-r{position:absolute;right:15px;bottom:-18px;background:var(--paper);border:1px solid var(--line);
+  border-radius:11px;padding:4px 10px;text-align:center;box-shadow:0 4px 12px rgba(14,33,72,.10);z-index:2}
+.tarih-r .ay{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.1em}
+.tarih-r .gn{display:block;font-family:'Instrument Serif',serif;font-size:1.1rem;line-height:1.15;color:var(--ink)}
+.ic{padding:1.5rem 1.25rem 1rem;display:flex;flex-direction:column;gap:.4rem;flex:1;min-width:0;overflow:hidden}
+.kod{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted)}
+.satir{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--ink2);min-width:0}
+.satir span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.satir svg{width:14px!important;height:14px!important;color:var(--muted);flex-shrink:0}
+.altbilgi{font-size:.76rem;color:var(--muted);line-height:1.45}
+.poc{border-top:1px solid var(--line);padding:.7rem 1.25rem;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;min-width:0}
+.poc>div{min-width:0}
+.poc .l{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);display:block}
+.poc .n{font-size:.8rem;font-weight:700;color:var(--ink)}
+.poc a{font-size:.72rem;color:var(--pf);text-decoration:none;word-break:break-all}
+.cevir{flex-shrink:0;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);
+  background:var(--paper2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--pf)}
+.cevir:hover{border-color:var(--pf)}
+.cevir svg{width:16px!important;height:16px!important}
+.kart-cta{padding:0 1.25rem 1.1rem}
+.var-liste{display:flex;flex-direction:column;gap:.45rem;margin-top:.4rem}
+.var-satir{display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--ink2)}
+.var-satir .n2{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--ink)}
+.var-satir.yok{opacity:.42}
+.var-satir svg{width:15px!important;height:15px!important;color:var(--pf);flex-shrink:0}
+.arka-bag{display:flex;flex-direction:column;gap:.35rem;margin-top:auto;padding-top:.8rem}
+.arka-bag a{font-size:.78rem;font-weight:700;color:var(--pf);text-decoration:none}
+.arka-bag a:hover{text-decoration:underline}
+
 .sec{margin-top:3rem;scroll-margin-top:70px}
 /* Bolum serotleri: .org'daki resimli seritlerin gomulu SVG karsiligi.
    Dis dosya YOK — tek dosya kurali ve CDN bagimsizligi icin inline. */
@@ -213,6 +281,16 @@ h1 em{font-style:normal;color:var(--pf)}
     tr:{
       title:'Go & Meet', back:'← Conventus',
       ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
+      ev_h_plain:'Etkinlikler',
+      f_search:'Etkinlik, kod veya şehir ara…', f_sort:'Sıralama', f_status:'Durum',
+      f_nearest:'En yakın', f_newest:'En yeni',
+      f_all:'Tümü', f_upcoming:'Yaklaşan', f_live:'Devam eden', f_ended:'Sona erdi',
+      f_c_all:'Tüm etkinlikler', f_c_open:'Kaydı açık',
+      f_count:'%s / %s etkinlik', f_none_match:'Filtrelere uyan etkinlik yok.',
+      st_upcoming:'Yaklaşan', st_live:'Devam ediyor', st_ended:'Sona erdi',
+      b_h:'Bu etkinlikte neler var', b_back:'Geri', b_flip:'Detayı çevir',
+      b_poc:'İrtibat noktası', b_reg:'Kayıt', b_open:'Açık', b_closed:'Kapalı',
+      b_cap:'Kontenjan', b_go_reg:'Kayıt formuna git', b_go_logi:'Konaklama ve ulaşımı gör',
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
       single:'Tek', double:'Çift', off:'İNDİRİM', promo:'Promosyon kodu', per_night:'/gece',
@@ -246,6 +324,16 @@ h1 em{font-style:normal;color:var(--pf)}
     en:{
       title:'Go & Meet', back:'← Conventus',
       ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
+      ev_h_plain:'Etkinlikler',
+      f_search:'Etkinlik, kod veya şehir ara…', f_sort:'Sıralama', f_status:'Durum',
+      f_nearest:'En yakın', f_newest:'En yeni',
+      f_all:'Tümü', f_upcoming:'Yaklaşan', f_live:'Devam eden', f_ended:'Sona erdi',
+      f_c_all:'Tüm etkinlikler', f_c_open:'Kaydı açık',
+      f_count:'%s / %s etkinlik', f_none_match:'Filtrelere uyan etkinlik yok.',
+      st_upcoming:'Yaklaşan', st_live:'Devam ediyor', st_ended:'Sona erdi',
+      b_h:'Bu etkinlikte neler var', b_back:'Geri', b_flip:'Detayı çevir',
+      b_poc:'İrtibat noktası', b_reg:'Kayıt', b_open:'Açık', b_closed:'Kapalı',
+      b_cap:'Kontenjan', b_go_reg:'Kayıt formuna git', b_go_logi:'Konaklama ve ulaşımı gör',
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
       single:'Tek', double:'Çift', off:'İNDİRİM', promo:'Promosyon kodu', per_night:'/gece',
@@ -400,33 +488,235 @@ h1 em{font-style:normal;color:var(--pf)}
     return list.indexOf(svc.svc) >= 0;
   }
 
-  /* ---- 1) ETKINLIK LISTESI -------------------------------------------- */
+  /* ---- 1) ETKINLIK LISTESI --------------------------------------------
+     ?c=<slug> verilirse YALNIZ o toplulugun etkinlikleri (LANDCOM sayfasi
+     boyle veriliyor). Parametre yoksa yayindaki tum etkinlikler.
+
+     Kartlar DONEBILIYOR. On yuz: ne zaman, nerede, kim — karar vermek icin
+     gereken asgari bilgi. Arka yuz: o etkinlikte GERCEKTEN ne var — kayit
+     durumu ve gm_inventory'den sayilan otel/ulasim/tur/es kalemleri.
+     .org'da arka yuz sabit demo baglantilariydi; burada canli veri.        */
+  var COMM = null, EVENTS = [], INVSAY = {}, DONUK = {};
+  var F = { q:'', sort:'nearest', status:'all', cat:'all' };
+
+  var AKSAN = ['#004990','#1F7A4C','#8A6D2F','#7C3AED','#C2632F','#0E7490'];
+  function aksan(kod){ var h=0, sx=String(kod||''); for(var i=0;i<sx.length;i++) h=(h*31+sx.charCodeAt(i))>>>0; return AKSAN[h%AKSAN.length]; }
+  var AYLAR = { tr:['OCA','ŞUB','MAR','NİS','MAY','HAZ','TEM','AĞU','EYL','EKİ','KAS','ARA'],
+                en:['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'] };
+  function bugun(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+  function gunDurum(e){
+    var b=bugun();
+    var s1=e.start_date?new Date(e.start_date+'T00:00:00'):null;
+    var s2=e.end_date?new Date(e.end_date+'T00:00:00'):(s1);
+    if(s2 && s2 < b) return 'ended';
+    if(s1 && s1 <= b && s2 && s2 >= b) return 'live';
+    return 'upcoming';
+  }
+  function hizmetleri(e){
+    var c = INVSAY[e.id] || {};
+    return { acc:c.accommodation||0, car:c.transfer_car||0, tour:c.tour||0, spouse:c.spouse||0 };
+  }
+
   async function renderList(){
     setChrome();
-    var r = await sb.from('conventus_managed_events')
-      .select('id,code,title,start_date,end_date,city,country,location,host_org,description')
-      .eq('published',true).order('start_date',{ascending:true,nullsFirst:false});
-    if(r.error){ $('#wrap'); $('wrap').innerHTML='<div class="empty">'+esc(Tf('err_load',r.error.message))+'</div>'; return; }
-    var evs = r.data||[];
-    var head = '<div class="head"><div class="eyebrow">'+ICONS.cal+'<span>'+esc(T('ev_eyebrow'))+'</span></div>'+
-      '<h1>'+Tf('ev_h_rich','<em>Go &amp; Meet</em>')+'</h1>'+
-      '<p class="lead">'+esc(T('ev_d'))+'</p></div>';
-    if(!evs.length){ $('wrap').innerHTML = head+'<div class="empty">'+esc(T('ev_none'))+'</div>'; return; }
-    $('wrap').innerHTML = head + '<div class="cards wide">' + evs.map(function(e){
-      var when = (e.start_date||e.end_date)
-        ? (e.end_date && e.end_date!==e.start_date ? Tf('dates',dmy(e.start_date),dmy(e.end_date)) : dmy(e.start_date))
-        : T('nodate');
-      var where = [e.city,e.country].filter(Boolean).join(', ') || e.location || T('noloc');
-      var href = 'go-and-meet.html?e='+encodeURIComponent(e.code||'');
-      return '<article class="door">'+
-        '<div class="door-nm">'+esc(e.code||'')+'</div>'+
-        '<h3>'+esc(e.title||e.code)+'</h3>'+
-        '<div class="door-meta"><span>'+esc(when)+'</span><span>'+esc(where)+'</span>'+
-          (e.host_org?'<span>'+esc(e.host_org)+'</span>':'')+'</div>'+
-        (e.description?'<p>'+esc(String(e.description).slice(0,140))+'</p>':'<p class="grow"></p>')+
-        '<div class="grow"></div>'+
-        '<a class="cta" href="'+href+'">'+esc(T('ev_open'))+'</a></article>';
-    }).join('') + '</div>';
+    var slug = params.get('c');
+    /* Topluluk once cozulur: adi baslikta, id ile etkinlikler suzulur. */
+    if(slug){
+      var cr = await sb.from('conventus_communities')
+        .select('id,slug,name,short_name,tagline').eq('slug',slug).maybeSingle();
+      if(cr.data) COMM = cr.data;
+    }
+    var q = sb.from('conventus_managed_events')
+      .select('id,code,title,subtitle,start_date,end_date,city,country,location,host_org,description,poc_name,poc_email,capacity,registration_open,gm_services,community_id')
+      .eq('published',true);
+    if(COMM) q = q.eq('community_id', COMM.id);
+    var r = await q.order('start_date',{ascending:true,nullsFirst:false});
+    if(r.error){ $('wrap').innerHTML='<div class="empty">'+esc(Tf('err_load',r.error.message))+'</div>'; return; }
+    EVENTS = r.data||[];
+
+    /* Arka yuzun sayaclari: tek sorguda butun etkinliklerin envanteri. */
+    INVSAY = {};
+    if(EVENTS.length){
+      var ids = EVENTS.map(function(x){ return x.id; });
+      var ir = await sb.from('gm_inventory').select('event_id,category,details')
+        .in('event_id', ids).eq('is_active',true);
+      (ir.data||[]).forEach(function(x){
+        var c = INVSAY[x.event_id] || (INVSAY[x.event_id]={});
+        var k = x.category;
+        if(k==='culture_spouse'){
+          var kind=String(((x.details)||{}).kind||'').toLowerCase();
+          k = (kind==='spouse') ? 'spouse' : 'tour';
+        }
+        c[k] = (c[k]||0)+1;
+      });
+    }
+    drawList();
+  }
+
+  function drawList(){
+    var basl = COMM ? (COMM.name || COMM.short_name) : T('ev_h_plain');
+    var alt  = COMM && COMM.tagline ? COMM.tagline : T('ev_d');
+    var html = '<div class="head"><div class="eyebrow">'+ICONS.cal+'<span>'+esc(T('ev_eyebrow'))+'</span></div>'+
+      '<h1>'+esc(basl)+'</h1><p class="lead">'+esc(alt)+'</p></div>';
+
+    html += '<div class="araclar">'+
+      '<label class="ara">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>'+
+        '<input id="fq" type="search" value="'+esc(F.q)+'" placeholder="'+esc(T('f_search'))+'" aria-label="'+esc(T('f_search'))+'">'+
+      '</label>'+
+      '<div class="grup" role="group" aria-label="'+esc(T('f_sort'))+'">'+
+        [['nearest','f_nearest'],['newest','f_newest']].map(function(o){
+          return '<button data-sort="'+o[0]+'" class="'+(F.sort===o[0]?'on':'')+'">'+esc(T(o[1]))+'</button>'; }).join('')+
+      '</div>'+
+      '<div class="grup" role="group" aria-label="'+esc(T('f_status'))+'">'+
+        [['all','f_all'],['upcoming','f_upcoming'],['live','f_live'],['ended','f_ended']].map(function(o){
+          return '<button data-st="'+o[0]+'" class="'+(F.status===o[0]?'on':'')+'">'+esc(T(o[1]))+'</button>'; }).join('')+
+      '</div>'+
+    '</div>';
+
+    html += '<div class="araclar" style="margin-bottom:.5rem">'+
+      [['all','f_c_all'],['open','f_c_open'],['acc','s_acc'],['car','s_car'],['tour','s_tour'],['spouse','s_spouse']]
+        .map(function(o){ return '<button class="cip'+(F.cat===o[0]?' on':'')+'" data-cat="'+o[0]+'">'+esc(T(o[1]))+'</button>'; }).join('')+
+    '</div>';
+
+    var list = suz();
+    html += '<p class="sayac">'+esc(Tf('f_count', list.length, EVENTS.length))+'</p>';
+    html += list.length
+      ? '<div class="cards wide">'+list.map(evKart).join('')+'</div>'
+      : '<div class="empty">'+esc(T(EVENTS.length?'f_none_match':'ev_none'))+'</div>';
+    $('wrap').innerHTML = html;
+    bindList();
+  }
+
+  function suz(){
+    var q = F.q.trim().toLocaleLowerCase(LANG()==='tr'?'tr':'en');
+    var out = EVENTS.filter(function(e){
+      if(F.status!=='all' && gunDurum(e)!==F.status) return false;
+      if(F.cat==='open' && !e.registration_open) return false;
+      if(F.cat!=='all' && F.cat!=='open'){
+        var h=hizmetleri(e);
+        if(!h[F.cat]) return false;
+      }
+      if(!q) return true;
+      var hay = [e.title,e.code,e.city,e.country,e.host_org,e.subtitle]
+        .filter(Boolean).join(' ').toLocaleLowerCase(LANG()==='tr'?'tr':'en');
+      return hay.indexOf(q) >= 0;
+    });
+    /* "En yakin" = bugune en yakin baslangic; gecmisler sona.
+       "En yeni"  = en geç baslayan once. */
+    var b = bugun().getTime();
+    out.sort(function(x,y){
+      var dx = x.start_date ? new Date(x.start_date+'T00:00:00').getTime() : null;
+      var dy = y.start_date ? new Date(y.start_date+'T00:00:00').getTime() : null;
+      if(dx===null) return 1; if(dy===null) return -1;
+      if(F.sort==='newest') return dy-dx;
+      var gx = dx<b, gy = dy<b;
+      if(gx!==gy) return gx?1:-1;
+      return Math.abs(dx-b)-Math.abs(dy-b);
+    });
+    return out;
+  }
+  function evKart(e){
+    var acc = aksan(e.code);
+    var dur = gunDurum(e);
+    var durEtiket = T('st_'+dur), durSinif = dur;
+    var when = (e.start_date||e.end_date)
+      ? (e.end_date && e.end_date!==e.start_date ? Tf('dates',dmy(e.start_date),dmy(e.end_date)) : dmy(e.start_date))
+      : T('nodate');
+    var where = [e.city,e.country].filter(Boolean).join(', ') || e.location || T('noloc');
+    var href  = 'go-and-meet.html?e='+encodeURIComponent(e.code||'');
+    var kayit = 'register-conventus.html?e='+encodeURIComponent(e.code||'');
+    var donuk = !!DONUK[e.id];
+
+    var tr = '';
+    if(e.start_date){
+      var d0 = new Date(e.start_date+'T00:00:00');
+      tr = '<div class="tarih-r"><span class="ay" style="color:'+acc+'">'+
+           esc((AYLAR[LANG()]||AYLAR.en)[d0.getMonth()])+'</span>'+
+           '<span class="gn">'+d0.getDate()+'</span></div>';
+    }
+
+    /* ARKA YUZ: bu etkinlikte gercekten ne var — canli sayilar. */
+    var h = hizmetleri(e);
+    function vs(ikon,etiket,adet){
+      return '<div class="var-satir'+(adet?'':' yok')+'">'+ICONS[ikon]+
+        '<span>'+esc(T(etiket))+'</span><span class="n2">'+(adet||'—')+'</span></div>';
+    }
+    var arkaIc = '<div class="var-liste">'+
+      '<div class="var-satir'+(e.registration_open?'':' yok')+'">'+ICONS.cal+
+        '<span>'+esc(T('b_reg'))+'</span><span class="n2">'+
+        esc(e.registration_open?T('b_open'):T('b_closed'))+'</span></div>'+
+      vs('bed','s_acc',h.acc)+vs('car','s_car',h.car)+
+      vs('map','s_tour',h.tour)+vs('users','s_spouse',h.spouse)+
+      (e.capacity?'<div class="var-satir">'+ICONS.users+'<span>'+esc(T('b_cap'))+
+        '</span><span class="n2">'+e.capacity+'</span></div>':'')+
+      '</div>'+
+      '<div class="arka-bag">'+
+        (e.registration_open?'<a href="'+kayit+'">→ '+esc(T('b_go_reg'))+'</a>':'')+
+        '<a href="'+href+'">→ '+esc(T('b_go_logi'))+'</a>'+
+      '</div>';
+
+    return '<div class="fkart'+(donuk?' donuk':'')+'" data-fk="'+esc(e.id)+'"><div class="fyuz">'+
+
+      /* --- ON YUZ --- */
+      '<article class="yuz on">'+
+        '<div class="bant" style="background:linear-gradient(135deg,'+acc+' 0%,'+acc+'cc 100%)">'+
+          '<h3>'+esc(e.title||e.code)+'</h3>'+
+          '<span class="rozet2">'+esc(durEtiket)+'</span>'+tr+
+        '</div>'+
+        '<div class="ic">'+
+          '<div class="kod">'+esc(e.code||'')+'</div>'+
+          (e.subtitle?'<div class="altbilgi">'+esc(e.subtitle)+'</div>':'')+
+          '<div class="satir">'+ICONS.cal+'<span>'+esc(when)+'</span></div>'+
+          '<div class="satir">'+ICONS.pin+'<span>'+esc(where)+'</span></div>'+
+          (e.host_org?'<div class="satir">'+ICONS.org+'<span>'+esc(e.host_org)+'</span></div>':'')+
+        '</div>'+
+        '<div class="poc">'+
+          '<div><span class="l">'+esc(T('b_poc'))+'</span>'+
+            (e.poc_name?'<span class="n">'+esc(e.poc_name)+'</span>':'<span class="n" style="color:var(--muted)">—</span>')+
+            (e.poc_email?'<br><a href="mailto:'+esc(e.poc_email)+'">'+esc(e.poc_email)+'</a>':'')+
+          '</div>'+
+          '<button class="cevir" data-flip="'+esc(e.id)+'" title="'+esc(T('b_flip'))+'" aria-label="'+esc(T('b_flip'))+'">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>'+
+          '</button>'+
+        '</div>'+
+        '<div class="kart-cta"><a class="cta" style="background:'+acc+';border-color:'+acc+'" href="'+
+          (e.registration_open?kayit:href)+'">'+esc(e.registration_open?T('ev_reg'):T('ev_open'))+'</a></div>'+
+      '</article>'+
+
+      /* --- ARKA YUZ --- */
+      '<article class="yuz arka">'+
+        '<div class="bant" style="background:linear-gradient(135deg,'+acc+'dd 0%,'+acc+'99 100%)">'+
+          '<h3>'+esc(T('b_h'))+'</h3>'+
+          '<button class="rozet2" data-unflip="'+esc(e.id)+'" style="border:none;cursor:pointer" title="'+esc(T('b_back'))+'">← '+esc(T('b_back'))+'</button>'+
+        '</div>'+
+        '<div class="ic">'+
+          '<div class="kod">'+esc(e.code||'')+'</div>'+
+          arkaIc+
+        '</div>'+
+      '</article>'+
+    '</div></div>';
+  }
+
+  function bindList(){
+    var qi=$('fq');
+    if(qi){
+      qi.addEventListener('input', function(){
+        F.q=this.value; var pos=this.selectionStart; drawList();
+        var ni=$('fq'); if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(_){} }
+      });
+    }
+    [['data-sort','sort'],['data-st','status'],['data-cat','cat']].forEach(function(o){
+      Array.prototype.forEach.call(document.querySelectorAll('['+o[0]+']'),function(b2){
+        b2.addEventListener('click',function(){ F[o[1]]=b2.getAttribute(o[0]); drawList(); });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-flip]'),function(b2){
+      b2.addEventListener('click',function(){ DONUK[b2.getAttribute('data-flip')]=true; drawList(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-unflip]'),function(b2){
+      b2.addEventListener('click',function(){ delete DONUK[b2.getAttribute('data-unflip')]; drawList(); });
+    });
   }
 
   /* ---- 2) ETKINLIK SAYFASI -------------------------------------------- */
