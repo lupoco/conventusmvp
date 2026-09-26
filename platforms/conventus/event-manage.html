@@ -112,6 +112,10 @@
      lg_saved:'Kaydedildi.', lg_deleted:'Silindi.', lg_confirm:'Bu kalem silinsin mi?',
      lg_e_title:'Başlık gerekli.', lg_e_date:'Tarih GG.AA.YYYY biçiminde olmalı.',
      lg_svc_off:'Bu kategori etkinlikte kapalı — kalem girsen de katılımcıya görünmez. Genel sekmesinden açabilirsin.',
+     lg_svc_h:'Katılımcıya gösterilecek bölümler',
+     lg_svc_d:'Kapalı bölüm katılımcıya hiç çıkmaz. Kültür turu ve eş programı şemada tek anahtarı paylaşır — ikisi birlikte açılıp kapanır. Kalem girmediğin bölüm zaten gösterilmez.',
+     lg_svc_cs:'Kültür turu ve eş programı',
+     lg_svc_save:'Bölümleri kaydet', lg_svc_saved:'Bölümler güncellendi.',
      lg_c_acc:'Konaklama', lg_c_car:'Ulaşım & Araç', lg_c_tour:'Kültür Turu', lg_c_spouse:'Eş Programı',
      lg_k_transfer:'Havalimanı transferi', lg_k_car:'Araç kiralama', lg_k_shuttle:'Servis',
      lg_hint_hotel:'Tek/çift fiyat ve indirim yalnız konaklamada gösterilir.',
@@ -192,6 +196,10 @@
      lg_saved:'Saved.', lg_deleted:'Deleted.', lg_confirm:'Delete this item?',
      lg_e_title:'Title is required.', lg_e_date:'Date must be DD.MM.YYYY.',
      lg_svc_off:'This category is switched off for the event — items will not be shown to participants. Turn it on in the General tab.',
+     lg_svc_h:'Sections shown to participants',
+     lg_svc_d:'A section that is off never appears to participants. Cultural tour and spouse programme share one switch in the schema — they turn on and off together. A section with no items is not shown anyway.',
+     lg_svc_cs:'Cultural tour and spouse programme',
+     lg_svc_save:'Save sections', lg_svc_saved:'Sections updated.',
      lg_c_acc:'Accommodation', lg_c_car:'Transport & Car', lg_c_tour:'Cultural Tour', lg_c_spouse:'Spouse Programme',
      lg_k_transfer:'Airport transfer', lg_k_car:'Car rental', lg_k_shuttle:'Shuttle',
      lg_hint_hotel:'Single/double price and discount are only shown for accommodation.',
@@ -581,6 +589,7 @@
         return '<button class="fchip'+(x.key===logiCat?' on':'')+'" data-lc="'+x.key+'">'+
                esc(T(x.label))+(n?' · '+n:'')+'</button>';
       }).join('')+'</div>';
+    html += svcPanel();
     if(!svcOn(c)) html += '<div class="msg err" style="display:block;margin:0 0 12px">'+esc(T('lg_svc_off'))+'</div>';
     html += logiEdit ? logiForm(c) :
       '<div class="actions" style="margin-bottom:12px"><button class="btn btn-primary btn-sm" id="lgAdd">'+esc(T('lg_add'))+'</button></div>';
@@ -602,8 +611,51 @@
       b.addEventListener('click',function(){ logiDelete(b.getAttribute('data-ld')); });
     });
     var sv=$('#lgSaveBtn');  if(sv) sv.addEventListener('click',function(){ logiSave(c); });
+    var ss=$('#svcSave');    if(ss) ss.addEventListener('click',saveServices);
     var cn=$('#lgCancelBtn');if(cn) cn.addEventListener('click',function(){ logiEdit=null; drawLogi(); });
     maskDate($('#lg_from')); maskDate($('#lg_to'));
+  }
+
+  /* UC anahtar, DORT kategori: kultur turu ve es programi semada tek bayragi
+     paylasiyor (culture_spouse). Dort anahtar gosterip birini kapatinca
+     digerinin de kapanmasi sinsi olurdu — birlikte oldugunu acikca yaziyoruz.
+     Kalemi olmayan bolum katilimciya zaten hic cizilmiyor, bu yuzden "eş
+     programı istemiyorum" demek icin ayri bir anahtara gerek yok. */
+  var SVC_TOGGLES = [
+    { svc:'accommodation',  label:'lg_c_acc'  },
+    { svc:'transfer_car',   label:'lg_c_car'  },
+    { svc:'culture_spouse', label:'lg_svc_cs' }
+  ];
+  function svcPanel(){
+    var cur = EVENT.gm_services || [];
+    return '<div style="border:1px solid var(--line-2);border-radius:var(--r-md);padding:13px;margin-bottom:14px">'+
+      '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.06em;'+
+        'text-transform:uppercase;color:var(--muted);margin-bottom:4px">'+esc(T('lg_svc_h'))+'</div>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px;font-size:12px">'+esc(T('lg_svc_d'))+'</div>'+
+      '<div style="display:flex;gap:16px;flex-wrap:wrap">'+
+      SVC_TOGGLES.map(function(t){
+        return '<label style="display:flex;gap:7px;align-items:center;cursor:pointer;font-size:13px">'+
+          '<input type="checkbox" data-svc="'+t.svc+'"'+(cur.indexOf(t.svc)>=0?' checked':'')+'>'+
+          '<span>'+esc(T(t.label))+'</span></label>';
+      }).join('')+
+      '</div><div class="actions" style="margin-top:11px">'+
+        '<button class="btn btn-sm" id="svcSave">'+esc(T('lg_svc_save'))+'</button>'+
+        '<span class="ferr" id="svcErr" style="align-self:center"></span></div></div>';
+  }
+  async function saveServices(){
+    if(!EVENT.activity_id){ toast(T('e_no_activity'),true); return; }
+    var list=[];
+    Array.prototype.forEach.call(document.querySelectorAll('[data-svc]'),function(b){
+      if(b.checked) list.push(b.getAttribute('data-svc'));
+    });
+    /* 'offers' bu panelde YOK ama etkinlikte acik olabilir — panelde
+       yonetilmeyen degeri silmemek icin geri ekliyoruz. */
+    var cur = EVENT.gm_services||[];
+    if(cur.indexOf('offers')>=0) list.push('offers');
+    var res = await sb.rpc('conventus_set_event_services',
+      {p_activity_id:EVENT.activity_id, p_services:list});
+    if(res.error){ $('#svcErr').textContent=res.error.message; return; }
+    EVENT.gm_services=list; toast(T('lg_svc_saved')); drawLogi();
   }
 
   function logiTable(rows){

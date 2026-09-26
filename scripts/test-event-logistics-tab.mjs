@@ -113,6 +113,26 @@ chips[0].includes('· 1') ? ok('konaklama sayacı 1') : bad('konaklama sayacı: 
 // kultur/es ayrimi: ayni kategoriden geliyorlar, details.kind ile ayrilmali
 chips[2].includes('· 1') && chips[3].includes('· 1') ? ok('kültür ve eş ayrı sayılıyor') : bad('ayrım yok: '+chips[2]+' / '+chips[3]);
 
+// --- hizmet anahtarlari ayni sekmede mi (tek yerden yonetim)
+const svcBoxes = p.locator('[data-svc]');
+(await svcBoxes.count())===3 ? ok('üç hizmet anahtarı envanter sekmesinde') : bad('anahtar sayısı: '+await svcBoxes.count());
+await p.isChecked('[data-svc="accommodation"]')  ? ok('konaklama açık')            : bad('konaklama kapalı geldi');
+await p.isChecked('[data-svc="transfer_car"]')   ? bad('ulaşım açık görünüyor')    : ok('ulaşım kapalı (fikstüre uygun)');
+// anahtari acip kaydet -> RPC
+await p.check('[data-svc="transfer_car"]');
+await p.locator('#svcSave').click(); await p.waitForTimeout(600);
+const sops=await p.evaluate(()=>window.__OPS);
+const srpc=sops.filter(o=>o.op==='rpc'&&o.name==='conventus_set_event_services').pop();
+srpc ? ok('hizmet RPC çağrıldı') : bad('hizmet RPC çağrılmadı');
+if(srpc){
+  console.log('   gönderilen:', JSON.stringify(srpc.args.p_services));
+  srpc.args.p_services.includes('transfer_car') ? ok('açılan bölüm listeye girdi') : bad('liste: '+srpc.args.p_services);
+  srpc.args.p_activity_id==='a-1' ? ok('activity_id gönderildi') : bad('activity_id: '+srpc.args.p_activity_id);
+}
+// geri kapat, kalan testler fikstur varsayimini korusun
+await p.uncheck('[data-svc="transfer_car"]');
+await p.locator('#svcSave').click(); await p.waitForTimeout(600);
+
 // --- kapali hizmet uyarisi (transfer_car gm_services'te YOK)
 await p.locator('[data-lc="car"]').click(); await p.waitForTimeout(300);
 (await p.locator('#tb .msg.err').count())>0 ? ok('kapalı kategori uyarısı çıkıyor') : bad('kapalı uyarısı yok');
