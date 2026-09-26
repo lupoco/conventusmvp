@@ -56,4 +56,36 @@ do $$ declare ok boolean; begin
   raise notice '   conventity_can_manage_event politikalardan cagrilabilir';
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- UCUNCU NOBETCI: topluluk zinciri kopmasin.
+--
+-- community_id tasiyan tablolar icin AYRI bir tarama yapildi ve YENI BIR HATA
+-- SINIFI BULUNMADI. Sebep: conventity_can_manage_event ucuncu dalinda
+-- conventity_can_manage_community'yi cagiriyor. Yani topluluk yoneticisi,
+-- can_manage_event kullanan HER politikada zaten kapsaniyor.
+--
+-- Bu nobetci o zinciri koruyor: biri can_manage_event'i sadelestirip topluluk
+-- dalini cikarirsa, topluluk yoneticileri sessizce butun etkinliklerden
+-- duser ve hicbir test patlamaz. Bu yuzden zincirin varligi ayrica siniliyor.
+do $$ declare src text; begin
+  select prosrc into src from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+   where n.nspname='public' and p.proname='conventity_can_manage_event' limit 1;
+  if src is null then
+    raise exception 'conventity_can_manage_event yok';
+  end if;
+  if src not like '%can_manage_community%' then
+    raise exception E'\n\nTOPLULUK ZINCIRI KOPMUS: conventity_can_manage_event artik\n'
+      'conventity_can_manage_community cagirmiyor. Topluluk yoneticileri (community/owner,\n'
+      'community/admin) butun etkinlik politikalarindan sessizce duser.\n';
+  end if;
+  raise notice '   topluluk zinciri saglam (can_manage_event -> can_manage_community)';
+end $$;
+
+-- NOT — bilinen ve KASITLI olarak acik birakilan:
+--   conventus_managed_events UPDATE/DELETE icin genel bir yonetici politikasi
+--   YOK; yalniz sahip, is_cv_admin ve uc RPC (logistics/protocol/services).
+--   Hicbir sayfa dogrudan update yapmiyor, dolayisiyla bugun bir sey kirmiyor.
+--   Genis bir UPDATE politikasi eklemek butun kolonlari acardi; ihtiyac
+--   dogdugunda alan bazli RPC eklemek daha dar bir cozum.
+
 select '== RLS NOBETCISI GECTI ==';
