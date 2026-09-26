@@ -104,6 +104,8 @@
      tab_general:'Genel', tab_reg:'Kayıtlar', tab_agenda:'Ajanda', tab_ann:'Duyurular', tab_docs:'Dokümanlar', tab_log:'İdari & Lojistik',
      tab_form:'Kayıt formu', tab_proto:'Protokol',
      pr_intro:'NATO Protocol guide book §2.2 bu ayarların hepsini etkinliğe bırakıyor. Öncelik sırası burada seçilenden hesaplanır.',
+     pr_enable:'Bu etkinlikte protokol sırası kullanılsın',
+     pr_enable_d:'Kapalıyken kayıt formu kuvvet, rütbe, sıfat ve rütbe tarihi sormaz; protokol sırası üretilmez. Her etkinlik bu kadar resmî değil — sade etkinliklerde kapalı bırakın.',
      pr_list:'Öncelik listesi', pr_lang:'Alfabetik sıra dili', pr_host:'Ev sahibi ulus',
      pr_partner:'Partner ulusların yerleşimi', pr_dress:'Kıyafet kademesi', pr_season:'Mevsim',
      pr_none:'— seçilmedi —',
@@ -170,6 +172,8 @@
      tab_general:'General', tab_reg:'Registrations', tab_agenda:'Agenda', tab_ann:'Announcements', tab_docs:'Documents', tab_log:'Admin & Logistics',
      tab_form:'Registration form', tab_proto:'Protocol',
      pr_intro:'NATO Protocol guide book §2.2 leaves all of these to the event. Precedence is computed from what you choose here.',
+     pr_enable:'Use order of precedence for this event',
+     pr_enable_d:'When off, the registration form does not ask for service, rank, capacity or date of rank, and no precedence order is produced. Not every event is this formal — leave it off for simple events.',
      pr_list:'Precedence list', pr_lang:'Alphabetical ordering language', pr_host:'Host nation',
      pr_partner:'Placement of partner nations', pr_dress:'Dress code', pr_season:'Season',
      pr_none:'— not set —',
@@ -383,9 +387,15 @@
 
   function drawProto(){
     var E=EVENT;
+    var on = !!E.protocol_enabled;
     var card='<div class="card"><h3>'+esc(T('tab_proto'))+'</h3>'+
       '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('pr_intro'))+'</div>'+
-      '<div style="display:grid;gap:12px">'+
+      '<label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:12px;border:1px solid var(--line-2);border-radius:10px">'+
+        '<input type="checkbox" id="pr_on"'+(on?' checked':'')+' style="margin-top:3px">'+
+        '<span><b>'+esc(T('pr_enable'))+'</b>'+
+        '<div style="color:var(--muted);font-size:12px;margin-top:3px">'+esc(T('pr_enable_d'))+'</div></span></label>'+
+      '<div id="pr_body" style="'+(on?'':'display:none')+'">'+
+      '<div style="display:grid;gap:12px;margin-top:14px">'+
         '<div><label>'+esc(T('pr_list'))+'</label><select id="pr_list">'+
           selOpts(PROTO.lists, E.precedence_list, 'key', refLabel, false)+'</select></div>'+
         '<div><label>'+esc(T('pr_lang'))+'</label><select id="pr_lang">'+
@@ -403,12 +413,18 @@
           '<option value="winter"'+(E.dress_season==='winter'?' selected':'')+'>'+esc(T('pr_winter'))+'</option>'+
           '<option value="summer"'+(E.dress_season==='summer'?' selected':'')+'>'+esc(T('pr_summer'))+'</option></select></div>'+
         '<div id="pr_dressPrev"></div>'+
-      '</div>'+
+      '</div></div>'+
       '<div class="actions" style="margin-top:14px"><button class="btn btn-primary btn-sm" id="prSave">'+esc(T('pr_save'))+'</button>'+
       '<span class="ferr" id="prErr" style="align-self:center"></span></div></div>'+
       '<div id="prOrder"></div>';
     $('#tb').innerHTML=card;
     $('#prSave').addEventListener('click', saveProtocol);
+    /* Anahtar kapaninca ayarlari ve sirayi gizle — kapaliyken sira zaten
+       uretilmeyecek, gostermek yaniltici olur. */
+    $('#pr_on').addEventListener('change', function(){
+      $('#pr_body').style.display = this.checked ? '' : 'none';
+      var o=$('#prOrder'); if(o) o.style.display = this.checked ? '' : 'none';
+    });
     ['pr_dress','pr_season'].forEach(function(id){
       var el=$('#'+id); if(el) el.addEventListener('change', drawDressPreview);
     });
@@ -438,11 +454,13 @@
     $('#prErr').textContent='';
     var res=await sb.rpc('conventus_set_event_protocol',{
       p_activity_id:EVENT.activity_id,
+      p_protocol_enabled: !!($('#pr_on')||{}).checked,
       p_precedence_list:pv('pr_list'), p_alpha_language:pv('pr_lang'),
       p_host_nation:pv('pr_host'), p_partner_placement:pv('pr_partner'),
       p_dress_code_key:pv('pr_dress'), p_dress_season:pv('pr_season')
     });
     if(res.error){ $('#prErr').textContent=res.error.message; return; }
+    EVENT.protocol_enabled=!!($('#pr_on')||{}).checked;
     EVENT.precedence_list=pv('pr_list'); EVENT.alpha_language=pv('pr_lang');
     EVENT.host_nation=pv('pr_host'); EVENT.partner_placement=pv('pr_partner');
     EVENT.dress_code_key=pv('pr_dress'); EVENT.dress_season=pv('pr_season');
@@ -465,6 +483,7 @@
 
   function drawPrecedence(){
     var box=$('#prOrder'); if(!box||!PORDER) return;
+    if(!EVENT.protocol_enabled){ box.innerHTML=''; return; }
     var head='<div class="card" style="margin-top:14px"><h3>'+esc(T('pr_order'))+'</h3>'+
       '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('pr_order_intro'))+'</div>';
     if(PORDER.err){ box.innerHTML=head+'<div class="empty">'+esc(PORDER.err)+'</div></div>'; return; }

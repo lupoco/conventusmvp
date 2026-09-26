@@ -31,7 +31,7 @@ say "kanonik duruma getir"
 # "anon onaylari okudu" diye patliyordu.)
 for f in sql/04_access_requests.sql sql/06_pending_members.sql \
          sql/09_registration_wizard.sql sql/10_protocol_reference.sql \
-         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/05_harden_grants.sql \
+         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/13_protocol_optional.sql sql/05_harden_grants.sql \
          sql/07_harden_functions.sql; do
   cp "$f" "$RUN/_m.sql"; chmod 644 "$RUN/_m.sql"
   out=$(su postgres -c "$PSQL -q -v ON_ERROR_STOP=1 -f $RUN/_m.sql" 2>&1)
@@ -101,6 +101,7 @@ if ! curl -s -o /dev/null http://localhost:8099/index.html; then
   (npx --yes http-server -p 8099 -s . >/dev/null 2>&1 &) ; sleep 3
 fi
 for t in scripts/test-register-wizard.mjs scripts/test-register-ref-degraded.mjs \
+         scripts/test-register-proto-off.mjs \
          scripts/test-event-form-tab.mjs scripts/test-event-protocol-tab.mjs \
          scripts/test-core-pending-panel.mjs scripts/test-core-access-panel.mjs \
          scripts/test-access-form.mjs; do

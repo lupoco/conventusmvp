@@ -60,6 +60,11 @@ create policy cme_visibility_gate on public.conventus_managed_events
 -- referans tablolarina karsi DOGRULAR. Gecersiz deger sessizce yazilmaz —
 -- 10'da bu kolonlara FK koymadik (referans verisi degisince etkinlik
 -- kirilmasin diye), dogrulama bu yuzden burada.
+-- Asiri yukleme birikmesin: bu fonksiyonun imzasi 13'te genisliyor. Bu dosya
+-- 13'ten SONRA tekrar kosulursa iki surum kalir ve PostgREST hangisini
+-- cagiracagini bilemez. Once digerini dusuruyoruz.
+drop function if exists public.conventus_set_event_protocol(uuid,boolean,text,text,text,text,text,text);
+
 create or replace function public.conventus_set_event_protocol(
   p_activity_id     uuid,
   p_precedence_list text default null,
@@ -129,7 +134,7 @@ select
      and tablename='conventus_managed_events' and policyname='cme_visibility_gate'
      and qual like '%can_manage_event%')                                              as "kapi yoneticiyi taniyor (1)",
   (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-     where n.nspname='public' and p.proname='conventus_set_event_protocol')           as "RPC (1)",
-  (select has_function_privilege('anon', p.oid, 'execute')::int
-     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-     where n.nspname='public' and p.proname='conventus_set_event_protocol')           as "anon cagirabilir (0)";
+     where n.nspname='public' and p.proname='conventus_set_event_protocol')           as "RPC asiri yukleme (1)",
+  (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+     where n.nspname='public' and p.proname='conventus_set_event_protocol'
+       and has_function_privilege('anon', p.oid, 'execute'))                          as "anon cagirabilir (0)";

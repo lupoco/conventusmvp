@@ -16,7 +16,7 @@ await p.route('**/assets/js/cv-config.js', r=>r.fulfill({contentType:'applicatio
 await p.route('**/supabase-js@2**', r=>r.fulfill({contentType:'application/javascript', body:`
 window.__OPS=[];
 const EV={id:7,code:'LANDCOM-CONF-2026',title:'LANDCOM Konferansı 2026',activity_id:'a-1',
-  community_id:'c-1',published:true,registration_open:true,logistics:{}};
+  community_id:'c-1',published:true,registration_open:true,logistics:{},protocol_enabled:true};
 let TYPES=[{id:1,event_id:7,key:'delegate',label:'Katılımcı',note:'Konferansa katılacaksanız.',allow_other:false,sort:1,is_active:true}];
 let TRACKS=[];
 let CONS=[{id:21,event_id:7,key:'participant_list',version:1,body:'Listede paylaşılmasına onay veriyorum.',is_required:true,sort:1,is_active:true}];
@@ -95,6 +95,13 @@ const tab = p.locator('.tab', {hasText:'Protokol'});
 (await tab.count())===1 ? ok('Protokol sekmesi var') : bad('sekme yok');
 await tab.click(); await p.waitForTimeout(700);
 
+// --- 0) ana anahtar: kapatinca ayarlar ve sira gizlenmeli
+await p.isChecked('#pr_on') ? ok('anahtar açık (etkinlikte protokol var)') : bad('anahtar kapalı geldi');
+await p.uncheck('#pr_on'); await p.waitForTimeout(250);
+await p.locator('#pr_body').isHidden() ? ok('kapatınca ayarlar gizleniyor') : bad('kapalıyken ayarlar görünüyor');
+await p.check('#pr_on'); await p.waitForTimeout(250);
+await p.locator('#pr_body').isVisible() ? ok('açınca ayarlar geri geliyor') : bad('açılmadı');
+
 // --- 1) ayar formu referanstan doluyor mu
 const listOpts = await p.locator('#pr_list option').allInnerTexts();
 listOpts.length===2 ? ok('iki öncelik listesi geldi: '+listOpts.join(' / ')) : bad('öncelik listesi: '+JSON.stringify(listOpts));
@@ -133,6 +140,7 @@ if(rpc){
   rpc.args.p_host_nation==='TUR'           ? ok('ev sahibi ulus gönderildi')   : bad('ulus: '+rpc.args.p_host_nation);
   rpc.args.p_dress_season==='winter'       ? ok('mevsim gönderildi')           : bad('mevsim: '+rpc.args.p_dress_season);
   rpc.args.p_activity_id==='a-1'           ? ok('activity_id gönderildi')      : bad('activity_id: '+rpc.args.p_activity_id);
+  rpc.args.p_protocol_enabled===true       ? ok('ana anahtar gönderildi')      : bad('protocol_enabled: '+rpc.args.p_protocol_enabled);
 }
 
 // --- 4) SIRALAMA

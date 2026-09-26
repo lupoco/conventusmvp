@@ -16,7 +16,7 @@ await p.route('**/supabase-js@2**', r=>r.fulfill({contentType:'application/javas
 window.__WRITES=[];
 const EV_FIXTURE={id:7,code:'LANDCOM-CONF-2026',title:'LANDCOM Konferansı 2026',start_date:'2026-11-17',
   end_date:'2026-11-19',location:'Belirlenecek',host_org:'LANDCOM',description:'Test',
-  published:true,registration_open:true,registration_field_defs:[]};
+  published:true,registration_open:true,registration_field_defs:[],protocol_enabled:true};
 const TYPES=[{id:1,key:'delegate',label:'Katılımcı',note:'Konferansa katılacaksanız seçin.',allow_other:false,sort:1},
              {id:2,key:'other',label:'Diğer',note:'Uymuyorsa açıklayın.',allow_other:true,sort:9}];
 const TRACKS=[{id:11,key:'main',title:'Ana program',starts_on:'2026-11-17',ends_on:'2026-11-19',time_from:'09:00',time_to:'17:00',sort:1},
@@ -31,6 +31,8 @@ const RANKS=[{id:101,grade_code:'OF-5',service:'A',name_en:'Colonel',acronym:'CO
              {id:201,grade_code:'OF-5',service:'N',name_en:'Captain',acronym:'CAPT',sort:50}];
 const GRADES=[{code:'OF-9',ordinal:700,civ_equiv:null},{code:'OF-5',ordinal:400,civ_equiv:'A5'},
               {code:'OR-6',ordinal:110,civ_equiv:'B2'},{code:'OR-5',ordinal:100,civ_equiv:'B2'}];
+const CAPS=[{key:'chief_of_defence',group_key:'strategic',label_en:'Chief of Defence',label_tr:'Genelkurmay Başkanı',sort:40},
+            {key:'national_rep',group_key:'delegation',label_en:'National Representative',label_tr:'Ulusal Temsilci',sort:100}];
 // REF_FAIL=true ise referans okumalari hata doner -> serbest metne dusmeli
 window.__REF_FAIL = /reffail/.test(location.search);
 function qb(table){
@@ -50,6 +52,7 @@ function qb(table){
         if(table==='conventity_ref_nation')     data=NATIONS;
         if(table==='conventity_ref_rank')       data=RANKS;
         if(table==='conventity_ref_nato_grade') data=GRADES;
+        if(table==='conventity_ref_capacity')   data=CAPS;
       }
       return Promise.resolve({data,error:null}).then(res);
     }
@@ -104,6 +107,14 @@ console.log('  sivil kademeler  :', civOpts.replace(/\s+/g,' '));
 console.log('  B2 tek kez mi    :', (civOpts.match(/B2/g)||[]).length===1, '(OR-6 ve OR-5 ayni kademe)');
 await p.selectOption('#svc','A'); await p.waitForTimeout(150);
 await p.selectOption('#rk','101');
+
+// --- protokol acik: sifat ve rutbe tarihi de sorulmali (skorun girdisi)
+await p.selectOption('#cap','chief_of_defence');
+await p.fill('#dor','15062021');
+console.log('  rütbe tarihi maskesi:', await p.inputValue('#dor'));
+// ulusta "elle yazin" secenegi hep acik olmali
+const natOpts=(await p.locator('#cty option').allInnerTexts()).join(' | ');
+console.log('  ulus "elle yazın" var mı:', /elle yaz/i.test(natOpts));
 await p.fill('#duty','Şube Müdürü'); await p.selectOption('#role','Delegate');
 await p.click('#wzNext'); await p.waitForTimeout(300);
 console.log('4 adim          :', await stepLabel(), '|', await stepNo());
@@ -150,6 +161,9 @@ console.log('protokol alanlari:', JSON.stringify({nation_code:reg.rows.nation_co
 if(reg.rows.nation_code!=='TUR')   { console.log('✗ nation_code yazilmadi'); process.exitCode=1; }
 if(reg.rows.rank_id!==101)         { console.log('✗ rank_id yazilmadi'); process.exitCode=1; }
 if(reg.rows.grade_code!=='OF-5')   { console.log('✗ grade_code yazilmadi'); process.exitCode=1; }
+if(reg.rows.capacity_key!=='chief_of_defence'){ console.log('✗ capacity_key yazilmadi:',reg.rows.capacity_key); process.exitCode=1; }
+if(reg.rows.date_of_rank!=='2021-06-15'){ console.log('✗ date_of_rank yazilmadi:',reg.rows.date_of_rank); process.exitCode=1; }
+console.log('protokol girdileri:', JSON.stringify({capacity_key:reg.rows.capacity_key, date_of_rank:reg.rows.date_of_rank}));
 if(reg.rows.answers&&reg.rows.answers.ref_degraded){ console.log('✗ referans calisirken degraded isareti dusmus'); process.exitCode=1; }
 console.log('yazilan parkur  :', JSON.stringify(trk.rows));
 console.log('yazilan onay    :', JSON.stringify(con.rows));
