@@ -18,7 +18,8 @@ const EVENTS=[
 ];
 const INV=[
  {id:'i1',provider_id:'p1',category:'accommodation',title:'Hotel Kordon',description:'Konferans salonuna 5 dk.',
-  details:{},price_amount:120,currency:'EUR',date_from:'2026-11-16',date_to:'2026-11-20',capacity:40},
+  details:{single:'€120',double:'€155',discount:'%22',promo:'LANDCOM26'},price_amount:120,currency:'EUR',
+  date_from:'2026-11-16',date_to:'2026-11-20',capacity:40,provider_name:null},
  {id:'i2',provider_id:'p2',category:'transfer_car',title:'Havalimanı transferi',description:'ADB → otel.',
   details:{kind:'transfer'},price_amount:35,currency:'EUR',date_from:null,date_to:null,capacity:null},
  {id:'i3',provider_id:'p2',category:'transfer_car',title:'Araç kiralama — kompakt',description:'Günlük.',
@@ -82,7 +83,7 @@ const BASE='http://localhost:8099/platforms/conventus/go-and-meet.html';
 console.log('\n== liste modu ==');
 let p = await page(false);
 await p.goto(BASE,{waitUntil:'load'}); await p.waitForTimeout(900);
-const evCards = p.locator('.kart.ev');
+const evCards = p.locator('.door');
 (await evCards.count())===2 ? ok('iki etkinlik kartı') : bad('kart sayısı: '+await evCards.count());
 const c0=(await evCards.nth(0).innerText()).replace(/\s+/g,' ');
 c0.includes('LANDCOM') ? ok('etkinlik adı var') : bad('ad yok: '+c0);
@@ -105,8 +106,20 @@ const es =(await p.locator('#es').innerText()).replace(/\s+/g,' ');
 const ulasim=(await p.locator('#ulasim').innerText()).replace(/\s+/g,' ');
 (ulasim.includes('transferi')&&ulasim.includes('Araç kiralama')) ? ok('ulaşımda iki kalem birlikte') : bad('ulaşım: '+ulasim);
 // fiyat + saglayici
-const k=(await p.locator('#konaklama .kart').first().innerText()).replace(/\s+/g,' ');
+const k=(await p.locator('#konaklama .door').first().innerText()).replace(/\s+/g,' ');
 /€|EUR/.test(k) ? ok('fiyat biçimlenmiş') : bad('fiyat yok: '+k);
+// .org'daki zengin icerik: tek/cift fiyat, indirim rozeti, promosyon kodu
+k.includes('€120') && k.includes('€155') ? ok('tek/çift fiyat ayrı gösteriliyor') : bad('oda fiyatları yok: '+k);
+/%22\s*indirim/i.test(k) ? ok('indirim rozeti var') : bad('indirim rozeti yok: '+k);
+k.includes('LANDCOM26') ? ok('promosyon kodu gösteriliyor') : bad('promosyon kodu yok: '+k);
+// ust cubuk etkinlik moduna gecince adi gostermeli
+const crumb=(await p.locator('#crumb').innerText()).trim();
+crumb.includes('LANDCOM') ? ok('üst çubukta etkinlik adı: '+crumb) : bad('üst çubuk güncellenmedi: '+crumb);
+// eyebrow tek satirda kalmali (tireli kod bolunuyordu)
+const ebLines = await p.locator('.eyebrow span').evaluate(el=>{
+  const lh=parseFloat(getComputedStyle(el).lineHeight)||16;
+  return Math.round(el.getBoundingClientRect().height/lh); });
+ebLines<=1 ? ok('eyebrow tek satır') : bad('eyebrow '+ebLines+' satıra bölünüyor');
 // .who text-transform:uppercase uyguluyor; innerText dönüşmüş metni verir
 /kordon otelcilik/i.test(k) ? ok('sağlayıcı adı var') : bad('sağlayıcı yok: '+k);
 // anon -> giris daveti, rezervasyon dugmesi YOK
