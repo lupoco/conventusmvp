@@ -103,6 +103,7 @@ fi
 for t in scripts/test-register-wizard.mjs scripts/test-register-ref-degraded.mjs \
          scripts/test-register-proto-off.mjs \
          scripts/test-event-form-tab.mjs scripts/test-event-protocol-tab.mjs \
+         scripts/test-go-and-meet.mjs \
          scripts/test-core-pending-panel.mjs scripts/test-core-access-panel.mjs \
          scripts/test-access-form.mjs; do
   out=$(node "$t" 2>&1)
