@@ -389,7 +389,15 @@ h1 em{font-style:normal;color:var(--pf)}
       : T('nodate');
     var where = [EVENT.city,EVENT.country].filter(Boolean).join(', ') || EVENT.location || T('noloc');
 
-    var active = SERVICES.filter(eventHasService);
+    /* Bolum yalniz (hizmet ACIK) VE (en az bir kalem var) ise cizilir.
+       Kalemi olmayan bolume "henuz tanimlanmadi" yazmak katilimci icin
+       gurultu; organizator ayni boslugu kendi sekmesinde zaten goruyor.
+       Bu ayni zamanda kultur/es tek bayrak sorununu da cozuyor: es kalemi
+       girilmemisse es bolumu cikmiyor. */
+    var active = SERVICES.filter(function(svc){
+      if(!eventHasService(svc)) return false;
+      return inv.some(function(x){ return belongs(svc,x); });
+    });
     var html = '<div class="head">'+
       '<div class="eyebrow">'+ICONS.pin+'<span>'+esc(EVENT.code||'')+'</span></div>'+
       '<h1>'+esc(EVENT.title||EVENT.code)+'</h1>'+
@@ -415,9 +423,7 @@ h1 em{font-style:normal;color:var(--pf)}
         '<div class="sec-t">'+(rows.length?'<div class="n">'+rows.length+' '+esc(T('items'))+'</div>':'')+
         '<h2>'+esc(T(svc.h))+'</h2></div></div>'+
         '<p class="sec-d">'+esc(T(svc.d))+'</p>';
-      html += rows.length
-        ? '<div class="cards">'+rows.map(function(x){ return invCard(x,pmap); }).join('')+'</div>'
-        : '<div class="empty">'+esc(T(svc.none))+'</div>';
+      html += '<div class="cards">'+rows.map(function(x){ return invCard(x,pmap); }).join('')+'</div>';
       html += '</section>';
     });
     $('wrap').innerHTML = html;

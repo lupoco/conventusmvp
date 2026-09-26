@@ -96,6 +96,9 @@ console.log('\n== etkinlik modu · giriş yapılmamış ==');
 await p.goto(BASE+'?e=LANDCOM-CONF-2026',{waitUntil:'load'}); await p.waitForTimeout(900);
 const secs = p.locator('section.sec');
 (await secs.count())===4 ? ok('dört bölüm (konaklama · ulaşım · tur · eş)') : bad('bölüm sayısı: '+await secs.count());
+// kalemi olmayan bolum katilimciya CIZILMEMELI
+const bosBolum = await p.locator('section.sec .cards').evaluateAll(els=>els.filter(e=>e.children.length===0).length);
+bosBolum===0 ? ok('boş bölüm çizilmiyor') : bad(bosBolum+' boş bölüm çiziliyor');
 const titles=(await p.locator('.sec-h h2').allInnerTexts()).map(s=>s.trim());
 console.log('   bölümler:', titles.join(' | '));
 // kultur / es ayrimi — ayni kategoriden geliyorlar, details.kind ile ayrilmali
