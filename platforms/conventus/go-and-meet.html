@@ -191,7 +191,8 @@ h1 em{font-style:normal;color:var(--pf)}
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
       single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
-      booked_note:'Onay bekliyor',
+      booked_note:'Onay bekliyor', confirmed_note:'Organizatör onayladı',
+      st_requested:'Talep edildi', st_confirmed:'Onaylandı',
       ev_h:'Yaklaşan etkinlikler', ev_d:'Kayıt açık etkinlikler. Bir etkinliğe tıklayarak konaklama, ulaşım ve kültür programını görebilirsin.',
       ev_none:'Şu anda yayında etkinlik yok.',
       ev_open:'Detay ve rezervasyon →', ev_reg:'Kayıt ol',
@@ -221,7 +222,8 @@ h1 em{font-style:normal;color:var(--pf)}
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
       single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
-      booked_note:'Onay bekliyor',
+      booked_note:'Onay bekliyor', confirmed_note:'Organizatör onayladı',
+      st_requested:'Talep edildi', st_confirmed:'Onaylandı',
       ev_h:'Upcoming events', ev_d:'Events open for registration. Select one to see accommodation, transport and the cultural programme.',
       ev_none:'No published events right now.',
       ev_open:'Details and booking →', ev_reg:'Register',
@@ -430,7 +432,15 @@ h1 em{font-style:normal;color:var(--pf)}
     bindBooking();
   }
 
-  function planFor(invId){ for(var i=0;i<PLAN.length;i++){ if(PLAN[i].inventory_id===invId) return PLAN[i]; } return null; }
+  /* Iptal edilmis talep YOK sayilir — katilimci yeniden talep edebilmeli.
+     Onaylanmisi geri alamaz: gm_plan silme politikasi zaten status='requested'
+     sarti koyuyor, bu yuzden dugmeyi de gostermiyoruz. */
+  function planFor(invId){
+    for(var i=0;i<PLAN.length;i++){
+      if(PLAN[i].inventory_id===invId && PLAN[i].status!=='cancelled') return PLAN[i];
+    }
+    return null;
+  }
 
   /* Kart icerigi details'e gore ZENGINLESIR (organizator event-manage'in
      Lojistik sekmesinden girer):
@@ -450,7 +460,8 @@ h1 em{font-style:normal;color:var(--pf)}
 
     var chips = '';
     if(d.discount) chips += '<span class="chip gold">'+esc(d.discount)+' '+esc(T('off'))+'</span>';
-    if(mine)       chips += '<span class="chip ok">'+esc(T('booked'))+'</span>';
+    if(mine) chips += '<span class="chip '+(mine.status==='confirmed'?'ok':'')+'">'+
+                      esc(T(mine.status==='confirmed'?'st_confirmed':'st_requested'))+'</span>';
 
     /* Tek/cift fiyat yalnizca girilmisse; yoksa tek fiyat satiri. */
     var priceBlock = '';
@@ -469,7 +480,9 @@ h1 em{font-style:normal;color:var(--pf)}
       : '';
 
     var action = mine
-      ? '<button class="cta ghost" data-cancel="'+esc(mine.id)+'">'+esc(T('cancel'))+'</button>'
+      ? (mine.status==='confirmed'
+          ? '<button class="cta ghost" disabled>'+esc(T('st_confirmed'))+'</button>'
+          : '<button class="cta ghost" data-cancel="'+esc(mine.id)+'">'+esc(T('cancel'))+'</button>')
       : (USER
           ? '<button class="cta" data-book="'+esc(x.id)+'" data-cat="'+esc(x.category)+'">'+esc(T('book'))+'</button>'
           : '<a class="cta ghost" href="/login.html?next='+encodeURIComponent(location.pathname+location.search)+'">'+esc(T('login'))+'</a>');
@@ -482,7 +495,7 @@ h1 em{font-style:normal;color:var(--pf)}
       (bits.length?'<div class="door-meta">'+bits.map(function(b){return '<span>'+esc(b)+'</span>';}).join('')+'</div>':'')+
       '<div class="grow"></div>'+
       priceBlock + promoBlock + action +
-      (mine?'<span class="sub-a">'+esc(T('booked_note'))+'</span>':'')+
+      (mine?'<span class="sub-a">'+esc(T(mine.status==='confirmed'?'confirmed_note':'booked_note'))+'</span>':'')+
       '</article>';
   }
 
