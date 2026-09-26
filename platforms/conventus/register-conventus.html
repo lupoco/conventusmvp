@@ -188,6 +188,18 @@
       f_role:'Katılım sıfatı', f_note:'Organizatöre not (isteğe bağlı)',
       f_rank_sel:'Rütbe / derece seçin…', f_rank_other:'Diğer (elle yazın)',
       f_rank_other_ph:'Rütbe / derecenizi yazın', f_nation_sel:'Ülke seçin…', f_sel:'Seçin…',
+      f_svc_sel:'Kuvvet seçin…', f_nation_other:'Diğer (elle yazın)',
+      f_cap:'Etkinlikteki sıfatınız', f_cap_sel:'Sıfat seçin…',
+      f_dor:'Rütbe tarihi', f_dor_hint:'Opsiyonel. Aynı rütbede iki kişi olursa protokol sırasını bu belirler.',
+      e_dor:'Rütbe tarihi GG.AA.YYYY biçiminde olmalı.',
+      capg_strategic:'Stratejik düzey', capg_delegation:'Ulusal heyet', capg_principal:'Asıl katılımcı',
+      capg_function:'Resmî görev', capg_support:'Destek rolleri', capg_security:'Güvenlik',
+      capg_external:'Dış katılım', capg_other:'Diğer',
+      svc_A:'Kara / Deniz Piyade', svc_F:'Hava', svc_N:'Deniz', svc_CIV:'Sivil (NATO kademesi)',
+      f_civ_grade:'NATO sivil kademesi',
+      f_nation_free_ph:'Ülkenizi yazın', f_rank_free_ph:'Rütbe / derecenizi yazın',
+      ref_degraded:'Rütbe ve ülke listesi şu anda yüklenemedi. Bilgilerinizi yazarak girin — kaydınız alınır, ancak organizatör bu alanları sonradan gözden geçirecek.',
+      e_svc:'Lütfen önce kuvvet seçin.',
       f_custom_h:'Etkinliğe özel bilgiler',
       e_name:'Lütfen ad ve soyadınızı girin.', e_phone:'Lütfen telefon numaranızı girin.',
       e_pass:'Lütfen pasaport numaranızı girin.', e_dob:'Geçerli bir doğum tarihi girin (GG.AA.YYYY).',
@@ -245,6 +257,18 @@
       f_role:'Attending as', f_note:'Note to organiser (optional)',
       f_rank_sel:'Select rank / grade…', f_rank_other:'Other (specify manually)',
       f_rank_other_ph:'Type your rank / grade', f_nation_sel:'Select nation…', f_sel:'Select…',
+      f_svc_sel:'Select service…', f_nation_other:'Other (specify manually)',
+      f_cap:'Your capacity at this event', f_cap_sel:'Select capacity…',
+      f_dor:'Date of rank', f_dor_hint:'Optional. Decides precedence between two people of the same rank.',
+      e_dor:'Date of rank must be in DD.MM.YYYY format.',
+      capg_strategic:'Strategic level', capg_delegation:'National delegation', capg_principal:'Principal',
+      capg_function:'Official function', capg_support:'Supporting roles', capg_security:'Security',
+      capg_external:'External participation', capg_other:'Other',
+      svc_A:'Army / Marine', svc_F:'Air Force', svc_N:'Navy', svc_CIV:'Civilian (NATO grade)',
+      f_civ_grade:'NATO Civilian Grade',
+      f_nation_free_ph:'Type your nation', f_rank_free_ph:'Type your rank / grade',
+      ref_degraded:'The rank and nation lists could not be loaded right now. Please type your details — your registration will be accepted, but the organiser will review these fields afterwards.',
+      e_svc:'Please select your service first.',
       f_custom_h:'Event-specific details',
       e_name:'Please enter your first and last name.', e_phone:'Please enter your phone number.',
       e_pass:'Please enter your passport number.', e_dob:'Please enter a valid date of birth (DD.MM.YYYY).',
@@ -408,19 +432,78 @@ function icsHref(ev){
   }
 
   // ---------- INFO FORM (verified user) ----------
-  const NATIONS=["Albania","Belgium","Bulgaria","Canada","Croatia","Czech Republic","Denmark","Estonia","Finland","France","Germany","Greece","Hungary","Iceland","Italy","Latvia","Lithuania","Luxembourg","Montenegro","Netherlands","North Macedonia","Norway","Poland","Portugal","Romania","Slovakia","Slovenia","Spain","Sweden","Türkiye","United Kingdom","United States"];
-  const RANKS={
-    "Officers (OF)":["OF-9 — General / Air Chief Marshal / Admiral","OF-8 — Lieutenant General / Air Marshal / Vice Admiral","OF-7 — Major General / Air Vice Marshal / Rear Admiral (UH)","OF-6 — Brigadier General / Air Commodore / Rear Admiral (LH)","OF-5 — Colonel / Group Captain / Captain (Navy)","OF-4 — Lieutenant Colonel / Wing Commander / Commander","OF-3 — Major / Squadron Leader / Lieutenant Commander","OF-2 — Captain / Flight Lieutenant / Lieutenant","OF-1 — Lieutenant / Flying Officer / Lieutenant JG"],
-    "Other Ranks (OR)":["OR-9 — Command Sergeant Major / Warrant Officer / MCPO","OR-8 — Master Sergeant / Senior Master Sergeant / SCPO","OR-7 — Sergeant First Class / Master Sergeant / Chief Petty Officer","OR-6 — Staff Sergeant / Technical Sergeant / PO 1st Class","OR-5 — Sergeant / Staff Sergeant / PO 2nd Class","OR-4 — Corporal / Senior Airman / PO 3rd Class","OR-3 — Private First Class / Airman First Class / Seaman","OR-2 — Private E2 / Airman / Seaman Apprentice","OR-1 — Private E1 / Airman Basic / Seaman Recruit"],
-    "NATO Civilian":["A7 — NATO Civilian Grade","A6 — NATO Civilian Grade","A5 — NATO Civilian Grade","A4 — NATO Civilian Grade","A3 — NATO Civilian Grade","A2 — NATO Civilian Grade","A1 — NATO Civilian Grade"],
-    "Civilian / Industry":["Civilian — Government","Civilian — Industry","Civilian — Academia","Civilian — Other"]
-  };
+  /* ---- REFERANS VERISI ---------------------------------------------------
+     Rutbe ve ulus listeleri BU DOSYADA DEGIL: conventity_ref_* tablolarindan
+     gelir (sql/10_protocol_reference.sql + 11_protocol_seed.sql). Kaynak:
+     NATO Protocol guide book §2.1 ulke kodlari + PLCC V23 rutbe tablolari.
+
+     REF.ok=false ise (tablo yok · RLS kapali · PostgREST onbellegi bayat)
+     GOMULU YEDEK LISTEYE DUSMUYORUZ. Sebep CLAUDE.md'deki kural: "sessiz
+     fallback yerine gorunur uyari". Yedek liste kaydi sessizce eski
+     etiketlerle acar, rank_id bos kalir ve protokol sirasi aylar sonra
+     yanlis cikar. Bunun yerine serbest metne dusuyoruz, kullaniciya
+     soyluyoruz ve satiri answers.ref_degraded ile isaretliyoruz. */
+  let REF={ nations:[], ranks:[], civGrades:[], caps:[], ok:false };
+
+  /* Protokol her etkinlikte acik DEGIL (bkz. sql/13). Kapaliyken sihirbaz
+     kuvvet/rutbe/sifat/rutbe tarihi sormaz — cogu etkinlik bu kadar VIP degil
+     ve gereksiz alan doldurtmak birakma oranini artiriyor. */
+  function protoOn(){ return !!(EVENT && EVENT.protocol_enabled); }
+
+  const SERVICES=['A','F','N','CIV'];
+  function serviceLabel(c){ return T('svc_'+c); }
+  function nationLabel(n){ return (LANG()==='tr' && n.name_tr) ? n.name_tr : n.name_en; }
+
   function optList(arr,sel){ return arr.map(function(o){ return '<option'+(o===sel?' selected':'')+'>'+esc(o)+'</option>'; }).join(''); }
-  function rankOptions(sel){
+  function optVals(arr,sel){ return arr.map(function(o){
+    return '<option value="'+esc(o.v)+'"'+(String(o.v)===String(sel)?' selected':'')+'>'+esc(o.t)+'</option>'; }).join(''); }
+
+  function capLabel(c){ return (LANG()==='tr' && c.label_tr) ? c.label_tr : c.label_en; }
+  /* Referans listesi olsa bile "elle yazin" hep acik: kaynak her durumu
+     kapsamiyor ve katilimciyi listeye sigmaya zorlamak yanlis veri uretir. */
+  function nationOptions(sel){
+    return '<option value="">'+esc(T('f_nation_sel'))+'</option>'+
+      optVals(REF.nations.map(n=>({v:n.code_mil,t:nationLabel(n)})), sel)+
+      '<option value="__other__"'+(sel==='__other__'?' selected':'')+'>'+esc(T('f_nation_other'))+'</option>';
+  }
+  function capacityOptions(sel){
+    var groups={}; REF.caps.forEach(function(c){ (groups[c.group_key]=groups[c.group_key]||[]).push(c); });
+    var h='<option value="">'+esc(T('f_cap_sel'))+'</option>';
+    Object.keys(groups).forEach(function(g){
+      h+='<optgroup label="'+esc(T('capg_'+g)||g)+'">'+
+         optVals(groups[g].map(c=>({v:c.key,t:capLabel(c)})), sel)+'</optgroup>';
+    });
+    return h;
+  }
+  function serviceOptions(sel){
+    return '<option value="">'+esc(T('f_svc_sel'))+'</option>'+
+      optVals(SERVICES.map(c=>({v:c,t:serviceLabel(c)})), sel);
+  }
+  /* Secili kuvvetin rutbeleri. CIV icin NATO sivil kademeleri (A7..C1-2).
+     civGrades'teki grade_code esleme kurali loadRef()'te aciklandi. */
+  function rankOptions(service, sel){
     var h='<option value="">'+esc(T('f_rank_sel'))+'</option>';
-    for(var g in RANKS){ h+='<optgroup label="'+esc(g)+'">'+optList(RANKS[g],sel)+'</optgroup>'; }
+    if(service==='CIV'){
+      h+=optVals(REF.civGrades.map(g=>({v:'civ:'+g.civ_equiv,t:g.civ_equiv+' — '+T('f_civ_grade')})), sel);
+    }else if(service){
+      h+=optVals(REF.ranks.filter(r=>r.service===service)
+                   .map(r=>({v:String(r.id),t:r.acronym+' — '+r.name_en})), sel);
+    }
     h+='<option value="__other__"'+(sel==='__other__'?' selected':'')+'>'+esc(T('f_rank_other'))+'</option>';
     return h;
+  }
+  /* Secilen degerden kayit alanlarini cozer. */
+  function resolveRank(service, sel, otherText){
+    if(!service) return {rank_id:null, grade_code:null, rank_title:''};
+    if(sel==='__other__') return {rank_id:null, grade_code:null, rank_title:otherText||''};
+    if(service==='CIV'){
+      const code=(sel||'').replace(/^civ:/,'');
+      const g=REF.civGrades.find(x=>x.civ_equiv===code);
+      return {rank_id:null, grade_code:g?g.code:null, rank_title:code?(code+' — '+T('f_civ_grade')):''};
+    }
+    const r=REF.ranks.find(x=>String(x.id)===String(sel));
+    return r ? {rank_id:r.id, grade_code:r.grade_code, rank_title:r.acronym+' — '+r.name_en}
+             : {rank_id:null, grade_code:null, rank_title:''};
   }
 
   /* ---- ADIM: kisisel bilgiler -------------------------------------------
@@ -435,6 +518,7 @@ function icsHref(ev){
     return `
       <h2>${esc(T('info_h'))}</h2>
       <div class="hint">${esc(T('info_hint'))}</div>
+      ${REF.ok ? '' : `<div class="msg err" style="display:block;margin:0 0 14px">${esc(T('ref_degraded'))}</div>`}
       <div class="row2">
         <div class="field"><label>${esc(T('f_first'))} <span class="req">*</span></label><input id="fnm" type="text" maxlength="80" value="${v(fn)}" ${hasName?'readonly':''}></div>
         <div class="field"><label>${esc(T('f_last'))} <span class="req">*</span></label><input id="lnm" type="text" maxlength="80" value="${v(ln)}" ${hasName?'readonly':''}></div>
@@ -448,16 +532,31 @@ function icsHref(ev){
       <div class="row2">
         <div class="field"><label>${esc(T('f_dob'))} <span class="req">*</span></label><input id="dob" type="text" maxlength="10" inputmode="numeric" value="${v(d.dobRaw)}" placeholder="GG.AA.YYYY"></div>
         <div class="field"><label>${esc(T('f_nation'))} <span class="req">*</span></label>
-          <select id="cty"><option value="">${esc(T('f_nation_sel'))}</option>${optList(NATIONS, d.country)}</select></div>
+          ${REF.ok
+            ? `<select id="cty">${nationOptions(d.nation_sel)}</select>
+               <input id="ctyOther" type="text" maxlength="80" value="${v(d.nation_other)}" placeholder="${esc(T('f_nation_free_ph'))}" style="margin-top:9px;display:none">`
+            : `<input id="cty" type="text" maxlength="80" value="${v(d.country)}" placeholder="${esc(T('f_nation_free_ph'))}">`}</div>
       </div>
       <div class="field"><label>${esc(T('f_ns'))}</label><input id="nse" type="email" maxlength="120" value="${v(d.ns_email)}" placeholder="name@ns.nato.int"></div>
       <div class="field"><label>${esc(T('f_org'))} <span class="req">*</span></label><input id="inst" type="text" maxlength="140" value="${v(d.institution)}" placeholder="NATO LANDCOM"></div>
       <div class="row2">
+        ${protoOn() ? `
         <div class="field"><label>${esc(T('f_rank'))} <span class="req">*</span></label>
-          <select id="rk">${rankOptions(d.rank_sel)}</select>
-          <input id="rkOther" type="text" maxlength="100" value="${v(d.rank_other)}" placeholder="${esc(T('f_rank_other_ph'))}" style="margin-top:9px;display:none"></div>
+          ${REF.ok ? `
+            <select id="svc">${serviceOptions(d.service)}</select>
+            <select id="rk" style="margin-top:9px">${rankOptions(d.service, d.rank_sel)}</select>
+            <input id="rkOther" type="text" maxlength="100" value="${v(d.rank_other)}" placeholder="${esc(T('f_rank_other_ph'))}" style="margin-top:9px;display:none">`
+          : `<input id="rk" type="text" maxlength="100" value="${v(d.rank_title)}" placeholder="${esc(T('f_rank_free_ph'))}">`}</div>` : ''}
         <div class="field"><label>${esc(T('f_duty'))} <span class="req">*</span></label><input id="duty" type="text" maxlength="120" value="${v(d.duty)}"></div>
       </div>
+      ${protoOn() && REF.ok ? `
+      <div class="row2">
+        <div class="field"><label>${esc(T('f_cap'))}</label>
+          <select id="cap">${capacityOptions(d.capacity_key)}</select></div>
+        <div class="field"><label>${esc(T('f_dor'))}</label>
+          <input id="dor" type="text" maxlength="10" inputmode="numeric" value="${v(d.dorRaw)}" placeholder="GG.AA.YYYY">
+          <div class="hint" style="margin-top:6px">${esc(T('f_dor_hint'))}</div></div>
+      </div>` : ''}
       <div class="field"><label>${esc(T('f_role'))} <span class="req">*</span></label>
         <select id="role">
           <option value="">${esc(T('f_sel'))}</option>
@@ -468,10 +567,25 @@ function icsHref(ev){
   }
 
   function bindInfoForm(){
-    const rk=$('rk'); if(rk){
-      const tog=()=>{ const o=rk.value==='__other__'; $('rkOther').style.display=o?'block':'none'; };
-      rk.onchange=tog; tog();
+    const svc=$('svc'), rk=$('rk'), rkO=$('rkOther');
+    const togOther=()=>{ if(rkO) rkO.style.display=(rk && rk.value==='__other__')?'block':'none'; };
+    if(svc && rk){
+      // Kuvvet degisince rutbe listesi yeniden kurulur; onceki secim gecersiz.
+      svc.onchange=()=>{ rk.innerHTML=rankOptions(svc.value,''); togOther(); };
     }
+    if(rk && rk.tagName==='SELECT'){ rk.onchange=togOther; }
+    togOther();
+    const cty=$('cty'), ctyO=$('ctyOther');
+    if(cty && ctyO){
+      const togCty=()=>{ ctyO.style.display = cty.value==='__other__' ? 'block' : 'none'; };
+      cty.onchange=togCty; togCty();
+    }
+    const dor=$('dor');
+    if(dor){ dor.oninput=function(){
+      let d2=this.value.replace(/\D/g,'').slice(0,8), o=d2.slice(0,2);
+      if(d2.length>2) o+='.'+d2.slice(2,4);
+      if(d2.length>4) o+='.'+d2.slice(4,8);
+      this.value=o; }; }
     const dob=$('dob'); if(dob){
       dob.oninput=function(){
         let d=this.value.replace(/\D/g,'').slice(0,8), out=d.slice(0,2);
@@ -555,16 +669,39 @@ function icsHref(ev){
   let STEPS=[], STEP=0, BUSY=false;
 
   async function loadCfg(){
-    const [t,k,c] = await Promise.all([
+    const [t,k,c,n,r,g,cap] = await Promise.all([
       _sb.from('conventus_event_reg_types').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort'),
       _sb.from('conventus_event_tracks').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort'),
-      _sb.from('conventus_event_consents').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort')
+      _sb.from('conventus_event_consents').select('*').eq('event_id',EVENT.id).eq('is_active',true).order('sort'),
+      _sb.from('conventity_ref_nation').select('code_mil,name_en,name_tr,bloc').eq('is_active',true).order('name_en'),
+      _sb.from('conventity_ref_rank').select('id,grade_code,service,name_en,acronym,sort').eq('is_active',true).order('sort'),
+      _sb.from('conventity_ref_nato_grade').select('code,ordinal,civ_equiv').order('ordinal'),
+      _sb.from('conventity_ref_capacity').select('key,group_key,label_en,label_tr,sort').eq('is_active',true).order('sort')
     ]);
     // Sessiz dusme yok: yapilandirma okunamazsa adim atlanir ama konsola yazilir.
     if(t.error||k.error||c.error){
       try{ console.error('[register] yapilandirma okunamadi',t.error||k.error||c.error); }catch(_){}
     }
     CFG={types:t.data||[],tracks:k.data||[],consents:c.data||[]};
+
+    /* NATO sivil kademesi bire bir DEGIL: OR-6 ve OR-5'in ikisi de B2.
+       Ayni sivil kademeye birden fazla askeri kademe dusunce KIDEMLI OLANI
+       aliyoruz (B2 -> OR-6). Kaynak hangisinin dogru oldugunu soylemiyor;
+       bu secim kasitli ve degistirilebilir. */
+    const grades=g.data||[], byCiv={};
+    grades.forEach(x=>{
+      if(!x.civ_equiv) return;
+      if(!byCiv[x.civ_equiv] || x.ordinal > byCiv[x.civ_equiv].ordinal) byCiv[x.civ_equiv]=x;
+    });
+    REF={
+      nations:n.data||[], ranks:r.data||[], caps:cap.data||[],
+      civGrades:Object.keys(byCiv).map(k2=>byCiv[k2]).sort((a,b)=>b.ordinal-a.ordinal),
+      ok: !n.error && !r.error && !g.error && (n.data||[]).length>0 && (r.data||[]).length>0
+    };
+    if(!REF.ok){
+      try{ console.error('[register] protokol referansi okunamadi — serbest metne dusuldu',
+                         n.error||r.error||g.error||'bos tablo'); }catch(_){}
+    }
   }
 
   async function startWizard(user){
@@ -766,16 +903,33 @@ function icsHref(ev){
   // ---------- kisisel bilgi toplama ----------
   function collectInfo(soft){
     const val=(id)=>{ const el=$(id); return el ? el.value.trim() : ''; };
-    let rank_sel=val('rk'); const rank_other=val('rkOther');
-    const rank = rank_sel==='__other__' ? rank_other : rank_sel;
+    const service=val('svc'), rank_sel=val('rk'), rank_other=val('rkOther');
     const dobRaw=val('dob');
     const paf=pafCollect();
+
+    /* REF.ok ise secim referans tablosundan cozulur (rank_id + grade_code).
+       Degilse serbest metin yalnizca rank_title'a yazilir — bos rank_id ile
+       kayit acmak yerine satiri isaretliyoruz ki organizator bulup duzeltsin. */
+    const rr = REF.ok ? resolveRank(service, rank_sel, rank_other)
+                      : {rank_id:null, grade_code:null, rank_title:rank_sel};
+    const natSel=val('cty'), natOther=val('ctyOther');
+    const nat = (REF.ok && natSel!=='__other__') ? REF.nations.find(n=>n.code_mil===natSel) : null;
+    const dorRaw=val('dor');
+    const answers = Object.assign({}, paf.answers);
+    if(!REF.ok) answers.ref_degraded = true;
+
     const d={
       first_name:val('fnm'), last_name:val('lnm'),
       phone:val('phn'), passport_no:val('pss'), dobRaw:dobRaw, dob:dobToISO(dobRaw),
-      country:val('cty'), ns_email:val('nse'), institution:val('inst'),
-      rank_sel:rank_sel, rank_other:rank_other, rank_title:rank,
-      duty:val('duty'), role:val('role'), note:val('note'), answers:paf.answers
+      nation_code: nat?nat.code_mil:null,
+      country: nat ? nat.name_en : (REF.ok ? natOther : natSel),
+      nation_sel:natSel, nation_other:natOther,
+      ns_email:val('nse'), institution:val('inst'),
+      service:service, rank_sel:rank_sel, rank_other:rank_other,
+      rank_id:rr.rank_id, grade_code:rr.grade_code, rank_title:rr.rank_title,
+      capacity_key: val('cap') || null,
+      dorRaw:dorRaw, date_of_rank: dobToISO(dorRaw),
+      duty:val('duty'), role:val('role'), note:val('note'), answers:answers
     };
     DRAFT.info=d;
     if(soft) return true;
@@ -785,7 +939,10 @@ function icsHref(ev){
     if(reqOf('dob') && !d.dob) return wzErr(esc(T('e_dob')));
     if(reqOf('nation') && !d.country) return wzErr(esc(T('e_nation')));
     if(reqOf('organisation') && !d.institution) return wzErr(esc(T('e_org')));
-    if(reqOf('rank') && !d.rank_title) return wzErr(esc(T('e_rank')));
+    if(protoOn() && reqOf('rank') && REF.ok && !d.service) return wzErr(esc(T('e_svc')));
+    if(protoOn() && reqOf('rank') && !d.rank_title) return wzErr(esc(T('e_rank')));
+    // Rutbe tarihi opsiyonel ama girildiyse gecerli olmali — sessizce yutma.
+    if(d.dorRaw && !d.date_of_rank) return wzErr(esc(T('e_dor')));
     if(reqOf('duty') && !d.duty) return wzErr(esc(T('e_duty')));
     if(reqOf('attending_as') && !d.role) return wzErr(esc(T('e_role')));
     if(paf.missing.length) return wzErr(esc(Tf('e_missing',paf.missing.join(', '))));
@@ -811,7 +968,12 @@ function icsHref(ev){
       ns_email:   shownOf('ns_email')  ?(d.ns_email||null):null,
       institution:shownOf('organisation')?(d.institution||null):null,
       country:    shownOf('nation')    ?(d.country||null):null,
-      rank_title: shownOf('rank')      ?(d.rank_title||null):null,
+      nation_code:shownOf('nation')    ?(d.nation_code||null):null,
+      rank_title: (protoOn()&&shownOf('rank'))?(d.rank_title||null):null,
+      rank_id:    (protoOn()&&shownOf('rank'))?(d.rank_id||null):null,
+      grade_code: (protoOn()&&shownOf('rank'))?(d.grade_code||null):null,
+      capacity_key: protoOn()?(d.capacity_key||null):null,
+      date_of_rank: protoOn()?(d.date_of_rank||null):null,
       duty:       shownOf('duty')      ?(d.duty||null):null,
       role:       shownOf('attending_as')?(d.role||null):null,
       note:       shownOf('note')      ?(d.note||null):null,
