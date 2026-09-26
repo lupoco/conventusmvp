@@ -31,7 +31,10 @@ const INV=[
 ];
 const PROVS=[{id:'p1',name:'Kordon Otelcilik',city:'İzmir'},{id:'p2',name:'Ege Transfer',city:'İzmir'},
              {id:'p3',name:'Anadolu Turizm',city:'İzmir'}];
-let PLAN=[];
+/* p.reload() sahte modulu bastan calistirdigi icin PLAN sifirlaniyordu ve
+   iki iddia da YANLIS SEBEPLE sonuc veriyordu. Tohumu localStorage'da tutuyoruz. */
+let PLAN=[]; try{ PLAN=JSON.parse(localStorage.getItem('__seedPlan')||'[]'); }catch(_){}
+window.__setPlan=(v)=>{ PLAN=v; try{ localStorage.setItem('__seedPlan',JSON.stringify(v)); }catch(_){} };
 function qb(table){
   const self={_f:{},_del:false,
     select(){return self;}, eq(c,v){self._f[c]=v;return self;}, order(){return self;},
@@ -140,6 +143,7 @@ await p.context().close();
 // ============ 4) REZERVASYON — giris yapilmis ============
 console.log('\n== rezervasyon ==');
 p = await page(true);
+await p.evaluate(()=>{ try{localStorage.removeItem('__seedPlan');}catch(_){}} ).catch(()=>{});
 await p.goto(BASE+'?e=LANDCOM-CONF-2026',{waitUntil:'load'}); await p.waitForTimeout(900);
 (await p.locator('[data-book]').count())===5 ? ok('beş kalemde rezervasyon düğmesi') : bad('düğme sayısı: '+await p.locator('[data-book]').count());
 await p.locator('#konaklama [data-book]').first().click(); await p.waitForTimeout(700);
@@ -161,6 +165,21 @@ await p.locator('[data-cancel]').first().click(); await p.waitForTimeout(700);
 const ops2=await p.evaluate(()=>window.__OPS);
 ops2.some(o=>o.op==='delete'&&o.table==='gm_plan') ? ok('geri alma gm_plan satırını sildi') : bad('silme olmadı');
 (await p.locator('#konaklama [data-book]').count())>0 ? ok('rezervasyon düğmesi geri geldi') : bad('düğme dönmedi');
+
+// ---- ONAYLANMIS TALEP: katilimci geri alamamali (silme politikasi da izin vermiyor)
+await p.evaluate(()=>{ window.__setPlan([{id:'plx',event_id:7,user_id:'u1',category:'accommodation',
+  inventory_id:'i1',status:'confirmed'}]); });
+await p.reload({waitUntil:'load'}); await p.waitForTimeout(900);
+const kk=(await p.locator('#konaklama .door').first().innerText()).replace(/\s+/g,' ');
+/onaylandı/i.test(kk) ? ok('onaylandı durumu gösteriliyor') : bad('durum yok: '+kk);
+(await p.locator('#konaklama [data-cancel]').count())===0 ? ok('onaylanmışta geri alma düğmesi yok') : bad('geri alma düğmesi var');
+(await p.locator('#konaklama [data-book]').count())===0 ? ok('yeniden talep düğmesi de yok') : bad('yeniden talep düğmesi var');
+
+// ---- IPTAL EDILMIS TALEP: yok sayilmali, yeniden talep edilebilmeli
+await p.evaluate(()=>{ window.__setPlan([{id:'ply',event_id:7,user_id:'u1',category:'accommodation',
+  inventory_id:'i1',status:'cancelled'}]); });
+await p.reload({waitUntil:'load'}); await p.waitForTimeout(900);
+(await p.locator('#konaklama [data-book]').count())>0 ? ok('iptal sonrası yeniden talep edilebiliyor') : bad('iptal edilmiş talep hâlâ engelliyor');
 if(p.__errs.length) bad('hatalar: '+p.__errs.join(' / '));
 
 // ============ 5) RESPONSIVE ============

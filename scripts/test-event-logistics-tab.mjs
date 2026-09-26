@@ -49,6 +49,10 @@ const CAPS=[{key:'national_rep',label_en:'National Representative',label_tr:'Ulu
             {key:'chief_of_defence',label_en:'Chief of Defence',label_tr:'Genelkurmay Başkanı'},
             {key:'minister',label_en:'Minister',label_tr:'Bakan'}];
 window.__ORDERS=[];
+let PLANS=[{id:'pl1',event_id:7,user_id:'u9',category:'accommodation',inventory_id:'v1',status:'requested',created_at:'2026-09-20'},
+ {id:'pl2',event_id:7,user_id:'u8',category:'culture_spouse',inventory_id:'v2',status:'confirmed',created_at:'2026-09-19'}];
+let REGS=[{user_id:'u9',first_name:'Ayşe',last_name:'Yılmaz',email:'a@b.c'},
+          {user_id:'u8',first_name:'John',last_name:'Doe',email:'j@d.e'}];
 let INV=[{id:'v1',event_id:7,category:'accommodation',title:'Hotel Kordon',provider_name:'Kordon Otelcilik',
   description:'5 dk.',price_amount:120,currency:'EUR',date_from:'2026-11-16',date_to:'2026-11-20',capacity:40,
   details:{single:'€120',double:'€155',discount:'%22',promo:'LANDCOM26'},is_active:true},
@@ -56,7 +60,7 @@ let INV=[{id:'v1',event_id:7,category:'accommodation',title:'Hotel Kordon',provi
   details:{kind:'tour'},price_amount:60,currency:'EUR',is_active:true},
  {id:'v3',event_id:7,category:'culture_spouse',title:'Alaçatı',provider_name:'Anadolu',
   details:{kind:'spouse'},price_amount:55,currency:'EUR',is_active:true}];
-function data(t){ return t==='gm_inventory'?INV:t==='conventus_event_reg_types'?TYPES:t==='conventus_event_tracks'?TRACKS:t==='conventus_event_consents'?CONS:
+function data(t){ return t==='gm_plan'?PLANS:t==='conventus_registrations'?REGS:t==='gm_inventory'?INV:t==='conventus_event_reg_types'?TYPES:t==='conventus_event_tracks'?TRACKS:t==='conventus_event_consents'?CONS:
   t==='conventity_ref_nation'?NATIONS:t==='conventity_ref_precedence_list'?PLISTS:t==='conventity_ref_dress_code'?DRESS:t==='conventity_ref_capacity'?CAPS:
   t==='conventus_precedence_v'?PREC.slice().sort((a,b)=>b.precedence_score-a.precedence_score):[]; }
 function qb(table){
@@ -169,6 +173,23 @@ if(ins){
   // bos alanlar details'e yazilmamali
   !('single' in (ins.row.details||{})) ? ok('boş oda fiyatı details’e yazılmadı') : bad('boş alan details’e yazılmış');
 }
+// ---- TALEPLER (organizator tarafi)
+const plRows = p.locator('.card', {hasText:'Rezervasyon talepleri'}).locator('tbody tr');
+(await plRows.count())===2 ? ok('iki talep listelendi') : bad('talep sayısı: '+await plRows.count());
+const r0=(await plRows.nth(0).innerText()).replace(/\s+/g,' ');
+r0.includes('Ayşe Yılmaz') ? ok('talep sahibinin adı kayıttan eşleşti') : bad('ad yok: '+r0);
+r0.includes('Hotel Kordon') ? ok('kalem adı gösteriliyor') : bad('kalem yok: '+r0);
+/talep/i.test(r0) ? ok('durum rozeti var') : bad('durum yok: '+r0);
+// onaylanmis talepte "Onayla" dugmesi OLMAMALI
+const r1h = await plRows.nth(1).innerHTML();
+!/data-to="confirmed"/.test(r1h) ? ok('onaylanmış talepte Onayla düğmesi yok') : bad('onaylanmışta Onayla var');
+// onayla
+await plRows.nth(0).locator('[data-to="confirmed"]').click(); await p.waitForTimeout(600);
+const pops=await p.evaluate(()=>window.__OPS);
+const upd=pops.filter(o=>o.op==='update'&&o.table==='gm_plan').pop();
+upd ? ok('gm_plan durumu güncellendi') : bad('güncelleme olmadı');
+if(upd){ console.log('   güncelleme:', JSON.stringify(upd.patch));
+  upd.patch.status==='confirmed' ? ok("status 'confirmed' yazıldı") : bad('status: '+upd.patch.status); }
 await p.screenshot({path:'/var/tmp/logi-tab.png', fullPage:true});
 console.log('sayfa hataları:', errs.length?errs.join(' / '):'yok');
 if(errs.length) fail=1;

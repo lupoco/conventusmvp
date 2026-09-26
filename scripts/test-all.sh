@@ -31,7 +31,7 @@ say "kanonik duruma getir"
 # "anon onaylari okudu" diye patliyordu.)
 for f in sql/04_access_requests.sql sql/06_pending_members.sql \
          sql/09_registration_wizard.sql sql/10_protocol_reference.sql \
-         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/13_protocol_optional.sql sql/14_event_logistics.sql sql/15_event_services.sql sql/05_harden_grants.sql \
+         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/13_protocol_optional.sql sql/14_event_logistics.sql sql/15_event_services.sql sql/16_plan_organizer.sql sql/05_harden_grants.sql \
          sql/07_harden_functions.sql; do
   cp "$f" "$RUN/_m.sql"; chmod 644 "$RUN/_m.sql"
   out=$(su postgres -c "$PSQL -q -v ON_ERROR_STOP=1 -f $RUN/_m.sql" 2>&1)
