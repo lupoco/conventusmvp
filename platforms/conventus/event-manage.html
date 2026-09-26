@@ -102,7 +102,19 @@
    tr:{ back:'Etkinliklerim', signin:'Giriş gerekli', signin_d:'Bu konsol etkinlik yöneticileri içindir.', signin_b:'Giriş yap',
      notfound:'Etkinlik bulunamadı', notfound_d:'Bağlantı geçersiz ya da bu etkinliği yönetme yetkin yok.',
      tab_general:'Genel', tab_reg:'Kayıtlar', tab_agenda:'Ajanda', tab_ann:'Duyurular', tab_docs:'Dokümanlar', tab_log:'İdari & Lojistik',
-     tab_form:'Kayıt formu', tab_proto:'Protokol',
+     tab_form:'Kayıt formu', tab_proto:'Protokol', tab_logi:'Go & Meet envanteri',
+     lg_intro:'Katılımcıların Go & Meet sayfasında göreceği otel, araç, tur ve eş programı kalemleri. Sağlayıcı sisteme kayıtlı değilse adını yazman yeterli.',
+     lg_cat:'Kategori', lg_kind:'Tür', lg_title:'Başlık', lg_prov:'Sağlayıcı adı', lg_desc:'Açıklama',
+     lg_price:'Fiyat', lg_cur:'Para birimi', lg_single:'Tek kişilik', lg_double:'Çift kişilik',
+     lg_disc:'İndirim', lg_promo:'Promosyon kodu', lg_from:'Başlangıç', lg_to:'Bitiş', lg_cap:'Kontenjan',
+     lg_add:'Kalem ekle', lg_save:'Kaydet', lg_cancel:'Vazgeç', lg_edit:'Düzenle', lg_del:'Sil',
+     lg_none:'Bu kategoride henüz kalem yok.',
+     lg_saved:'Kaydedildi.', lg_deleted:'Silindi.', lg_confirm:'Bu kalem silinsin mi?',
+     lg_e_title:'Başlık gerekli.', lg_e_date:'Tarih GG.AA.YYYY biçiminde olmalı.',
+     lg_svc_off:'Bu kategori etkinlikte kapalı — kalem girsen de katılımcıya görünmez. Genel sekmesinden açabilirsin.',
+     lg_c_acc:'Konaklama', lg_c_car:'Ulaşım & Araç', lg_c_tour:'Kültür Turu', lg_c_spouse:'Eş Programı',
+     lg_k_transfer:'Havalimanı transferi', lg_k_car:'Araç kiralama', lg_k_shuttle:'Servis',
+     lg_hint_hotel:'Tek/çift fiyat ve indirim yalnız konaklamada gösterilir.',
      pr_intro:'NATO Protocol guide book §2.2 bu ayarların hepsini etkinliğe bırakıyor. Öncelik sırası burada seçilenden hesaplanır.',
      pr_enable:'Bu etkinlikte protokol sırası kullanılsın',
      pr_enable_d:'Kapalıyken kayıt formu kuvvet, rütbe, sıfat ve rütbe tarihi sormaz; protokol sırası üretilmez. Her etkinlik bu kadar resmî değil — sade etkinliklerde kapalı bırakın.',
@@ -170,7 +182,19 @@
    en:{ back:'My events', signin:'Sign in required', signin_d:'This console is for event managers.', signin_b:'Sign in',
      notfound:'Event not found', notfound_d:'Invalid link, or you cannot manage this event.',
      tab_general:'General', tab_reg:'Registrations', tab_agenda:'Agenda', tab_ann:'Announcements', tab_docs:'Documents', tab_log:'Admin & Logistics',
-     tab_form:'Registration form', tab_proto:'Protocol',
+     tab_form:'Registration form', tab_proto:'Protocol', tab_logi:'Go & Meet inventory',
+     lg_intro:'Hotels, cars, tours and spouse programme items participants will see on the Go & Meet page. If the provider is not in the system, just type their name.',
+     lg_cat:'Category', lg_kind:'Kind', lg_title:'Title', lg_prov:'Provider name', lg_desc:'Description',
+     lg_price:'Price', lg_cur:'Currency', lg_single:'Single room', lg_double:'Double room',
+     lg_disc:'Discount', lg_promo:'Promo code', lg_from:'From', lg_to:'To', lg_cap:'Capacity',
+     lg_add:'Add item', lg_save:'Save', lg_cancel:'Cancel', lg_edit:'Edit', lg_del:'Delete',
+     lg_none:'No items in this category yet.',
+     lg_saved:'Saved.', lg_deleted:'Deleted.', lg_confirm:'Delete this item?',
+     lg_e_title:'Title is required.', lg_e_date:'Date must be DD.MM.YYYY.',
+     lg_svc_off:'This category is switched off for the event — items will not be shown to participants. Turn it on in the General tab.',
+     lg_c_acc:'Accommodation', lg_c_car:'Transport & Car', lg_c_tour:'Cultural Tour', lg_c_spouse:'Spouse Programme',
+     lg_k_transfer:'Airport transfer', lg_k_car:'Car rental', lg_k_shuttle:'Shuttle',
+     lg_hint_hotel:'Single/double price and discount are only shown for accommodation.',
      pr_intro:'NATO Protocol guide book §2.2 leaves all of these to the event. Precedence is computed from what you choose here.',
      pr_enable:'Use order of precedence for this event',
      pr_enable_d:'When off, the registration form does not ask for service, rank, capacity or date of rank, and no precedence order is produced. Not every event is this formal — leave it off for simple events.',
@@ -290,7 +314,7 @@
 
   function render(){
     setChrome();
-    var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['proto','tab_proto'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
+    var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['proto','tab_proto'],['logi','tab_logi'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
     $('#wrap').innerHTML=
       '<div class="head"><div class="eyebrow">conventus_managed_events</div><h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
       '<div class="subline"><span class="mono">'+esc(EVENT.code)+'</span>·'+
@@ -301,7 +325,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
       b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
     });
-    ({general:tGeneral,reg:tReg,form:tFormTab,proto:tProtoTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
+    ({general:tGeneral,reg:tReg,form:tFormTab,proto:tProtoTab,logi:tLogiTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
   }
   function tSoon(){ $('#tb').innerHTML='<div class="soon">'+esc(T('soon'))+'</div>'; }
   function editorLink(page, descKey){
@@ -509,6 +533,176 @@
           '<td class="mono" style="font-size:11px">'+esc(dmy(x.date_of_rank)||'—')+'</td>'+
           '<td style="font-size:12px">'+esc(x.nation_sort||x.nation_code||'—')+'</td></tr>';
       }).join('')+'</tbody></table></div></div>';
+  }
+
+  /* ===================== LOJISTIK ENVANTERI =============================
+     Organizator kendi etkinliginin otel/arac/tur/es kalemlerini girer.
+     Katilimci bunlari go-and-meet.html'de gorur ve rezerve eder.
+
+     SAGLAYICI ZORUNLU DEGIL (bkz. sql/14): provider_id opsiyonel, saglayici
+     sisteme kayitli degilse adi provider_name'e yazilir. Boylece "once
+     saglayici kaydi ac, sonra akredite et" zinciri beklenmiyor.
+
+     KULTUR TURU ve ES PROGRAMI semada TEK kategori (culture_spouse — CHECK
+     kisiti). Ayrim details.kind ile; ayni ayrim go-and-meet tarafinda da var.
+     Iki yerde ayni kurali yazmamak icin LOGI_CATS tek kaynak gibi davraniyor. */
+  var LOGI_CATS = [
+    { key:'acc',    cat:'accommodation',  svc:'accommodation',  kind:null,     label:'lg_c_acc'    },
+    { key:'car',    cat:'transfer_car',   svc:'transfer_car',   kind:'choose', label:'lg_c_car'    },
+    { key:'tour',   cat:'culture_spouse', svc:'culture_spouse', kind:'tour',   label:'lg_c_tour'   },
+    { key:'spouse', cat:'culture_spouse', svc:'culture_spouse', kind:'spouse', label:'lg_c_spouse' }
+  ];
+  var CAR_KINDS = [['transfer','lg_k_transfer'],['car_rental','lg_k_car'],['shuttle','lg_k_shuttle']];
+  var LOGI = [], logiEdit = null, logiCat = 'acc';
+
+  function invKindOf(r){ var d=(r&&r.details)||{}; return String(d.kind||'').toLowerCase(); }
+  function inCat(c, r){
+    if(r.category !== c.cat) return false;
+    if(c.key==='tour')   return invKindOf(r)!=='spouse';
+    if(c.key==='spouse') return invKindOf(r)==='spouse';
+    return true;
+  }
+  function svcOn(c){ var l=(EVENT.gm_services)||[]; return l.indexOf(c.svc)>=0; }
+
+  async function tLogiTab(){
+    $('#tb').innerHTML='<div class="empty">…</div>';
+    var r = await sb.from('gm_inventory').select('*').eq('event_id',EVENT.id).order('category').order('title');
+    if(r.error){ $('#tb').innerHTML='<div class="empty">'+esc(r.error.message)+'</div>'; return; }
+    LOGI = r.data||[]; drawLogi();
+  }
+
+  function drawLogi(){
+    var c = LOGI_CATS.filter(function(x){return x.key===logiCat;})[0] || LOGI_CATS[0];
+    var rows = LOGI.filter(function(x){ return inCat(c,x); });
+    var html = '<div class="card"><h3>'+esc(T('tab_logi'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('lg_intro'))+'</div>'+
+      '<div class="fbar" style="margin-bottom:12px">'+LOGI_CATS.map(function(x){
+        var n = LOGI.filter(function(y){return inCat(x,y);}).length;
+        return '<button class="fchip'+(x.key===logiCat?' on':'')+'" data-lc="'+x.key+'">'+
+               esc(T(x.label))+(n?' · '+n:'')+'</button>';
+      }).join('')+'</div>';
+    if(!svcOn(c)) html += '<div class="msg err" style="display:block;margin:0 0 12px">'+esc(T('lg_svc_off'))+'</div>';
+    html += logiEdit ? logiForm(c) :
+      '<div class="actions" style="margin-bottom:12px"><button class="btn btn-primary btn-sm" id="lgAdd">'+esc(T('lg_add'))+'</button></div>';
+    html += rows.length ? logiTable(rows) : '<div class="empty">'+esc(T('lg_none'))+'</div>';
+    html += '</div>';
+    $('#tb').innerHTML = html;
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-lc]'),function(b){
+      b.addEventListener('click',function(){ logiCat=b.getAttribute('data-lc'); logiEdit=null; drawLogi(); });
+    });
+    var add=$('#lgAdd'); if(add) add.addEventListener('click',function(){ logiEdit={}; drawLogi(); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-le]'),function(b){
+      b.addEventListener('click',function(){
+        logiEdit = LOGI.filter(function(x){return String(x.id)===b.getAttribute('data-le');})[0]||{};
+        drawLogi();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ld]'),function(b){
+      b.addEventListener('click',function(){ logiDelete(b.getAttribute('data-ld')); });
+    });
+    var sv=$('#lgSaveBtn');  if(sv) sv.addEventListener('click',function(){ logiSave(c); });
+    var cn=$('#lgCancelBtn');if(cn) cn.addEventListener('click',function(){ logiEdit=null; drawLogi(); });
+    maskDate($('#lg_from')); maskDate($('#lg_to'));
+  }
+
+  function logiTable(rows){
+    return '<div class="table-wrap"><table class="grid"><thead><tr>'+
+      '<th>'+esc(T('lg_title'))+'</th><th>'+esc(T('lg_prov'))+'</th><th>'+esc(T('lg_price'))+'</th>'+
+      '<th>'+esc(T('lg_from'))+'</th><th>'+esc(T('lg_cap'))+'</th><th></th></tr></thead><tbody>'+
+      rows.map(function(x){
+        var d=x.details||{};
+        var price = x.price_amount!=null ? (x.price_amount+' '+(x.currency||'EUR')) : '—';
+        if(d.single||d.double) price = [d.single,d.double].filter(Boolean).join(' / ');
+        var when = x.date_from ? dmy(x.date_from)+(x.date_to&&x.date_to!==x.date_from?' → '+dmy(x.date_to):'') : '—';
+        return '<tr><td style="color:var(--ink);font-weight:600">'+esc(x.title)+
+          (d.promo?' <span class="st ok">'+esc(d.promo)+'</span>':'')+
+          (d.discount?' <span class="st warn">'+esc(d.discount)+'</span>':'')+'</td>'+
+          '<td style="font-size:12px">'+esc(x.provider_name||'—')+'</td>'+
+          '<td class="mono" style="font-size:11px">'+esc(price)+'</td>'+
+          '<td class="mono" style="font-size:11px">'+esc(when)+'</td>'+
+          '<td class="mono" style="font-size:11px">'+esc(x.capacity==null?'—':x.capacity)+'</td>'+
+          '<td class="row-acts">'+
+            '<button class="btn btn-sm" data-le="'+esc(x.id)+'">'+esc(T('lg_edit'))+'</button> '+
+            '<button class="btn btn-sm" data-ld="'+esc(x.id)+'">'+esc(T('lg_del'))+'</button></td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+
+  function logiForm(c){
+    var d = logiEdit||{}, det = d.details||{};
+    function f(id,label,val,extra){
+      return '<div><label>'+esc(T(label))+'</label><input id="'+id+'" value="'+esc(val==null?'':val)+'"'+(extra||'')+'></div>';
+    }
+    var isAcc = c.key==='acc';
+    return '<div style="border:1px solid var(--line-2);border-radius:var(--r-md);padding:14px;margin-bottom:14px">'+
+      '<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">'+
+        f('lg_title2','lg_title',d.title)+
+        f('lg_prov','lg_prov',d.provider_name)+
+        (c.kind==='choose'
+          ? '<div><label>'+esc(T('lg_kind'))+'</label><select id="lg_kind">'+
+            CAR_KINDS.map(function(k){ return '<option value="'+k[0]+'"'+(det.kind===k[0]?' selected':'')+'>'+esc(T(k[1]))+'</option>'; }).join('')+
+            '</select></div>' : '')+
+        f('lg_price','lg_price',d.price_amount,' type="number" min="0" step="1"')+
+        '<div><label>'+esc(T('lg_cur'))+'</label><select id="lg_cur">'+
+          ['EUR','USD','TRY','GBP'].map(function(x){ return '<option'+((d.currency||'EUR')===x?' selected':'')+'>'+x+'</option>'; }).join('')+
+          '</select></div>'+
+        (isAcc ? f('lg_single','lg_single',det.single)+f('lg_double','lg_double',det.double)+
+                 f('lg_disc','lg_disc',det.discount) : '')+
+        f('lg_promo','lg_promo',det.promo)+
+        f('lg_from','lg_from',dmy(d.date_from),' maxlength="10" inputmode="numeric" placeholder="GG.AA.YYYY"')+
+        f('lg_to','lg_to',dmy(d.date_to),' maxlength="10" inputmode="numeric" placeholder="GG.AA.YYYY"')+
+        f('lg_cap','lg_cap',d.capacity,' type="number" min="0" step="1"')+
+      '</div>'+
+      '<div style="margin-top:12px"><label>'+esc(T('lg_desc'))+'</label>'+
+        '<textarea id="lg_desc" rows="2">'+esc(d.description||'')+'</textarea></div>'+
+      (isAcc?'<div class="empty" style="text-align:left;border:none;padding:8px 0 0;font-size:12px">'+esc(T('lg_hint_hotel'))+'</div>':'')+
+      '<div class="actions" style="margin-top:12px">'+
+        '<button class="btn btn-primary btn-sm" id="lgSaveBtn">'+esc(T('lg_save'))+'</button>'+
+        '<button class="btn btn-sm" id="lgCancelBtn">'+esc(T('lg_cancel'))+'</button>'+
+        '<span class="ferr" id="lgFerr" style="align-self:center"></span></div></div>';
+  }
+
+  function lv(id){ var el=$('#'+id); return el? el.value.trim() : ''; }
+  async function logiSave(c){
+    var title=lv('lg_title2');
+    if(!title){ $('#lgFerr').textContent=T('lg_e_title'); return; }
+    var df=dmyToISO(lv('lg_from')), dt=dmyToISO(lv('lg_to'));
+    if(!df.ok||!dt.ok){ $('#lgFerr').textContent=T('lg_e_date'); return; }
+
+    /* details: kategoriye gore anlamli alanlar. Bos olanlari YAZMIYORUZ —
+       jsonb'de bos string birikmesi sonra "var mi yok mu" ayrimini bozuyor. */
+    var det = {};
+    if(c.kind==='choose') det.kind = lv('lg_kind') || 'transfer';
+    else if(c.kind)       det.kind = c.kind;
+    if(c.key==='acc'){
+      if(lv('lg_single')) det.single = lv('lg_single');
+      if(lv('lg_double')) det.double = lv('lg_double');
+      if(lv('lg_disc'))   det.discount = lv('lg_disc');
+    }
+    if(lv('lg_promo')) det.promo = lv('lg_promo');
+
+    var row = {
+      event_id:EVENT.id, category:c.cat, title:title,
+      provider_name: lv('lg_prov') || null,
+      description: lv('lg_desc') || null,
+      price_amount: lv('lg_price')!=='' ? Number(lv('lg_price')) : null,
+      currency: lv('lg_cur') || 'EUR',
+      date_from: df.val, date_to: dt.val,
+      capacity: lv('lg_cap')!=='' ? Number(lv('lg_cap')) : null,
+      details: det, is_active:true
+    };
+    var res = (logiEdit && logiEdit.id)
+      ? await sb.from('gm_inventory').update(row).eq('id',logiEdit.id)
+      : await sb.from('gm_inventory').insert(row);
+    if(res.error){ $('#lgFerr').textContent=res.error.message; return; }
+    logiEdit=null; toast(T('lg_saved')); await tLogiTab();
+  }
+
+  async function logiDelete(id){
+    if(!confirm(T('lg_confirm'))) return;
+    var res = await sb.from('gm_inventory').delete().eq('id',id);
+    if(res.error){ toast(res.error.message,true); return; }
+    toast(T('lg_deleted')); await tLogiTab();
   }
 
   // ── Documents (S19): link-based document manager ──────────────────────

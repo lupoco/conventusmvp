@@ -11,89 +11,149 @@
 <link rel="stylesheet" href="/assets/base.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/cv-core.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-  /* ---- kabuk ---------------------------------------------------------- */
-  .bar{position:sticky;top:0;z-index:var(--z-nav);display:flex;align-items:center;gap:12px;padding:0 16px;height:56px;
-    border-bottom:1px solid var(--line);background:var(--nav-bg)}
-  .bar .back{font-family:var(--font-mono);font-size:12px;color:var(--muted);white-space:nowrap}
-  .bar .title{font-family:var(--font-display);font-size:1.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bar .sp{flex:1}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:20px 16px 90px}
-  .head h1{font-size:clamp(1.7rem,5vw,2.6rem);margin:0}
-  .eyebrow{font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--gold,#B8892B);margin-bottom:6px}
-  .subline{color:var(--muted);font-size:13px;margin:6px 0 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .subline .mono{font-family:var(--font-mono)}
-  .empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r-md);font-size:13px}
+/* =========================================================================
+   Go & Meet — gorsel dil start.html ile AYNI.
+   Kullanici "ana sayfa gibi zenginlestir" dedigi icin sayfaya ozel bir palet
+   KURULMADI; start.html'in degiskenleri ve tipografisi birebir alindi.
+   Instrument Serif (baslik) · Manrope (govde) · JetBrains Mono (etiket)
+   krem #F5F2EC · navy #0E2148 · Conventus blue #004990 · altin aksan
+   ===================================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pf:#004990; --pf-glow:rgba(0,73,144,0.15);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --gold:#8A6D2F; --gold-glow:rgba(138,109,47,.10);
+  --ok:#1F7A4C; --danger:#A33A4A;
+}
+[data-dark]{
+  --bg:#0B1428; --paper:#101C36; --paper2:#0E1A32;
+  --ink:#EEF1F7; --ink2:#AAB4C8; --muted:#7F8AA2;
+  --line:#243456; --line2:#2A3A5E;
+  --pf:#4B92DB; --gold:#C9A961; --gold-glow:rgba(201,169,97,.12);
+}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;min-height:100vh}
 
-  /* ---- bolum baslıgı --------------------------------------------------- */
-  .sec{margin:34px 0 0}
-  .sec-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
-  .sec-h h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.25rem,3.4vw,1.65rem);margin:0}
-  .sec-h .n{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
-  .sec-d{color:var(--muted);font-size:13px;margin:0 0 14px;max-width:62ch}
-  .hr{height:1px;background:var(--line);margin:8px 0 16px}
+.bar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:52px;background:var(--paper);border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.crumbs .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{background:var(--pf);color:#fff;padding:2px 9px;border-radius:100px;font-size:10px;letter-spacing:.1em;font-weight:700}
+.ver{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:2px 7px}
+.bar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mini{padding:5px 9px;background:var(--paper2);border:1px solid var(--line);border-radius:100px;cursor:pointer;
+  font-size:11px;font-weight:700;color:var(--muted);font-family:inherit;transition:all .15s}
+.mini:hover,.mini.on{border-color:var(--pf);color:var(--pf)}
+.close-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--paper2);border:1px solid var(--line);
+  border-radius:8px;font-size:12px;font-weight:600;color:var(--ink2);text-decoration:none;transition:all .15s}
+.close-btn:hover{border-color:var(--pf);color:var(--pf)}
 
-  /* ---- KART IZGARASI — mobil once, sonra genisler ---------------------- */
-  .cards{display:grid;gap:14px;grid-template-columns:1fr}
-  @media (min-width:560px){ .cards{grid-template-columns:repeat(2,1fr)} }
-  @media (min-width:900px){ .cards{grid-template-columns:repeat(3,1fr)} }
-  @media (min-width:1280px){ .cards.wide{grid-template-columns:repeat(4,1fr)} }
+.wrap{max-width:1120px;margin:0 auto;padding:3.2rem 2rem 6rem}
+.head{text-align:center;margin-bottom:2.4rem}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;
+  font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pf);margin-bottom:1rem}
+.eyebrow span{white-space:nowrap}
+.eyebrow svg{width:14px;height:14px;flex-shrink:0}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(2rem,4.4vw,3.2rem);font-weight:400;line-height:1.08;
+  color:var(--ink);margin-bottom:.9rem}
+h1 em{font-style:normal;color:var(--pf)}
+.lead{font-size:.95rem;color:var(--muted);line-height:1.6;max-width:580px;margin:0 auto}
+.facts{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:1.1rem;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink2)}
+.facts span{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line);
+  border-radius:100px;padding:5px 12px}
+.facts svg{width:13px;height:13px;color:var(--pf)}
 
-  .kart{display:flex;flex-direction:column;border:1px solid var(--line-2);border-radius:var(--r-md);
-    background:var(--paper);overflow:hidden;min-width:0}
-  .kart .body{padding:15px 16px;display:flex;flex-direction:column;gap:7px;flex:1;min-width:0}
-  .kart h3{font-family:var(--font-display);font-weight:400;font-size:1.12rem;margin:0;line-height:1.25;
-    overflow-wrap:anywhere}
-  .kart .who{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-  .kart .desc{font-size:13px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
-  .kart .meta{display:flex;gap:8px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;color:var(--muted);
-    margin-top:auto;padding-top:8px}
-  .kart .meta span+span::before{content:'·';margin-right:8px;opacity:.55}
-  .kart .foot{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);
-    background:var(--paper-2)}
-  .fiyat{font-family:var(--font-mono);font-weight:700;font-size:15px;color:var(--ink)}
-  .fiyat small{font-weight:400;font-size:11px;color:var(--muted)}
-  .kart .foot .sp{flex:1}
-  .accent{height:3px;background:var(--pf)}
+.jump{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:center;margin:0 0 2.2rem}
+.jump a{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:7px 14px;border-radius:100px;border:1px solid var(--line2);
+  color:var(--muted);text-decoration:none;background:var(--paper);transition:all .15s}
+.jump a:hover{color:var(--pf);border-color:var(--pf)}
 
-  .st{font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
-    border:1px solid var(--line-2);border-radius:var(--r-pill);padding:3px 8px;white-space:nowrap}
-  .st.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
-  .st.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
-  .st.n{color:var(--muted)}
+.sec{margin-top:3rem;scroll-margin-top:70px}
+.sec-head{display:flex;align-items:center;gap:.85rem;margin-bottom:.4rem}
+.sec-ic{width:42px;height:42px;border-radius:12px;background:var(--pf-glow);color:var(--pf);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-ic svg{width:21px;height:21px}
+.sec-t h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.55rem;line-height:1.15;color:var(--ink)}
+.sec-t .n{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold)}
+.sec-d{font-size:.84rem;color:var(--muted);line-height:1.6;margin:.5rem 0 1.2rem;max-width:64ch}
 
-  /* ---- etkinlik karti --------------------------------------------------- */
-  .ev .body{gap:6px}
-  .ev .when{font-family:var(--font-mono);font-size:11.5px;color:var(--pf);font-weight:700}
-  .ev .where{font-size:12.5px;color:var(--muted)}
+.cards{display:grid;gap:1.1rem;grid-template-columns:1fr}
+@media(min-width:620px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:980px){.cards{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1280px){.cards.wide{grid-template-columns:repeat(4,1fr)}}
 
-  /* ---- hizmet seridi (etkinlik sayfasi ici gezinme) --------------------- */
-  .jump{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 4px}
-  .jump a{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:6px 12px;border-radius:var(--r-pill);
-    border:1px solid var(--line-2);color:var(--muted);text-decoration:none;background:var(--paper-2)}
-  .jump a:hover{color:var(--pf);border-color:var(--pf)}
+.door{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  padding:1.5rem 1.35rem;transition:border-color .18s,transform .18s,box-shadow .18s;min-width:0}
+.door:hover{border-color:var(--pf);transform:translateY(-3px);box-shadow:0 12px 30px rgba(14,33,72,.09)}
+.door-nm{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--pf);margin-bottom:.4rem;overflow-wrap:anywhere}
+.door h3{font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.5rem;line-height:1.3;overflow-wrap:anywhere}
+.door p{font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:.9rem;overflow-wrap:anywhere}
+.door .grow{flex:1}
+.door-meta{display:flex;gap:.5rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--muted);margin-bottom:.9rem}
+.door-meta span+span::before{content:'·';margin-right:.5rem;opacity:.5}
 
-  .msg{display:none;margin:12px 0;padding:11px 13px;border-radius:var(--r-md);font-size:13px;line-height:1.5}
-  .msg.on{display:block}
-  .msg.err{color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent);
-    background:color-mix(in srgb,var(--danger) 7%,transparent)}
-  .msg.info{color:var(--muted);border:1px solid var(--line-2);background:var(--paper-2)}
+.oda{display:flex;gap:1.3rem;flex-wrap:wrap;margin-bottom:.9rem}
+.oda .l{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);display:block}
+.oda .v{font-family:'Instrument Serif',serif;font-size:1.25rem;color:var(--ink);line-height:1.2}
+.fiyat{font-family:'Instrument Serif',serif;font-size:1.35rem;color:var(--ink);line-height:1.2}
+.fiyat small{font-family:'Manrope',sans-serif;font-size:.7rem;color:var(--muted);font-weight:600}
 
-  /* ---- cok dar ekranlar -------------------------------------------------- */
-  @media (max-width:380px){
-    .wrap{padding:16px 12px 80px}
-    .kart .body{padding:13px 13px}
-    .kart .foot{padding:11px 13px}
-  }
+.promo{border:1.5px dashed var(--gold);background:var(--gold-glow);border-radius:10px;padding:.6rem .8rem;
+  text-align:center;margin-bottom:.9rem}
+.promo .l{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.promo .v{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:.08em;color:var(--gold)}
+
+.chip{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border-radius:100px;padding:3px 9px;white-space:nowrap;border:1px solid var(--line2);color:var(--muted)}
+.chip.gold{color:#fff;background:var(--gold);border-color:var(--gold)}
+.chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 42%,transparent);
+  background:color-mix(in srgb,var(--ok) 8%,transparent)}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+
+.cta{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:var(--pf);color:#fff;
+  border-radius:9px;font-size:.82rem;font-weight:700;text-decoration:none;border:1px solid var(--pf);
+  font-family:inherit;cursor:pointer;width:100%;transition:opacity .15s}
+.cta:hover{opacity:.9}
+.cta.ghost{background:var(--paper2);color:var(--ink2);border-color:var(--line2)}
+.cta.ghost:hover{border-color:var(--pf);color:var(--pf);opacity:1}
+.cta[disabled]{opacity:.55;cursor:default}
+.sub-a{display:block;text-align:center;margin-top:.55rem;font-size:.75rem;font-weight:700;color:var(--muted);text-decoration:none}
+.sub-a:hover{color:var(--pf)}
+
+.empty{padding:2.2rem;text-align:center;color:var(--muted);border:1px dashed var(--line2);border-radius:14px;
+  font-size:.84rem;background:var(--paper)}
+.msg{display:none;margin:1rem 0;padding:.85rem 1.1rem;border-radius:12px;font-size:.85rem;line-height:1.55}
+.msg.on{display:block}
+.msg.err{color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 34%,transparent);
+  background:color-mix(in srgb,var(--danger) 6%,transparent)}
+.msg.info{color:var(--ink2);border:1px solid var(--pf);background:var(--pf-glow)}
+
+@media(max-width:760px){ .wrap{padding:2.2rem 1.2rem 4rem} .bar{padding:0 1rem} .sec{margin-top:2.4rem} }
 </style>
 </head>
 <body>
-<header class="bar">
-  <a class="back" href="/platforms/conventus/index.html" id="backLnk">← Conventus</a>
-  <span class="title" id="barTitle">Go &amp; Meet</span>
-  <span class="sp"></span>
-</header>
+<div class="bar">
+  <div class="crumbs"><span class="badge">CONVENTUS</span><span class="nm" id="crumb">Go &amp; Meet</span><span class="ver">v0.2</span></div>
+  <div class="bar-right">
+    <button class="mini" id="lgEN">EN</button>
+    <button class="mini" id="lgTR">TR</button>
+    <button class="mini" id="thBtn">🌙</button>
+    <a class="close-btn" href="/platforms/conventus/index.html">
+      <span id="backLbl">Conventus</span>
+    </a>
+  </div>
+</div>
 
 <main class="wrap" id="wrap"><div class="empty">…</div></main>
 
@@ -127,6 +187,11 @@
   var I18N = {
     tr:{
       title:'Go & Meet', back:'← Conventus',
+      ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
+      ev_h_rich:'%s ile yolunu planla.',
+      logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
+      single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
+      booked_note:'Onay bekliyor',
       ev_h:'Yaklaşan etkinlikler', ev_d:'Kayıt açık etkinlikler. Bir etkinliğe tıklayarak konaklama, ulaşım ve kültür programını görebilirsin.',
       ev_none:'Şu anda yayında etkinlik yok.',
       ev_open:'Detay ve rezervasyon →', ev_reg:'Kayıt ol',
@@ -152,6 +217,11 @@
     },
     en:{
       title:'Go & Meet', back:'← Conventus',
+      ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
+      ev_h_rich:'%s ile yolunu planla.',
+      logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
+      single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
+      booked_note:'Onay bekliyor',
       ev_h:'Upcoming events', ev_d:'Events open for registration. Select one to see accommodation, transport and the cultural programme.',
       ev_none:'No published events right now.',
       ev_open:'Details and booking →', ev_reg:'Register',
@@ -193,8 +263,26 @@
     catch(_){ return n+' '+(c||'EUR'); }
   }
   function setChrome(){
-    var b=$('backLnk'); if(b) b.textContent=T('back');
-    var t=$('barTitle'); if(t) t.textContent=T('title');
+    var c=$('crumb'); if(c && !EVENT) c.textContent=T('title');
+    var b=$('backLbl'); if(b) b.textContent='Conventus';
+    var en=$('lgEN'), tr=$('lgTR');
+    if(en) en.classList.toggle('on', LANG()==='en');
+    if(tr) tr.classList.toggle('on', LANG()==='tr');
+  }
+  function setLang(l){ try{ localStorage.setItem('cv-lang',l); }catch(_){}
+    if(CODE) renderEvent(); else renderList(); }
+  function setDark(on){ try{ localStorage.setItem('cn-dark', on?'1':'0'); }catch(_){}
+    if(on) document.documentElement.setAttribute('data-dark','');
+    else document.documentElement.removeAttribute('data-dark');
+    var t=$('thBtn'); if(t) t.textContent = on ? '☀️' : '🌙';
+  }
+  function bindChrome(){
+    var en=$('lgEN'), tr=$('lgTR'), th=$('thBtn');
+    if(en) en.onclick=function(){ setLang('en'); };
+    if(tr) tr.onclick=function(){ setLang('tr'); };
+    if(th) th.onclick=function(){ setDark(!document.documentElement.hasAttribute('data-dark')); };
+    var d=false; try{ d = localStorage.getItem('cn-dark')==='1'; }catch(_){}
+    setDark(d);
   }
   function say(kind,html){
     var w=$('wrap'); var m=document.createElement('div');
@@ -207,15 +295,24 @@
      cat      : gm_inventory.category
      kindNot  : details.kind bu ise bu bolume AIT DEGIL (kultur/es ayrimi)
      kindIs   : details.kind bu ise bu bolume ait                          */
+  var ICONS = {
+    bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M2 16h20"/><path d="M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/></svg>',
+    car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M3 13l2-6a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 6v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7.5" cy="13.5" r="1"/><circle cx="16.5" cy="13.5" r="1"/></svg>',
+    map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3z"/><path d="M9 3v15M15 6v15"/></svg>',
+    users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    org:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>'
+  };
   var SERVICES = [
     { key:'accommodation', svc:'accommodation', cat:'accommodation',
-      h:'s_acc',    d:'s_acc_d',    none:'none_acc',    anchor:'konaklama' },
+      ic:'bed',   h:'s_acc',    d:'s_acc_d',    none:'none_acc',    anchor:'konaklama' },
     { key:'transfer_car',  svc:'transfer_car',  cat:'transfer_car',
-      h:'s_car',    d:'s_car_d',    none:'none_car',    anchor:'ulasim' },
+      ic:'car',   h:'s_car',    d:'s_car_d',    none:'none_car',    anchor:'ulasim' },
     { key:'culture',       svc:'culture_spouse', cat:'culture_spouse', kindNot:'spouse',
-      h:'s_tour',   d:'s_tour_d',   none:'none_tour',   anchor:'tur' },
+      ic:'map',   h:'s_tour',   d:'s_tour_d',   none:'none_tour',   anchor:'tur' },
     { key:'spouse',        svc:'culture_spouse', cat:'culture_spouse', kindIs:'spouse',
-      h:'s_spouse', d:'s_spouse_d', none:'none_spouse', anchor:'es' }
+      ic:'users', h:'s_spouse', d:'s_spouse_d', none:'none_spouse', anchor:'es' }
   ];
   function invKind(r){ var d=(r&&r.details)||{}; return String(d.kind||'').toLowerCase(); }
   function belongs(svc, r){
@@ -237,9 +334,9 @@
       .eq('published',true).order('start_date',{ascending:true,nullsFirst:false});
     if(r.error){ $('#wrap'); $('wrap').innerHTML='<div class="empty">'+esc(Tf('err_load',r.error.message))+'</div>'; return; }
     var evs = r.data||[];
-    var head = '<div class="head"><div class="eyebrow">conventus · go &amp; meet</div>'+
-      '<h1>'+esc(T('ev_h'))+'</h1></div>'+
-      '<p class="sec-d" style="margin-top:8px">'+esc(T('ev_d'))+'</p>';
+    var head = '<div class="head"><div class="eyebrow">'+ICONS.cal+'<span>'+esc(T('ev_eyebrow'))+'</span></div>'+
+      '<h1>'+Tf('ev_h_rich','<em>Go &amp; Meet</em>')+'</h1>'+
+      '<p class="lead">'+esc(T('ev_d'))+'</p></div>';
     if(!evs.length){ $('wrap').innerHTML = head+'<div class="empty">'+esc(T('ev_none'))+'</div>'; return; }
     $('wrap').innerHTML = head + '<div class="cards wide">' + evs.map(function(e){
       var when = (e.start_date||e.end_date)
@@ -247,14 +344,14 @@
         : T('nodate');
       var where = [e.city,e.country].filter(Boolean).join(', ') || e.location || T('noloc');
       var href = 'go-and-meet.html?e='+encodeURIComponent(e.code||'');
-      return '<article class="kart ev"><div class="accent"></div><div class="body">'+
-        '<div class="when">'+esc(when)+'</div>'+
+      return '<article class="door">'+
+        '<div class="door-nm">'+esc(e.code||'')+'</div>'+
         '<h3>'+esc(e.title||e.code)+'</h3>'+
-        '<div class="where">'+esc(where)+(e.host_org?' · '+esc(e.host_org):'')+'</div>'+
-        (e.description?'<div class="desc">'+esc(String(e.description).slice(0,150))+'</div>':'')+
-        '<div class="meta"><span class="mono">'+esc(e.code||'')+'</span></div></div>'+
-        '<div class="foot"><a class="btn btn-primary btn-sm" href="'+href+'">'+esc(T('ev_open'))+'</a></div>'+
-        '</article>';
+        '<div class="door-meta"><span>'+esc(when)+'</span><span>'+esc(where)+'</span>'+
+          (e.host_org?'<span>'+esc(e.host_org)+'</span>':'')+'</div>'+
+        (e.description?'<p>'+esc(String(e.description).slice(0,140))+'</p>':'<p class="grow"></p>')+
+        '<div class="grow"></div>'+
+        '<a class="cta" href="'+href+'">'+esc(T('ev_open'))+'</a></article>';
     }).join('') + '</div>';
   }
 
@@ -270,7 +367,7 @@
       return;
     }
     EVENT = r.data;
-    var t=$('barTitle'); if(t) t.textContent = EVENT.title || EVENT.code;
+    var t=$('crumb'); if(t) t.textContent = EVENT.title || EVENT.code;
 
     /* Envanter ve saglayicilar tek seferde; plan yalniz giris yapmissa. */
     var q = [
@@ -293,26 +390,31 @@
     var where = [EVENT.city,EVENT.country].filter(Boolean).join(', ') || EVENT.location || T('noloc');
 
     var active = SERVICES.filter(eventHasService);
-    var html = '<p style="margin:0 0 10px"><a class="back" href="go-and-meet.html" style="text-decoration:none">'+esc(T('all_ev'))+'</a></p>'+
-      '<div class="head"><div class="eyebrow">'+esc(EVENT.code||'')+'</div>'+
-      '<h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
-      '<div class="subline"><span class="mono">'+esc(when)+'</span>·<span>'+esc(where)+'</span>'+
-      (EVENT.host_org?'·<span>'+esc(EVENT.host_org)+'</span>':'')+
-      (PLAN.length?'·<span class="st ok">'+esc(Tf('req_n',PLAN.length))+'</span>':'')+'</div>';
+    var html = '<div class="head">'+
+      '<div class="eyebrow">'+ICONS.pin+'<span>'+esc(EVENT.code||'')+'</span></div>'+
+      '<h1>'+esc(EVENT.title||EVENT.code)+'</h1>'+
+      '<p class="lead">'+esc(T('logi_lead'))+'</p>'+
+      '<div class="facts">'+
+        '<span>'+ICONS.cal+esc(when)+'</span>'+
+        '<span>'+ICONS.pin+esc(where)+'</span>'+
+        (EVENT.host_org?'<span>'+ICONS.org+esc(EVENT.host_org)+'</span>':'')+
+        (PLAN.length?'<span class="chip ok">'+esc(Tf('req_n',PLAN.length))+'</span>':'')+
+      '</div></div>';
 
     if(!active.length){
       $('wrap').innerHTML = html + '<div class="empty">'+esc(T('closed'))+'</div>';
       return;
     }
-    html += '<nav class="jump">'+active.map(function(s2){
+    html += '<nav class="jump"><a href="go-and-meet.html">'+esc(T('all_ev'))+'</a>'+active.map(function(s2){
       return '<a href="#'+s2.anchor+'">'+esc(T(s2.h))+'</a>'; }).join('')+'</nav>';
 
     active.forEach(function(svc){
       var rows = inv.filter(function(x){ return belongs(svc,x); });
       html += '<section class="sec" id="'+svc.anchor+'">'+
-        '<div class="sec-h"><h2>'+esc(T(svc.h))+'</h2>'+
-        (rows.length?'<span class="n">'+rows.length+'</span>':'')+'</div>'+
-        '<p class="sec-d">'+esc(T(svc.d))+'</p><div class="hr"></div>';
+        '<div class="sec-head"><div class="sec-ic">'+ICONS[svc.ic]+'</div>'+
+        '<div class="sec-t">'+(rows.length?'<div class="n">'+rows.length+' '+esc(T('items'))+'</div>':'')+
+        '<h2>'+esc(T(svc.h))+'</h2></div></div>'+
+        '<p class="sec-d">'+esc(T(svc.d))+'</p>';
       html += rows.length
         ? '<div class="cards">'+rows.map(function(x){ return invCard(x,pmap); }).join('')+'</div>'
         : '<div class="empty">'+esc(T(svc.none))+'</div>';
@@ -324,27 +426,58 @@
 
   function planFor(invId){ for(var i=0;i<PLAN.length;i++){ if(PLAN[i].inventory_id===invId) return PLAN[i]; } return null; }
 
+  /* Kart icerigi details'e gore ZENGINLESIR (organizator event-manage'in
+     Lojistik sekmesinden girer):
+       single/double -> konaklamada tek/cift fiyat
+       discount      -> altin indirim rozeti
+       promo         -> kesik cizgili promosyon kodu kutusu
+     Hicbiri yoksa kart sade fiyatla gosterilir — bos alan cizilmez. */
   function invCard(x, pmap){
-    var p2 = pmap[x.provider_id];
+    var p2  = pmap[x.provider_id];
+    var who = (p2 && p2.name) || x.provider_name || '';
+    var d   = x.details || {};
+    var mine = planFor(x.id);
+
     var bits = [];
     if(x.date_from) bits.push(dmy(x.date_from)+(x.date_to&&x.date_to!==x.date_from?' → '+dmy(x.date_to):''));
     if(x.capacity)  bits.push(Tf('cap',x.capacity));
-    var mine = planFor(x.id);
-    var price = money(x.price_amount,x.currency);
-    var btn = mine
-      ? '<span class="st ok">'+esc(T('booked'))+'</span>'+
-        '<button class="btn btn-sm" data-cancel="'+esc(mine.id)+'">'+esc(T('cancel'))+'</button>'
+
+    var chips = '';
+    if(d.discount) chips += '<span class="chip gold">'+esc(d.discount)+' '+esc(T('off'))+'</span>';
+    if(mine)       chips += '<span class="chip ok">'+esc(T('booked'))+'</span>';
+
+    /* Tek/cift fiyat yalnizca girilmisse; yoksa tek fiyat satiri. */
+    var priceBlock = '';
+    if(d.single || d.double){
+      priceBlock = '<div class="oda">'+
+        (d.single?'<div><span class="l">'+esc(T('single'))+'</span><span class="v">'+esc(d.single)+'</span></div>':'')+
+        (d.double?'<div><span class="l">'+esc(T('double'))+'</span><span class="v">'+esc(d.double)+'</span></div>':'')+
+        '</div>';
+    }else{
+      var pr = money(x.price_amount, x.currency);
+      if(pr) priceBlock = '<div class="fiyat">'+esc(pr)+'</div>';
+    }
+
+    var promoBlock = d.promo
+      ? '<div class="promo"><span class="l">'+esc(T('promo'))+'</span><span class="v">'+esc(d.promo)+'</span></div>'
+      : '';
+
+    var action = mine
+      ? '<button class="cta ghost" data-cancel="'+esc(mine.id)+'">'+esc(T('cancel'))+'</button>'
       : (USER
-          ? '<button class="btn btn-primary btn-sm" data-book="'+esc(x.id)+'" data-cat="'+esc(x.category)+'">'+esc(T('book'))+'</button>'
-          : '<a class="btn btn-sm" href="/login.html?next='+encodeURIComponent(location.pathname+location.search)+'">'+esc(T('login'))+'</a>');
-    return '<article class="kart"><div class="accent"></div><div class="body">'+
-      (p2?'<div class="who">'+esc(p2.name)+(p2.city?' · '+esc(p2.city):'')+'</div>':'')+
+          ? '<button class="cta" data-book="'+esc(x.id)+'" data-cat="'+esc(x.category)+'">'+esc(T('book'))+'</button>'
+          : '<a class="cta ghost" href="/login.html?next='+encodeURIComponent(location.pathname+location.search)+'">'+esc(T('login'))+'</a>');
+
+    return '<article class="door">'+
+      (who?'<div class="door-nm">'+esc(who)+'</div>':'')+
       '<h3>'+esc(x.title)+'</h3>'+
-      (x.description?'<div class="desc">'+esc(x.description)+'</div>':'')+
-      (bits.length?'<div class="meta">'+bits.map(function(b){return '<span>'+esc(b)+'</span>';}).join('')+'</div>':'')+
-      '</div><div class="foot">'+
-      (price?'<span class="fiyat">'+esc(price)+'</span>':'')+
-      '<span class="sp"></span>'+btn+'</div></article>';
+      (chips?'<div class="chips">'+chips+'</div>':'')+
+      (x.description?'<p>'+esc(x.description)+'</p>':'')+
+      (bits.length?'<div class="door-meta">'+bits.map(function(b){return '<span>'+esc(b)+'</span>';}).join('')+'</div>':'')+
+      '<div class="grow"></div>'+
+      priceBlock + promoBlock + action +
+      (mine?'<span class="sub-a">'+esc(T('booked_note'))+'</span>':'')+
+      '</article>';
   }
 
   function bindBooking(){
@@ -389,6 +522,7 @@
       var ses = await sb.auth.getSession();
       USER = (ses && ses.data && ses.data.session) ? ses.data.session.user : null;
     }catch(_){ USER=null; }
+    bindChrome();
     if(CODE) await renderEvent(); else await renderList();
   }
   window.addEventListener('cv-lang-change', function(){ if(CODE) renderEvent(); else renderList(); });
