@@ -25,7 +25,7 @@ const INV=[
  {id:'i3',provider_id:'p2',category:'transfer_car',title:'Araç kiralama — kompakt',description:'Günlük.',
   details:{kind:'car_rental'},price_amount:45,currency:'EUR',date_from:null,date_to:null,capacity:null},
  {id:'i4',provider_id:'p3',category:'culture_spouse',title:'Efes turu',description:'Tam gün.',
-  details:{kind:'tour'},price_amount:60,currency:'EUR',date_from:'2026-11-18',date_to:'2026-11-18',capacity:25},
+  details:{kind:'tour',day:'full'},price_amount:60,currency:'EUR',date_from:'2026-11-18',date_to:'2026-11-18',capacity:25},
  {id:'i5',provider_id:'p3',category:'culture_spouse',title:'Eş programı — Alaçatı',description:'Refakatçiler için.',
   details:{kind:'spouse'},price_amount:55,currency:'EUR',date_from:'2026-11-18',date_to:'2026-11-18',capacity:15}
 ];
@@ -116,8 +116,20 @@ const k=(await p.locator('#konaklama .door').first().innerText()).replace(/\s+/g
 /€|EUR/.test(k) ? ok('fiyat biçimlenmiş') : bad('fiyat yok: '+k);
 // .org'daki zengin icerik: tek/cift fiyat, indirim rozeti, promosyon kodu
 k.includes('€120') && k.includes('€155') ? ok('tek/çift fiyat ayrı gösteriliyor') : bad('oda fiyatları yok: '+k);
-/%22\s*indirim/i.test(k) ? ok('indirim rozeti var') : bad('indirim rozeti yok: '+k);
+/%22\s*[İi]ND[İi]R[İi]M/i.test(k) ? ok('indirim rozeti var') : bad('indirim rozeti yok: '+k);
 k.includes('LANDCOM26') ? ok('promosyon kodu gösteriliyor') : bad('promosyon kodu yok: '+k);
+// ---- .org bicimi
+/\/gece/.test(k) ? ok('fiyatta /gece eki var') : bad('/gece yok: '+k);
+/İNDİRİM/i.test(k) ? ok('indirim rozeti') : bad('indirim rozeti yok');
+(await p.locator('#konaklama .rozet').count())>0 ? ok('indirim köşe rozeti olarak çiziliyor') : bad('köşe rozeti yok');
+(await p.locator('#ulasim .link-cta').count())>0 ? ok('ulaşımda metin bağlantısı (anon)') : bad('ulaşımda metin bağlantısı yok');
+!/→\s*→/.test(await p.locator('#ulasim').innerText()) ? ok('çift ok yok') : bad('çift ok var');
+(await p.locator('#tur .gun').count())>0 ? ok('turda gün çipi (Tam gün)') : bad('gün çipi yok');
+// bolum seritleri
+const seritler = await p.locator('section.sec .serit svg').count();
+seritler===4 ? ok('dört bölümün de resimli şeridi var') : bad('şerit sayısı: '+seritler);
+const seritBaslik = (await p.locator('#konaklama .serit h2').innerText()).trim();
+seritBaslik==='Konaklama' ? ok('şerit başlığı doğru') : bad('şerit başlığı: '+seritBaslik);
 // ust cubuk etkinlik moduna gecince adi gostermeli
 const crumb=(await p.locator('#crumb').innerText()).trim();
 crumb.includes('LANDCOM') ? ok('üst çubukta etkinlik adı: '+crumb) : bad('üst çubuk güncellenmedi: '+crumb);
@@ -145,6 +157,8 @@ console.log('\n== rezervasyon ==');
 p = await page(true);
 await p.evaluate(()=>{ try{localStorage.removeItem('__seedPlan');}catch(_){}} ).catch(()=>{});
 await p.goto(BASE+'?e=LANDCOM-CONF-2026',{waitUntil:'load'}); await p.waitForTimeout(900);
+(await p.locator('#konaklama .cta.koyu[data-book]').count())>0 ? ok('konaklamada koyu tam genişlik düğme') : bad('koyu düğme yok');
+(await p.locator('#ulasim .link-cta[data-book]').count())>0 ? ok('ulaşımda metin bağlantılı talep') : bad('ulaşımda metin bağlantısı yok');
 (await p.locator('[data-book]').count())===5 ? ok('beş kalemde rezervasyon düğmesi') : bad('düğme sayısı: '+await p.locator('[data-book]').count());
 await p.locator('#konaklama [data-book]').first().click(); await p.waitForTimeout(700);
 const ops=await p.evaluate(()=>window.__OPS);
@@ -198,9 +212,19 @@ for(const [w,h,ad,bekEn] of [[360,800,'telefon',1],[768,1000,'tablet',2],[1440,1
 // Ekran goruntusu dongunun SONRASINDA alinirsa son genislikte cikar — mobili
 // gormek icin viewport'u acikca geri kucultuyoruz.
 await p.setViewportSize({width:360,height:800}); await p.waitForTimeout(400);
+await p.evaluate(()=>window.scrollTo(0,0)); await p.waitForTimeout(250);
 await p.screenshot({path:'/var/tmp/gm-mobil.png', fullPage:true});
 await p.setViewportSize({width:1280,height:1100}); await p.waitForTimeout(400);
+await p.evaluate(()=>window.scrollTo(0,0)); await p.waitForTimeout(250);
 await p.screenshot({path:'/var/tmp/gm-masaustu.png', fullPage:true});
+// Ust cubuk gercekten icerigin USTUNDE mi, yoksa ekran goruntusu kusuru mu?
+const kes = await p.evaluate(()=>{
+  const b=document.querySelector('.bar').getBoundingClientRect();
+  const h=document.querySelector('.head h1').getBoundingClientRect();
+  return { barAlt:Math.round(b.bottom), basUst:Math.round(h.top), cakisma:b.bottom>h.top };
+});
+console.log('   çubuk/başlık:', JSON.stringify(kes));
+!kes.cakisma ? ok('üst çubuk başlığı örtmüyor') : bad('üst çubuk başlığın üstüne biniyor');
 
 await b.close();
 console.log(fail ? '\nSONUÇ: BAŞARISIZ' : '\nSONUÇ: GEÇTİ');

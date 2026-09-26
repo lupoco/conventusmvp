@@ -75,6 +75,13 @@ h1 em{font-style:normal;color:var(--pf)}
 .jump a:hover{color:var(--pf);border-color:var(--pf)}
 
 .sec{margin-top:3rem;scroll-margin-top:70px}
+/* Bolum serotleri: .org'daki resimli seritlerin gomulu SVG karsiligi.
+   Dis dosya YOK — tek dosya kurali ve CDN bagimsizligi icin inline. */
+.serit{position:relative;height:clamp(120px,17vw,190px);border-radius:16px;overflow:hidden;margin-bottom:1.1rem}
+.serit svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.serit h2{position:absolute;left:clamp(18px,3vw,34px);bottom:clamp(14px,2.4vw,26px);margin:0;
+  font-family:'Instrument Serif',serif;font-weight:400;color:#fff;letter-spacing:-.01em;
+  font-size:clamp(1.5rem,4.2vw,2.3rem);text-shadow:0 2px 14px rgba(0,0,0,.42)}
 .sec-head{display:flex;align-items:center;gap:.85rem;margin-bottom:.4rem}
 .sec-ic{width:42px;height:42px;border-radius:12px;background:var(--pf-glow);color:var(--pf);
   display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -83,6 +90,24 @@ h1 em{font-style:normal;color:var(--pf)}
 .sec-t .n{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;color:var(--gold)}
 .sec-d{font-size:.84rem;color:var(--muted);line-height:1.6;margin:.5rem 0 1.2rem;max-width:64ch}
+.sec-head{align-items:flex-start;margin-bottom:1.2rem}
+.sec-sub{font-size:.82rem;color:var(--muted);line-height:1.55;margin-top:.25rem;max-width:64ch}
+.sec-sub .n{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--gold);
+  border:1px solid color-mix(in srgb,var(--gold) 34%,transparent);border-radius:100px;padding:1px 7px;white-space:nowrap}
+
+/* ---- .org kart bicimleri ---- */
+.door{position:relative}
+.rozet{position:absolute;top:14px;right:14px;background:#C15F3C;color:#fff;font-family:'Manrope',sans-serif;
+  font-size:10.5px;font-weight:800;letter-spacing:.02em;padding:4px 10px;border-radius:100px;white-space:nowrap}
+.oda .v small{font-family:'Manrope',sans-serif;font-size:.68rem;font-weight:600;color:var(--muted)}
+.gun{display:inline-block;background:var(--paper2);border:1px solid var(--line);color:var(--ink2);
+  font-family:'Manrope',sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.04em;
+  padding:4px 11px;border-radius:100px;margin-bottom:.7rem}
+.cta.koyu{background:var(--ink);border-color:var(--ink);color:#fff}
+.cta.koyu:hover{opacity:.9}
+.link-cta{display:inline-flex;align-items:center;gap:5px;color:#C15F3C;font-size:.82rem;font-weight:800;
+  background:none;border:none;padding:0;cursor:pointer;font-family:inherit;text-decoration:none}
+.link-cta:hover{text-decoration:underline}
 
 .cards{display:grid;gap:1.1rem;grid-template-columns:1fr}
 @media(min-width:620px){.cards{grid-template-columns:repeat(2,1fr)}}
@@ -190,7 +215,9 @@ h1 em{font-style:normal;color:var(--pf)}
       ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
-      single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
+      single:'Tek', double:'Çift', off:'İNDİRİM', promo:'Promosyon kodu', per_night:'/gece',
+      half_day:'Yarım gün', full_day:'Tam gün',
+      book_rate:'İndirimli rezervasyon', book_link:'Talep et',
       booked_note:'Onay bekliyor', confirmed_note:'Organizatör onayladı',
       st_requested:'Talep edildi', st_confirmed:'Onaylandı',
       ev_h:'Yaklaşan etkinlikler', ev_d:'Kayıt açık etkinlikler. Bir etkinliğe tıklayarak konaklama, ulaşım ve kültür programını görebilirsin.',
@@ -221,7 +248,9 @@ h1 em{font-style:normal;color:var(--pf)}
       ev_eyebrow:'Etkinlik ve lojistik', items:'kalem',
       ev_h_rich:'%s ile yolunu planla.',
       logi_lead:'Konaklama, ulaşım, kültür turu ve eş programı tek sayfada. Seçtiklerin talep olarak organizatöre iletilir.',
-      single:'Tek kişilik', double:'Çift kişilik', off:'indirim', promo:'Promosyon kodu',
+      single:'Tek', double:'Çift', off:'İNDİRİM', promo:'Promosyon kodu', per_night:'/gece',
+      half_day:'Yarım gün', full_day:'Tam gün',
+      book_rate:'İndirimli rezervasyon', book_link:'Talep et',
       booked_note:'Onay bekliyor', confirmed_note:'Organizatör onayladı',
       st_requested:'Talep edildi', st_confirmed:'Onaylandı',
       ev_h:'Upcoming events', ev_d:'Events open for registration. Select one to see accommodation, transport and the cultural programme.',
@@ -306,6 +335,49 @@ h1 em{font-style:normal;color:var(--pf)}
     pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
     org:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>'
   };
+  /* Her bolumun kendi seridi. Ayni SVG iskeleti, farkli palet ve ogeler. */
+  function serit(kind, baslik){
+    var P = {
+      accommodation:['#2B2150','#4A3A7A','#6E4E86'],
+      transfer_car: ['#0E3540','#12525C','#1B7A7A'],
+      culture:      ['#5A2A63','#8A3A63','#C4633F'],
+      spouse:       ['#3A2358','#6A3A72','#B5624F']
+    }[kind] || ['#2B2150','#4A3A7A','#6E4E86'];
+    var id = 'g_'+String(kind).replace(/[^a-z0-9_]/gi,'');
+    var gok = '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="'+P[0]+'"/><stop offset=".55" stop-color="'+P[1]+'"/>'+
+      '<stop offset="1" stop-color="'+P[2]+'"/></linearGradient></defs>'+
+      '<rect width="1200" height="220" fill="url(#'+id+')"/>';
+    var yildiz = '';
+    for(var i=0;i<26;i++){
+      var x=(i*97+31)%1180, y=(i*53+17)%110, r=(i%4===0)?1.6:1;
+      yildiz += '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#fff" opacity="'+(0.12+(i%5)*0.07).toFixed(2)+'"/>';
+    }
+    var ic = '';
+    if(kind==='accommodation'){
+      // gece silueti: bloklar halinde sehir
+      var hs=[70,110,55,140,90,120,60,150,80,105,65,130,95];
+      var bx=40; ic='<g fill="#0B0A1C" opacity=".82">';
+      hs.forEach(function(h,i2){ var w=60+((i2*13)%40); ic+='<rect x="'+bx+'" y="'+(220-h)+'" width="'+w+'" height="'+h+'"/>'; bx+=w+14; });
+      ic+='</g>';
+      ic+='<circle cx="1060" cy="62" r="30" fill="#FFF6E0" opacity=".92"/>';
+    } else if(kind==='transfer_car'){
+      // ucus yayi + ucak
+      ic='<path d="M60 190 Q600 40 1140 175" fill="none" stroke="#CFE8E4" stroke-width="3" stroke-dasharray="11 12" opacity=".65"/>'+
+         '<circle cx="60" cy="190" r="7" fill="#9FD8E8"/><circle cx="1140" cy="175" r="7" fill="#F0A868"/>'+
+         '<g transform="translate(600,58) rotate(8)"><path d="M0 -13 L15 13 L0 6 L-15 13 Z" fill="#fff"/></g>';
+    } else {
+      // gun batimi: gunes + tepe silueti + minare
+      var gx = (kind==='spouse') ? 700 : 840;
+      ic='<circle cx="'+gx+'" cy="78" r="40" fill="#FFC96B"/>'+
+         '<circle cx="'+gx+'" cy="78" r="56" fill="#FFC96B" opacity=".22"/>'+
+         '<path d="M0 220 L0 176 L150 138 L300 182 L430 150 L560 190 L700 156 L840 194 L980 162 L1120 196 L1200 172 L1200 220 Z" fill="#2E1430" opacity=".86"/>'+
+         '<g fill="#2E1430" opacity=".9"><rect x="560" y="104" width="16" height="92"/><path d="M568 84 L578 106 L558 106 Z"/></g>';
+    }
+    return '<div class="serit"><svg viewBox="0 0 1200 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+
+      gok+yildiz+ic+'</svg><h2>'+esc(baslik)+'</h2></div>';
+  }
+
   var SERVICES = [
     { key:'accommodation', svc:'accommodation', cat:'accommodation',
       ic:'bed',   h:'s_acc',    d:'s_acc_d',    none:'none_acc',    anchor:'konaklama' },
@@ -421,11 +493,13 @@ h1 em{font-style:normal;color:var(--pf)}
     active.forEach(function(svc){
       var rows = inv.filter(function(x){ return belongs(svc,x); });
       html += '<section class="sec" id="'+svc.anchor+'">'+
+        serit(svc.key, T(svc.h))+
         '<div class="sec-head"><div class="sec-ic">'+ICONS[svc.ic]+'</div>'+
-        '<div class="sec-t">'+(rows.length?'<div class="n">'+rows.length+' '+esc(T('items'))+'</div>':'')+
-        '<h2>'+esc(T(svc.h))+'</h2></div></div>'+
-        '<p class="sec-d">'+esc(T(svc.d))+'</p>';
-      html += '<div class="cards">'+rows.map(function(x){ return invCard(x,pmap); }).join('')+'</div>';
+        '<div class="sec-t"><h2>'+esc(T(svc.h))+'</h2>'+
+        '<div class="sec-sub">'+esc(T(svc.d))+
+          (rows.length?' <span class="n">'+rows.length+' '+esc(T('items'))+'</span>':'')+
+        '</div></div></div>';
+      html += '<div class="cards">'+rows.map(function(x){ return invCard(x,pmap,svc); }).join('')+'</div>';
       html += '</section>';
     });
     $('wrap').innerHTML = html;
@@ -448,53 +522,81 @@ h1 em{font-style:normal;color:var(--pf)}
        discount      -> altin indirim rozeti
        promo         -> kesik cizgili promosyon kodu kutusu
      Hicbiri yoksa kart sade fiyatla gosterilir — bos alan cizilmez. */
-  function invCard(x, pmap){
+  /* Kart bicimi KATEGORIYE gore degisir (.org deseni):
+       konaklama -> tek/cift /gece fiyati, turuncu indirim rozeti, koyu tam
+                    genislikte dugme
+       ulasim    -> aciklama + turuncu metin baglantisi
+       tur/es    -> Half/Full Day cipi + cerceveli dugme
+     Alan yoksa cizilmez; hepsi gm_inventory.details'ten gelir. */
+  function invCard(x, pmap, svc){
     var p2  = pmap[x.provider_id];
     var who = (p2 && p2.name) || x.provider_name || '';
     var d   = x.details || {};
     var mine = planFor(x.id);
+    var tip = svc ? svc.key : 'accommodation';
 
     var bits = [];
     if(x.date_from) bits.push(dmy(x.date_from)+(x.date_to&&x.date_to!==x.date_from?' → '+dmy(x.date_to):''));
     if(x.capacity)  bits.push(Tf('cap',x.capacity));
 
-    var chips = '';
-    if(d.discount) chips += '<span class="chip gold">'+esc(d.discount)+' '+esc(T('off'))+'</span>';
-    if(mine) chips += '<span class="chip '+(mine.status==='confirmed'?'ok':'')+'">'+
-                      esc(T(mine.status==='confirmed'?'st_confirmed':'st_requested'))+'</span>';
+    var rozet = d.discount ? '<span class="rozet">'+esc(d.discount)+' '+esc(T('off'))+'</span>' : '';
+    var durum = mine
+      ? '<span class="chip '+(mine.status==='confirmed'?'ok':'')+'">'+
+        esc(T(mine.status==='confirmed'?'st_confirmed':'st_requested'))+'</span>' : '';
 
-    /* Tek/cift fiyat yalnizca girilmisse; yoksa tek fiyat satiri. */
-    var priceBlock = '';
+    // gun cipi: details.day ('half'/'full') ya da programme_kind
+    var gun = '';
+    if(tip==='culture'||tip==='spouse'){
+      var g = String(d.day||d.programme_kind||'').toLowerCase();
+      if(g==='half'||g==='half_day') gun='<span class="gun">'+esc(T('half_day'))+'</span>';
+      else if(g==='full'||g==='full_day') gun='<span class="gun">'+esc(T('full_day'))+'</span>';
+    }
+
+    var fiyat = '';
     if(d.single || d.double){
-      priceBlock = '<div class="oda">'+
-        (d.single?'<div><span class="l">'+esc(T('single'))+'</span><span class="v">'+esc(d.single)+'</span></div>':'')+
-        (d.double?'<div><span class="l">'+esc(T('double'))+'</span><span class="v">'+esc(d.double)+'</span></div>':'')+
+      fiyat = '<div class="oda">'+
+        (d.single?'<div><span class="l">'+esc(T('single'))+'</span><span class="v">'+esc(d.single)+
+                  '<small>'+esc(T('per_night'))+'</small></span></div>':'')+
+        (d.double?'<div><span class="l">'+esc(T('double'))+'</span><span class="v">'+esc(d.double)+
+                  '<small>'+esc(T('per_night'))+'</small></span></div>':'')+
         '</div>';
     }else{
       var pr = money(x.price_amount, x.currency);
-      if(pr) priceBlock = '<div class="fiyat">'+esc(pr)+'</div>';
+      if(pr) fiyat = '<div class="fiyat">'+esc(pr)+'</div>';
     }
 
-    var promoBlock = d.promo
+    var promo = d.promo
       ? '<div class="promo"><span class="l">'+esc(T('promo'))+'</span><span class="v">'+esc(d.promo)+'</span></div>'
       : '';
 
-    var action = mine
-      ? (mine.status==='confirmed'
-          ? '<button class="cta ghost" disabled>'+esc(T('st_confirmed'))+'</button>'
-          : '<button class="cta ghost" data-cancel="'+esc(mine.id)+'">'+esc(T('cancel'))+'</button>')
-      : (USER
-          ? '<button class="cta" data-book="'+esc(x.id)+'" data-cat="'+esc(x.category)+'">'+esc(T('book'))+'</button>'
-          : '<a class="cta ghost" href="/login.html?next='+encodeURIComponent(location.pathname+location.search)+'">'+esc(T('login'))+'</a>');
+    // Eylem bicimi kategoriye gore
+    var etiket = mine
+      ? (mine.status==='confirmed' ? T('st_confirmed') : T('cancel'))
+      : (tip==='accommodation' ? T('book_rate') : tip==='transfer_car' ? T('book_link') : T('book'));
+    var attrs = mine
+      ? (mine.status==='confirmed' ? ' disabled' : ' data-cancel="'+esc(mine.id)+'"')
+      : ' data-book="'+esc(x.id)+'" data-cat="'+esc(x.category)+'"';
+    var action;
+    if(!USER){
+      var href='/login.html?next='+encodeURIComponent(location.pathname+location.search);
+      action = (tip==='transfer_car')
+        ? '<a class="link-cta" href="'+href+'">'+esc(T('login'))+'</a>'
+        : '<a class="cta ghost" href="'+href+'">'+esc(T('login'))+'</a>';
+    } else if(tip==='transfer_car'){
+      action = '<button class="link-cta"'+attrs+'>'+esc(etiket)+' →</button>';
+    } else {
+      action = '<button class="cta '+(tip==='accommodation'?'koyu':'ghost')+'"'+attrs+'>'+esc(etiket)+'</button>';
+    }
 
-    return '<article class="door">'+
+    return '<article class="door">'+rozet+
+      gun+
       (who?'<div class="door-nm">'+esc(who)+'</div>':'')+
       '<h3>'+esc(x.title)+'</h3>'+
-      (chips?'<div class="chips">'+chips+'</div>':'')+
+      (durum?'<div class="chips">'+durum+'</div>':'')+
       (x.description?'<p>'+esc(x.description)+'</p>':'')+
-      (bits.length?'<div class="door-meta">'+bits.map(function(b){return '<span>'+esc(b)+'</span>';}).join('')+'</div>':'')+
+      (bits.length?'<div class="door-meta">'+bits.map(function(bb){return '<span>'+esc(bb)+'</span>';}).join('')+'</div>':'')+
       '<div class="grow"></div>'+
-      priceBlock + promoBlock + action +
+      fiyat + promo + action +
       (mine?'<span class="sub-a">'+esc(T(mine.status==='confirmed'?'confirmed_note':'booked_note'))+'</span>':'')+
       '</article>';
   }
