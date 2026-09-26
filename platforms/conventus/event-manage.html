@@ -102,7 +102,22 @@
    tr:{ back:'Etkinliklerim', signin:'Giriş gerekli', signin_d:'Bu konsol etkinlik yöneticileri içindir.', signin_b:'Giriş yap',
      notfound:'Etkinlik bulunamadı', notfound_d:'Bağlantı geçersiz ya da bu etkinliği yönetme yetkin yok.',
      tab_general:'Genel', tab_reg:'Kayıtlar', tab_agenda:'Ajanda', tab_ann:'Duyurular', tab_docs:'Dokümanlar', tab_log:'İdari & Lojistik',
-     tab_form:'Kayıt formu',
+     tab_form:'Kayıt formu', tab_proto:'Protokol',
+     pr_intro:'NATO Protocol guide book §2.2 bu ayarların hepsini etkinliğe bırakıyor. Öncelik sırası burada seçilenden hesaplanır.',
+     pr_list:'Öncelik listesi', pr_lang:'Alfabetik sıra dili', pr_host:'Ev sahibi ulus',
+     pr_partner:'Partner ulusların yerleşimi', pr_dress:'Kıyafet kademesi', pr_season:'Mevsim',
+     pr_none:'— seçilmedi —',
+     pr_interleave:'NATO üyeleriyle alfabetik olarak karışsın',
+     pr_after:'NATO üyelerinden sonra gelsin',
+     pr_winter:'Kışlık', pr_summer:'Yazlık',
+     pr_save:'Protokolü kaydet', pr_saved:'Protokol ayarı kaydedildi.',
+     pr_order:'Protokol sırası', pr_order_intro:'V25 karar ağacı: skor (adım 1–4), sonra rütbe tarihi, ulus alfabetik ve soyadı. Ev sahibi ve onur konuğu ayrıca işaretlenir.',
+     pr_none_reg:'Henüz sıralanacak kayıt yok.',
+     pr_c_no:'#', pr_c_who:'Kim', pr_c_id:'Kimlik', pr_c_score:'Skor', pr_c_grade:'Kademe', pr_c_cap:'Sıfat', pr_c_dor:'Rütbe tarihi', pr_c_nation:'Ulus',
+     pr_host_badge:'ev sahibi', pr_goh_badge:'onur konuğu',
+     pr_dress_show:'Katılımcının göreceği karşılık',
+     pr_mil:'Askerî', pr_civ:'Sivil',
+     pr_no_ref:'Protokol referans tabloları okunamadı. 10 ve 11 numaralı SQL çalıştırılmış mı?',
      fm_intro:'Kayıt sihirbazının adımlarını burada tanımlarsınız. Tanımlamadığınız adım katılımcıya <b>hiç gösterilmez</b>.',
      fm_types_h:'Kayıt tipleri', fm_types_d:'Katılımcı hangi sıfatla geldiğini seçer. Not alanına uygunluk kuralını yazın.',
      fm_tracks_h:'Katılım bölümleri', fm_tracks_d:'Gün / parkur blokları. Katılımcı birden fazla seçebilir.',
@@ -153,7 +168,22 @@
    en:{ back:'My events', signin:'Sign in required', signin_d:'This console is for event managers.', signin_b:'Sign in',
      notfound:'Event not found', notfound_d:'Invalid link, or you cannot manage this event.',
      tab_general:'General', tab_reg:'Registrations', tab_agenda:'Agenda', tab_ann:'Announcements', tab_docs:'Documents', tab_log:'Admin & Logistics',
-     tab_form:'Registration form',
+     tab_form:'Registration form', tab_proto:'Protocol',
+     pr_intro:'NATO Protocol guide book §2.2 leaves all of these to the event. Precedence is computed from what you choose here.',
+     pr_list:'Precedence list', pr_lang:'Alphabetical ordering language', pr_host:'Host nation',
+     pr_partner:'Placement of partner nations', pr_dress:'Dress code', pr_season:'Season',
+     pr_none:'— not set —',
+     pr_interleave:'Interleave alphabetically with NATO members',
+     pr_after:'Follow after NATO members',
+     pr_winter:'Winter', pr_summer:'Summer',
+     pr_save:'Save protocol', pr_saved:'Protocol settings saved.',
+     pr_order:'Order of precedence', pr_order_intro:'V25 decision tree: score (steps 1–4), then date of rank, nation alphabetical and surname. Host nation and guest of honour are flagged separately.',
+     pr_none_reg:'No registrations to order yet.',
+     pr_c_no:'#', pr_c_who:'Who', pr_c_id:'Identity', pr_c_score:'Score', pr_c_grade:'Grade', pr_c_cap:'Capacity', pr_c_dor:'Date of rank', pr_c_nation:'Nation',
+     pr_host_badge:'host', pr_goh_badge:'guest of honour',
+     pr_dress_show:'What the participant sees',
+     pr_mil:'Military', pr_civ:'Civilian',
+     pr_no_ref:'Could not read the protocol reference tables. Have SQL 10 and 11 been run?',
      fm_intro:'Define the steps of the registration wizard here. A step you do not define is <b>never shown</b> to the participant.',
      fm_types_h:'Registration types', fm_types_d:'The participant picks the capacity they attend in. Put the eligibility rule in the note.',
      fm_tracks_h:'Portions', fm_tracks_d:'Day / track blocks. Participants may select more than one.',
@@ -256,7 +286,7 @@
 
   function render(){
     setChrome();
-    var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
+    var tabs=[['general','tab_general'],['reg','tab_reg'],['form','tab_form'],['proto','tab_proto'],['agenda','tab_agenda'],['ann','tab_ann'],['docs','tab_docs'],['log','tab_log']];
     $('#wrap').innerHTML=
       '<div class="head"><div class="eyebrow">conventus_managed_events</div><h1>'+esc(EVENT.title||EVENT.code)+'</h1></div>'+
       '<div class="subline"><span class="mono">'+esc(EVENT.code)+'</span>·'+
@@ -267,7 +297,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
       b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
     });
-    ({general:tGeneral,reg:tReg,form:tFormTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
+    ({general:tGeneral,reg:tReg,form:tFormTab,proto:tProtoTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
   }
   function tSoon(){ $('#tb').innerHTML='<div class="soon">'+esc(T('soon'))+'</div>'; }
   function editorLink(page, descKey){
@@ -301,6 +331,165 @@
     var res=await sb.rpc('conventus_set_event_logistics',{p_activity_id:EVENT.activity_id,p_logistics:L});
     if(res.error){ $('#lgErr').textContent=res.error.message; return; }
     EVENT.logistics=L; toast(T('log_saved'));
+  }
+
+  /* ===================== PROTOKOL SEKMESI ===============================
+     Iki kart: (1) etkinligin protokol ayari, (2) hesaplanmis katilimci sirasi.
+
+     AYAR NEDEN RPC ILE KAYDEDILIYOR: conventus_managed_events'te UPDATE
+     politikasi yalniz created_by ve is_cv_admin. Etkinligi yoneten ama
+     olusturmamis biri dogrudan update calistirirsa 0 satir gunceller ve
+     hicbir hata almaz — sessizce kaybolur. conventus_set_event_protocol
+     yetkiyi kendi kontrol eder ve degerleri referansa karsi dogrular.
+
+     SIRA NEDEN VIEW'DEN: skor kolon degil, conventus_precedence_v hesapliyor.
+     Rutbe ya da sifat degisince kendiliginden guncellenir; bayat skor olmaz.
+     Siralama V25'in 5-7. adimlari: skor -> rutbe tarihi -> ulus -> soyadi.  */
+  var PROTO={nations:[],lists:[],dress:[],caps:{},ok:false}, PORDER=null;
+
+  async function loadProtoRef(){
+    if(PROTO.ok) return;
+    var r=await Promise.all([
+      sb.from('conventity_ref_nation').select('code_mil,name_en,name_tr').eq('is_active',true).order('name_en'),
+      sb.from('conventity_ref_precedence_list').select('key,label_en,label_tr'),
+      sb.from('conventity_ref_dress_code').select('*').order('ordinal'),
+      sb.from('conventity_ref_capacity').select('key,label_en,label_tr')
+    ]);
+    // Sifat anahtarlari ("national_rep") organizatora gosterilmez — etiketleri
+    // zaten referansta duruyor, ham anahtar sizdirmak yarim is olurdu.
+    var caps={}; (r[3].data||[]).forEach(function(c){ caps[c.key]=c; });
+    PROTO={ nations:r[0].data||[], lists:r[1].data||[], dress:r[2].data||[], caps:caps,
+            ok: !r[0].error && !r[1].error && !r[2].error && (r[0].data||[]).length>0 };
+    if(!PROTO.ok){ try{ console.error('[event-manage] protokol referansi okunamadi', r[0].error||r[1].error||r[2].error||r[3].error); }catch(_){} }
+  }
+  function refLabel(o){ return (lang()==='tr' && o.label_tr) ? o.label_tr : o.label_en; }
+  function capLabel(k){ if(!k) return '—'; var c=PROTO.caps[k]; return c?refLabel(c):k; }
+  function natLabel(n){ return (lang()==='tr' && n.name_tr) ? n.name_tr : n.name_en; }
+  function selOpts(items, cur, valKey, labelFn, placeholder){
+    var h = placeholder!==false ? '<option value="">'+esc(T('pr_none'))+'</option>' : '';
+    return h + items.map(function(o){
+      var v=o[valKey];
+      return '<option value="'+esc(v)+'"'+(String(v)===String(cur||'')?' selected':'')+'>'+esc(labelFn(o))+'</option>';
+    }).join('');
+  }
+
+  async function tProtoTab(){
+    $('#tb').innerHTML='<div class="empty">…</div>';
+    await loadProtoRef();
+    if(!PROTO.ok){ $('#tb').innerHTML='<div class="empty">'+esc(T('pr_no_ref'))+'</div>'; return; }
+    drawProto();
+    loadPrecedence();
+  }
+
+  function drawProto(){
+    var E=EVENT;
+    var card='<div class="card"><h3>'+esc(T('tab_proto'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('pr_intro'))+'</div>'+
+      '<div style="display:grid;gap:12px">'+
+        '<div><label>'+esc(T('pr_list'))+'</label><select id="pr_list">'+
+          selOpts(PROTO.lists, E.precedence_list, 'key', refLabel, false)+'</select></div>'+
+        '<div><label>'+esc(T('pr_lang'))+'</label><select id="pr_lang">'+
+          '<option value="en"'+(E.alpha_language!=='fr'?' selected':'')+'>English</option>'+
+          '<option value="fr"'+(E.alpha_language==='fr'?' selected':'')+'>Français</option></select></div>'+
+        '<div><label>'+esc(T('pr_host'))+'</label><select id="pr_host">'+
+          selOpts(PROTO.nations, E.host_nation, 'code_mil', natLabel)+'</select></div>'+
+        '<div><label>'+esc(T('pr_partner'))+'</label><select id="pr_partner">'+
+          '<option value="after"'+(E.partner_placement!=='interleave'?' selected':'')+'>'+esc(T('pr_after'))+'</option>'+
+          '<option value="interleave"'+(E.partner_placement==='interleave'?' selected':'')+'>'+esc(T('pr_interleave'))+'</option></select></div>'+
+        '<div><label>'+esc(T('pr_dress'))+'</label><select id="pr_dress">'+
+          selOpts(PROTO.dress, E.dress_code_key, 'key', refLabel)+'</select></div>'+
+        '<div><label>'+esc(T('pr_season'))+'</label><select id="pr_season">'+
+          '<option value="">'+esc(T('pr_none'))+'</option>'+
+          '<option value="winter"'+(E.dress_season==='winter'?' selected':'')+'>'+esc(T('pr_winter'))+'</option>'+
+          '<option value="summer"'+(E.dress_season==='summer'?' selected':'')+'>'+esc(T('pr_summer'))+'</option></select></div>'+
+        '<div id="pr_dressPrev"></div>'+
+      '</div>'+
+      '<div class="actions" style="margin-top:14px"><button class="btn btn-primary btn-sm" id="prSave">'+esc(T('pr_save'))+'</button>'+
+      '<span class="ferr" id="prErr" style="align-self:center"></span></div></div>'+
+      '<div id="prOrder"></div>';
+    $('#tb').innerHTML=card;
+    $('#prSave').addEventListener('click', saveProtocol);
+    ['pr_dress','pr_season'].forEach(function(id){
+      var el=$('#'+id); if(el) el.addEventListener('change', drawDressPreview);
+    });
+    drawDressPreview();
+    if(PORDER) drawPrecedence();
+  }
+
+  /* Kiyafet kademesi askeri/sivil ve mevsime gore FARKLI karsiliga dusuyor
+     (kaynak §3.1). Organizator neyi sectigini gormeden kaydetmesin. */
+  function drawDressPreview(){
+    var box=$('#pr_dressPrev'); if(!box) return;
+    var key=($('#pr_dress')||{}).value||'', season=($('#pr_season')||{}).value||'';
+    var d=PROTO.dress.filter(function(x){return x.key===key;})[0];
+    if(!d){ box.innerHTML=''; return; }
+    var mil = season==='summer' ? d.summer_uniform : (season==='winter' ? d.winter_uniform : null);
+    box.innerHTML='<label>'+esc(T('pr_dress_show'))+'</label>'+
+      '<div class="empty" style="text-align:left;padding:10px 12px">'+
+        (mil?'<div><b>'+esc(T('pr_mil'))+':</b> '+esc(mil)+'</div>':'')+
+        (d.civilian?'<div style="margin-top:4px"><b>'+esc(T('pr_civ'))+':</b> '+esc(d.civilian)+'</div>':'')+
+        (d.note?'<div style="margin-top:6px;color:var(--muted);font-size:12px">'+esc(d.note)+'</div>':'')+
+      '</div>';
+  }
+
+  function pv(id){ var el=$('#'+id); return el && el.value ? el.value : null; }
+  async function saveProtocol(){
+    if(!EVENT.activity_id){ toast(T('e_no_activity'),true); return; }
+    $('#prErr').textContent='';
+    var res=await sb.rpc('conventus_set_event_protocol',{
+      p_activity_id:EVENT.activity_id,
+      p_precedence_list:pv('pr_list'), p_alpha_language:pv('pr_lang'),
+      p_host_nation:pv('pr_host'), p_partner_placement:pv('pr_partner'),
+      p_dress_code_key:pv('pr_dress'), p_dress_season:pv('pr_season')
+    });
+    if(res.error){ $('#prErr').textContent=res.error.message; return; }
+    EVENT.precedence_list=pv('pr_list'); EVENT.alpha_language=pv('pr_lang');
+    EVENT.host_nation=pv('pr_host'); EVENT.partner_placement=pv('pr_partner');
+    EVENT.dress_code_key=pv('pr_dress'); EVENT.dress_season=pv('pr_season');
+    toast(T('pr_saved'));
+    loadPrecedence();   // ev sahibi degistiyse sira da degisir
+  }
+
+  async function loadPrecedence(){
+    /* Siralama V25 adim 5-7. ORDER BY'i burada kuruyoruz cunku view'e gomulu
+       degil: hangi dilde alfabetik oldugu etkinlige gore degisiyor. */
+    var r=await sb.from('conventus_precedence_v').select('*').eq('event_id',EVENT.id)
+      .order('precedence_score',{ascending:false})
+      .order('date_of_rank',{ascending:true,nullsFirst:false})
+      .order('partner_bucket',{ascending:true})
+      .order('nation_sort',{ascending:true,nullsFirst:false})
+      .order('last_name',{ascending:true});
+    if(r.error){ PORDER={err:r.error.message}; } else { PORDER={rows:r.data||[]}; }
+    drawPrecedence();
+  }
+
+  function drawPrecedence(){
+    var box=$('#prOrder'); if(!box||!PORDER) return;
+    var head='<div class="card" style="margin-top:14px"><h3>'+esc(T('pr_order'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+esc(T('pr_order_intro'))+'</div>';
+    if(PORDER.err){ box.innerHTML=head+'<div class="empty">'+esc(PORDER.err)+'</div></div>'; return; }
+    var rows=PORDER.rows||[];
+    if(!rows.length){ box.innerHTML=head+'<div class="empty">'+esc(T('pr_none_reg'))+'</div></div>'; return; }
+    box.innerHTML=head+'<div class="table-wrap"><table class="grid"><thead><tr>'+
+      ['pr_c_no','pr_c_who','pr_c_id','pr_c_score','pr_c_grade','pr_c_cap','pr_c_dor','pr_c_nation']
+        .map(function(k){return '<th>'+esc(T(k))+'</th>';}).join('')+'</tr></thead><tbody>'+
+      rows.map(function(x,i){
+        var nm=[x.first_name,x.last_name].filter(Boolean).join(' ')||'—';
+        // .st sayfanin kendi rozet stili (stChip ile ayni) — yeni sinif uydurmuyoruz
+        var badges=(x.is_host_nation?' <span class="st ok">'+esc(T('pr_host_badge'))+'</span>':'')+
+                   (x.is_guest_of_honour?' <span class="st warn">'+esc(T('pr_goh_badge'))+'</span>':'');
+        var cap=x.represents_capacity_key
+          ? esc(capLabel(x.represents_capacity_key))+' <span style="color:var(--muted)">('+esc(capLabel(x.capacity_key))+')</span>'
+          : esc(capLabel(x.capacity_key));
+        return '<tr><td class="mono">'+(i+1)+'</td>'+
+          '<td style="color:var(--ink);font-weight:600">'+esc(nm)+badges+'</td>'+
+          '<td class="mono" style="font-size:11px">'+esc(x.identity_string||'—')+'</td>'+
+          '<td class="mono"><b>'+esc(x.precedence_score==null?'—':x.precedence_score)+'</b></td>'+
+          '<td class="mono" style="font-size:11px">'+esc(x.grade_code||'—')+'</td>'+
+          '<td style="font-size:12px">'+cap+'</td>'+
+          '<td class="mono" style="font-size:11px">'+esc(dmy(x.date_of_rank)||'—')+'</td>'+
+          '<td style="font-size:12px">'+esc(x.nation_sort||x.nation_code||'—')+'</td></tr>';
+      }).join('')+'</tbody></table></div></div>';
   }
 
   // ── Documents (S19): link-based document manager ──────────────────────
