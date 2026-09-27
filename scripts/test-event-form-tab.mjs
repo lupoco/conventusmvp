@@ -52,11 +52,20 @@ await p.addInitScript(()=>{ try{localStorage.setItem('cv-lang','tr');}catch(e){}
 await p.goto('http://localhost:8099/platforms/conventus/event-manage.html?e=LANDCOM-CONF-2026',{waitUntil:'load'});
 await p.waitForTimeout(1000);
 
+
+/* Kartlari sirayla degil BASLIKLA buluyoruz: forma yeni bir kart eklendiginde
+   (ornegin PDF/Word aktarimi) indeksler kayiyordu. */
+const kart = (bas) => p.locator('#tb .card').filter({ has: p.locator('h3', {hasText: bas}) });
+const KTIP = () => kart('Kayıt tipleri');
+const KPARK = () => kart('Katılım bölümleri');
+const KONAY = () => kart('Onaylar');
+
 const tab = p.locator('.tab', {hasText:'Kayıt formu'});
 console.log('sekme var mi      :', await tab.count()===1);
 await tab.click(); await p.waitForTimeout(600);
-console.log('kart sayisi (3)   :', await p.locator('#tb .card').count());
-console.log('bos parkur uyarisi:', (await p.locator('#tb .card').nth(1).locator('.empty').last().innerText()).trim());
+console.log('kart sayisi (4)   :', await p.locator('#tb .card').count());
+console.log('AI aktarim karti  :', await p.locator('#aiCard').count()===1);
+console.log('bos parkur uyarisi:', (await KPARK().locator('.empty').last().innerText()).trim());
 
 // --- parkur ekle
 await p.locator('[data-fmadd="tracks"]').click(); await p.waitForTimeout(300);
@@ -65,8 +74,8 @@ await p.fill('#fm_from','18112026'); await p.fill('#fm_to','18112026');
 await p.fill('#fm_tfrom','09:00'); await p.fill('#fm_tto','16:00'); await p.fill('#fm_cap','20');
 await p.fill('#fm_ext','Ayrı kayıt gerekir.');
 await p.click('#fmSave'); await p.waitForTimeout(600);
-console.log('parkur eklendi    :', (await p.locator('#tb .card').nth(1).innerText()).replace(/\s+/g,' ').includes('Saha ziyareti'));
-console.log('  tarih maskesi   :', (await p.locator('#tb .card').nth(1).innerText()).includes('18.11.2026'));
+console.log('parkur eklendi    :', (await KPARK().innerText()).replace(/\s+/g,' ').includes('Saha ziyareti'));
+console.log('  tarih maskesi   :', (await KPARK().innerText()).includes('18.11.2026'));
 
 // --- gecersiz tarih reddedilmeli
 await p.locator('[data-fmadd="tracks"]').click(); await p.waitForTimeout(300);
@@ -83,7 +92,7 @@ console.log('gecersiz anahtar  :', (await p.locator('#fmErr').innerText()).trim(
 await p.click('#fmCancel'); await p.waitForTimeout(200);
 
 // --- onay metnini degistir -> yeni surum acilmali
-await p.locator('#tb .card').nth(2).locator('[data-fme]').first().click(); await p.waitForTimeout(300);
+await KONAY().locator('[data-fme]').first().click(); await p.waitForTimeout(300);
 await p.fill('#fm_body','Listede paylasilmasina onay veriyorum. (guncellendi)');
 await p.click('#fmSave'); await p.waitForTimeout(700);
 const ops = await p.evaluate(()=>window.__OPS);
@@ -91,7 +100,7 @@ const consIns = ops.filter(o=>o.op==='insert'&&o.table==='conventus_event_consen
 const consUpd = ops.filter(o=>o.op==='update'&&o.table==='conventus_event_consents');
 console.log('yeni surum acildi :', consIns.length===1 && consIns[0].row.version===2);
 console.log('eski surum pasif  :', consUpd.length===1 && consUpd[0].patch.is_active===false);
-console.log('  eski metin duruyor:', (await p.locator('#tb .card').nth(2).innerText()).includes('v1'));
+console.log('  eski metin duruyor:', (await KONAY().innerText()).includes('v1'));
 
 await p.screenshot({path:'/var/tmp/form-tab.png', fullPage:true});
 console.log('sayfa hatalari    :', errs.length?errs:'yok');

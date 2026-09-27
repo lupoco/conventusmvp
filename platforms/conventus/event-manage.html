@@ -164,6 +164,39 @@
      fm_saved:'Kaydedildi.', fm_deleted:'Silindi.',
      fm_delq:'Bu satır silinsin mi?',
      fm_cons_delq:'Bu onay metni silinsin mi? Verilmiş yanıtlar silinmez, metin kayıttan kalkar.',
+     ai_h:'PDF / Word formundan aktar',
+     ai_d:'Elinizdeki kayıt formunu (PDF veya Word) yükleyin; sorular okunup dijital form alanlarına çevrilsin. <b>Hiçbir şey kendiliğinden kaydedilmez</b> — öneriyi görür, düzeltir, seçtiklerinizi siz uygularsınız.',
+     ai_pick:'Dosya seç (PDF / DOCX)',
+     ai_go:'Formu çözümle',
+     ai_reading:'Belge okunuyor…',
+     ai_thinking:'Sorular çıkarılıyor…',
+     ai_nofile:'Önce bir dosya seçin.',
+     ai_badtype:'Yalnızca PDF ve DOCX desteklenir.',
+     ai_toobig:'Dosya 10 MB\u2019tan büyük olamaz.',
+     ai_noteext:'Belgeden metin çıkarılamadı. Taranmış (görüntü) bir PDF olabilir — metin katmanı yok.',
+     ai_nofields:'Belgeden alan çıkarılamadı.',
+     ai_found:'%s alan, %s onay metni bulundu',
+     ai_notes:'Dikkat edilecekler',
+     ai_col_use:'Al',
+     ai_col_label:'Soru',
+     ai_col_key:'Anahtar',
+     ai_col_type:'Tip',
+     ai_col_req:'Zorunlu',
+     ai_col_core:'Hedef',
+     ai_core_yes:'Kayıt kolonu',
+     ai_core_no:'Özel alan',
+     ai_src:'Kaynak satır',
+     ai_apply:'Seçilenleri forma uygula',
+     ai_cancel:'Vazgeç',
+     ai_none_sel:'Hiç alan seçmediniz.',
+     ai_bad_rows:'Şu satırların anahtarı veya etiketi geçersiz: %s — düzeltin ya da işaretini kaldırın. (Anahtar: a-z, 0-9, alt çizgi; 2-40 karakter.)',
+     ai_applied:'%s alan forma eklendi. Kayıt formu sekmesinden düzenleyebilirsiniz.',
+     ai_applied_c:'%s onay metni eklendi.',
+     ai_replace:'Mevcut form alanlarının üzerine yaz (işaretlemezseniz eklenir)',
+     ai_dupe:'%s anahtarı formda zaten var — atlandı.',
+     ai_off:'Bu özellik henüz açılmadı (form-import fonksiyonu yayında değil).',
+     ai_model:'Model',
+     ai_warn:'Çıkarılan alanlar <b>öneridir</b>. Uygulamadan önce her satırı kontrol edin; yanlış bir zorunlu alan katılımcıyı kayıt sırasında durdurur.',
      fm_newver:'Metni değiştirdiğiniz için <b>yeni sürüm</b> açıldı (v%s). Eski sürüm pasife alındı; ona verilmiş yanıtlar olduğu gibi duruyor.',
      g_code:'Kod', g_dates:'Tarih', g_loc:'Yer', g_host:'Ev sahibi', g_comm:'Topluluk', g_pub:'Durum', g_reg:'Kayıt',
      g_cap:'Kontenjan', g_paf:'PAF alanı', published:'Yayında', draft:'Taslak', open:'Açık', closed:'Kapalı',
@@ -254,6 +287,39 @@
      fm_saved:'Saved.', fm_deleted:'Deleted.',
      fm_delq:'Delete this row?',
      fm_cons_delq:'Delete this consent text? Answers already given are kept; the text is removed from the form.',
+     ai_h:'Import from a PDF / Word form',
+     ai_d:'Upload your existing registration form (PDF or Word) and have its questions turned into digital form fields. <b>Nothing is saved automatically</b> — you see the proposal, correct it, and apply what you choose.',
+     ai_pick:'Choose file (PDF / DOCX)',
+     ai_go:'Analyse form',
+     ai_reading:'Reading document…',
+     ai_thinking:'Extracting questions…',
+     ai_nofile:'Choose a file first.',
+     ai_badtype:'Only PDF and DOCX are supported.',
+     ai_toobig:'File must be 10 MB or smaller.',
+     ai_noteext:'No text could be extracted. This may be a scanned (image) PDF with no text layer.',
+     ai_nofields:'No fields could be extracted from the document.',
+     ai_found:'%s fields, %s consent texts found',
+     ai_notes:'Points to check',
+     ai_col_use:'Use',
+     ai_col_label:'Question',
+     ai_col_key:'Key',
+     ai_col_type:'Type',
+     ai_col_req:'Required',
+     ai_col_core:'Target',
+     ai_core_yes:'Registration column',
+     ai_core_no:'Custom field',
+     ai_src:'Source line',
+     ai_apply:'Apply selected to form',
+     ai_cancel:'Cancel',
+     ai_none_sel:'No fields selected.',
+     ai_bad_rows:'These rows have an invalid key or label: %s — fix them or untick them. (Key: a-z, 0-9, underscore; 2-40 characters.)',
+     ai_applied:'%s fields added to the form. You can edit them from the Registration form tab.',
+     ai_applied_c:'%s consent texts added.',
+     ai_replace:'Overwrite existing form fields (otherwise they are appended)',
+     ai_dupe:'Key %s already exists in the form — skipped.',
+     ai_off:'This feature is not enabled yet (the form-import function is not deployed).',
+     ai_model:'Model',
+     ai_warn:'The extracted fields are a <b>proposal</b>. Check every row before applying; a wrongly required field will block participants during registration.',
      fm_newver:'Because you changed the text a <b>new version</b> was created (v%s). The old one was deactivated; answers given to it stay as they are.',
      g_code:'Code', g_dates:'Dates', g_loc:'Location', g_host:'Host', g_comm:'Community', g_pub:'Status', g_reg:'Registration',
      g_cap:'Capacity', g_paf:'PAF fields', published:'Published', draft:'Draft', open:'Open', closed:'Closed',
@@ -888,6 +954,7 @@
 
     $('#tb').innerHTML =
       '<div class="empty" style="text-align:left;border:none;padding:0 0 12px">'+T('fm_intro')+'</div>'+
+      aiCardHtml()+
       fmCard('types','fm_types_h','fm_types_d',
         '<th>'+esc(T('fm_key'))+'</th><th>'+esc(T('fm_label'))+'</th><th>'+esc(T('fm_note'))+'</th><th>'+esc(T('fm_other'))+'</th><th>'+esc(T('fm_active'))+'</th>',
         tRows,'fm_empty_type','fm_add_type')+
@@ -898,6 +965,7 @@
         '<th>'+esc(T('fm_key'))+'</th><th>'+esc(T('fm_ver'))+'</th><th>'+esc(T('fm_body'))+'</th><th>'+esc(T('fm_req'))+'</th><th>'+esc(T('fm_active'))+'</th>',
         cRows,'fm_empty_cons','fm_add_cons');
 
+    aiBind();
     Array.prototype.forEach.call(document.querySelectorAll('[data-fmadd]'),function(b){
       b.addEventListener('click',function(){ openFmForm(b.getAttribute('data-fmadd'),null); }); });
     Array.prototype.forEach.call(document.querySelectorAll('[data-fme]'),function(b){
@@ -1022,6 +1090,301 @@
     var r=await sb.from(FM_TABLE[kind]).delete().eq('id',id);
     if(r.error){ toast(r.error.message,true); return; }
     await tFormTab(); toast(T('fm_deleted'));
+  }
+
+
+  /* ===================================================================
+     PDF / WORD FORMUNDAN AKTARMA
+     -------------------------------------------------------------------
+     Akis:  dosya -> TARAYICIDA duz metne cevrilir -> metin Edge Function'a
+            gider -> model alan onerir -> yonetici secer -> uygulanir.
+
+     Neden metin tarayicida cikariliyor: ikili dosya hicbir yere yuklenmiyor,
+     saklanmiyor. Pasaport/kisisel veri iceren bir formda bu onemli.
+
+     KRITIK: bu blok registration_field_defs'i kendiliginden YAZMAZ.
+     Yonetici "uygula"ya basana kadar hicbir sey degismez.
+     =================================================================== */
+  var AI_FN = (window.__CV_SUPABASE_URL||'') + '/functions/v1/form-import';
+  var AI_MAX_BYTE = 10*1024*1024;
+  var AI_ONERI = null;   // {fields, consents, notes, model, import_id}
+
+  function aiCardHtml(){
+    return '<div class="card" id="aiCard">'+
+      '<h3>'+esc(T('ai_h'))+'</h3>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+T('ai_d')+'</div>'+
+      '<div class="actions" style="gap:10px;flex-wrap:wrap;align-items:center">'+
+        '<input type="file" id="aiFile" accept=".pdf,.docx,application/pdf,'+
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document" '+
+          'style="font-size:13px;max-width:100%">'+
+        '<button class="btn btn-primary btn-sm" id="aiGo">'+esc(T('ai_go'))+'</button>'+
+        '<span class="mono" id="aiState" style="font-size:12px;color:var(--muted)"></span>'+
+      '</div>'+
+      '<div class="ferr" id="aiErr" style="margin-top:8px"></div>'+
+      '<div id="aiOut"></div>'+
+    '</div>';
+  }
+
+  function aiBind(){
+    var g=$('#aiGo'); if(g) g.addEventListener('click',aiCalistir);
+  }
+  function aiDurum(m){ var el=$('#aiState'); if(el) el.textContent=m||''; }
+  function aiHata(m){ var el=$('#aiErr'); if(el) el.textContent=m||''; }
+
+  /* ---- 1) dosyadan duz metin --------------------------------------- */
+  function betikYukle(src){
+    return new Promise(function(ok,no){
+      var v=document.querySelector('script[data-cv="'+src+'"]');
+      if(v){ if(v.dataset.ready==='1') return ok(); v.addEventListener('load',function(){ok();}); return; }
+      var s=document.createElement('script');
+      s.src=src; s.setAttribute('data-cv',src);
+      s.onload=function(){ s.dataset.ready='1'; ok(); };
+      s.onerror=function(){ no(new Error('script: '+src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function pdfMetni(dosya){
+    await betikYukle('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs')
+      .catch(function(){ throw new Error('pdfjs'); });
+    var pdfjs = window.pdfjsLib;
+    if(!pdfjs){
+      // pdf.min.mjs bir ES modulu; klasik <script> ile global birakmayabilir.
+      var mod = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs');
+      pdfjs = mod;
+    }
+    pdfjs.GlobalWorkerOptions.workerSrc =
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.mjs';
+    var buf = await dosya.arrayBuffer();
+    var pdf = await pdfjs.getDocument({ data: buf }).promise;
+    var parcalar = [];
+    for(var i=1;i<=pdf.numPages;i++){
+      var sayfa = await pdf.getPage(i);
+      var t = await sayfa.getTextContent();
+      // Satir yapisini koru: y degisince yeni satir. Form sorulari satir bazli.
+      var sonY=null, satir=[], satirlar=[];
+      t.items.forEach(function(it){
+        var y = it.transform ? Math.round(it.transform[5]) : null;
+        if(sonY!==null && y!==null && Math.abs(y-sonY)>3){ satirlar.push(satir.join(' ')); satir=[]; }
+        satir.push(it.str); sonY=y;
+      });
+      if(satir.length) satirlar.push(satir.join(' '));
+      parcalar.push(satirlar.join('\n'));
+    }
+    return parcalar.join('\n\n');
+  }
+
+  async function docxMetni(dosya){
+    await betikYukle('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js')
+      .catch(function(){ throw new Error('jszip'); });
+    if(!window.JSZip) throw new Error('jszip');
+    var zip = await window.JSZip.loadAsync(await dosya.arrayBuffer());
+    var giris = zip.file('word/document.xml');
+    if(!giris) throw new Error('docx');
+    var xml = await giris.async('string');
+    // <w:p> paragraf, <w:tab/> sekme, <w:br/> satir sonu.
+    return xml
+      .replace(/<w:tab\b[^>]*\/>/g, '\t')
+      .replace(/<w:br\b[^>]*\/>/g, '\n')
+      .replace(/<\/w:p>/g, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&')
+      .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+      .replace(/[ \t]+/g,' ')
+      .replace(/\n{3,}/g,'\n\n')
+      .trim();
+  }
+
+  /* ---- 2) calistir -------------------------------------------------- */
+  async function aiCalistir(){
+    aiHata(''); $('#aiOut').innerHTML=''; AI_ONERI=null;
+    var f = $('#aiFile'), dosya = f && f.files && f.files[0];
+    if(!dosya){ aiHata(T('ai_nofile')); return; }
+    if(dosya.size > AI_MAX_BYTE){ aiHata(T('ai_toobig')); return; }
+    var ad = (dosya.name||'').toLowerCase();
+    var pdfMi = ad.slice(-4)==='.pdf', docxMi = ad.slice(-5)==='.docx';
+    if(!pdfMi && !docxMi){ aiHata(T('ai_badtype')); return; }
+
+    var btn=$('#aiGo'); btn.disabled=true;
+    try{
+      aiDurum(T('ai_reading'));
+      var metin;
+      try{
+        metin = pdfMi ? await pdfMetni(dosya) : await docxMetni(dosya);
+      }catch(e){
+        aiDurum(''); aiHata(T('ai_noteext')+' ('+String(e.message||e)+')'); return;
+      }
+      if(!metin || metin.replace(/\s/g,'').length < 40){
+        aiDurum(''); aiHata(T('ai_noteext')); return;
+      }
+
+      aiDurum(T('ai_thinking'));
+      var oturum = (await sb.auth.getSession()).data.session;
+      if(!oturum){ aiDurum(''); aiHata('401'); return; }
+      var cevap = await fetch(AI_FN, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json',
+                  'Authorization':'Bearer '+oturum.access_token,
+                  'apikey': window.__CV_ANON_KEY || '' },
+        body: JSON.stringify({ activity_id: EVENT.activity_id,
+                               source_name: dosya.name, text: metin })
+      });
+      aiDurum('');
+      if(cevap.status===404){ aiHata(T('ai_off')); return; }
+      var veri = await cevap.json().catch(function(){ return {}; });
+      if(!cevap.ok){
+        // Sessiz dusme yok: sunucunun soyledigini oldugu gibi goster.
+        aiHata((veri.error||cevap.status)+(veri.detail?(' — '+veri.detail):''));
+        return;
+      }
+      AI_ONERI = veri;
+      aiOneriCiz();
+    } finally { btn.disabled=false; }
+  }
+
+  /* ---- 3) oneri tablosu --------------------------------------------- */
+  var AI_TIPLER=['text','textarea','select','multi-select','checkbox','date','email','phone'];
+
+  function aiOneriCiz(){
+    var o=AI_ONERI, alanlar=o.fields||[], onaylar=o.consents||[], notlar=o.notes||[];
+    if(!alanlar.length && !onaylar.length){
+      $('#aiOut').innerHTML='<div class="empty">'+esc(T('ai_nofields'))+'</div>';
+      if(notlar.length) $('#aiOut').innerHTML += aiNotlar(notlar);
+      return;
+    }
+    var mevcut={}; 
+    (Array.isArray(EVENT.registration_field_defs)?EVENT.registration_field_defs:[])
+      .forEach(function(d){ mevcut[d.key]=true; });
+
+    var satirlar = alanlar.map(function(a,i){
+      var cakisma = !!mevcut[a.key];
+      return '<tr'+(cakisma?' style="opacity:.6"':'')+'>'+
+        '<td><input type="checkbox" class="ai-use" data-i="'+i+'"'+(cakisma?'':' checked')+'></td>'+
+        '<td><input class="ai-label" data-i="'+i+'" value="'+esc(a.label)+'" style="width:100%;min-width:160px"></td>'+
+        '<td><input class="ai-key mono" data-i="'+i+'" value="'+esc(a.key)+'" style="width:100%;min-width:110px;font-size:12px"></td>'+
+        '<td><select class="ai-type" data-i="'+i+'">'+
+          AI_TIPLER.map(function(t){ return '<option'+(t===a.type?' selected':'')+'>'+t+'</option>'; }).join('')+
+          '</select></td>'+
+        '<td style="text-align:center"><input type="checkbox" class="ai-req" data-i="'+i+'"'+(a.required?' checked':'')+'></td>'+
+        '<td><span class="mono" style="font-size:11px;color:'+(a.core?'var(--ok,#1F7A4C)':'var(--muted)')+'">'+
+          esc(a.core?T('ai_core_yes'):T('ai_core_no'))+'</span></td>'+
+        '<td class="mono" style="font-size:11px;color:var(--muted);max-width:200px">'+esc(a.source_line||'')+'</td>'+
+      '</tr>'+
+      (cakisma?'<tr><td></td><td colspan="6" class="mono" style="font-size:11px;color:var(--muted)">'+
+        esc(T('ai_dupe').replace('%s',a.key))+'</td></tr>':'');
+    }).join('');
+
+    $('#aiOut').innerHTML =
+      '<div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px">'+
+      '<div class="toolbar" style="padding:0 0 8px"><h3 style="margin:0">'+
+        esc(T('ai_found').replace('%s',alanlar.length).replace('%s',onaylar.length))+'</h3>'+
+        '<div class="sp"></div><span class="mono" style="font-size:11px;color:var(--muted)">'+
+        esc(T('ai_model'))+': '+esc(o.model||'—')+'</span></div>'+
+      '<div class="empty" style="text-align:left;border:none;padding:0 0 10px">'+T('ai_warn')+'</div>'+
+      (notlar.length?aiNotlar(notlar):'')+
+      '<div class="table-wrap"><table class="grid"><thead><tr>'+
+        '<th>'+esc(T('ai_col_use'))+'</th><th>'+esc(T('ai_col_label'))+'</th>'+
+        '<th>'+esc(T('ai_col_key'))+'</th><th>'+esc(T('ai_col_type'))+'</th>'+
+        '<th>'+esc(T('ai_col_req'))+'</th><th>'+esc(T('ai_col_core'))+'</th>'+
+        '<th>'+esc(T('ai_src'))+'</th></tr></thead><tbody>'+satirlar+'</tbody></table></div>'+
+      (onaylar.length?
+        '<div style="margin-top:12px"><h3 style="font-size:13px">'+esc(T('fm_cons_h'))+'</h3>'+
+        onaylar.map(function(c,i){
+          return '<label style="display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:13px;text-transform:none;letter-spacing:0">'+
+            '<input type="checkbox" class="ai-cuse" data-i="'+i+'" checked style="width:auto;margin-top:3px">'+
+            '<span><span class="mono" style="font-size:11px">'+esc(c.key)+'</span> — '+esc(c.body)+
+            (c.required?' <b>*</b>':'')+'</span></label>';
+        }).join('')+'</div>' : '')+
+      '<label style="display:flex;gap:8px;align-items:center;margin:14px 0 4px;font-size:13px;text-transform:none;letter-spacing:0">'+
+        '<input type="checkbox" id="aiReplace" style="width:auto"> '+esc(T('ai_replace'))+'</label>'+
+      '<div class="actions" style="margin-top:10px">'+
+        '<button class="btn btn-primary btn-sm" id="aiApply">'+esc(T('ai_apply'))+'</button>'+
+        '<button class="btn btn-ghost btn-sm" id="aiCancel">'+esc(T('ai_cancel'))+'</button>'+
+        '<span class="ferr" id="aiApplyErr" style="align-self:center"></span></div></div>';
+
+    $('#aiApply').addEventListener('click',aiUygula);
+    $('#aiCancel').addEventListener('click',function(){ AI_ONERI=null; $('#aiOut').innerHTML=''; $('#aiFile').value=''; });
+  }
+
+  function aiNotlar(notlar){
+    return '<div class="card" style="background:var(--warn-soft,#FBF3E4);border-color:var(--warn,#8A5A12);margin:0 0 12px">'+
+      '<h3 style="font-size:13px;margin-bottom:6px">'+esc(T('ai_notes'))+'</h3><ul style="margin:0;padding-left:18px;font-size:13px">'+
+      notlar.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('')+'</ul></div>';
+  }
+
+  /* ---- 4) uygula ---------------------------------------------------- */
+  async function aiUygula(){
+    var err=function(m){ $('#aiApplyErr').textContent=m||''; };
+    err('');
+    if(!AI_ONERI) return;
+    var secili=[], atlanan=[];
+    Array.prototype.forEach.call(document.querySelectorAll('.ai-use'),function(cb){
+      if(!cb.checked) return;
+      var i=cb.getAttribute('data-i'), kaynak=AI_ONERI.fields[+i];
+      var key=(document.querySelector('.ai-key[data-i="'+i+'"]').value||'').trim().toLowerCase()
+                .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+      var label=(document.querySelector('.ai-label[data-i="'+i+'"]').value||'').trim();
+      var tip=document.querySelector('.ai-type[data-i="'+i+'"]').value;
+      var zor=document.querySelector('.ai-req[data-i="'+i+'"]').checked;
+      if(!/^[a-z0-9_]{2,40}$/.test(key) || !label){
+        atlanan.push(label || kaynak.label || ('#'+(+i+1)));
+        return;
+      }
+      var d={ key:key, label:label, type:tip, required:zor, visible:true, core:!!kaynak.core };
+      if(kaynak.options && kaynak.options.length) d.options=kaynak.options;
+      secili.push(d);
+    });
+    if(atlanan.length){
+      // Sessiz dusme yok: hangi satirin neden alinmadigini soyle ve DUR.
+      err(T('ai_bad_rows').replace('%s', atlanan.join(', ')));
+      return;
+    }
+    if(!secili.length){ err(T('ai_none_sel')); return; }
+
+    var degistir=$('#aiReplace').checked;
+    var onceki=Array.isArray(EVENT.registration_field_defs)?EVENT.registration_field_defs:[];
+    var yeni;
+    if(degistir){ yeni=secili; }
+    else {
+      var var_={}; onceki.forEach(function(d){ var_[d.key]=true; });
+      yeni = onceki.concat(secili.filter(function(d){ return !var_[d.key]; }));
+    }
+
+    var r = await sb.from('conventus_managed_events')
+      .update({ registration_field_defs: yeni }).eq('id', EVENT.id);
+    if(r.error){ err(r.error.message); return; }
+    EVENT.registration_field_defs = yeni;
+
+    // onay metinleri -> conventus_event_consents
+    var cSecili=[];
+    Array.prototype.forEach.call(document.querySelectorAll('.ai-cuse'),function(cb){
+      if(cb.checked) cSecili.push(AI_ONERI.consents[+cb.getAttribute('data-i')]);
+    });
+    var cEklenen=0;
+    if(cSecili.length){
+      var mevcutK={}; (FM.consents||[]).forEach(function(x){ mevcutK[x.key]=true; });
+      var satirlar=cSecili.filter(function(c){ return !mevcutK[c.key]; })
+        .map(function(c,i){ return { event_id:EVENT.id, key:c.key, body:c.body,
+          is_required:!!c.required, version:1, sort:(FM.consents||[]).length+i, is_active:true }; });
+      if(satirlar.length){
+        var rc = await sb.from('conventus_event_consents').insert(satirlar);
+        if(rc.error){ err(rc.error.message); }
+        else cEklenen=satirlar.length;
+      }
+    }
+
+    // denetim: neyin kabul edildigini oneri satirina isle
+    if(AI_ONERI.import_id){
+      await sb.from('conventus_form_imports')
+        .update({ applied_defs: yeni, applied_at: new Date().toISOString(),
+                  applied_by: SESSION.user.id })
+        .eq('id', AI_ONERI.import_id);
+    }
+
+    AI_ONERI=null;
+    await tFormTab();
+    toast(T('ai_applied').replace('%s',secili.length) +
+          (cEklenen? ' '+T('ai_applied_c').replace('%s',cEklenen) : ''));
   }
 
   async function tDocsTab(){

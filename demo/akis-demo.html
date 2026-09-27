@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Conventity · Akis Demosu (canli degil)</title>
+<link rel="icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!--
+  AKIS DEMOSU — canli sistem DEGILDIR.
+  Amac: "tek link -> 6 haneli kod -> kendi kurumunun etkinlik sayfasi" akisini
+  ve katilimci/organizator/hizmet saglayici gorunumlerini kod yazmadan once gostermek.
+  Veri sahtedir, Supabase'e hicbir istek gitmez, hicbir sey kaydedilmez.
+  Metinler tek sozlukte (S) toplandi; gercek sayfaya gecerken I18N.tr/I18N.en'e
+  birebir tasinacak. Demo TR.
+-->
+<style>
+:root{
+  --pf:#06488A; --pf-soft:rgba(6,72,138,.10);
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --ink2:#1F2D55; --muted:#5A6486;
+  --line:#E5DFD2; --line2:#D6CFBE;
+  --gold:#8A6D2F; --gold-soft:rgba(138,109,47,.10);
+  --ok:#1F7A4C; --ok-soft:rgba(31,122,76,.10);
+  --warn:#8A5A12; --warn-soft:rgba(138,90,18,.12);
+  --danger:#A33A4A; --danger-soft:rgba(163,58,74,.10);
+  --r:14px; --sp:clamp(16px,4vw,28px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 15.5px/1.6 Manrope,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-.01em; margin:0}
+h1{font-size:clamp(28px,5.2vw,46px); line-height:1.1}
+h2{font-size:clamp(21px,3.4vw,29px); line-height:1.2}
+h3{font-size:18px; line-height:1.3}
+p{margin:0}
+a{color:inherit}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.eb{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--gold); font-weight:700}
+.muted{color:var(--muted)}
+.hr{height:1px; background:var(--line); border:0; margin:18px 0}
+.wrap{max-width:1080px; margin:0 auto; padding:0 var(--sp)}
+
+/* ---------- demo seridi ---------- */
+.demobar{
+  position:sticky; top:0; z-index:60; background:var(--ink); color:#fff;
+  border-bottom:2px solid var(--gold);
+}
+.demobar .in{max-width:1080px; margin:0 auto; padding:9px var(--sp);
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.demobar b{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.16em;
+  color:var(--gold)}
+.demobar .note{font-size:12px; color:#C9D1E4; flex:1 1 200px; min-width:0}
+.roller{display:flex; gap:0; border:1px solid rgba(255,255,255,.28); border-radius:999px; overflow:hidden}
+.roller button{
+  background:transparent; border:0; color:#C9D1E4; cursor:pointer;
+  font:600 11.5px/1 Manrope,sans-serif; padding:7px 12px; white-space:nowrap;
+}
+.roller button[aria-pressed="true"]{background:var(--gold); color:#20180A}
+.roller button+button{border-left:1px solid rgba(255,255,255,.2)}
+
+/* ---------- unclass ---------- */
+.unclass{background:var(--paper2); border-bottom:1px solid var(--line);
+  font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em;
+  color:var(--muted); text-align:center; padding:5px 10px}
+
+/* ---------- kart / buton ---------- */
+.card{background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  padding:18px; }
+.btn{
+  display:inline-flex; align-items:center; gap:7px; justify-content:center;
+  font:700 13.5px/1 Manrope,sans-serif; padding:11px 17px; border-radius:10px;
+  border:1px solid var(--pf); background:var(--pf); color:#fff; cursor:pointer;
+  text-decoration:none; transition:filter .15s;
+}
+.btn:hover{filter:brightness(1.1)}
+.btn.g{background:transparent; color:var(--pf)}
+.btn.g:hover{background:var(--pf-soft); filter:none}
+.btn.dn{border-color:var(--danger); background:transparent; color:var(--danger)}
+.btn.dn:hover{background:var(--danger-soft)}
+.btn.sm{font-size:12px; padding:8px 12px}
+.btn[disabled]{opacity:.45; cursor:not-allowed; filter:none}
+.pill{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:700;
+  padding:4px 9px; border-radius:999px; border:1px solid}
+.pill.ok{color:var(--ok); border-color:var(--ok); background:var(--ok-soft)}
+.pill.wait{color:var(--warn); border-color:var(--warn); background:var(--warn-soft)}
+.pill.off{color:var(--danger); border-color:var(--danger); background:var(--danger-soft)}
+.pill.info{color:var(--pf); border-color:var(--pf); background:var(--pf-soft)}
+
+/* ---------- ekranlar ---------- */
+.ekran{display:none; animation:gir .25s ease}
+.ekran.acik{display:block}
+@keyframes gir{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ekran{animation:none}}
+
+/* ---------- 1. eposta ---------- */
+.mail{max-width:620px; margin:34px auto; background:var(--paper);
+  border:1px solid var(--line); border-radius:var(--r); overflow:hidden;
+  box-shadow:0 18px 50px -28px rgba(14,33,72,.35)}
+.mail .ust{background:var(--paper2); border-bottom:1px solid var(--line); padding:12px 18px;
+  font-size:12.5px; color:var(--muted)}
+.mail .gv{padding:26px 24px}
+.mail .lnk{display:block; margin:16px 0; padding:13px 15px; background:var(--pf-soft);
+  border:1px dashed var(--pf); border-radius:10px; color:var(--pf);
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; word-break:break-all}
+
+/* ---------- 2. giris ---------- */
+.giris{max-width:430px; margin:46px auto}
+.kodlar{display:flex; gap:8px; justify-content:center; margin:18px 0}
+.kodlar input{
+  width:46px; height:56px; text-align:center; font:700 22px/1 'JetBrains Mono',monospace;
+  border:1px solid var(--line2); border-radius:10px; background:var(--paper); color:var(--ink);
+}
+.kodlar input:focus{outline:2px solid var(--pf); outline-offset:1px; border-color:var(--pf)}
+label{display:block; font-size:12.5px; font-weight:700; margin:0 0 6px}
+input[type=text],input[type=email],input[type=tel],select,textarea{
+  width:100%; padding:11px 13px; border:1px solid var(--line2); border-radius:10px;
+  background:var(--paper); color:var(--ink); font:400 14.5px Manrope,sans-serif;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pf); outline-offset:1px}
+
+/* ---------- 3. etkinlik ---------- */
+.hero{background:linear-gradient(160deg,var(--ink) 0%,#152C5C 62%,var(--pf) 100%);
+  color:#fff; padding:clamp(30px,6vw,56px) 0}
+.hero h1{color:#fff}
+.hero .alt{color:#C2CFE6; margin-top:10px; font-size:15px}
+.hero .meta{display:flex; gap:18px; flex-wrap:wrap; margin-top:20px;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.06em; color:#9FB2D4}
+.hero .meta span{display:inline-flex; gap:7px; align-items:center}
+.bol{padding:clamp(26px,5vw,42px) 0}
+.bol+.bol{border-top:1px solid var(--line)}
+.bh{display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+
+.grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(248px,1fr))}
+.hz{background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  padding:16px; display:flex; flex-direction:column; gap:9px; position:relative}
+.hz .tp{display:flex; justify-content:space-between; align-items:flex-start; gap:8px}
+.hz h3{font-family:Manrope,sans-serif; font-weight:700; font-size:15.5px}
+.hz .fy{font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--ink)}
+.hz .ac{margin-top:auto; display:flex; gap:8px; flex-wrap:wrap}
+.ikon{width:34px; height:34px; border-radius:9px; display:grid; place-items:center;
+  background:var(--pf-soft); color:var(--pf); flex:0 0 auto}
+.ikon svg{width:18px; height:18px; display:block}
+
+/* kaydim */
+.kaydim{border:1px solid var(--pf); border-radius:var(--r); background:var(--paper);
+  overflow:hidden}
+.kaydim .bs{background:var(--pf); color:#fff; padding:12px 18px;
+  display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+.kaydim .bs .eb{color:#D9E4F5}
+.kaydim .gv{padding:18px}
+.satirlar{display:grid; gap:0; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.satir{padding:10px 0; border-bottom:1px solid var(--line)}
+.satir .k{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted)}
+.satir .v{font-weight:600; font-size:14.5px; margin-top:3px}
+
+.uyari{display:flex; gap:10px; padding:12px 14px; border-radius:10px; font-size:13.5px;
+  border:1px solid; align-items:flex-start; margin-top:14px}
+.uyari.w{background:var(--warn-soft); border-color:var(--warn); color:#5C3C0B}
+.uyari.i{background:var(--pf-soft); border-color:var(--pf); color:#0B3766}
+.uyari.o{background:var(--ok-soft); border-color:var(--ok); color:#125438}
+
+/* organizator kalem */
+.duz{position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:8px;
+  border:1px solid var(--gold); background:var(--gold-soft); color:var(--gold);
+  cursor:pointer; display:none; place-items:center; padding:0}
+.duz svg{width:14px;height:14px}
+body[data-rol="org"] .duz{display:grid}
+.orgonly{display:none}
+body[data-rol="org"] .orgonly{display:block}
+.katonly{display:block}
+body[data-rol="org"] .katonly,body[data-rol="hzm"] .katonly{display:none}
+.hzmonly{display:none}
+body[data-rol="hzm"] .hzmonly{display:block}
+body[data-rol="hzm"] .kat-bolum{display:none}
+
+/* tablo */
+table{width:100%; border-collapse:collapse; font-size:14px}
+th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line)}
+th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted); font-weight:700}
+.tblkutu{overflow-x:auto; -webkit-overflow-scrolling:touch}
+
+/* modal */
+.ort{position:fixed; inset:0; background:rgba(14,33,72,.5); display:none;
+  place-items:center; padding:16px; z-index:80}
+.ort.acik{display:grid}
+.modal{background:var(--paper); border-radius:var(--r); width:min(560px,100%);
+  max-height:88vh; overflow:auto; border:1px solid var(--line)}
+.modal .mb{padding:16px 20px; border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; gap:10px}
+.modal .mg{padding:20px}
+.modal .ma{padding:14px 20px; border-top:1px solid var(--line); display:flex; gap:9px;
+  justify-content:flex-end; flex-wrap:wrap; background:var(--paper2)}
+.kapat{background:none;border:0;cursor:pointer;font-size:22px;line-height:1;color:var(--muted);padding:2px 6px}
+.alan{margin-bottom:14px}
+
+footer{border-top:1px solid var(--line); padding:26px 0 40px; color:var(--muted); font-size:12.5px}
+@media (max-width:560px){
+  .kodlar input{width:40px;height:50px;font-size:19px}
+  .hero .meta{gap:10px}
+}
+</style>
+</head>
+<body data-rol="kat">
+
+<div class="demobar">
+  <div class="in">
+    <b>DEMO</b>
+    <span class="note" id="demoNot"></span>
+    <div class="roller" role="group" id="roller"></div>
+    <button class="btn g sm" id="basaDon" style="border-color:rgba(255,255,255,.4);color:#fff"></button>
+  </div>
+</div>
+<div class="unclass">UNCLASSIFIED — DEMO / SAHTE VERI</div>
+
+<!-- ============================ 1 · DAVET E-POSTASI ============================ -->
+<section class="ekran acik" id="ek-mail">
+  <div class="wrap">
+    <div class="mail">
+      <div class="ust">
+        <div><b>Kimden:</b> Conventity &lt;noreply@conventity.com&gt;</div>
+        <div><b>Kime:</b> elif.demir@example.mil.tr</div>
+        <div><b>Konu:</b> LANDCOM Interoperability Conference 2026 — kayit baglantiniz</div>
+      </div>
+      <div class="gv">
+        <p class="eb">ETKINLIK DAVETI</p>
+        <h2 style="margin:8px 0 12px">Kayit sayfaniz hazir</h2>
+        <p class="muted" id="mailGovde"></p>
+        <a class="lnk" id="mailLink" href="#" onclick="return gecis('ek-giris')"></a>
+        <p class="muted" style="font-size:13px" id="mailAlt"></p>
+      </div>
+    </div>
+    <p class="muted" style="text-align:center;font-size:13px;max-width:620px;margin:0 auto 40px" id="mailIpucu"></p>
+  </div>
+</section>
+
+<!-- ============================ 2 · GIRIS (6 HANE) ============================ -->
+<section class="ekran" id="ek-giris">
+  <div class="wrap">
+    <div class="giris">
+      <div class="card">
+        <p class="eb" id="girisEb"></p>
+        <h2 style="margin:8px 0 6px" id="girisBaslik"></h2>
+        <p class="muted" style="font-size:14px" id="girisAlt"></p>
+        <hr class="hr">
+
+        <div id="adim1">
+          <div class="alan">
+            <label for="gEposta" id="lblEposta"></label>
+            <input type="email" id="gEposta" value="elif.demir@example.mil.tr" autocomplete="email">
+          </div>
+          <button class="btn" style="width:100%" id="btnKod"></button>
+        </div>
+
+        <div id="adim2" style="display:none">
+          <p style="font-size:14px" id="kodMetin"></p>
+          <div class="kodlar" id="kodlar"></div>
+          <div class="uyari i" id="kodIpucu"></div>
+          <button class="btn" style="width:100%;margin-top:14px" id="btnGir"></button>
+          <p style="text-align:center;margin-top:12px">
+            <button class="btn g sm" id="btnGeri" style="border:0"></button>
+          </p>
+        </div>
+      </div>
+      <p class="muted" style="font-size:12.5px;text-align:center;margin-top:16px" id="girisNot"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3 · ETKINLIK SAYFASI ============================ -->
+<section class="ekran" id="ek-etkinlik">
+
+  <div class="hero">
+    <div class="wrap" style="position:relative">
+      <p class="eb" style="color:#D9B978">LANDCOM · ALLIED LAND COMMAND</p>
+      <h1 style="margin-top:10px">LANDCOM Interoperability<br>Conference 2026</h1>
+      <p class="alt" id="heroAlt"></p>
+      <div class="meta" id="heroMeta"></div>
+    </div>
+  </div>
+
+  <!-- KAYDIM (katilimci) -->
+  <div class="bol kat-bolum" style="padding-top:26px">
+    <div class="wrap">
+      <div class="kaydim">
+        <div class="bs">
+          <div>
+            <p class="eb">KAYDIM</p>
+            <strong style="font-size:16px" id="kayitAd"></strong>
+          </div>
+          <span class="pill" id="kayitDurum"></span>
+        </div>
+        <div class="gv">
+          <div class="satirlar" id="kayitSatirlar"></div>
+          <div id="kayitUyari"></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:16px">
+            <button class="btn g sm" id="btnDuzenle"></button>
+            <button class="btn dn sm" id="btnIptal"></button>
+            <button class="btn g sm" id="btnKart"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORGANIZATOR OZETI -->
+  <div class="bol orgonly" style="padding-top:26px">
+    <div class="wrap">
+      <div class="card" style="border-color:var(--gold);background:var(--gold-soft)">
+        <div class="bh" style="margin:0">
+          <div>
+            <p class="eb">ORGANIZATOR GORUNUMU</p>
+            <h3 style="font-family:Manrope;font-weight:700;margin-top:4px" id="orgBaslik"></h3>
+            <p class="muted" style="font-size:13.5px;margin-top:4px" id="orgAlt"></p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" id="btnKatilimcilar"></button>
+            <button class="btn g sm" id="btnTalepler"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIZMET SAGLAYICI -->
+  <div class="bol hzmonly" style="padding-top:26px">
+    <div class="wrap">
+      <div class="card">
+        <div class="bh" style="margin-bottom:12px">
+          <div>
+            <p class="eb">HIZMET SAGLAYICI GORUNUMU</p>
+            <h3 style="font-family:Manrope;font-weight:700;margin-top:4px" id="hzmBaslik"></h3>
+          </div>
+        </div>
+        <div class="tblkutu"><table id="hzmTablo"></table></div>
+        <p class="muted" style="font-size:13px;margin-top:12px" id="hzmNot"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIZMETLER -->
+  <div class="bol" id="hizmetler"></div>
+
+  <!-- PROGRAM -->
+  <div class="bol">
+    <div class="wrap">
+      <div class="bh">
+        <div>
+          <p class="eb">PROGRAM</p>
+          <h2 style="margin-top:5px" id="progBaslik"></h2>
+        </div>
+      </div>
+      <div class="card" style="position:relative">
+        <button class="duz" title="Duzenle" onclick="orgDuzenle('program')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <div class="tblkutu"><table id="progTablo"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap" id="altbilgi"></div>
+  </footer>
+</section>
+
+<!-- ============================ MODAL ============================ -->
+<div class="ort" id="ort" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="mb"><h3 id="mBaslik"></h3><button class="kapat" onclick="kapat()" aria-label="Kapat">&times;</button></div>
+    <div class="mg" id="mGovde"></div>
+    <div class="ma" id="mAksiyon"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   SOZLUK — gercek sayfaya gecerken I18N.tr'ye birebir tasinacak.
+   Executable JS icinde sabit metin birakmamak icin hepsi burada.
+   ========================================================================= */
+var S = {
+  demo_not: 'Sahte veri · hicbir sey kaydedilmez · Supabase’e istek gitmez',
+  demo_basa: 'Basa don',
+  rol_kat: 'Katilimci', rol_org: 'Organizator', rol_hzm: 'Hizmet saglayici',
+
+  mail_govde: 'Sayin Binbasi Demir, LANDCOM Interoperability Conference 2026 icin kaydiniz acildi. Asagidaki baglanti dogrudan etkinlik sayfaniza gotürür — baska hicbir sayfadan gecmeniz gerekmez.',
+  mail_link: 'https://conventity.com/e/landcom-conf-2026',
+  mail_alt: 'Baglantiya tikladiginizda e-posta adresinize 6 haneli bir kod gonderilir. Sifre olusturmaniz gerekmez.',
+  mail_ipucu: 'Bu ekran, kurumsal katilimcinin gordugu ilk seydir. Conventity ana sayfasi ve Conventus platform ana sayfasi bu akista hic gorunmez.',
+
+  giris_eb: 'GUVENLI GIRIS',
+  giris_baslik: 'Etkinlik sayfaniza girin',
+  giris_alt: 'Sifre yok. E-posta adresinize tek kullanimlik 6 haneli bir kod gonderiyoruz.',
+  lbl_eposta: 'Kurumsal e-posta adresiniz',
+  btn_kod: 'Kodu gonder',
+  kod_metin: 'elif.demir@example.mil.tr adresine gonderilen 6 haneli kodu girin.',
+  kod_ipucu: 'Demo: herhangi 6 rakam calisir. Ornek 123456.',
+  btn_gir: 'Giris yap',
+  btn_geri: 'E-posta adresini degistir',
+  giris_not: 'Kod 10 dakika gecerlidir. Ayni cihazda 30 gun hatirlanir.',
+  hata_eposta: 'Gecerli bir e-posta adresi girin.',
+  hata_kod: '6 rakamin tamamini girin.',
+
+  hero_alt: 'Multinational interoperability planning conference · Allied Land Command ev sahipliginde',
+  hero_tarih: '12–14 Mayis 2026',
+  hero_yer: 'Izmir, Turkiye',
+  hero_kod: 'LANDCOM-CONF-2026',
+  hero_katilim: 'Davetli katilim',
+
+  kayit_ad: 'Binbasi Elif Demir',
+  durum_submitted: 'Basvuru alindi', durum_approved: 'Onaylandi', durum_cancelled: 'Iptal edildi',
+  s_kurum: 'Kurum', s_ulke: 'Ulke', s_rutbe: 'Rutbe', s_tip: 'Katilim tipi',
+  s_kod: 'Dogrulama kodu', s_tarih: 'Basvuru tarihi',
+  v_kurum: 'LANDCOM J5', v_ulke: 'Turkiye', v_rutbe: 'OF-3 · Binbasi',
+  v_tip: 'Delege', v_tarih: '18.03.2026',
+
+  uy_acik: 'Kaydiniz organizator incelemesinde. Bu asamada bilgilerinizi degistirebilir veya kaydinizi iptal edebilirsiniz.',
+  uy_onayli: 'Kaydiniz onaylandi. Onay sonrasi ad, pasaport ve rutbe bilgileri yaka karti ve giris listesi icin kilitlenir — degisiklik gerekiyorsa organizatore yazin. Kaydinizi hala iptal edebilirsiniz.',
+  uy_iptal: 'Kaydinizi iptal ettiniz. Yeniden katilmak isterseniz organizatore basvurun; iptali kendiniz geri alamazsiniz.',
+
+  btn_duzenle: 'Bilgilerimi duzenle',
+  btn_iptal: 'Kaydimi iptal et',
+  btn_kart: 'Yaka kartimi gor',
+  kilit_duzenle: 'Onay sonrasi duzenleme kapali',
+
+  org_baslik: 'Bu sayfayi yonetiyorsunuz',
+  org_alt: 'Duzenlenebilir her bolumun sag ustunde kalem simgesi cikar. Ayri bir yonetim sayfasina gitmeniz gerekmez.',
+  btn_katilimcilar: 'Katilimcilar (48)',
+  btn_talepler: 'Bekleyen talepler (6)',
+
+  hzm_baslik: 'Sundugunuz hizmetler ve gelen talepler',
+  hzm_not: 'Yalnizca kendi envanterinizi ve size gelen talepleri gorursunuz; katilimci listesine erisiminiz yoktur.',
+
+  hzmt_baslik: 'Hizmet', hzmt_etkinlik: 'Etkinlik', hzmt_talep: 'Talep', hzmt_durum: 'Durum', hzmt_islem: 'Islem',
+  hzm_onayla: 'Onayla', hzm_reddet: 'Reddet',
+
+  bol_hizmet_eb: 'ETKINLIK HIZMETLERI',
+  bol_hizmet: 'Konaklama, ulasim ve sosyal program',
+  bol_hizmet_alt: 'Asagidaki hizmetler LANDCOM adina sozlesmeli saglayicilar tarafindan sunulur. Talebiniz once saglayiciya, sonra organizatore duser.',
+
+  svc_acc: 'Konaklama', svc_car: 'Ulasim ve transfer', svc_tour: 'Kultur turu', svc_spouse: 'Es programi',
+  svc_acc_alt: 'Etkinlik tarifeli oteller', svc_car_alt: 'Havaalani transferi ve arac kiralama',
+  svc_tour_alt: 'Rehberli yarim gun turlar', svc_spouse_alt: 'Refakatci programi',
+
+  fy_gece: '/ gece', fy_gun: '/ gun', fy_kisi: '/ kisi',
+  btn_talep: 'Talep et', btn_talepli: 'Talep edildi', btn_detay: 'Detay',
+  kalan: 'kalan',
+
+  prog_eb: 'PROGRAM', prog_baslik: 'Uc gunluk akis',
+  p_gun: 'Gun', p_saat: 'Saat', p_oturum: 'Oturum', p_yer: 'Yer',
+
+  m_duzenle: 'Kayit bilgilerimi duzenle',
+  m_duz_not: 'Ad, pasaport ve rutbe gibi kimlik alanlarini yalnizca basvuru incelemedeyken degistirebilirsiniz.',
+  m_iptal: 'Kaydinizi iptal edin',
+  m_iptal_not: 'Iptal ettiginizde ayrilan otel ve transfer talepleriniz de dusulur. Bu islemi kendiniz geri alamazsiniz — yeniden katilmak icin organizatore basvurmaniz gerekir.',
+  m_iptal_onay: 'Evet, kaydimi iptal et',
+  m_vazgec: 'Vazgec', m_kaydet: 'Degisiklikleri kaydet', m_kapat: 'Kapat',
+  m_kart: 'Yaka kartiniz',
+  m_kart_not: 'Etkinlik girisinde bu kodu gosterin. Onay sonrasi kart e-postaniza da gonderilir.',
+  m_talep: 'Hizmet talebi',
+  m_talep_gonder: 'Talebi gonder',
+  m_katilimcilar: 'Katilimci listesi',
+  m_talepler: 'Bekleyen hizmet talepleri',
+  m_org_duzenle: 'Bolumu duzenle',
+  m_org_not: 'Gercek surumde bu alan dogrudan sayfa uzerinde acilir ve kaydedilir. Demoda degisiklikler saklanmaz.',
+  kaydedildi: 'Kaydedildi (demo — saklanmadi).',
+  talep_alindi: 'Talebiniz saglayiciya iletildi (demo).',
+
+  kt_ad: 'Ad', kt_kurum: 'Kurum', kt_durum: 'Durum',
+  alt_bilgi: 'Conventity · LANDCOM Interoperability Conference 2026 · Bu bir demo sayfasidir, canli sistem degildir.'
+};
+function T(k){ return Object.prototype.hasOwnProperty.call(S,k) ? S[k] : ('?'+k); }
+
+/* ------------------------------------------------------------------ durum */
+var D = {
+  rol: 'kat',
+  kayitDurumu: 'submitted',
+  talepEdilen: {}
+};
+
+/* ------------------------------------------------------------------ yardim */
+function $(id){ return document.getElementById(id); }
+function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c;
+  if(x!=null) e.textContent=x; return e; }
+function gecis(id){
+  var hepsi=document.querySelectorAll('.ekran');
+  for(var i=0;i<hepsi.length;i++) hepsi[i].classList.remove('acik');
+  $(id).classList.add('acik');
+  window.scrollTo(0,0);
+  return false;
+}
+function ac(baslik, govdeEl, aksiyonlar){
+  $('mBaslik').textContent = baslik;
+  var g=$('mGovde'); g.innerHTML=''; g.appendChild(govdeEl);
+  var a=$('mAksiyon'); a.innerHTML='';
+  (aksiyonlar||[]).forEach(function(b){
+    var btn=el('button','btn '+(b.sinif||''),b.metin);
+    btn.onclick=b.tik; a.appendChild(btn);
+  });
+  $('ort').classList.add('acik');
+}
+function kapat(){ $('ort').classList.remove('acik'); }
+$('ort').addEventListener('click', function(e){ if(e.target===this) kapat(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') kapat(); });
+
+/* ------------------------------------------------------------------- ikon */
+var IKON = {
+  acc:'<path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>',
+  car:'<path d="M5 17h14M6 17v2M18 17v2"/><path d="M4 13l1.6-4.2A2 2 0 0 1 7.5 7.5h9a2 2 0 0 1 1.9 1.3L20 13v4H4v-4Z"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/>',
+  tour:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+  spouse:'<circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14.5 20a5 5 0 0 1 6.5-4.8"/>'
+};
+function svg(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+  'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
+
+/* -------------------------------------------------------------- demo veri */
+var HIZMETLER = [
+  { k:'acc', ad:'svc_acc', alt:'svc_acc_alt', urunler:[
+    { id:'h1', ad:'Swissotel Buyuk Efes',  fy:'EUR 145', br:'fy_gece', kalan:22, not:'Ana otel · yuruyus mesafesi' },
+    { id:'h2', ad:'Hilton Izmir',          fy:'EUR 118', br:'fy_gece', kalan:14, not:'Servis kalkisli' },
+    { id:'h3', ad:'Movenpick Izmir',       fy:'EUR 132', br:'fy_gece', kalan:0,  not:'Dolu' }
+  ]},
+  { k:'car', ad:'svc_car', alt:'svc_car_alt', urunler:[
+    { id:'c1', ad:'ADB havaalani transferi', fy:'EUR 35', br:'fy_kisi', kalan:60, not:'Karsilama · gidis-donus' },
+    { id:'c2', ad:'Surucusuz arac (C sinifi)', fy:'EUR 48', br:'fy_gun', kalan:9, not:'Tam kasko dahil' }
+  ]},
+  { k:'tour', ad:'svc_tour', alt:'svc_tour_alt', urunler:[
+    { id:'t1', ad:'Efes Antik Kenti', fy:'EUR 40', br:'fy_kisi', kalan:18, not:'Yarim gun · rehberli' },
+    { id:'t2', ad:'Kemeralti ve Agora', fy:'EUR 25', br:'fy_kisi', kalan:24, not:'Yarim gun · yuruyus' }
+  ]},
+  { k:'spouse', ad:'svc_spouse', alt:'svc_spouse_alt', urunler:[
+    { id:'s1', ad:'Refakatci gunluk programi', fy:'EUR 60', br:'fy_kisi', kalan:12, not:'Ogle yemegi dahil' }
+  ]}
+];
+
+var PROGRAM = [
+  ['1','09:00','Opening remarks · Commander LANDCOM','Conference Hall A'],
+  ['1','10:30','Interoperability framework update','Conference Hall A'],
+  ['1','14:00','Working groups I–IV','Breakout rooms'],
+  ['2','09:00','National capability briefs','Conference Hall A'],
+  ['2','13:30','Go &amp; Meet — industry sessions','Expo Foyer'],
+  ['3','09:30','Working group outbriefs','Conference Hall A'],
+  ['3','11:30','Way ahead and closing','Conference Hall A']
+];
+
+var KATILIMCILAR = [
+  ['Binbasi Elif Demir','LANDCOM J5','Onaylandi'],
+  ['Col. Marco Ferri','ITA Army HQ','Onaylandi'],
+  ['Maj. Anna Kowalski','POL MoD','Basvuru alindi'],
+  ['Lt Col. Jon Hale','UK Land Warfare','Basvuru alindi'],
+  ['Mr. Deniz Aksoy','ASELSAN','Incelemede']
+];
+
+var HZM_TALEP = [
+  ['Swissotel Buyuk Efes','LANDCOM-CONF-2026','4 oda · 12–14 May','Bekliyor'],
+  ['ADB havaalani transferi','LANDCOM-CONF-2026','11 kisi','Bekliyor'],
+  ['Surucusuz arac (C sinifi)','LANDCOM-CONF-2026','2 arac · 3 gun','Onaylandi']
+];
+
+/* ----------------------------------------------------------------- ciziml */
+function ciz(){
+  $('demoNot').textContent = T('demo_not');
+  $('basaDon').textContent = T('demo_basa');
+  $('basaDon').onclick = function(){ D.kayitDurumu='submitted'; D.talepEdilen={};
+    cizEtkinlik(); gecis('ek-mail'); };
+
+  /* rol degistirici */
+  var r=$('roller'); r.innerHTML='';
+  [['kat','rol_kat'],['org','rol_org'],['hzm','rol_hzm']].forEach(function(x){
+    var b=el('button',null,T(x[1]));
+    b.setAttribute('aria-pressed', D.rol===x[0] ? 'true':'false');
+    b.onclick=function(){
+      D.rol=x[0]; document.body.setAttribute('data-rol',x[0]);
+      ciz(); if(!$('ek-etkinlik').classList.contains('acik')) gecis('ek-etkinlik');
+    };
+    r.appendChild(b);
+  });
+
+  /* 1 mail */
+  $('mailGovde').textContent = T('mail_govde');
+  $('mailLink').textContent  = T('mail_link');
+  $('mailAlt').textContent   = T('mail_alt');
+  $('mailIpucu').textContent = T('mail_ipucu');
+
+  /* 2 giris */
+  $('girisEb').textContent=T('giris_eb');
+  $('girisBaslik').textContent=T('giris_baslik');
+  $('girisAlt').textContent=T('giris_alt');
+  $('lblEposta').textContent=T('lbl_eposta');
+  $('btnKod').textContent=T('btn_kod');
+  $('kodMetin').textContent=T('kod_metin');
+  $('kodIpucu').textContent=T('kod_ipucu');
+  $('btnGir').textContent=T('btn_gir');
+  $('btnGeri').textContent=T('btn_geri');
+  $('girisNot').textContent=T('giris_not');
+
+  cizEtkinlik();
+}
+
+function cizEtkinlik(){
+  /* hero */
+  $('heroAlt').textContent = T('hero_alt');
+  var m=$('heroMeta'); m.innerHTML='';
+  [T('hero_tarih'),T('hero_yer'),T('hero_kod'),T('hero_katilim')].forEach(function(t){
+    m.appendChild(el('span',null,t));
+  });
+
+  /* kaydim */
+  $('kayitAd').textContent = T('kayit_ad');
+  var p=$('kayitDurum');
+  p.className='pill '+(D.kayitDurumu==='approved'?'ok':D.kayitDurumu==='cancelled'?'off':'wait');
+  p.textContent=T('durum_'+D.kayitDurumu);
+
+  var sr=$('kayitSatirlar'); sr.innerHTML='';
+  [['s_kurum','v_kurum'],['s_ulke','v_ulke'],['s_rutbe','v_rutbe'],
+   ['s_tip','v_tip'],['s_tarih','v_tarih']].forEach(function(x){
+    var d=el('div','satir');
+    d.appendChild(el('div','k',T(x[0])));
+    d.appendChild(el('div','v',T(x[1])));
+    sr.appendChild(d);
+  });
+  var dk=el('div','satir');
+  dk.appendChild(el('div','k',T('s_kod')));
+  var kv=el('div','v mono', D.kayitDurumu==='cancelled' ? '—' : 'LC26-4F7A');
+  dk.appendChild(kv); sr.appendChild(dk);
+
+  var u=$('kayitUyari'); u.innerHTML='';
+  var uy=el('div','uyari '+(D.kayitDurumu==='approved'?'o':D.kayitDurumu==='cancelled'?'w':'i'));
+  uy.appendChild(el('div',null,
+    D.kayitDurumu==='approved'?T('uy_onayli'):
+    D.kayitDurumu==='cancelled'?T('uy_iptal'):T('uy_acik')));
+  u.appendChild(uy);
+
+  var bd=$('btnDuzenle'), bi=$('btnIptal'), bk=$('btnKart');
+  bd.textContent = D.kayitDurumu==='approved' ? T('kilit_duzenle') : T('btn_duzenle');
+  bd.disabled = (D.kayitDurumu!=='submitted');
+  bd.onclick = modalDuzenle;
+  bi.textContent = T('btn_iptal');
+  bi.disabled = (D.kayitDurumu==='cancelled');
+  bi.onclick = modalIptal;
+  bk.textContent = T('btn_kart');
+  bk.disabled = (D.kayitDurumu==='cancelled');
+  bk.onclick = modalKart;
+
+  /* organizator */
+  $('orgBaslik').textContent=T('org_baslik');
+  $('orgAlt').textContent=T('org_alt');
+  $('btnKatilimcilar').textContent=T('btn_katilimcilar');
+  $('btnKatilimcilar').onclick=modalKatilimcilar;
+  $('btnTalepler').textContent=T('btn_talepler');
+  $('btnTalepler').onclick=modalTalepler;
+
+  /* hizmet saglayici */
+  $('hzmBaslik').textContent=T('hzm_baslik');
+  $('hzmNot').textContent=T('hzm_not');
+  var ht=$('hzmTablo'); ht.innerHTML='';
+  var thr=ht.insertRow();
+  ['hzmt_baslik','hzmt_etkinlik','hzmt_talep','hzmt_durum','hzmt_islem'].forEach(function(k){
+    var th=document.createElement('th'); th.textContent=T(k); thr.appendChild(th);
+  });
+  HZM_TALEP.forEach(function(s){
+    var tr=ht.insertRow();
+    s.forEach(function(v){ tr.insertCell().textContent=v; });
+    var c=tr.insertCell();
+    if(s[3]==='Bekliyor'){
+      var b1=el('button','btn sm',T('hzm_onayla')); b1.style.marginRight='6px';
+      b1.onclick=function(){ s[3]='Onaylandi'; cizEtkinlik(); };
+      var b2=el('button','btn g sm',T('hzm_reddet'));
+      b2.onclick=function(){ s[3]='Reddedildi'; cizEtkinlik(); };
+      c.appendChild(b1); c.appendChild(b2);
+    } else { c.textContent='—'; }
+  });
+
+  /* hizmetler */
+  cizHizmetler();
+
+  /* program */
+  $('progBaslik').textContent=T('prog_baslik');
+  var pt=$('progTablo'); pt.innerHTML='';
+  var ptr=pt.insertRow();
+  ['p_gun','p_saat','p_oturum','p_yer'].forEach(function(k){
+    var th=document.createElement('th'); th.textContent=T(k); ptr.appendChild(th);
+  });
+  PROGRAM.forEach(function(s){
+    var tr=pt.insertRow();
+    s.forEach(function(v){ var td=tr.insertCell(); td.innerHTML=v; });
+  });
+
+  $('altbilgi').textContent=T('alt_bilgi');
+}
+
+function cizHizmetler(){
+  var kap=$('hizmetler'); kap.innerHTML='';
+  var w=el('div','wrap');
+  var bh=el('div','bh');
+  var sol=el('div');
+  sol.appendChild(el('p','eb',T('bol_hizmet_eb')));
+  var h=el('h2',null,T('bol_hizmet')); h.style.marginTop='5px'; sol.appendChild(h);
+  var alt=el('p','muted',T('bol_hizmet_alt'));
+  alt.style.cssText='font-size:14px;margin-top:8px;max-width:62ch'; sol.appendChild(alt);
+  bh.appendChild(sol); w.appendChild(bh);
+
+  HIZMETLER.forEach(function(g){
+    var bas=el('div');
+    bas.style.cssText='display:flex;gap:11px;align-items:center;margin:22px 0 12px';
+    var ik=el('div','ikon'); ik.innerHTML=svg(IKON[g.k]); bas.appendChild(ik);
+    var tx=el('div');
+    var t1=el('h3',null,T(g.ad)); t1.style.fontFamily='Manrope'; t1.style.fontWeight='700';
+    tx.appendChild(t1);
+    var t2=el('p','muted',T(g.alt)); t2.style.fontSize='13px'; tx.appendChild(t2);
+    bas.appendChild(tx); w.appendChild(bas);
+
+    var gr=el('div','grid');
+    g.urunler.forEach(function(u){
+      var c=el('div','hz');
+
+      var kb=el('button','duz'); kb.title='Duzenle';
+      kb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+
+        '<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+      kb.onclick=function(){ orgDuzenle(u.ad); };
+      c.appendChild(kb);
+
+      var tp=el('div','tp');
+      var sl=el('div');
+      sl.appendChild(el('h3',null,u.ad));
+      var nt=el('p','muted',u.not); nt.style.fontSize='13px'; nt.style.marginTop='2px';
+      sl.appendChild(nt);
+      tp.appendChild(sl);
+      c.appendChild(tp);
+
+      var fy=el('div');
+      fy.style.cssText='display:flex;align-items:baseline;gap:6px';
+      fy.appendChild(el('span','fy',u.fy));
+      fy.appendChild(el('span','muted',T(u.br)));
+      c.appendChild(fy);
+
+      var du=el('div');
+      if(u.kalan>0){ du.appendChild(el('span','pill info', u.kalan+' '+T('kalan'))); }
+      else { du.appendChild(el('span','pill off','0 '+T('kalan'))); }
+      c.appendChild(du);
+
+      var ac_=el('div','ac');
+      if(D.rol==='kat'){
+        var b=el('button','btn sm');
+        var alindi = !!D.talepEdilen[u.id];
+        b.textContent = alindi ? T('btn_talepli') : T('btn_talep');
+        b.disabled = alindi || u.kalan===0 || D.kayitDurumu==='cancelled';
+        if(alindi) b.className='btn g sm';
+        b.onclick=function(){ modalTalep(u); };
+        ac_.appendChild(b);
+      } else {
+        var b2=el('button','btn g sm',T('btn_detay'));
+        b2.onclick=function(){ orgDuzenle(u.ad); };
+        ac_.appendChild(b2);
+      }
+      c.appendChild(ac_);
+      gr.appendChild(c);
+    });
+    w.appendChild(gr);
+  });
+  kap.appendChild(w);
+}
+
+/* ------------------------------------------------------------- modallar */
+function alanKur(etiket, deger, kilit){
+  var d=el('div','alan');
+  d.appendChild(el('label',null,etiket));
+  var i=document.createElement('input'); i.type='text'; i.value=deger;
+  if(kilit){ i.disabled=true; i.style.background='var(--paper2)'; }
+  d.appendChild(i);
+  return d;
+}
+function modalDuzenle(){
+  var g=el('div');
+  var n=el('div','uyari i'); n.appendChild(el('div',null,T('m_duz_not'))); g.appendChild(n);
+  var sp=el('div'); sp.style.height='14px'; g.appendChild(sp);
+  g.appendChild(alanKur(T('s_kurum'), T('v_kurum')));
+  g.appendChild(alanKur(T('s_ulke'),  T('v_ulke')));
+  g.appendChild(alanKur(T('s_rutbe'), T('v_rutbe')));
+  g.appendChild(alanKur(T('s_tip'),   T('v_tip')));
+  ac(T('m_duzenle'), g, [
+    { metin:T('m_vazgec'), sinif:'g', tik:kapat },
+    { metin:T('m_kaydet'), tik:function(){ kapat(); bilgi(T('kaydedildi')); } }
+  ]);
+}
+function modalIptal(){
+  var g=el('div');
+  var n=el('div','uyari w'); n.appendChild(el('div',null,T('m_iptal_not'))); g.appendChild(n);
+  ac(T('m_iptal'), g, [
+    { metin:T('m_vazgec'), sinif:'g', tik:kapat },
+    { metin:T('m_iptal_onay'), sinif:'dn', tik:function(){
+        D.kayitDurumu='cancelled'; kapat(); cizEtkinlik();
+        window.scrollTo({top:0,behavior:'smooth'});
+      } }
+  ]);
+}
+function modalKart(){
+  var g=el('div');
+  var k=el('div');
+  k.style.cssText='border:1px solid var(--line2);border-radius:12px;padding:20px;text-align:center;background:var(--paper2)';
+  k.appendChild(el('p','eb','LANDCOM-CONF-2026'));
+  var ad=el('h3',null,T('kayit_ad')); ad.style.margin='8px 0 2px'; k.appendChild(ad);
+  k.appendChild(el('p','muted',T('v_kurum')+' · '+T('v_ulke')));
+  var kod=el('p','mono','LC26-4F7A');
+  kod.style.cssText='font-size:26px;font-weight:700;letter-spacing:.14em;margin-top:14px';
+  k.appendChild(kod);
+  g.appendChild(k);
+  var n=el('p','muted',T('m_kart_not')); n.style.cssText='font-size:13px;margin-top:12px';
+  g.appendChild(n);
+  ac(T('m_kart'), g, [{ metin:T('m_kapat'), sinif:'g', tik:kapat }]);
+}
+function modalTalep(u){
+  var g=el('div');
+  var b=el('h3',null,u.ad); b.style.fontFamily='Manrope'; b.style.fontWeight='700';
+  g.appendChild(b);
+  var f=el('p','muted',u.fy+' '+T(u.br)+' · '+u.not);
+  f.style.cssText='font-size:13.5px;margin:4px 0 14px'; g.appendChild(f);
+  g.appendChild(alanKur(T('s_tarih'),'12.05.2026 – 14.05.2026'));
+  var nt=el('div','alan');
+  nt.appendChild(el('label',null,'Not'));
+  var ta=document.createElement('textarea'); ta.rows=3; nt.appendChild(ta);
+  g.appendChild(nt);
+  ac(T('m_talep'), g, [
+    { metin:T('m_vazgec'), sinif:'g', tik:kapat },
+    { metin:T('m_talep_gonder'), tik:function(){
+        D.talepEdilen[u.id]=true; kapat(); cizHizmetler(); bilgi(T('talep_alindi'));
+      } }
+  ]);
+}
+function modalKatilimcilar(){
+  var g=el('div'); var kutu=el('div','tblkutu'); var t=document.createElement('table');
+  var tr=t.insertRow();
+  ['kt_ad','kt_kurum','kt_durum'].forEach(function(k){
+    var th=document.createElement('th'); th.textContent=T(k); tr.appendChild(th); });
+  KATILIMCILAR.forEach(function(s){
+    var r=t.insertRow(); s.forEach(function(v){ r.insertCell().textContent=v; }); });
+  kutu.appendChild(t); g.appendChild(kutu);
+  ac(T('m_katilimcilar'), g, [{ metin:T('m_kapat'), sinif:'g', tik:kapat }]);
+}
+function modalTalepler(){
+  var g=el('div'); var kutu=el('div','tblkutu'); var t=document.createElement('table');
+  var tr=t.insertRow();
+  ['hzmt_baslik','hzmt_talep','hzmt_durum'].forEach(function(k){
+    var th=document.createElement('th'); th.textContent=T(k); tr.appendChild(th); });
+  HZM_TALEP.forEach(function(s){
+    var r=t.insertRow(); [s[0],s[2],s[3]].forEach(function(v){ r.insertCell().textContent=v; }); });
+  kutu.appendChild(t); g.appendChild(kutu);
+  ac(T('m_talepler'), g, [{ metin:T('m_kapat'), sinif:'g', tik:kapat }]);
+}
+function orgDuzenle(ad){
+  var g=el('div');
+  var n=el('div','uyari i'); n.appendChild(el('div',null,T('m_org_not'))); g.appendChild(n);
+  var sp=el('div'); sp.style.height='14px'; g.appendChild(sp);
+  g.appendChild(alanKur('Baslik', ad));
+  var nt=el('div','alan');
+  nt.appendChild(el('label',null,'Aciklama'));
+  var ta=document.createElement('textarea'); ta.rows=3; nt.appendChild(ta);
+  g.appendChild(nt);
+  ac(T('m_org_duzenle'), g, [
+    { metin:T('m_vazgec'), sinif:'g', tik:kapat },
+    { metin:T('m_kaydet'), tik:function(){ kapat(); bilgi(T('kaydedildi')); } }
+  ]);
+}
+function bilgi(mesaj){
+  var g=el('div'); var u=el('div','uyari o'); u.appendChild(el('div',null,mesaj));
+  g.appendChild(u);
+  ac('', g, [{ metin:T('m_kapat'), sinif:'g', tik:kapat }]);
+}
+
+/* --------------------------------------------------------------- 6 hane */
+function kodKutulari(){
+  var k=$('kodlar'); k.innerHTML='';
+  for(var i=0;i<6;i++){
+    var inp=document.createElement('input');
+    inp.type='text'; inp.inputMode='numeric'; inp.maxLength=1;
+    inp.setAttribute('aria-label','Hane '+(i+1));
+    inp.addEventListener('input', function(e){
+      e.target.value=e.target.value.replace(/[^0-9]/g,'');
+      if(e.target.value && e.target.nextElementSibling) e.target.nextElementSibling.focus();
+    });
+    inp.addEventListener('keydown', function(e){
+      if(e.key==='Backspace' && !e.target.value && e.target.previousElementSibling)
+        e.target.previousElementSibling.focus();
+    });
+    inp.addEventListener('paste', function(e){
+      var v=(e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'');
+      if(v.length>=6){ e.preventDefault();
+        var hepsi=$('kodlar').querySelectorAll('input');
+        for(var j=0;j<6;j++) hepsi[j].value=v[j];
+        hepsi[5].focus();
+      }
+    });
+    k.appendChild(inp);
+  }
+}
+$('btnKod').onclick=function(){
+  var v=$('gEposta').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ bilgi(T('hata_eposta')); return; }
+  S.kod_metin = v + ' adresine gonderilen 6 haneli kodu girin.';
+  $('kodMetin').textContent = S.kod_metin;
+  $('adim1').style.display='none';
+  $('adim2').style.display='block';
+  kodKutulari();
+  $('kodlar').querySelector('input').focus();
+};
+$('btnGeri').onclick=function(){
+  $('adim2').style.display='none'; $('adim1').style.display='block';
+};
+$('btnGir').onclick=function(){
+  var hepsi=$('kodlar').querySelectorAll('input'), kod='';
+  for(var i=0;i<hepsi.length;i++) kod+=hepsi[i].value;
+  if(kod.length!==6){ bilgi(T('hata_kod')); return; }
+  gecis('ek-etkinlik');
+};
+
+ciz();
+</script>
+</body>
+</html>
