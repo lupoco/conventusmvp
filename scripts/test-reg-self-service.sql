@@ -332,6 +332,9 @@ delete from public.conventity_roles where auth_user_id in
   ('33333333-3333-3333-3333-333333333333','55555555-5555-5555-5555-555555555555');
 
 -- ---------------------------------------------------------------- temizlik
+delete from public.conventity_outbox
+ where event_id in (select id from public.conventus_managed_events
+                     where code in ('KANIT-TEST','KONTROL-TEST','YABANCI-TEST'));
 delete from public.conventus_registrations where email='katilimci@test.local';
 delete from public.conventus_managed_events where code='KANIT-TEST';
 

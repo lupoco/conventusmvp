@@ -71,12 +71,18 @@ declare v_id bigint;
 begin
   select id into v_id from public.conventus_managed_events where code='LANDCOM-CONF-2026';
   if v_id is null then
-    -- gorunmuyor; id'yi harness disindan alip yine de deneyelim
-    select e.id into v_id from public.conventus_managed_events e where true limit 1;
+    /* Etkinlik bu kullaniciya gorunmuyor — 7a'nin zaten kanitladigi sonuc.
+       ESKIDEN burada "gorunmuyorsa herhangi bir etkinlik al" yedegi vardi:
+       veritabaninda kayda ACIK baska bir etkinlik (baska bir testin kalintisi)
+       varsa insert MESRU sekilde basariyor ve bu blok "GUVENLIK HATASI" diye
+       bagiriyordu. Yanlis alarm. Hedef etkinlik bilinmiyorsa test edilecek
+       sey de yoktur. */
+    raise notice '   kayit kapali: etkinlik disariya hic gorunmuyor (dogru)';
+    return;
   end if;
   insert into public.conventus_registrations (event_id, user_id, first_name, email)
-  values (coalesce(v_id, 1), 'f0000000-0000-0000-0000-00000000000b','Gec','gec@example.org');
-  raise exception 'GUVENLIK HATASI: kayit kapaliyken basvuru kabul edildi';
+  values (v_id, 'f0000000-0000-0000-0000-00000000000b','Gec','gec@example.org');
+  raise exception 'GUVENLIK HATASI: kayit kapaliyken basvuru kabul edildi (etkinlik %)', v_id;
 exception
   when insufficient_privilege then raise notice '   kayit kapali: basvuru REDDEDILDI (dogru)';
   when foreign_key_violation  then raise notice '   kayit kapali: etkinlik gorunmuyor, basvuru acilamadi (dogru)';

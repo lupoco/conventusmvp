@@ -31,7 +31,7 @@ say "kanonik duruma getir"
 # "anon onaylari okudu" diye patliyordu.)
 for f in sql/04_access_requests.sql sql/06_pending_members.sql \
          sql/09_registration_wizard.sql sql/10_protocol_reference.sql \
-         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/13_protocol_optional.sql sql/14_event_logistics.sql sql/15_event_services.sql sql/16_plan_organizer.sql sql/17_rls_manager_gaps.sql sql/18_reg_self_service.sql sql/19_form_import.sql sql/05_harden_grants.sql \
+         sql/11_protocol_seed.sql sql/12_protocol_ui.sql sql/13_protocol_optional.sql sql/14_event_logistics.sql sql/15_event_services.sql sql/16_plan_organizer.sql sql/17_rls_manager_gaps.sql sql/18_reg_self_service.sql sql/19_form_import.sql sql/20_notifications.sql sql/21_fix_status_default.sql sql/05_harden_grants.sql \
          sql/07_harden_functions.sql; do
   cp "$f" "$RUN/_m.sql"; chmod 644 "$RUN/_m.sql"
   out=$(su postgres -c "$PSQL -q -v ON_ERROR_STOP=1 -f $RUN/_m.sql" 2>&1)
@@ -41,7 +41,7 @@ done
 
 say "SQL testleri"
 for f in scripts/test-access-requests.sql scripts/test-pending-members.sql \
-         scripts/test-registration-wizard.sql scripts/test-protocol-reference.sql scripts/test-rls-manager-coverage.sql scripts/test-reg-self-service.sql \
+         scripts/test-registration-wizard.sql scripts/test-protocol-reference.sql scripts/test-rls-manager-coverage.sql scripts/test-reg-self-service.sql scripts/test-notifications.sql \
          scripts/smoke-landcom-conference.sql \
          scripts/smoke-mvp-loop.sql; do
   cp "$f" "$RUN/_t.sql"; chmod 644 "$RUN/_t.sql"
@@ -102,7 +102,7 @@ if ! curl -s -o /dev/null http://localhost:8099/index.html; then
 fi
 for t in scripts/test-register-wizard.mjs scripts/test-register-ref-degraded.mjs \
          scripts/test-register-proto-off.mjs \
-         scripts/test-event-form-tab.mjs scripts/test-ai-form-import.mjs scripts/test-event-protocol-tab.mjs \
+         scripts/test-notify-render.mjs scripts/test-event-form-tab.mjs scripts/test-ai-form-import.mjs scripts/test-event-protocol-tab.mjs \
          scripts/test-go-and-meet.mjs scripts/test-event-logistics-tab.mjs \
          scripts/test-core-pending-panel.mjs scripts/test-core-access-panel.mjs \
          scripts/test-access-form.mjs; do
