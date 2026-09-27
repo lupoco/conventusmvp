@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Conventity · Beyaz etiket demosu (canli degil)</title>
+<link rel="icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!--
+  BEYAZ ETIKET DEMOSU — canli sistem DEGILDIR.
+  Soru: "Ayni kod, farkli kurum" nasil gorunur?
+  Cevap: kurumsal kimlik KOD degil YAPILANDIRMADIR. Asagidaki kiraci
+  secicisi tek bir veri satirini degistiriyor; sayfa kendini ona gore boyuyor.
+  Musteriye ozel kod dali yok — merkezi bakimin sarti budur.
+  Metinler tek sozlukte (S); gercek sayfaya gecerken I18N'e tasinir.
+-->
+<style>
+:root{
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --muted:#5A6486; --line:#E5DFD2; --line2:#D6CFBE;
+  --gold:#8A6D2F; --gold-soft:rgba(138,109,47,.10);
+  --ok:#1F7A4C; --warn:#8A5A12; --warn-soft:rgba(138,90,18,.12); --danger:#A33A4A;
+  /* kiraci belirteçleri — JS bunlari degistiriyor, baska hicbir sey */
+  --pf:#06488A; --pf-soft:rgba(6,72,138,.10); --pf-ink:#fff;
+  --r:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 15.5px/1.6 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(26px,4.6vw,40px);line-height:1.12}
+h2{font-size:clamp(20px,3.2vw,27px)}
+h3{font-size:16px;margin:0;font-weight:700}
+p{margin:0}
+.eb{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);font-weight:700}
+.mono{font-family:'JetBrains Mono',monospace}
+.muted{color:var(--muted)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,28px)}
+
+/* demo seridi */
+.demobar{position:sticky;top:0;z-index:60;background:var(--ink);color:#fff;border-bottom:2px solid var(--gold)}
+.demobar .in{max-width:1080px;margin:0 auto;padding:9px clamp(16px,4vw,28px);
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.demobar b{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;color:var(--gold)}
+.demobar .note{font-size:12px;color:#C9D1E4;flex:1 1 180px;min-width:0}
+.demobar a{color:#fff;font-size:12px;font-weight:600}
+.roller{display:flex;border:1px solid rgba(255,255,255,.28);border-radius:999px;overflow:hidden}
+.roller button{background:transparent;border:0;color:#C9D1E4;cursor:pointer;
+  font:600 11.5px/1 Manrope,sans-serif;padding:7px 12px;white-space:nowrap}
+.roller button[aria-pressed="true"]{background:var(--gold);color:#20180A}
+.roller button+button{border-left:1px solid rgba(255,255,255,.2)}
+
+.bol{padding:clamp(24px,4.5vw,38px) 0}
+.bol+.bol{border-top:1px solid var(--line)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+
+/* sahte tarayici */
+.tarayici{border:1px solid var(--line2);border-radius:13px;overflow:hidden;
+  background:var(--paper);box-shadow:0 22px 60px -34px rgba(14,33,72,.42)}
+.tarayici .ust{background:var(--paper2);border-bottom:1px solid var(--line);
+  padding:9px 13px;display:flex;gap:10px;align-items:center}
+.nokta{width:10px;height:10px;border-radius:50%;background:var(--line2);flex:0 0 auto}
+.adres{flex:1;background:#fff;border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px;font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adres b{color:var(--ink)}
+
+/* kiraci basligi */
+.site-ust{display:flex;gap:13px;align-items:center;padding:15px 20px;border-bottom:1px solid var(--line)}
+.logo{width:42px;height:42px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;
+  background:var(--pf);color:var(--pf-ink);font:800 15px/1 Manrope,sans-serif;letter-spacing:.02em}
+.site-ust .ad{font-weight:700;font-size:15.5px;line-height:1.25}
+.site-ust .alt{font-size:12px;color:var(--muted)}
+.site-nav{margin-left:auto;display:flex;gap:16px;font-size:13px;font-weight:600;color:var(--muted)}
+.site-nav .on{color:var(--pf)}
+@media(max-width:620px){.site-nav{display:none}}
+
+.hero{background:linear-gradient(155deg,var(--ink) 0%,var(--pf) 118%);color:#fff;padding:30px 20px 26px}
+.hero h1{color:#fff}
+.hero .alt{color:#D3DDEE;margin-top:8px;font-size:14px}
+.hero .meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#A9BBD8}
+
+.gv{padding:20px}
+.satir{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid var(--line)}
+.satir:last-child{border-bottom:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font:700 13px/1 Manrope,sans-serif;padding:10px 15px;border-radius:9px;
+  border:1px solid var(--pf);background:var(--pf);color:var(--pf-ink);cursor:pointer;text-decoration:none}
+.btn.g{background:transparent;color:var(--pf)}
+.btn.sm{font-size:12px;padding:8px 12px}
+.pill{display:inline-flex;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:700;padding:4px 9px;
+  border-radius:999px;border:1px solid var(--pf);color:var(--pf);background:var(--pf-soft)}
+.rozet{display:flex;gap:8px;align-items:center;justify-content:center;padding:13px;
+  background:var(--paper2);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+
+/* yapilandirma tablosu */
+.tblkutu{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);font-weight:700}
+td.k{font-family:'JetBrains Mono',monospace;font-size:12px;white-space:nowrap}
+.d{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:700;padding:3px 7px;border-radius:999px;border:1px solid;white-space:nowrap}
+.d.var{color:var(--ok);border-color:var(--ok);background:rgba(31,122,76,.09)}
+.d.yeni{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.swatch{display:inline-block;width:13px;height:13px;border-radius:3px;
+  border:1px solid rgba(0,0,0,.15);vertical-align:-2px;margin-right:6px}
+
+/* teslim secenekleri */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(272px,1fr))}
+.se{border:1px solid var(--line);border-radius:var(--r);background:var(--paper);
+  padding:17px;display:flex;flex-direction:column;gap:9px}
+.se.tavsiye{border-color:var(--ok);box-shadow:0 0 0 3px rgba(31,122,76,.08)}
+.se.tuzak{border-color:var(--danger);background:rgba(163,58,74,.035)}
+.se .bs{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.se ul{margin:0;padding-left:17px;font-size:13.5px;color:var(--muted)}
+.se li{margin:3px 0}
+.et{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid}
+.et.ok{color:var(--ok);border-color:var(--ok)}
+.et.no{color:var(--danger);border-color:var(--danger)}
+
+.uyari{display:flex;gap:10px;padding:12px 14px;border-radius:10px;font-size:13.5px;
+  border:1px solid;margin-top:14px}
+.uyari.w{background:var(--warn-soft);border-color:var(--warn);color:#5C3C0B}
+.uyari.i{background:var(--pf-soft);border-color:var(--pf);color:var(--ink)}
+
+pre{margin:0;background:var(--ink);color:#DCE5F5;border-radius:11px;padding:15px;
+  overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65}
+pre .c{color:#8FA3C8}
+pre .s{color:#E2B65E}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="demobar"><div class="in">
+  <b>DEMO</b>
+  <span class="note" id="not"></span>
+  <div class="roller" id="roller" role="group"></div>
+  <a href="akis-demo.html">Akış</a>
+  <a href="ornek-eposta.html">E-postalar</a>
+</div></div>
+
+<div class="wrap">
+
+  <!-- 1 · ayni kod, farkli kurum -->
+  <div class="bol">
+    <p class="eb" id="eb1"></p>
+    <h1 id="b1" style="margin-top:8px"></h1>
+    <p class="muted" id="a1" style="margin-top:10px;max-width:68ch"></p>
+
+    <div style="margin-top:20px" class="tarayici">
+      <div class="ust">
+        <span class="nokta"></span><span class="nokta"></span><span class="nokta"></span>
+        <span class="adres" id="adres"></span>
+      </div>
+
+      <div class="site-ust">
+        <div class="logo" id="logo"></div>
+        <div>
+          <div class="ad" id="kad"></div>
+          <div class="alt" id="kalt"></div>
+        </div>
+        <div class="site-nav" id="knav"></div>
+      </div>
+
+      <div class="hero">
+        <p class="eb" id="heb" style="color:#E0C182"></p>
+        <h1 style="margin-top:8px" id="hbas"></h1>
+        <p class="alt" id="halt"></p>
+        <div class="meta" id="hmeta"></div>
+      </div>
+
+      <div class="gv">
+        <div class="satir">
+          <div>
+            <h3 id="s1b"></h3>
+            <p class="muted" style="font-size:13px" id="s1a"></p>
+          </div>
+          <span class="pill" id="s1p"></span>
+        </div>
+        <div class="satir">
+          <div>
+            <h3 id="s2b"></h3>
+            <p class="muted" style="font-size:13px" id="s2a"></p>
+          </div>
+          <button class="btn sm" id="s2b2"></button>
+        </div>
+        <div class="satir">
+          <div>
+            <h3 id="s3b"></h3>
+            <p class="muted" style="font-size:13px" id="s3a"></p>
+          </div>
+          <button class="btn g sm" id="s3b2"></button>
+        </div>
+      </div>
+
+      <div class="rozet" id="rozet"></div>
+    </div>
+
+    <div class="uyari i" id="u1"></div>
+  </div>
+
+  <!-- 2 · bunu ne uretiyor -->
+  <div class="bol">
+    <p class="eb" id="eb2"></p>
+    <h2 id="b2" style="margin-top:6px"></h2>
+    <p class="muted" id="a2" style="margin-top:8px;max-width:68ch"></p>
+    <div class="card" style="margin-top:16px;padding:0">
+      <div class="tblkutu"><table id="cfg"></table></div>
+    </div>
+    <div class="uyari w" id="u2"></div>
+  </div>
+
+  <!-- 3 · musteri acma -->
+  <div class="bol">
+    <p class="eb" id="eb3"></p>
+    <h2 id="b3" style="margin-top:6px"></h2>
+    <p class="muted" id="a3" style="margin-top:8px;max-width:68ch"></p>
+    <div style="margin-top:14px"><pre id="kod"></pre></div>
+  </div>
+
+  <!-- 4 · teslim -->
+  <div class="bol">
+    <p class="eb" id="eb4"></p>
+    <h2 id="b4" style="margin-top:6px"></h2>
+    <p class="muted" id="a4" style="margin-top:8px;max-width:68ch"></p>
+    <div class="grid" id="teslim" style="margin-top:16px"></div>
+  </div>
+
+  <footer id="alt"></footer>
+</div>
+
+<script>
+/* ========================= SOZLUK ========================= */
+var S = {
+  not:'Sahte veri · canlı sistem değil',
+  eb1:'AYNI KOD, FARKLI KURUM',
+  b1:'Kurumsal kimlik koda değil yapılandırmaya yazılır',
+  a1:'Üstteki seçiciden kurumu değiştirin. Sayfa yeniden yüklenmiyor, kod dalı değişmiyor — yalnızca tek bir veri satırı okunuyor. Müşteriye özel kod dalı açmamanın sebebi bu: bakım tek yerden yapılabilsin.',
+  u1:'Temel renkler (krem zemin, lacivert metin) sabit kalır; değişen yalnızca vurgu rengi, logo, ad ve alan adıdır. Böylece sayfa müşterinin kurumuna ait hissettirir ama tasarım bütünlüğü bozulmaz.',
+
+  eb2:'BUNU NE ÜRETİYOR',
+  b2:'Kiracı kaydı',
+  a2:'Yukarıdaki görüntünün tamamı aşağıdaki satırdan geliyor. Yeşil alanlar veritabanında <b>zaten var</b>; sarı alanlar bu adımda <b>eklenecek</b>.',
+  u2:'Sarı satırlar küçük bir migrasyon (bir tablo, beş kolon). Önce burada görüp onaylayın; şemaya sonra dokunuruz.',
+
+  eb3:'MÜŞTERİ AÇMA',
+  b3:'Tek işlem, elle SQL yok',
+  a3:'Yeni bir kurumsal müşteri açmak tek bir çağrı olmalı. Elle SQL, her yeni müşteride hata riski demektir — ve merkezî bakım sözünü ilk bozan şey odur.',
+
+  eb4:'TESLİM BİÇİMİ',
+  b4:'Müşterinin sitesine nasıl oturur',
+  a4:'Üç yol var. Biri kolay görünüp giriş ekranında kırılıyor; onu baştan eleyin.',
+
+  th_alan:'Alan', th_deger:'Değer', th_ne:'Ne işe yarar', th_durum:'Durum',
+  d_var:'var', d_yeni:'eklenecek',
+
+  nav1:'Etkinlikler', nav2:'Hakkında', nav3:'İletişim',
+  heb:'ETKİNLİK',
+  hbas:'Interoperability Conference 2026',
+  halt:'Çok uluslu planlama konferansı',
+  hm1:'12–14 Mayıs 2026', hm2:'İzmir', hm3:'Davetli katılım',
+
+  s1b:'Kaydım', s1a:'Başvurunuz organizatör incelemesinde', s1p:'Başvuru alındı',
+  s2b:'Konaklama', s2a:'Etkinlik tarifeli oteller · 3 seçenek', s2b2:'Talep et',
+  s3b:'Program', s3a:'Üç günlük akış', s3b2:'Görüntüle',
+
+  rozet_on:'Conventity ile güçlendirilmiştir',
+  rozet_off:'(rozet kapalı — müşteri talebine göre)',
+
+  alt:'Conventity · beyaz etiket demosu · canlı sistem değildir'
+};
+function T(k){ return Object.prototype.hasOwnProperty.call(S,k) ? S[k] : '?'+k; }
+
+/* ========================= KIRACILAR =========================
+   Gercek sutun adlariyla. "yeni:true" olanlar henuz semada yok. */
+var KIRACILAR = [
+  { slug:'landcom', kisa:'LANDCOM',
+    ad:'Allied Land Command',
+    tagline:'Kara Kuvvetleri Müttefik Komutanlığı',
+    domain:'etkinlik.landcom.example',
+    contact_email:'events@landcom.example',
+    accent:'#06488A', accent_ink:'#ffffff',
+    mail_from:'LANDCOM Etkinlikler',
+    rozet:true, dil:'tr',
+    moduller:['protokol','go & meet','pazar yeri'], mod_key:['protocol','go_and_meet','marketplace'],
+    ornek:false },
+
+  { slug:'atlas', kisa:'AF',
+    ad:'Atlas Savunma Forumu',
+    tagline:'Yıllık sanayi ve tedarik forumu',
+    domain:'kayit.atlasforum.example',
+    contact_email:'kayit@atlasforum.example',
+    accent:'#B4531F', accent_ink:'#ffffff',
+    mail_from:'Atlas Forum',
+    rozet:true, dil:'tr',
+    moduller:['go & meet','pazar yeri'], mod_key:['go_and_meet','marketplace'],
+    ornek:true },
+
+  { slug:'meridian', kisa:'ML',
+    ad:'Meridian Lojistik Zirvesi',
+    tagline:'Bölgesel lojistik ve ulaştırma zirvesi',
+    domain:'events.meridiansummit.example',
+    contact_email:'hello@meridiansummit.example',
+    accent:'#18786E', accent_ink:'#ffffff',
+    mail_from:'Meridian Summit',
+    rozet:false, dil:'en',
+    moduller:['pazar yeri'], mod_key:['marketplace'],
+    ornek:true }
+];
+var SECILI = 0;
+
+/* ========================= YARDIMCI ========================= */
+function $(id){ return document.getElementById(id); }
+function el(t,c,x){ var e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e; }
+function soluk(hex,a){
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+/* ========================= CIZIM ========================= */
+function ciz(){
+  var k = KIRACILAR[SECILI];
+
+  /* TEK degisen sey: uc CSS belirteci. Baska hicbir sey. */
+  document.documentElement.style.setProperty('--pf', k.accent);
+  document.documentElement.style.setProperty('--pf-soft', soluk(k.accent,.10));
+  document.documentElement.style.setProperty('--pf-ink', k.accent_ink);
+
+  $('not').textContent = T('not');
+  ['eb1','b1','a1','eb2','b2','eb3','b3','a3','eb4','b4','a4','alt'].forEach(function(i){
+    $(i).textContent = T(i);
+  });
+  $('a2').innerHTML = T('a2');
+  $('u1').innerHTML = '<div>'+T('u1')+'</div>';
+  $('u2').innerHTML = '<div>'+T('u2')+'</div>';
+
+  /* secici */
+  var r=$('roller'); r.innerHTML='';
+  KIRACILAR.forEach(function(x,i){
+    var b=el('button',null, x.kisa + (x.ornek?' ·':''));
+    b.title = x.ornek ? 'ornek musteri' : 'gercek musteri adayi';
+    b.setAttribute('aria-pressed', i===SECILI?'true':'false');
+    b.onclick=function(){ SECILI=i; ciz(); };
+    r.appendChild(b);
+  });
+
+  /* tarayici + site */
+  $('adres').innerHTML = 'https://<b>'+k.domain+'</b>/e/conf-2026';
+  $('logo').textContent = k.kisa.slice(0,2);
+  $('kad').textContent = k.ad;
+  $('kalt').textContent = k.tagline;
+  var nav=$('knav'); nav.innerHTML='';
+  [['nav1',true],['nav2',false],['nav3',false]].forEach(function(n){
+    nav.appendChild(el('span', n[1]?'on':null, T(n[0])));
+  });
+
+  $('heb').textContent = T('heb');
+  $('hbas').textContent = k.kisa + ' ' + T('hbas');
+  $('halt').textContent = T('halt');
+  var m=$('hmeta'); m.innerHTML='';
+  [T('hm1'),T('hm2'),T('hm3')].forEach(function(t){ m.appendChild(el('span',null,t)); });
+
+  $('s1b').textContent=T('s1b'); $('s1a').textContent=T('s1a'); $('s1p').textContent=T('s1p');
+  $('s2b').textContent=T('s2b'); $('s2a').textContent=T('s2a'); $('s2b2').textContent=T('s2b2');
+  $('s3b').textContent=T('s3b'); $('s3a').textContent=T('s3a'); $('s3b2').textContent=T('s3b2');
+
+  $('rozet').textContent = k.rozet ? T('rozet_on') : T('rozet_off');
+  $('rozet').style.opacity = k.rozet ? '1' : '.5';
+
+  cizCfg(k);
+  cizKod(k);
+  cizTeslim();
+}
+
+function cizCfg(k){
+  var t=$('cfg'); t.innerHTML='';
+  var tr=t.insertRow();
+  ['th_alan','th_deger','th_ne','th_durum'].forEach(function(x){
+    var th=document.createElement('th'); th.textContent=T(x); tr.appendChild(th);
+  });
+  var swatch = '<span class="swatch" style="background:'+k.accent+'"></span>';
+  var rows = [
+    ['slug',          k.slug,                         'Kısa kod; bağlantılarda ve kapsamda kullanılır', false],
+    ['name',          k.ad,                           'Sayfa başlığı ve e-posta imzası', false],
+    ['short_name',    k.kisa,                         'Dar alanlarda ve logo yedeğinde', false],
+    ['tagline',       k.tagline,                      'Ad altındaki bir satırlık açıklama', false],
+    ['domain',        k.domain,                       'Kurumun kendi alan adı — teslim buradan', false],
+    ['contact_email', k.contact_email,                'Katılımcının yazacağı adres', false],
+    ['logo_url',      '(yüklenmezse baş harfler)',    'Kurum logosu; yoksa monogram üretilir', false],
+    ['brand_accent',  swatch + k.accent,              'Tek vurgu rengi — düğme, bağlantı, başlık', true],
+    ['brand_accent_ink', k.accent_ink,                'Vurgu üstündeki metin rengi (kontrast)', true],
+    ['mail_from_name', k.mail_from,                   'Bildirim e-postalarında gönderen adı', true],
+    ['show_badge',    k.rozet ? 'true' : 'false',     '"Conventity ile güçlendirilmiştir" rozeti', true],
+    ['default_lang',  k.dil,                          'Açılış dili (katılımcı değiştirebilir)', true],
+    ['modules',       k.moduller.join(', '),          'Açık özellikler — müşteriye göre kapatılır', true]
+  ];
+  rows.forEach(function(x){
+    var row=t.insertRow();
+    var c0=row.insertCell(); c0.className='k'; c0.textContent=x[0];
+    var c1=row.insertCell(); c1.innerHTML=x[1];
+    var c2=row.insertCell(); c2.className='muted'; c2.textContent=x[2];
+    var c3=row.insertCell();
+    var d=el('span','d '+(x[3]?'yeni':'var'), x[3]?T('d_yeni'):T('d_var'));
+    c3.appendChild(d);
+  });
+}
+
+function cizKod(k){
+  $('kod').innerHTML =
+    '<span class="c">-- Yeni kurumsal musteri: tek cagri.</span>\n' +
+    '<span class="c">-- Topluluk + yonetici rolu + varsayilan ayarlar birlikte kurulur;</span>\n' +
+    '<span class="c">-- yarida kalirsa hicbiri yazilmaz.</span>\n' +
+    'select conventity_provision_tenant(\n' +
+    '  p_slug          => <span class="s">\'' + k.slug + '\'</span>,\n' +
+    '  p_name          => <span class="s">\'' + k.ad + '\'</span>,\n' +
+    '  p_short_name    => <span class="s">\'' + k.kisa + '\'</span>,\n' +
+    '  p_domain        => <span class="s">\'' + k.domain + '\'</span>,\n' +
+    '  p_contact_email => <span class="s">\'' + k.contact_email + '\'</span>,\n' +
+    '  p_brand_accent  => <span class="s">\'' + k.accent + '\'</span>,\n' +
+    '  p_admin_email   => <span class="s">\'yonetici@' + k.domain.split('.').slice(1).join('.') + '\'</span>,\n' +
+    '  p_modules       => <span class="s">\'{' + k.mod_key.join(',') + '}\'</span>\n' +
+    ');';
+}
+
+var TESLIM = [
+  { et:'ok', etm:'ÖNERİLEN', b:'Alt alan adı',
+    k:'etkinlik.musteri.com → bizim sunucumuza CNAME',
+    i:['Müşteri IT&#39;sinden tek DNS kaydı ister',
+       'Çerez ve oturum sorunsuz: sayfa kendi kökeninde',
+       'Sertifika otomatik',
+       'Müşterinin sitesinden bağlantı verilir'] },
+  { et:null, etm:null, b:'Ters vekil (reverse proxy)',
+    k:'musteri.com/etkinlik/* → bize yönlendirilir',
+    i:['En iyi deneyim: adres tamamen müşterinin',
+       'Müşteri IT&#39;si bir kez yapılandırır',
+       'Önbellek ve başlık ayarı gerekir',
+       'Kurumsal müşteride tercih edilebilir'] },
+  { et:'no', etm:'ÖNERMİYORUM', b:'&lt;iframe&gt; gömme',
+    k:'Müşteri sayfasına tek etiket yapıştırılır',
+    i:['Kurulumu en kolay görünen yol',
+       '<b>Giriş arkasında kırılır</b>: Safari ve Chrome üçüncü taraf çerezlerini engelliyor',
+       'Oturum kopar, katılımcı sürekli yeniden giriş yapar',
+       'Yalnızca girişsiz vitrin için düşünülebilir'] }
+];
+
+function cizTeslim(){
+  var g=$('teslim'); g.innerHTML='';
+  TESLIM.forEach(function(x){
+    var c=el('div','se'+(x.et==='ok'?' tavsiye':x.et==='no'?' tuzak':''));
+    var bs=el('div','bs');
+    var h=document.createElement('h3'); h.innerHTML=x.b; bs.appendChild(h);
+    if(x.et){ var e=el('span','et '+x.et,x.etm); bs.appendChild(e); }
+    c.appendChild(bs);
+    var kk=el('p','mono muted'); kk.style.fontSize='11.5px'; kk.textContent=x.k; c.appendChild(kk);
+    var ul=document.createElement('ul');
+    x.i.forEach(function(li){ var l=document.createElement('li'); l.innerHTML=li; ul.appendChild(l); });
+    c.appendChild(ul);
+    g.appendChild(c);
+  });
+}
+
+ciz();
+</script>
+</body>
+</html>
