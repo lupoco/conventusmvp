@@ -220,6 +220,117 @@ begin
   raise notice 'YESIL 10: gorunum yalnizca kendi kaydini gosteriyor';
 end $$;
 
+-- ===========================================================================
+-- 11-14) GERCEK ORGANIZATOR (ecosystem admin DEGIL, activity scope'unda
+--        event_manager). Guard'i yalnizca adminle test etmek yeterli degil:
+--        adminin yolu ile normal organizatorun yolu conventity_can_manage_event
+--        icinde AYRI dallar. Organizatorun onay yetkisi kirilirsa bu kirmizi olur.
+-- ===========================================================================
+insert into auth.users (id, email) values
+  ('33333333-3333-3333-3333-333333333333','yonetici@test.local'),
+  ('44444444-4444-4444-4444-444444444444','katilimci2@test.local')
+on conflict (id) do nothing;
+
+insert into public.conventity_activities (id, title, source_ref)
+values ('88888888-8888-8888-8888-888888888888','Kontrol','kontrol:test')
+on conflict (id) do nothing;
+
+delete from public.conventity_roles where auth_user_id='33333333-3333-3333-3333-333333333333';
+insert into public.conventity_roles (auth_user_id, scope, scope_id, role, status)
+values ('33333333-3333-3333-3333-333333333333','activity',
+        '88888888-8888-8888-8888-888888888888','event_manager','active');
+
+delete from public.conventus_registrations where email='katilimci2@test.local';
+delete from public.conventus_managed_events where code='KONTROL-TEST';
+insert into public.conventus_managed_events (code,title,published,visibility,created_by,activity_id)
+values ('KONTROL-TEST','Kontrol',true,'public',
+        '33333333-3333-3333-3333-333333333333','88888888-8888-8888-8888-888888888888');
+insert into public.conventus_registrations (event_id,activity_id,user_id,email,first_name,status)
+select id,'88888888-8888-8888-8888-888888888888',
+       '44444444-4444-4444-4444-444444444444','katilimci2@test.local','K2','submitted'
+  from public.conventus_managed_events where code='KONTROL-TEST';
+
+do $$
+declare v_admin boolean; v_yon boolean;
+begin
+  set local role authenticated;
+  set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+  v_admin := public.conventity_is_admin('ecosystem');
+  v_yon   := public.conventity_can_manage_event('88888888-8888-8888-8888-888888888888');
+  reset role;
+  if v_admin then raise exception 'KIRMIZI 11a: kurgu bozuk — organizator ayni zamanda admin'; end if;
+  if not v_yon then raise exception 'KIRMIZI 11b: event_manager rolu etkisiz'; end if;
+  raise notice 'YESIL 11: organizator admin degil ama etkinligi yonetiyor';
+end $$;
+
+do $$
+declare v_d text; v_h text := null;
+begin
+  begin
+    set local role authenticated;
+    set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+    update public.conventus_registrations set status='approved' where email='katilimci2@test.local';
+  exception when others then v_h := sqlerrm;
+  end;
+  reset role;
+  select status into v_d from public.conventus_registrations where email='katilimci2@test.local';
+  if v_h is not null or v_d <> 'approved' then
+    raise exception 'KIRMIZI 12: gercek organizator onaylayamadi (durum=%, hata=%)', v_d, coalesce(v_h,'-');
+  end if;
+  raise notice 'YESIL 12: gercek event_manager onaylayabiliyor';
+end $$;
+
+do $$
+declare v_h text := null;
+begin
+  begin
+    set local role authenticated;
+    set local request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+    -- katilimciya onay sonrasi KAPALI olan alan; organizatore acik olmali
+    update public.conventus_registrations set passport_no='U1234567' where email='katilimci2@test.local';
+  exception when others then v_h := sqlerrm;
+  end;
+  reset role;
+  if v_h is not null then raise exception 'KIRMIZI 13: organizator onay sonrasi duzenleyemedi: %', v_h; end if;
+  raise notice 'YESIL 13: organizator onay sonrasi duzenleyebiliyor';
+end $$;
+
+-- 14) BASKA etkinligin organizatoru bu kayda dokunamaz (yalitim).
+--     Guard'in degil RLS'in isi, ama birlikte tutmazlarsa acik kalir.
+insert into public.conventity_activities (id, title, source_ref)
+values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Yabanci','yabanci:test')
+on conflict (id) do nothing;
+delete from public.conventus_managed_events where code='YABANCI-TEST';
+insert into public.conventus_managed_events (code,title,published,visibility,created_by,activity_id)
+values ('YABANCI-TEST','Yabanci',true,'public',
+        '11111111-1111-1111-1111-111111111111','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+delete from public.conventity_roles where auth_user_id='55555555-5555-5555-5555-555555555555';
+insert into auth.users (id,email) values
+  ('55555555-5555-5555-5555-555555555555','yabanci@test.local') on conflict (id) do nothing;
+insert into public.conventity_roles (auth_user_id, scope, scope_id, role, status)
+values ('55555555-5555-5555-5555-555555555555','activity',
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','event_manager','active');
+
+do $$
+declare v_d text;
+begin
+  update public.conventus_registrations set status='submitted' where email='katilimci2@test.local';
+  set local role authenticated;
+  set local request.jwt.claim.sub = '55555555-5555-5555-5555-555555555555';
+  update public.conventus_registrations set status='rejected' where email='katilimci2@test.local';
+  reset role;
+  select status into v_d from public.conventus_registrations where email='katilimci2@test.local';
+  if v_d <> 'submitted' then
+    raise exception 'KIRMIZI 14: BASKA etkinligin yoneticisi kaydi degistirdi (durum=%)', v_d;
+  end if;
+  raise notice 'YESIL 14: etkinlikler arasi yalitim korunuyor';
+end $$;
+
+delete from public.conventus_registrations where email='katilimci2@test.local';
+delete from public.conventus_managed_events where code in ('KONTROL-TEST','YABANCI-TEST');
+delete from public.conventity_roles where auth_user_id in
+  ('33333333-3333-3333-3333-333333333333','55555555-5555-5555-5555-555555555555');
+
 -- ---------------------------------------------------------------- temizlik
 delete from public.conventus_registrations where email='katilimci@test.local';
 delete from public.conventus_managed_events where code='KANIT-TEST';
