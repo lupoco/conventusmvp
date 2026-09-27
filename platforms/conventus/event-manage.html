@@ -299,8 +299,18 @@
   function closeDrawer(){ $('#dbg').classList.remove('on'); $('#drawer').classList.remove('on'); }
   document.getElementById('dbg').addEventListener('click',closeDrawer);
 
-  var CODE=new URLSearchParams(location.search).get('e');
-  var EVENT=null, COMM=null, TAB='general', REGS=[], FILTER='all', SESSION=null;
+  var QS=new URLSearchParams(location.search);
+  var CODE=QS.get('e');
+  /* Sekmeler derin baglanti alabilsin: ?tab=logi dogrudan o sekmeyi acar ve
+     sekme degisince adres cubugu guncellenir. Dokuz sekme arasinda dolasmak
+     yerine kisi dogrudan ihtiyaci olan yere gidebilsin (ve yer imi koyabilsin). */
+  var GECERLI_TAB=['general','reg','form','proto','logi','agenda','ann','docs','log'];
+  function ilkTab(){ var t=QS.get('tab'); return GECERLI_TAB.indexOf(t)>=0 ? t : 'general'; }
+  function tabUrl(t){
+    try{ var u=new URL(location.href); u.searchParams.set('tab',t);
+         history.replaceState(null,'',u); }catch(_){}
+  }
+  var EVENT=null, COMM=null, TAB=ilkTab(), REGS=[], FILTER='all', SESSION=null;
 
   boot();
   async function boot(){
@@ -343,7 +353,7 @@
       '<div class="tabs">'+tabs.map(function(t){return '<button class="tab'+(TAB===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+esc(T(t[1]))+'</button>';}).join('')+'</div>'+
       '<div id="tb"></div>';
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){
-      b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); render(); });
+      b.addEventListener('click',function(){ TAB=b.getAttribute('data-tab'); tabUrl(TAB); render(); });
     });
     ({general:tGeneral,reg:tReg,form:tFormTab,proto:tProtoTab,logi:tLogiTab,agenda:tAgendaTab,ann:tAnnTab,docs:tDocsTab,log:tLogTab}[TAB]||tSoon)();
   }

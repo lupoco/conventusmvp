@@ -102,12 +102,21 @@ let fail=0;
 const bad=(m)=>{ console.log('  ✗ '+m); fail=1; };
 const ok =(m)=>console.log('  ✓ '+m);
 
+// ?tab=logi dogrudan acmali — dokuz sekme arasinda aramaya gerek kalmasin
+await p.goto('http://localhost:8099/platforms/conventus/event-manage.html?e=LANDCOM-CONF-2026&tab=logi',{waitUntil:'load'});
+await p.waitForTimeout(900);
+(await p.locator('.tab.on').innerText()).includes('Go & Meet')
+  ? ok('?tab=logi doğrudan sekmeyi açıyor') : bad('derin bağlantı çalışmadı: '+await p.locator('.tab.on').innerText());
+(await p.locator('#tb .card').count())>0 ? ok('sekme içeriği yüklendi') : bad('içerik yok');
+
 const tab = p.locator('.tab[data-tab="logi"]');
 (await tab.count())===1 ? ok('Go & Meet envanteri sekmesi var') : bad('sekme yok');
 // "Lojistik" gecen iki sekme olmamali — kullanici karistirmasin
 const lojik=(await p.locator('.tab').allInnerTexts()).filter(t=>/lojistik/i.test(t));
 lojik.length<=1 ? ok('sekme adları çakışmıyor') : bad('iki sekme birden "Lojistik": '+lojik.join(' / '));
+await p.locator('.tab[data-tab="general"]').click(); await p.waitForTimeout(300);
 await tab.click(); await p.waitForTimeout(700);
+p.url().includes('tab=logi') ? ok('sekme değişince adres güncelleniyor') : bad('adres güncellenmedi: '+p.url());
 
 // --- dort kategori cipi, sayilariyla
 const chips=(await p.locator('[data-lc]').allInnerTexts()).map(s=>s.replace(/\s+/g,' ').trim());
