@@ -26,6 +26,12 @@ export const M = {
       g: 'Etkinliğinize yeni bir kayıt başvurusu geldi. Yönetim sayfasından inceleyip karara bağlayabilirsiniz.' },
     mgr_cancellation:    { k: 'Kayıt iptali: {{participant_name}} — {{event_title}}',
       g: 'Bir katılımcı kaydını iptal etti. Kontenjan ve hizmet talepleri buna göre güncellendi.' },
+    mgr_offer_submitted: { k: 'Onay bekleyen teklif: {{offer_title}} — {{event_title}}',
+      g: 'Bir hizmet sağlayıcı etkinliğiniz için teklif sundu. Onaylarsanız katılımcılara görünür olur; reddederseniz sağlayıcı düzeltip yeniden gönderebilir. Teklifin içeriğini siz değiştiremezsiniz — onay, sağlayıcının yazdığı sözün onayıdır.' },
+    offer_approved:      { k: 'Teklifiniz onaylandı: {{offer_title}}',
+      g: 'Teklifiniz etkinlik yöneticisi tarafından onaylandı ve katılımcılara görünür oldu. Onay sonrası teklif metni kilitlenir; değişiklik gerekiyorsa yöneticiyle görüşün.' },
+    offer_rejected:      { k: 'Teklifiniz onaylanmadı: {{offer_title}}',
+      g: 'Teklifiniz bu etkinlik için onaylanmadı. Düzeltip yeniden gönderebilirsiniz; gerekçe için etkinlik yöneticisine yazın.' },
   },
   en: {
     reg_submitted:       { k: 'Registration received — {{event_title}}',
@@ -42,15 +48,21 @@ export const M = {
       g: 'A new registration request arrived for your event. You can review and decide from the management page.' },
     mgr_cancellation:    { k: 'Cancellation: {{participant_name}} — {{event_title}}',
       g: 'A participant cancelled their registration. Capacity and service requests were updated accordingly.' },
+    mgr_offer_submitted: { k: 'Offer awaiting approval: {{offer_title}} — {{event_title}}',
+      g: 'A service provider submitted an offer for your event. If you approve it, participants will see it; if you reject it, the provider can correct and resubmit. You cannot edit the offer text — approving it approves what the provider wrote.' },
+    offer_approved:      { k: 'Your offer was approved: {{offer_title}}',
+      g: 'The event manager approved your offer and it is now visible to participants. The text is locked after approval; contact the manager if a change is needed.' },
+    offer_rejected:      { k: 'Your offer was not approved: {{offer_title}}',
+      g: 'Your offer was not approved for this event. You can correct and resubmit it; contact the event manager for details.' },
   },
 }
 
 const ETIKET = {
   tr: { event:'Etkinlik', kod:'Etkinlik kodu', tarih:'Tarih', yer:'Yer', dkod:'Doğrulama kodu',
-        kisi:'Katılımcı', kurum:'Kurum', buton:'Etkinlik sayfasını aç',
+        kisi:'Katılımcı', kurum:'Kurum', teklif:'Teklif', saglayici:'Sağlayıcı', buton:'Etkinlik sayfasını aç',
         alt:'Bu ileti Conventity üzerinden gönderildi. Yanıtlamayın; sorularınız için etkinlik organizatörüne yazın.' },
   en: { event:'Event', kod:'Event code', tarih:'Dates', yer:'Location', dkod:'Confirmation code',
-        kisi:'Participant', kurum:'Organisation', buton:'Open the event page',
+        kisi:'Participant', kurum:'Organisation', teklif:'Offer', saglayici:'Provider', buton:'Open the event page',
         alt:'Sent via Conventity. Please do not reply; contact the event organiser with any questions.' },
 }
 
@@ -81,7 +93,9 @@ export function govde(satir, BASE_URL) {
     [e.event, p.event_title], [e.kod, p.event_code],
     [e.tarih, tarihAraligi(p, dil)], [e.yer, p.location],
   ]
-  if (satir.kind.startsWith('mgr_')) {
+  if (satir.kind.startsWith('offer_') || satir.kind === 'mgr_offer_submitted') {
+    satirlar.push([e.teklif, p.offer_title], [e.saglayici, p.provider_name])
+  } else if (satir.kind.startsWith('mgr_')) {
     satirlar.push([e.kisi, p.participant_name], [e.kurum, p.institution])
   } else if (p.confirmation_code && satir.kind === 'reg_approved') {
     satirlar.push([e.dkod, p.confirmation_code])

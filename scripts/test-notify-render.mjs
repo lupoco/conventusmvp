@@ -105,7 +105,8 @@ const sayfa = `<!DOCTYPE html>
  @media(max-width:600px){iframe{height:640px}}
 </style></head><body><div class="w">
 <p style="margin:0 0 14px"><a href="akis-demo.html" style="color:#06488A;font-weight:600">&larr; Akis demosu</a>
- &nbsp;·&nbsp; <a href="beyaz-etiket-demo.html" style="color:#06488A;font-weight:600">Beyaz etiket</a></p>
+ &nbsp;·&nbsp; <a href="beyaz-etiket-demo.html" style="color:#06488A;font-weight:600">Beyaz etiket</a>
+ &nbsp;·&nbsp; <a href="pazar-yeri-demo.html" style="color:#06488A;font-weight:600">Pazar yeri</a></p>
 <h1>Bildirim e-postalari</h1>
 <p class="alt">Asagidakiler <b>gercek sablondan</b> uretildi — canlida gidecek metnin aynisi.
 Uydurma ornek degil; <code>supabase/functions/notify-drain/render.js</code> tek kaynak.</p>

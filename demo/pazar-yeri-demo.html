@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Conventity · Pazar yeri demosu (canli degil)</title>
+<link rel="icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!--
+  PAZAR YERI DEMOSU — canli sistem DEGILDIR.
+  Uc taraf: hizmet saglayici teklif sunar -> ETKINLIK YONETICISI karara baglar
+  -> katilimciya gorunur. Rolu degistirip ayni teklifi uc gozden izleyin.
+  Kurallar demoda da gercek: saglayici kendini onaylayamaz, yonetici teklifin
+  METNINI degistiremez, katilimci yalnizca onaylananI gorur.
+-->
+<style>
+:root{
+  --bg:#F5F2EC; --paper:#fff; --paper2:#FAF7F1;
+  --ink:#0E2148; --muted:#5A6486; --line:#E5DFD2; --line2:#D6CFBE;
+  --pf:#06488A; --pf-soft:rgba(6,72,138,.10);
+  --gold:#8A6D2F; --gold-soft:rgba(138,109,47,.10);
+  --ok:#1F7A4C; --ok-soft:rgba(31,122,76,.10);
+  --warn:#8A5A12; --warn-soft:rgba(138,90,18,.12);
+  --danger:#A33A4A; --danger-soft:rgba(163,58,74,.10);
+  --r:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 15.5px/1.6 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(26px,4.6vw,40px);line-height:1.12}
+h2{font-size:clamp(19px,3vw,25px)}
+h3{font-size:15.5px;margin:0;font-weight:700}
+p{margin:0}
+.eb{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);font-weight:700}
+.mono{font-family:'JetBrains Mono',monospace}
+.muted{color:var(--muted)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,28px)}
+.bol{padding:clamp(22px,4vw,34px) 0}
+.bol+.bol{border-top:1px solid var(--line)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+
+/* demo seridi */
+.demobar{position:sticky;top:0;z-index:60;background:var(--ink);color:#fff;border-bottom:2px solid var(--gold)}
+.demobar .in{max-width:1080px;margin:0 auto;padding:9px clamp(16px,4vw,28px);
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.demobar b{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;color:var(--gold)}
+.demobar .note{font-size:12px;color:#C9D1E4;flex:1 1 170px;min-width:0}
+.demobar a{color:#fff;font-size:12px;font-weight:600}
+.roller{display:flex;border:1px solid rgba(255,255,255,.28);border-radius:999px;overflow:hidden}
+.roller button{background:transparent;border:0;color:#C9D1E4;cursor:pointer;
+  font:600 11.5px/1 Manrope,sans-serif;padding:7px 12px;white-space:nowrap}
+.roller button[aria-pressed="true"]{background:var(--gold);color:#20180A}
+.roller button+button{border-left:1px solid rgba(255,255,255,.2)}
+
+/* yasam dongusu seridi */
+.akis{display:flex;gap:0;flex-wrap:wrap;margin-top:16px;
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--paper)}
+.adim{flex:1 1 130px;padding:13px 15px;border-right:1px solid var(--line);position:relative}
+.adim:last-child{border-right:0}
+.adim .n{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.adim .t{font-weight:700;margin-top:3px;font-size:14.5px}
+.adim .k{font-size:12.5px;color:var(--muted);margin-top:2px}
+.adim.simdi{background:var(--pf-soft);box-shadow:inset 3px 0 0 var(--pf)}
+.adim.simdi .n{color:var(--pf)}
+.adim.gecti{opacity:.55}
+.adim.bitti-ok{background:var(--ok-soft);box-shadow:inset 3px 0 0 var(--ok)}
+.adim.bitti-no{background:var(--danger-soft);box-shadow:inset 3px 0 0 var(--danger)}
+
+/* teklif */
+.teklif{border:1px solid var(--line);border-radius:var(--r);background:var(--paper);overflow:hidden}
+.teklif .bs{padding:14px 18px;border-bottom:1px solid var(--line);
+  display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.teklif .gv{padding:16px 18px}
+.teklif .ac{padding:13px 18px;background:var(--paper2);border-top:1px solid var(--line);
+  display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.alan{margin-bottom:12px}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
+input,textarea{width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:9px;
+  background:var(--paper);color:var(--ink);font:400 14.5px Manrope,sans-serif}
+input:disabled,textarea:disabled{background:var(--paper2);color:var(--muted);cursor:not-allowed}
+input:focus,textarea:focus{outline:2px solid var(--pf);outline-offset:1px}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  padding:4px 9px;border-radius:999px;border:1px solid}
+.pill.bek{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.pill.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.pill.no{color:var(--danger);border-color:var(--danger);background:var(--danger-soft)}
+.pill.tas{color:var(--muted);border-color:var(--line2);background:var(--paper2)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font:700 13px/1 Manrope,sans-serif;padding:10px 15px;border-radius:9px;
+  border:1px solid var(--pf);background:var(--pf);color:#fff;cursor:pointer}
+.btn.g{background:transparent;color:var(--pf)}
+.btn.ok{border-color:var(--ok);background:var(--ok)}
+.btn.no{border-color:var(--danger);background:transparent;color:var(--danger)}
+.btn.sm{font-size:12px;padding:8px 12px}
+.btn[disabled]{opacity:.42;cursor:not-allowed}
+
+.uyari{display:flex;gap:10px;padding:11px 14px;border-radius:10px;font-size:13.5px;border:1px solid}
+.uyari.i{background:var(--pf-soft);border-color:var(--pf)}
+.uyari.w{background:var(--warn-soft);border-color:var(--warn);color:#5C3C0B}
+.uyari.o{background:var(--ok-soft);border-color:var(--ok);color:#125438}
+.uyari.d{background:var(--danger-soft);border-color:var(--danger);color:#6E202D}
+
+/* katilimci karti */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.hz{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px;display:flex;flex-direction:column;gap:8px}
+.bos{border:1px dashed var(--line2);border-radius:var(--r);padding:26px;text-align:center;
+  color:var(--muted);font-size:14px;background:var(--paper2)}
+
+/* gorunurluk matrisi */
+.tblkutu{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line)}
+th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);font-weight:700}
+td.orta{text-align:center;font-weight:700}
+.evet{color:var(--ok)} .hayir{color:var(--danger)}
+tr.aktif td{background:var(--pf-soft)}
+
+/* e-posta listesi */
+.posta{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+.posta:last-child{border-bottom:0}
+.posta .ik{width:26px;height:26px;border-radius:7px;background:var(--gold-soft);color:var(--gold);
+  display:grid;place-items:center;flex:0 0 auto;font-size:13px}
+.posta .kime{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="demobar"><div class="in">
+  <b>DEMO</b>
+  <span class="note" id="not"></span>
+  <div class="roller" id="roller" role="group"></div>
+  <a href="akis-demo.html">Akış</a>
+  <a href="beyaz-etiket-demo.html">Beyaz etiket</a>
+  <a href="ornek-eposta.html">E-postalar</a>
+  <button class="btn g sm" id="sifirla" style="border-color:rgba(255,255,255,.4);color:#fff"></button>
+</div></div>
+
+<div class="wrap">
+
+  <!-- baslik + yasam dongusu -->
+  <div class="bol">
+    <p class="eb" id="eb1"></p>
+    <h1 id="b1" style="margin-top:8px"></h1>
+    <p class="muted" id="a1" style="margin-top:10px;max-width:70ch"></p>
+    <div class="akis" id="akis"></div>
+  </div>
+
+  <!-- role gore panel -->
+  <div class="bol">
+    <p class="eb" id="eb2"></p>
+    <h2 id="b2" style="margin-top:6px"></h2>
+    <p class="muted" id="a2" style="margin-top:8px;max-width:70ch"></p>
+    <div style="margin-top:16px" id="panel"></div>
+  </div>
+
+  <!-- kim ne goruyor -->
+  <div class="bol">
+    <p class="eb" id="eb3"></p>
+    <h2 id="b3" style="margin-top:6px"></h2>
+    <p class="muted" id="a3" style="margin-top:8px;max-width:70ch"></p>
+    <div class="card" style="margin-top:14px;padding:0">
+      <div class="tblkutu"><table id="matris"></table></div>
+    </div>
+  </div>
+
+  <!-- e-postalar -->
+  <div class="bol">
+    <p class="eb" id="eb4"></p>
+    <h2 id="b4" style="margin-top:6px"></h2>
+    <p class="muted" id="a4" style="margin-top:8px;max-width:70ch"></p>
+    <div class="card" style="margin-top:14px" id="postalar"></div>
+  </div>
+
+  <footer id="alt"></footer>
+</div>
+
+<script>
+/* ========================= SOZLUK ========================= */
+var S = {
+  not:'Sahte veri · canlı sistem değil',
+  sifirla:'Baştan başla',
+
+  eb1:'PAZAR YERİ',
+  b1:'Sağlayıcı sunar, yönetici karar verir, katılımcı görür',
+  a1:'Tek bir teklifi üç gözden izleyin. Üstteki seçiciden rolü değiştirin; teklif aynı teklif, değişen yalnızca kimin ne görebildiği ve ne yapabildiği. Kurallar demoda da gerçek — hiçbiri arayüz süsü değil, veritabanı politikası.',
+
+  eb2:'ROL GÖRÜNÜMÜ', b2:'Bu rolde ne yapabilirsiniz',
+  a2:'Aşağıdaki panel yalnızca seçili rolün yetkisini gösterir. Yetkiniz olmayan bir işlem düğme olarak da görünmez.',
+
+  eb3:'KİM NE GÖRÜYOR', b3:'Görünürlük',
+  a3:'Teklifin durumu değiştikçe satırlar değişir. Şu anki durum vurgulu.',
+
+  eb4:'GİDEN E-POSTALAR', b4:'Bu akışta kime ne yazılır',
+  a4:'Her karar iki tarafı da haberdar eder. Şablonların tamamı "E-postalar" sayfasında.',
+
+  rol_sag:'Hizmet sağlayıcı', rol_yon:'Etkinlik yöneticisi', rol_kat:'Katılımcı',
+
+  d_draft:'Taslak', d_pending:'Onay bekliyor', d_approved:'Onaylandı', d_rejected:'Reddedildi',
+  ad_draft:'Yalnızca sağlayıcı görür',
+  ad_pending:'Yönetici kuyruğunda',
+  ad_approved:'Katılımcıya görünür',
+  ad_rejected:'Düzeltilip yeniden sunulabilir',
+
+  /* saglayici */
+  sg_h:'Teklifiniz',
+  sg_yeni:'Yeni teklif hazırlayın; göndermeden önce istediğiniz kadar değiştirebilirsiniz.',
+  sg_bekle:'Teklifiniz yöneticinin onay kuyruğunda. Karar verilene kadar düzenleyebilir veya geri çekebilirsiniz.',
+  sg_onayli:'Teklifiniz onaylandı ve katılımcılara görünür oldu. <b>Metin artık kilitli</b> — onaydan sonra değiştirilebilseydi, katılımcı yöneticinin onaylamadığı bir şey görürdü.',
+  sg_red:'Teklifiniz onaylanmadı. Düzeltip yeniden gönderebilirsiniz.',
+  sg_baslik:'Başlık', sg_govde:'Açıklama', sg_fiyat:'Fiyat notu',
+  sg_gonder:'Onaya gönder', sg_geri:'Geri çek', sg_tekrar:'Düzeltip yeniden gönder',
+  sg_kilit:'Onay sonrası düzenleme kapalı',
+
+  /* yonetici */
+  yn_h:'Onay kuyruğu',
+  yn_bos:'Kuyrukta bekleyen teklif yok.',
+  yn_not:'Teklifin <b>metnini değiştiremezsiniz</b>. Onay, sağlayıcının yazdığı sözün onayıdır; düzeltme gerekiyorsa reddedin, sağlayıcı düzeltip yeniden gönderir.',
+  yn_onayla:'Onayla', yn_reddet:'Reddet',
+  yn_karar_ok:'Onayladınız. Teklif katılımcılara görünür oldu ve sağlayıcıya bildirildi.',
+  yn_karar_no:'Reddettiniz. Sağlayıcıya bildirildi; düzeltip yeniden gönderebilir.',
+  yn_geri:'Kararı geri al',
+  yn_saglayici:'Sağlayıcı',
+
+  /* katilimci */
+  kt_h:'Etkinlik hizmetleri',
+  kt_bos:'Bu etkinlik için henüz onaylanmış hizmet yok.',
+  kt_bos_alt:'Onay bekleyen teklifler burada görünmez — yalnızca yöneticinin onayladığı hizmetler listelenir.',
+  kt_talep:'Talep et',
+  kt_talep_ok:'Talebiniz sağlayıcıya iletildi (demo).',
+
+  m_durum:'Durum', m_sag:'Sağlayıcı', m_yon:'Yönetici', m_kat:'Katılımcı',
+  e_var:'görür', e_yok:'—',
+
+  p_kime_yon:'Etkinlik yöneticisine', p_kime_sag:'Sağlayıcıya',
+  p_bos:'Bu aşamada e-posta gitmedi.',
+
+  alt:'Conventity · pazar yeri demosu · canlı sistem değildir'
+};
+function T(k){ return Object.prototype.hasOwnProperty.call(S,k) ? S[k] : '?'+k; }
+
+/* ========================= DURUM ========================= */
+var TEKLIF = {
+  durum:'draft',
+  baslik:'Konferans tarifesi — tek kişilik oda',
+  govde:'Etkinlik tarihlerinde geçerli, kahvaltı dahil. Havaalanı servisi ücretsiz.',
+  fiyat:'EUR 118 / gece',
+  saglayici:'Efes Konak Otel'
+};
+var ROL = 'sag';
+var POSTA = [];   /* {tur, kime, konu} */
+
+var ADIMLAR = [
+  { k:'draft',     n:'1' },
+  { k:'pending',   n:'2' },
+  { k:'approved',  n:'3' }
+];
+
+/* ========================= YARDIMCI ========================= */
+function $(id){ return document.getElementById(id); }
+function el(t,c,x){ var e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e; }
+function pillSinif(d){ return d==='approved'?'ok':d==='rejected'?'no':d==='pending'?'bek':'tas'; }
+
+function postaEkle(tur, kime, konu){
+  POSTA.push({tur:tur, kime:kime, konu:konu});
+}
+
+/* ========================= CIZIM ========================= */
+function ciz(){
+  $('not').textContent = T('not');
+  $('sifirla').textContent = T('sifirla');
+  $('sifirla').onclick = function(){
+    TEKLIF.durum='draft'; POSTA=[]; ciz();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  ['eb1','b1','eb2','b2','a2','eb3','b3','a3','eb4','b4','a4','alt'].forEach(function(i){
+    $(i).textContent = T(i);
+  });
+  $('a1').textContent = T('a1');
+
+  var r=$('roller'); r.innerHTML='';
+  [['sag','rol_sag'],['yon','rol_yon'],['kat','rol_kat']].forEach(function(x){
+    var b=el('button',null,T(x[1]));
+    b.setAttribute('aria-pressed', ROL===x[0]?'true':'false');
+    b.onclick=function(){ ROL=x[0]; ciz(); };
+    r.appendChild(b);
+  });
+
+  cizAkis(); cizPanel(); cizMatris(); cizPosta();
+}
+
+function cizAkis(){
+  var a=$('akis'); a.innerHTML='';
+  var sira = ['draft','pending','approved'];
+  var simdiIx = sira.indexOf(TEKLIF.durum);
+  var redMi = TEKLIF.durum==='rejected';
+
+  sira.forEach(function(k,i){
+    var d=el('div','adim');
+    if(redMi){ if(i<2) d.className='adim gecti'; }
+    else if(i<simdiIx) d.className='adim gecti';
+    else if(i===simdiIx) d.className='adim ' + (k==='approved'?'bitti-ok':'simdi');
+    d.appendChild(el('div','n', ADIMLAR[i].n));
+    d.appendChild(el('div','t', T('d_'+k)));
+    d.appendChild(el('div','k', T('ad_'+k)));
+    a.appendChild(d);
+  });
+
+  if(redMi){
+    var d=el('div','adim bitti-no');
+    d.appendChild(el('div','n','×'));
+    d.appendChild(el('div','t', T('d_rejected')));
+    d.appendChild(el('div','k', T('ad_rejected')));
+    a.appendChild(d);
+  }
+}
+
+function alan(etiket, deger, kilit, id){
+  var w=el('div','alan');
+  w.appendChild(el('label',null,etiket));
+  var i=document.createElement(id==='govde'?'textarea':'input');
+  if(id==='govde') i.rows=3;
+  i.value=deger; i.id='f_'+id; i.disabled=!!kilit;
+  w.appendChild(i);
+  return w;
+}
+
+function cizPanel(){
+  var p=$('panel'); p.innerHTML='';
+  if(ROL==='sag') return cizSaglayici(p);
+  if(ROL==='yon') return cizYonetici(p);
+  return cizKatilimci(p);
+}
+
+/* ---- saglayici ---- */
+function cizSaglayici(p){
+  var d=TEKLIF.durum;
+  var kilit = (d==='approved');
+
+  var k=el('div','teklif');
+  var bs=el('div','bs');
+  var sol=el('div');
+  sol.appendChild(el('h3',null,T('sg_h')));
+  var sa=el('p','muted'); sa.style.fontSize='13px'; sa.textContent=TEKLIF.saglayici;
+  sol.appendChild(sa);
+  bs.appendChild(sol);
+  bs.appendChild(el('span','pill '+pillSinif(d), T('d_'+d)));
+  k.appendChild(bs);
+
+  var gv=el('div','gv');
+  var u=el('div','uyari '+(d==='approved'?'o':d==='rejected'?'d':d==='pending'?'w':'i'));
+  var ud=el('div');
+  ud.innerHTML = d==='approved'?T('sg_onayli'):d==='rejected'?T('sg_red'):
+                 d==='pending'?T('sg_bekle'):T('sg_yeni');
+  u.appendChild(ud);
+  gv.appendChild(u);
+  var sp=el('div'); sp.style.height='14px'; gv.appendChild(sp);
+
+  gv.appendChild(alan(T('sg_baslik'), TEKLIF.baslik, kilit, 'baslik'));
+  gv.appendChild(alan(T('sg_govde'),  TEKLIF.govde,  kilit, 'govde'));
+  gv.appendChild(alan(T('sg_fiyat'),  TEKLIF.fiyat,  kilit, 'fiyat'));
+  k.appendChild(gv);
+
+  var ac=el('div','ac');
+  if(d==='draft'){
+    var b=el('button','btn',T('sg_gonder'));
+    b.onclick=function(){
+      kaydetAlanlar(); TEKLIF.durum='pending';
+      postaEkle('mgr_offer_submitted', T('p_kime_yon'),
+        'Onay bekleyen teklif: '+TEKLIF.baslik);
+      ciz();
+    };
+    ac.appendChild(b);
+  } else if(d==='pending'){
+    var b2=el('button','btn g',T('sg_geri'));
+    b2.onclick=function(){ kaydetAlanlar(); TEKLIF.durum='draft'; ciz(); };
+    ac.appendChild(b2);
+  } else if(d==='rejected'){
+    var b3=el('button','btn',T('sg_tekrar'));
+    b3.onclick=function(){
+      kaydetAlanlar(); TEKLIF.durum='pending';
+      postaEkle('mgr_offer_submitted', T('p_kime_yon'),
+        'Onay bekleyen teklif: '+TEKLIF.baslik);
+      ciz();
+    };
+    ac.appendChild(b3);
+  } else {
+    var s=el('span','pill tas',T('sg_kilit'));
+    ac.appendChild(s);
+  }
+  k.appendChild(ac);
+  p.appendChild(k);
+}
+function kaydetAlanlar(){
+  var b=$('f_baslik'), g=$('f_govde'), f=$('f_fiyat');
+  if(b) TEKLIF.baslik=b.value.trim()||TEKLIF.baslik;
+  if(g) TEKLIF.govde=g.value.trim()||TEKLIF.govde;
+  if(f) TEKLIF.fiyat=f.value.trim()||TEKLIF.fiyat;
+}
+
+/* ---- yonetici ---- */
+function cizYonetici(p){
+  var d=TEKLIF.durum;
+
+  if(d==='draft'){
+    p.appendChild(el('div','bos',T('yn_bos')));
+    return;
+  }
+
+  var k=el('div','teklif');
+  var bs=el('div','bs');
+  var sol=el('div');
+  sol.appendChild(el('h3',null,TEKLIF.baslik));
+  var sa=el('p','muted'); sa.style.fontSize='13px';
+  sa.textContent = T('yn_saglayici')+': '+TEKLIF.saglayici;
+  sol.appendChild(sa);
+  bs.appendChild(sol);
+  bs.appendChild(el('span','pill '+pillSinif(d), T('d_'+d)));
+  k.appendChild(bs);
+
+  var gv=el('div','gv');
+  /* Yonetici icin alanlar SALT OKUNUR — kural arayuzde de gorunsun. */
+  gv.appendChild(alan(T('sg_baslik'), TEKLIF.baslik, true, 'y_baslik'));
+  gv.appendChild(alan(T('sg_govde'),  TEKLIF.govde,  true, 'y_govde'));
+  gv.appendChild(alan(T('sg_fiyat'),  TEKLIF.fiyat,  true, 'y_fiyat'));
+  var u=el('div','uyari w'); var ud=el('div'); ud.innerHTML=T('yn_not'); u.appendChild(ud);
+  gv.appendChild(u);
+
+  if(d==='approved' || d==='rejected'){
+    var sp=el('div'); sp.style.height='12px'; gv.appendChild(sp);
+    var k2=el('div','uyari '+(d==='approved'?'o':'d'));
+    k2.appendChild(el('div',null, d==='approved'?T('yn_karar_ok'):T('yn_karar_no')));
+    gv.appendChild(k2);
+  }
+  k.appendChild(gv);
+
+  var ac=el('div','ac');
+  if(d==='pending'){
+    var b1=el('button','btn ok',T('yn_onayla'));
+    b1.onclick=function(){
+      TEKLIF.durum='approved';
+      postaEkle('offer_approved', T('p_kime_sag'), 'Teklifiniz onaylandı: '+TEKLIF.baslik);
+      ciz();
+    };
+    var b2=el('button','btn no',T('yn_reddet'));
+    b2.onclick=function(){
+      TEKLIF.durum='rejected';
+      postaEkle('offer_rejected', T('p_kime_sag'), 'Teklifiniz onaylanmadı: '+TEKLIF.baslik);
+      ciz();
+    };
+    ac.appendChild(b1); ac.appendChild(b2);
+  } else {
+    var b3=el('button','btn g sm',T('yn_geri'));
+    b3.onclick=function(){ TEKLIF.durum='pending'; ciz(); };
+    ac.appendChild(b3);
+  }
+  k.appendChild(ac);
+  p.appendChild(k);
+}
+
+/* ---- katilimci ---- */
+function cizKatilimci(p){
+  if(TEKLIF.durum !== 'approved'){
+    var b=el('div','bos');
+    b.appendChild(el('div',null,T('kt_bos')));
+    var alt=el('div','muted'); alt.style.cssText='font-size:13px;margin-top:6px';
+    alt.textContent=T('kt_bos_alt');
+    b.appendChild(alt);
+    p.appendChild(b);
+    return;
+  }
+  var g=el('div','grid');
+  var c=el('div','hz');
+  c.appendChild(el('h3',null,TEKLIF.baslik));
+  var sa=el('p','muted'); sa.style.fontSize='13px'; sa.textContent=TEKLIF.saglayici;
+  c.appendChild(sa);
+  var gv=el('p'); gv.style.fontSize='14px'; gv.textContent=TEKLIF.govde; c.appendChild(gv);
+  var f=el('p','mono'); f.style.cssText='font-weight:700;font-size:13.5px'; f.textContent=TEKLIF.fiyat;
+  c.appendChild(f);
+  var b=el('button','btn sm',T('kt_talep'));
+  b.style.marginTop='auto';
+  b.onclick=function(){ b.textContent=T('kt_talep_ok'); b.disabled=true; b.className='btn g sm'; };
+  c.appendChild(b);
+  g.appendChild(c);
+  p.appendChild(g);
+}
+
+/* ---- matris ---- */
+function cizMatris(){
+  var t=$('matris'); t.innerHTML='';
+  var tr=t.insertRow();
+  ['m_durum','m_sag','m_yon','m_kat'].forEach(function(k){
+    var th=document.createElement('th'); th.textContent=T(k); tr.appendChild(th);
+  });
+  /* [durum, saglayici, yonetici, katilimci] */
+  var satirlar = [
+    ['draft',    true,  false, false],
+    ['pending',  true,  true,  false],
+    ['approved', true,  true,  true ],
+    ['rejected', true,  true,  false]
+  ];
+  satirlar.forEach(function(s){
+    var row=t.insertRow();
+    if(s[0]===TEKLIF.durum) row.className='aktif';
+    var c0=row.insertCell();
+    var pl=el('span','pill '+pillSinif(s[0]), T('d_'+s[0]));
+    c0.appendChild(pl);
+    for(var i=1;i<4;i++){
+      var c=row.insertCell(); c.className='orta '+(s[i]?'evet':'hayir');
+      c.textContent = s[i] ? T('e_var') : T('e_yok');
+    }
+  });
+}
+
+/* ---- postalar ---- */
+function cizPosta(){
+  var p=$('postalar'); p.innerHTML='';
+  if(!POSTA.length){
+    p.appendChild(el('p','muted',T('p_bos')));
+    return;
+  }
+  POSTA.forEach(function(m){
+    var d=el('div','posta');
+    var ik=el('div','ik','✉'); d.appendChild(ik);
+    var tx=el('div');
+    tx.appendChild(el('div','kime', m.kime + ' · ' + m.tur));
+    var k=el('div'); k.style.fontWeight='600'; k.textContent=m.konu;
+    tx.appendChild(k);
+    d.appendChild(tx);
+    p.appendChild(d);
+  });
+}
+
+ciz();
+</script>
+</body>
+</html>
