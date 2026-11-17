@@ -17,7 +17,7 @@ Consultus modülünün test ajanısın. Yalnız test dosyalarına yazarsın; uyg
 Her kriter için: test dosyası, sonuç (geçti, kaldı, koşulamadı), kaldıysa yeniden üretme adımları.
 
 ## Modüle özgü
-- Bülten: her kayıtta kaynak bağlantısı var mı, dört dilde anahtarlar eşit mi, son başvuru sayacı doğru mu, süresi geçen kayıt "kapandı" görünüyor mu.
+- Bülten aboneliği: doğrulama bağlantısı olmadan abonelik etkinleşmiyor mu, tek tıkla ayrılma çalışıyor mu, anonim kullanıcı listeyi okuyamıyor mu, yinelenen başvuru adresin kayıtlı olduğunu belli ediyor mu.
 - Abonelik: geçersiz e-posta, onaysız gönderim, çift kayıt ve ayrılma bağlantısı.
 - Anonim kullanıcı abone listesini okuyamamalı.
 

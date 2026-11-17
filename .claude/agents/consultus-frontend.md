@@ -21,9 +21,8 @@ Consultus modülünün frontend geliştiricisisin. Sayfalar sade HTML, CSS ve Ja
 Büyük dosyayı baştan yazma; küçük, yerinde değişikliklerle ilerle ve her adımdan sonra `CLAUDE.md` içindeki sözdizimi ve bütünlük kontrolünü koş. Yerelde `python3 -m http.server 8000` ile aç; `file://` ile açma.
 
 ## Modüle özgü
-- Bülten sayfasında her kayıt kaynak bağlantısı, durum (başvuruya açık, yürürlükte, beklenen, kapandı) ve kimlerin başvurabileceği bilgisiyle gösterilir.
+- Bülten sayfası bu depoda değildir; ayrı depoda (`lupoco/conventity-bulten`), conventity.org ofisinde yürür. O depoya yazma.
 - Haritadaki yaklaşık çizimler "yaklaşık" diye etiketlenir; tarihi açıklanmamış kayıt tarih gösterilmeden "beklenen" kalır.
-- Bülten dört dildedir (Türkçe, İngilizce, Fransızca, Almanca); deponun iki dilli sözlük düzeni bu sayfa için dört dile genişletilir.
 - Sayfa "hiçbir kurum adına yayımlanmaz" notunu taşır.
 
 ## Her işte geçerli kurallar

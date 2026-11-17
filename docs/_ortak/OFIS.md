@@ -10,7 +10,7 @@ Claude'da bu depoya bağlı bir Code oturumu açın ve işi yazın. Telefondan d
 çalışır; bilgisayarın açık olması gerekmez.
 
 ```
-Ofis: Consultus WP-C01'i başlat.
+Ofis: Conventus WP-V01'i başlat.
 Ofis: kayıt formuna telefon alanı ekle.
 Ofis: bu haftanın devir notunu yaz.
 ```
@@ -74,8 +74,8 @@ Onaylar günde tek paket hâlinde sunulur. Yalnız yüksek riskli işler anında
 | Conventus | `conventus-frontend` | `/platforms/conventus/` sayfaları |
 | Conventus | `conventus-test` | Testler |
 | Consultus | `consultus-yonetici` | İş paketi ve backlog |
-| Consultus | `consultus-backend` | Bülten verisi, abonelik, gönderim |
-| Consultus | `consultus-frontend` | `/platforms/consultus/` sayfaları, bülten |
+| Consultus | `consultus-backend` | Bülten aboneliği ve gönderim, brief verisi |
+| Consultus | `consultus-frontend` | `/platforms/consultus/` sayfaları |
 | Consultus | `consultus-test` | Testler |
 
 ## Sırada bekleyen ofisler
@@ -87,6 +87,17 @@ koruma, Scriba); büyüme (içerik, araştırmacı).
 Bir ofis, ilk iş paketi açıldığında etkinleştirilir: `.claude/agents/<ad>.md`
 dosyası eklenir (ad, ne zaman kullanılacağını söyleyen açıklama, araçlar, rol
 metni) ve bu tabloya satır yazılır. Görevi olmayan ajan tanımlanmaz.
+
+## Kardeş ofis: conventity.org
+
+Açık Fırsat Bülteni ayrı bir depoda (`lupoco/conventity-bulten`) ve kendi
+ofisiyle yürür: üç kaynak tarayıcı, yayın yönetmeni, doğrulayıcı, sayfa
+geliştirici ve uyum. O ofis yalnız yayın işi yapar ve kişisel veriye dokunmaz.
+
+- Etik kapısı ve ortak kurallar bu depoda değişir, oraya kopyalanır.
+- Abonelik altyapısı bu ofisin işidir (Consultus, `WP-C01`); form bülten
+  sayfasına oradan eklenir.
+- İki ofis birbirinin deposuna yazmaz.
 
 ## Bugünkü sınırlar
 

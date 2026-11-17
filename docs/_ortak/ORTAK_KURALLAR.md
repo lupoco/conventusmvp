@@ -46,4 +46,5 @@ Yapay zekâ çıktısı öneridir. Karar insan onayıyla verilir ve
 ## 6. Dil
 
 İç ve teknik belgeler Türkçedir. Kullanıcıya dönük metin Türkçe ve İngilizce
-yazılır; bülten sayfası dört dildedir (Türkçe, İngilizce, Fransızca, Almanca).
+yazılır. Bülten ayrı depoda yürür ve dört dildedir (Türkçe, İngilizce, Fransızca,
+Almanca).

@@ -21,7 +21,7 @@ Canlı Supabase'e sen yazmazsın. Migration, rollback ve doğrulama sorgusu PR'a
 ## Modüle özgü
 - Bülten aboneliği: en az veri (e-posta, dil, ilgi alanı), çift onay (doğrulama bağlantısı), her e-postada tek tıkla ayrılma, rıza zamanı kaydı.
 - Abone listesi yalnız yöneticiye açıktır; anonim kullanıcı yalnız kendi kaydını oluşturabilir, listeyi okuyamaz.
-- Bülten içeriği sürümlü tek bir veri kaynağında durur; haftalık güncelleme yalnız o veriyi değiştirir.
+- Bülten sayfası ve haftalık içerik bu depoda değildir; ayrı depoda (`lupoco/conventity-bulten`), conventity.org ofisinde yürür. Buradaki iş abonelik ve gönderim altyapısıdır; o ofise uç nokta sözleşmesi (adres, istek ve yanıt biçimi, izinli kaynak) yazılı verilir.
 - E-posta gönderimi Edge Function üzerinden yapılır; gönderim anahtarı ortam değişkenindedir.
 
 ## Her işte geçerli kurallar

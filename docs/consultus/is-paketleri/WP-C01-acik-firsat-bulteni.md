@@ -1,72 +1,67 @@
-# WP-C01 — Açık Fırsat Bülteni: sayfa, abonelik ve haftalık güncelleme
+# WP-C01 — Açık Fırsat Bülteni: e-posta aboneliği altyapısı
 
 - **Modül:** Consultus
-- **Durum:** açık; K-01 ve K-02 kararını bekliyor (`docs/_ortak/kararlar.md`)
+- **Durum:** açık; K-01 kararını bekliyor (`docs/_ortak/kararlar.md`)
 - **Risk sınıfı:** yüksek (abone listesi kişisel veridir)
-- **Dal:** `ofis/consultus-bulten`
+- **Dal:** `ofis/consultus-bulten-abonelik`
 
 ## Amaç
 
-Savunma sanayii firmaları; NATO, Avrupa Komisyonu ve Ukrayna'nın kendilerine
-açık ihale, çağrı ve faaliyetlerini tek sayfada, kaynağıyla görür ve isterse
-haftalık e-postaya abone olur.
+Bülteni okuyan kişi e-posta adresini bırakır, adresini doğrular ve her hafta
+yeni sayının duyurusunu alır; istediği an tek tıkla ayrılır.
 
 ## Kapsam
 
-Çalışan bir prototip vardır (tek dosya; harita, takvim, uygunluk tablosu, dört
-dil, koyu ve açık tema, abonelik formunun önizlemesi). Bu iş paketi prototipi
-ürüne çevirir.
+Bülten sayfası ve haftalık içerik bu deponun işi değildir: ayrı depoda
+(`lupoco/conventity-bulten`) ve `conventity.org` adresinde, kendi ofisiyle
+yürür (karar 2026-11-18). İlk yayın aboneliksizdir. Bu iş paketi aboneliğin
+sunucu tarafını kurar; formu bülten ofisi sayfaya ekler.
 
-- **Frontend:** prototipin depoya alınması; içerik verisinin sayfadan ayrı bir
-  veri dosyasına taşınması; depo kurallarına uyum (`cv-config.js`, `cv-core.js`,
-  kökten mutlak yollar, sürüm rozeti); tasarım token'larının K-04 kararına göre
-  bağlanması.
-- **Backend:** abone tablosu, çift onay, tek tıkla ayrılma, rıza kaydı; haftalık
-  e-posta gönderimi için Edge Function.
+- **Backend:** abone tablosu, çift onay, tek tıkla ayrılma, rıza kaydı;
+  abonelik ve ayrılma uç noktaları; haftalık gönderim için Edge Function.
+- **Bülten ofisine verilecek sözleşme:** uç nokta adresleri, istek ve yanıt
+  biçimi, izin verilecek kaynak (`https://conventity.org`).
 - **Test:** aşağıdaki kabul kriterleri.
 
-Kapsam dışı: firma profilleri, eşleştirme, ücretli herhangi bir hizmet.
+Kapsam dışı: firma profilleri, eşleştirme, ücretli herhangi bir hizmet;
+kartvizitten kişi ekleme (karar K-03).
 
 ## Kabul kriterleri
 
-1. Her kayıt en az bir kaynak bağlantısı, durum ve kimlerin başvurabileceği
-   bilgisini gösterir.
-2. Tarihi açıklanmamış kayıt tarih gösterilmeden "beklenen" olarak görünür.
-3. Son başvuru tarihi geçen kayıt "kapandı" olarak görünür.
-4. Haritadaki yaklaşık çizimler "yaklaşık" diye etiketlidir.
-5. Sayfa dört dilde aynı kayıtları gösterir; hiçbir dilde eksik anahtar yoktur.
-6. Sayfa "hiçbir kurum adına yayımlanmaz" notunu taşır.
-7. Abonelik yalnız e-postadaki doğrulama bağlantısına tıklanınca etkinleşir.
-8. Her e-postada tek tıkla ayrılma bağlantısı vardır ve çalışır.
-9. Anonim kullanıcı abone listesini okuyamaz; yalnız kendi kaydını oluşturabilir.
-10. Haftalık güncelleme yalnız veri dosyasını değiştirir; sayfa kodu değişmez.
+1. Abonelik yalnız e-postadaki doğrulama bağlantısına tıklanınca etkinleşir.
+2. Her e-postada tek tıkla ayrılma bağlantısı vardır ve çalışır.
+3. Anonim kullanıcı abone listesini okuyamaz; yalnız kendi kaydını oluşturabilir.
+4. Aynı adresle yinelenen başvuru yeni kayıt açmaz ve adresin kayıtlı olup
+   olmadığını belli etmez.
+5. Rıza metni, zamanı ve dili kayıtla birlikte saklanır.
+6. Ayrılan kişinin adresi gönderim listesinden o an çıkar.
+7. Uç noktalar yalnız `https://conventity.org` kaynağından gelen isteği kabul
+   eder ve hız sınırı uygular.
+8. Yönetici bir kişiyi kendi adına abone yapamaz; yalnız davet gönderebilir.
 
 ## Veri ve yetki etkisi
 
 Yeni tablo: bülten aboneleri (e-posta, dil, ilgi alanı, doğrulama durumu, rıza
-zamanı, ayrılma belirteci). RLS: ekleme anonim kullanıcıya açık, okuma ve
-güncelleme yalnız yöneticiye. Tasarımı omurga mimarı yazar.
+zamanı ve metni, ayrılma belirteci). RLS: ekleme anonim kullanıcıya açık, okuma
+ve güncelleme yalnız yöneticiye. Tasarımı omurga mimarı yazar.
 
 ## Etik kapısı
 
-- Madde 1: içerik yalnız açık kaynaktan derlenir; ikincil kaynak belirtilir.
-- Madde 2: bülten herkese açıktır; abonelik kimseye öncelik sağlamaz.
-- Madde 4: sayfa hiçbir kurum adına konuşmaz.
+- Madde 2: abonelik herkese açıktır ve kimseye öncelik sağlamaz.
 - Madde 5 ve 6: abone kaydı yalnız kişinin kendi başvurusuyla ve açık rızasıyla
-  oluşur. Yönetici bir kişiyi kendi adına abone yapamaz; yalnız davet gönderebilir.
+  oluşur.
 - Türkiye'de ticari elektronik ileti ve ileti yönetim sistemi kaydı gerekip
   gerekmediği hukuki görüşle teyit edilir.
 
 ## Çalışacak ajanlar (sırayla)
 
 1. `omurga-mimari`: abone tablosu ve RLS tasarımı.
-2. `consultus-backend`: migration, rollback, doğrulama; Edge Function.
-3. `consultus-frontend`: prototipin depoya alınması ve veri dosyası.
-4. `consultus-test`: kabul kriterleri.
-5. `guvenlik-opsec` ve `uyum-ihracat`: inceleme.
-6. `entegrasyon-qa`: son kontrol.
+2. `consultus-backend`: migration, rollback, doğrulama; uç noktalar ve gönderim.
+3. `consultus-test`: kabul kriterleri.
+4. `guvenlik-opsec` ve `uyum-ihracat`: inceleme.
+5. `entegrasyon-qa`: son kontrol.
 
 ## Karar gerekiyor
 
-K-01 (yayın yeri ve abone verisinin duracağı proje) ve K-02 (deneme ortamının
-yeri). Seçenekler ve öneri `docs/_ortak/kararlar.md` içindedir.
+K-01: abone listesinin duracağı proje ve gönderim hizmeti. Seçenekler ve öneri
+`docs/_ortak/kararlar.md` içindedir.
