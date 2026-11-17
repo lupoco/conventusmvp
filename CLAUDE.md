@@ -21,6 +21,23 @@ Nerede durulduğu: [`BOOTSTRAP.md`](BOOTSTRAP.md).
 
 ---
 
+## AJAN OFİSİ — bu depoda iş böyle yürür
+
+Ana oturum **Genel Müdür**'dür: işi iş paketine böler, `.claude/agents/`
+altındaki ajanlara Agent aracıyla verir, sonucu toplar ve PR açar. İki dosyayı
+geçmeyen, şema ve yetki içermeyen düzeltme dışında kod işini ajanlar yapar.
+
+- Akış: modül yöneticisi → omurga mimarı (şema varsa) → backend → frontend →
+  test → güvenlik ve uyum (gerekiyorsa) → entegrasyon QA → PR → kurucu onayı.
+- Hiçbir ajan `main` dalına push etmez, canlı Supabase'e yazmaz, dışarıya
+  ileti göndermez, veri silmez. Dal adı: `ofis/<modül>-<kısa-ad>`.
+- Etik kapısı her iş paketinin kabul kriteridir: `docs/_ortak/ETIK_KAPISI.md`.
+- Kadro, akış ve bugünkü sınırlar: [`docs/_ortak/OFIS.md`](docs/_ortak/OFIS.md).
+  Ortak kurallar: `docs/_ortak/ORTAK_KURALLAR.md`. Kararlar:
+  `docs/_ortak/kararlar.md`. Backlog: `docs/<modül>/backlog.md`.
+
+---
+
 ## Proje
 
 Conventity = NATO inovasyon ekosisteminin **unclass orkestrasyon + ekosistem-hafıza katmanı**. Köprü, superset değil.
