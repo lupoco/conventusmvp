@@ -4,6 +4,13 @@
 
 RewriteEngine On
 
+# ---- Gelistirme dosyalari web'den servis edilmez ---------------------------
+# Ajan tanimlari (.claude), Git ve GitHub klasorleri (.git, .github) ve
+# Markdown belgeleri (CLAUDE.md, BOOTSTRAP.md, docs/**.md) depoda durur ama
+# siteye ait degildir.
+RewriteRule ^\.(claude|github|git)(/|$) - [R=404,L]
+RewriteRule \.md$ - [R=404,L,NC]
+
 # ---- Kok adres (/) -> "Yakinda" ekrani -------------------------------------
 # Kapali test suresince conventity.com'a gelen ziyaretci markali karsilama
 # ekranini gorur, ana sayfayi degil. Alt dizinlerde under-construction.html
