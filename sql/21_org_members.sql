@@ -210,12 +210,18 @@ begin
 end
 $fn$;
 
--- Kapı belirteci: yalnız etkin üyeye (kodla açılmış oturumda) ve yöneticiye verilir.
--- Üyeliği kapatılan kişi yeni belirteç alamaz; tarayıcısındaki eski belirteç en geç 24 saatte düşer.
+-- Kapı belirteci: yalnız etkin üyeye, kodla açılmış ve en çok 7 günlük oturumda verilir.
+-- Yani üye haftada bir e-postasına gelen kodla yeniden doğrulanır (kurucu kararı 2026-11-22).
+-- Üyeliği kapatılan kişi yeni belirteç alamaz.
 create or replace function public.conventity_org_gate()
 returns text language sql stable security definer set search_path = public as $fn$
-  select case when (conventity_org_verified() and exists (select 1 from conventity_org_members m
-                                                           where m.auth_user_id = auth.uid() and m.status = 'active'))
+  select case when (conventity_org_verified()
+                    and exists (select 1 from jsonb_array_elements(coalesce(auth.jwt() -> 'amr', '[]'::jsonb)) a
+                                 where a ->> 'method' in ('otp', 'magiclink')
+                                   and (a ->> 'timestamp') ~ '^[0-9]+$'
+                                   and (a ->> 'timestamp')::bigint > extract(epoch from now())::bigint - 7 * 86400)
+                    and exists (select 1 from conventity_org_members m
+                                 where m.auth_user_id = auth.uid() and m.status = 'active'))
                 then (select nullif(value #>> '{}', '') from conventity_org_settings where key = 'gate_token')
           end;
 $fn$;
