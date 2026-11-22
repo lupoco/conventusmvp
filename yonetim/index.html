@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Conventity Yönetim</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E2148">
+<link rel="manifest" href="/yonetim/manifest.webmanifest">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/yonetim/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yönetim">
+<script src="/assets/js/cv-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/cv-core.js"></script>
+<style>
+/* Conventity Yönetim: telefona kurulabilen yönetici uygulaması (PWA).
+   Veri Core ile aynı tablolardan gelir; görünürlüğü RLS belirler (yalnız ekosistem yöneticisi). Bu sürüm yalnız okur. */
+:root{
+  --bg:#F5F2EC;--panel:#FFFFFF;--panel2:#FBF9F5;--line:#E4DED3;--ink:#0E2148;--muted:#5C6680;--faint:#8A93A8;
+  --navy:#0E2148;--blue:#06488A;--gold:#E2B65E;--gold-t:#9A6B12;--ok:#1F9E50;--warn:#B8791F;--bad:#B3261E;--chip:#0E2148;--chipInk:#FFFFFF;
+  --f:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--m:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#070D1C;--panel:#0E1730;--panel2:#111C38;--line:#1F2C4D;--ink:#EAF0FF;--muted:#9BA9C8;--faint:#6F7E9F;
+  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#070D1C;--panel:#0E1730;--panel2:#111C38;--line:#1F2C4D;--ink:#EAF0FF;--muted:#9BA9C8;--faint:#6F7E9F;
+  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+[hidden]{display:none!important}
+button,input{font:inherit}
+.top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:30px;height:30px}
+.brand b{font-weight:700;font-size:15px;letter-spacing:.22em}
+.brand small{display:block;font:500 10px var(--m);letter-spacing:.18em;color:#BFD0EE;margin-top:3px}
+.tbtn{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.tbtns{display:flex;gap:6px;align-items:center}
+.ver{font:500 10px var(--m);color:#BFD0EE}
+main{max-width:960px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:16px}
+.eb{font:600 11px var(--m);letter-spacing:.16em;text-transform:uppercase;color:var(--gold-t)}
+h1{font-weight:700;font-size:24px;line-height:1.15;margin:4px 0 0}
+.lead{color:var(--muted);font-size:14px;margin:6px 0 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.login{max-width:420px;margin:8vh auto 0;display:flex;flex-direction:column;gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600}
+.fld input{padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px}
+.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{background:var(--gold);color:var(--navy)}}
+:root[data-theme="dark"] .btn{background:var(--gold);color:var(--navy)}
+main>section{display:flex;flex-direction:column;gap:14px}
+main>section.login{gap:12px}
+.btn:disabled{opacity:.55}
+.msg{min-height:1.2em;font-size:13px;color:var(--bad)}
+.note{font-size:12.5px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:720px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi span{font:600 10.5px var(--m);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kpi b{font-size:28px;font-weight:800;line-height:1.05}
+.kpi i{font-style:normal;font-size:12px;color:var(--faint)}
+.kpi.warn b{color:var(--warn)} .kpi.ok b{color:var(--ok)}
+.list{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.row+.row{border-top:1px solid var(--line)}
+.row .h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.row b{font-weight:700;overflow-wrap:anywhere}
+.row .s{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.row .t{font:500 11.5px var(--m);color:var(--faint);white-space:nowrap}
+.pill{font:600 10.5px var(--m);letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pill.new{color:var(--warn)} .pill.contacted{color:var(--blue)} .pill.invited{color:var(--ok)} .pill.declined,.pill.spam{color:var(--faint)}
+.pill.admin,.pill.owner{color:var(--gold-t)} .pill.other{color:var(--muted)}
+.empty{padding:22px 14px;color:var(--muted);font-size:14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tools input{flex:1 1 200px;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--chip);color:var(--chipInk);border-color:var(--chip)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:6px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.bars i{display:block;width:100%;max-width:34px;background:var(--blue);border-radius:6px 6px 2px 2px;min-height:2px}
+.bars span{font:500 10px var(--m);color:var(--faint)}
+.bars em{font-style:normal;font:600 10.5px var(--m);color:var(--muted)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.tabs button{border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11.5px;font-weight:700;cursor:pointer;border-radius:10px;position:relative}
+nav.tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--panel2)}
+nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;font:700 10px/17px var(--m)}
+.install{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M38.55 11.79A19 19 0 1 0 38.55 36.21" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/><path d="M32.81 16.61A11.5 11.5 0 1 0 32.81 31.39" stroke="#5AA9FF" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="24" r="2.3" fill="#5AA9FF"/></svg>
+    <span><b>CONVENTITY</b><small data-i="sub">YÖNETİM</small></span>
+  </div>
+  <div class="tbtns">
+    <button type="button" class="tbtn" id="langBtn">EN</button>
+    <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
+    <span class="ver">v0.1</span>
+  </div>
+</header>
+
+<main>
+  <!-- Giriş -->
+  <section id="vLogin" class="login" hidden>
+    <div><div class="eb" data-i="eb_login">YÖNETİCİ GİRİŞİ</div><h1 data-i="h_login">Conventity Yönetim</h1><p class="lead" data-i="p_login">Kişisel hesabınızla girin. Uygulama yalnız ekosistem yöneticilerine açılır.</p></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <label class="fld"><span data-i="email">E-posta</span><input id="email" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false"></label>
+      <label class="fld"><span data-i="pass">Parola</span><input id="pass" type="password" autocomplete="current-password"></label>
+      <button type="button" class="btn" id="inBtn" data-i="in">Giriş</button>
+      <p class="msg" id="inMsg" role="alert"></p>
+      <p class="note" data-i="n_login">Her giriş kayda geçer: kim, ne zaman, hangi cihazdan.</p>
+    </div>
+  </section>
+
+  <section id="vWait" class="card"><span data-i="loading">Yükleniyor…</span></section>
+
+  <!-- Pano -->
+  <section id="tPano" hidden>
+    <div><div class="eb" data-i="eb_pano">GENEL BAKIŞ</div><h1 id="hello"></h1></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="card"><div class="eb" data-i="eb_week">SON 7 GÜN · GİRİŞLER</div><div class="bars" id="bars"></div></div>
+    <div class="card install" id="instCard" hidden><span class="note" id="instTxt"></span><button type="button" class="btn" id="instBtn" data-i="install">Telefona kur</button></div>
+    <p class="note" id="err" role="status"></p>
+  </section>
+
+  <!-- Talepler -->
+  <section id="tTalep" hidden>
+    <div><div class="eb" data-i="eb_req">ERİŞİM TALEPLERİ</div><p class="lead" data-i="p_req">“Yakında” sayfasından gelen talepler. Davet etmek ve not düşmek için Core’u kullanın.</p></div>
+    <div class="chips" id="reqChips"></div>
+    <div class="list" id="reqList"></div>
+  </section>
+
+  <!-- Kullanıcılar -->
+  <section id="tKisi" hidden>
+    <div><div class="eb" data-i="eb_users">KULLANICILAR VE ROLLER</div><p class="lead" data-i="p_users">Hesabı olan herkes ve rolleri. Rol vermek ve geri almak Core’dadır.</p></div>
+    <div class="tools"><input id="uq" type="search" autocomplete="off" data-ph="search"></div>
+    <div class="list" id="userList"></div>
+  </section>
+
+  <!-- Girişler -->
+  <section id="tGiris" hidden>
+    <div><div class="eb" data-i="eb_sign">GİRİŞ KAYITLARI</div><p class="lead" data-i="p_sign">Başarılı her giriş; kayıtlar silinemez ve değiştirilemez.</p></div>
+    <div class="tools"><input id="gq" type="search" autocomplete="off" data-ph="search_mail"></div>
+    <div class="list" id="signList"></div>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs" hidden aria-label="Bölümler">
+  <button type="button" data-t="tPano" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span data-i="t_pano">Pano</span></button>
+  <button type="button" data-t="tTalep" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg><span data-i="t_req">Talepler</span><i class="dot" id="reqDot" hidden></i></button>
+  <button type="button" data-t="tKisi" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 6 4.5"/></svg><span data-i="t_users">Kişiler</span></button>
+  <button type="button" data-t="tGiris" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M3 12h11"/><path d="M10 8l4 4-4 4"/></svg><span data-i="t_sign">Girişler</span></button>
+</nav>
+
+<script src="/assets/signin-log.js" defer></script>
+<script>
+(function(){
+'use strict';
+var I18N={tr:{
+  sub:'YÖNETİM',out:'Çıkış',eb_login:'YÖNETİCİ GİRİŞİ',h_login:'Conventity Yönetim',p_login:'Kişisel hesabınızla girin. Uygulama yalnız ekosistem yöneticilerine açılır.',
+  email:'E-posta',pass:'Parola',in:'Giriş',n_login:'Her giriş kayda geçer: kim, ne zaman, hangi cihazdan.',loading:'Yükleniyor…',
+  eb_pano:'GENEL BAKIŞ',eb_week:'SON 7 GÜN · GİRİŞLER',install:'Telefona kur',eb_req:'ERİŞİM TALEPLERİ',p_req:'“Yakında” sayfasından gelen talepler. Davet etmek ve not düşmek için Core’u kullanın.',
+  eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Rol vermek ve geri almak Core’dadır.',eb_sign:'GİRİŞ KAYITLARI',p_sign:'Başarılı her giriş; kayıtlar silinemez ve değiştirilemez.',
+  search:'Ad ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Girişler',
+  hello:'Merhaba',k_req:'Yeni talep',k_req_s:'yanıt bekliyor',k_users:'Kullanıcı',k_users_s:'hesabı olan',k_admin:'Yönetici',k_admin_s:'etkin ekosistem rolü',k_sign:'Bugünkü giriş',k_sign_s:'son 24 saat',
+  required:'E-posta ve parolayı yazın.',wrong:'E-posta ya da parola yanlış.',denied:'Bu hesabın yönetici yetkisi yok.',neterr:'Bağlantı sorunu. Yeniden deneyin.',
+  loaderr:'Bazı veriler yüklenemedi: ',empty:'Kayıt yok.',none_match:'Bu aramaya uyan kayıt yok.',all:'Tümü',
+  st_new:'Yeni',st_contacted:'Görüşüldü',st_invited:'Davet edildi',st_declined:'Reddedildi',st_spam:'İstenmeyen',
+  m_password:'Parola',m_google:'Google',m_linkedin_oidc:'LinkedIn',m_other:'Diğer',noRole:'rol yok',ineff:'etkisiz (hesap bağlı değil)',
+  inst_ios:'iPhone’da kurmak için: Safari’de Paylaş → “Ana Ekrana Ekle”.',inst_and:'Bu uygulamayı telefonunuzun ana ekranına ekleyebilirsiniz.',inst_ok:'Uygulama kurulu.',
+  ago_min:'{n} dk önce',ago_h:'{n} sa önce',ago_d:'{n} gün önce',now:'şimdi',offline:'Bağlantı yok. Veriler bağlantı gelince yüklenecek.'
+},en:{
+  sub:'ADMIN',out:'Sign out',eb_login:'ADMIN SIGN-IN',h_login:'Conventity Admin',p_login:'Sign in with your personal account. The app opens only for ecosystem admins.',
+  email:'Email',pass:'Password',in:'Sign in',n_login:'Every sign-in is recorded: who, when and from which device.',loading:'Loading…',
+  eb_pano:'OVERVIEW',eb_week:'LAST 7 DAYS · SIGN-INS',install:'Install on phone',eb_req:'ACCESS REQUESTS',p_req:'Requests from the “coming soon” page. Use Core to invite and add notes.',
+  eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Granting and revoking roles is done in Core.',eb_sign:'SIGN-IN LOG',p_sign:'Every successful sign-in; entries cannot be deleted or changed.',
+  search:'Search name or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Sign-ins',
+  hello:'Hello',k_req:'New requests',k_req_s:'awaiting reply',k_users:'Users',k_users_s:'with an account',k_admin:'Admins',k_admin_s:'active ecosystem role',k_sign:'Sign-ins today',k_sign_s:'last 24 hours',
+  required:'Enter email and password.',wrong:'Wrong email or password.',denied:'This account has no admin rights.',neterr:'Connection problem. Try again.',
+  loaderr:'Some data could not be loaded: ',empty:'No entries.',none_match:'No entries match this search.',all:'All',
+  st_new:'New',st_contacted:'Contacted',st_invited:'Invited',st_declined:'Declined',st_spam:'Spam',
+  m_password:'Password',m_google:'Google',m_linkedin_oidc:'LinkedIn',m_other:'Other',noRole:'no role',ineff:'ineffective (no linked account)',
+  inst_ios:'To install on iPhone: in Safari, Share → “Add to Home Screen”.',inst_and:'You can add this app to your phone’s home screen.',inst_ok:'App installed.',
+  ago_min:'{n} min ago',ago_h:'{n} h ago',ago_d:'{n} days ago',now:'just now',offline:'No connection. Data will load when you are back online.'
+}};
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+var lang=lsGet('cv-lang')==='en'?'en':'tr';
+function T(k){return (I18N[lang]&&I18N[lang][k]!=null)?I18N[lang][k]:(I18N.tr[k]||k);}
+function Tf(k,o){return T(k).replace(/\{(\w+)\}/g,function(_,x){return o[x];});}
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function paintI18n(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i]').forEach(function(e){e.textContent=T(e.getAttribute('data-i'));});
+  document.querySelectorAll('[data-ph]').forEach(function(e){e.setAttribute('placeholder',T(e.getAttribute('data-ph')));});
+  $('langBtn').textContent=lang==='tr'?'EN':'TR';
+}
+var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[]}, reqFilter='new', deferredPrompt=null;
+function fmt(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleString(lang==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
+function ago(iso){ var d=(Date.now()-new Date(iso).getTime())/60000; if(!(d>=0)) return ''; if(d<1) return T('now'); if(d<60) return Tf('ago_min',{n:Math.floor(d)}); if(d<1440) return Tf('ago_h',{n:Math.floor(d/60)}); return Tf('ago_d',{n:Math.floor(d/1440)}); }
+function device(ua){ ua=ua||''; var os=/iPhone|iPad/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac OS X/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'?';
+  var br=/Edg\//.test(ua)?'Edge':/OPR\//.test(ua)?'Opera':/CriOS|Chrome\//.test(ua)?'Chrome':/FxiOS|Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':''; return os+(br?' · '+br:''); }
+
+function show(id){ ['vLogin','vWait','tPano','tTalep','tKisi','tGiris'].forEach(function(x){ $(x).hidden=(x!==id); }); }
+function tab(id){ show(id); $('tabs').querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected',String(b.getAttribute('data-t')===id)); }); lsSet('cv-yon-tab',id); window.scrollTo(0,0); }
+$('tabs').addEventListener('click',function(e){ var b=e.target.closest('button[data-t]'); if(b) tab(b.getAttribute('data-t')); });
+$('langBtn').addEventListener('click',function(){ lang=lang==='tr'?'en':'tr'; lsSet('cv-lang',lang); paintI18n(); renderAll(); });
+
+async function isAdmin(){ try{ var r=await sb.rpc('conventity_is_admin',{p_scope:'ecosystem'}); return !r.error && r.data===true; }catch(e){ return false; } }
+function toLogin(msg){ $('tabs').hidden=true; $('outBtn').hidden=true; show('vLogin'); $('inMsg').textContent=msg||''; }
+async function enter(){
+  $('tabs').hidden=false; $('outBtn').hidden=false;
+  var t=lsGet('cv-yon-tab'); tab(['tPano','tTalep','tKisi','tGiris'].indexOf(t)>=0?t:'tPano');
+  await load();
+}
+$('inBtn').addEventListener('click',async function(){
+  var em=$('email').value.trim(), pw=$('pass').value, b=this; $('inMsg').textContent='';
+  if(!em||!pw){ $('inMsg').textContent=T('required'); return; }
+  b.disabled=true;
+  try{
+    var r=await sb.auth.signInWithPassword({email:em,password:pw});
+    if(r.error){ $('inMsg').textContent=T('wrong'); return; }
+    if(window.cvSigninLog) await window.cvSigninLog('password');
+    if(!(await isAdmin())){ await sb.auth.signOut(); $('inMsg').textContent=T('denied'); return; }
+    $('pass').value=''; me=r.data.user; await enter();
+  }catch(e){ $('inMsg').textContent=T('neterr'); }
+  finally{ b.disabled=false; }
+});
+$('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inBtn').click(); });
+$('outBtn').addEventListener('click',async function(){ try{ await sb.auth.signOut(); }catch(e){} me=null; D={req:[],prof:[],roles:[],sign:[]}; toLogin(''); });
+
+async function load(){
+  var errs=[];
+  async function q(name,p){ try{ var r=await p; if(r.error){ errs.push(name); return []; } return r.data||[]; }catch(e){ errs.push(name); return []; } }
+  var res=await Promise.all([
+    q('conventity_access_requests',sb.from('conventity_access_requests').select('id,full_name,email,org_name,purpose,status,note,created_at,handled_at').order('created_at',{ascending:false}).limit(500)),
+    q('profiles',sb.from('profiles').select('id,full_name,company,created_at').order('created_at',{ascending:false}).limit(1000)),
+    q('conventity_roles',sb.from('conventity_roles').select('auth_user_id,scope,role,status,title').limit(2000)),
+    q('conventity_signin_log',sb.from('conventity_signin_log').select('email,method,user_agent,at').order('at',{ascending:false}).limit(500))
+  ]);
+  D={req:res[0],prof:res[1],roles:res[2],sign:res[3]};
+  $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):'');
+  renderAll();
+}
+function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); renderSign(); }
+
+function renderPano(){
+  var nm=(me&&me.email)||''; var p=D.prof.filter(function(x){ return me&&x.id===me.id; })[0]; if(p&&p.full_name) nm=p.full_name;
+  $('hello').textContent=T('hello')+(nm?', '+nm:'');
+  var nNew=D.req.filter(function(r){ return r.status==='new'; }).length;
+  var adm=D.roles.filter(function(r){ return r.scope==='ecosystem'&&r.role==='admin'&&r.status==='active'; }).length;
+  var day=Date.now()-864e5, nDay=D.sign.filter(function(s){ return new Date(s.at).getTime()>day; }).length;
+  function k(l,v,s,c){ return '<div class="kpi '+(c||'')+'"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><i>'+esc(s)+'</i></div>'; }
+  $('kpis').innerHTML=k(T('k_req'),nNew,T('k_req_s'),nNew?'warn':'ok')+k(T('k_users'),D.prof.length,T('k_users_s'))+k(T('k_admin'),adm,T('k_admin_s'))+k(T('k_sign'),nDay,T('k_sign_s'));
+  $('reqDot').hidden=!nNew; $('reqDot').textContent=nNew;
+  var days=[], i; for(i=6;i>=0;i--){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
+  var cnt=days.map(function(d){ var e=d.getTime()+864e5; return D.sign.filter(function(s){ var t=new Date(s.at).getTime(); return t>=d.getTime()&&t<e; }).length; }), mx=Math.max(1,Math.max.apply(null,cnt));
+  $('bars').innerHTML=days.map(function(d,j){ return '<div><em>'+cnt[j]+'</em><i style="height:'+Math.round(cnt[j]/mx*64)+'px"></i><span>'+d.toLocaleDateString(lang==='tr'?'tr-TR':'en-GB',{weekday:'short'})+'</span></div>'; }).join('');
+}
+var ST=['new','contacted','invited','declined','spam'];
+function renderReq(){
+  $('reqChips').innerHTML=['all'].concat(ST).map(function(s){ var n=s==='all'?D.req.length:D.req.filter(function(r){ return r.status===s; }).length;
+    return '<button type="button" class="chip" data-s="'+s+'" aria-pressed="'+(reqFilter===s)+'">'+esc((s==='all'?T('all'):T('st_'+s))+' · '+n)+'</button>'; }).join('');
+  var a=D.req.filter(function(r){ return reqFilter==='all'||r.status===reqFilter; });
+  $('reqList').innerHTML=a.length?a.map(function(r){ return '<div class="row"><div class="h"><b>'+esc(r.full_name)+'</b><span class="pill '+esc(r.status)+'">'+esc(T('st_'+r.status))+'</span></div>'+
+    '<div class="s">'+esc([r.email,r.org_name].filter(Boolean).join(' · '))+'</div>'+(r.purpose?'<div class="s">'+esc(r.purpose)+'</div>':'')+(r.note?'<div class="s">✎ '+esc(r.note)+'</div>':'')+
+    '<div class="t">'+esc(fmt(r.created_at))+' · '+esc(ago(r.created_at))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T('empty'))+'</div>';
+}
+$('reqChips').addEventListener('click',function(e){ var b=e.target.closest('button[data-s]'); if(!b) return; reqFilter=b.getAttribute('data-s'); renderReq(); });
+function renderUsers(){
+  var q=($('uq').value||'').toLocaleLowerCase(lang), by={};
+  D.roles.forEach(function(r){ if(!r.auth_user_id) return; (by[r.auth_user_id]=by[r.auth_user_id]||[]).push(r); });
+  var a=D.prof.filter(function(p){ return !q||[p.full_name,p.company].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0; });
+  var orphan=D.roles.filter(function(r){ return !r.auth_user_id && r.status==='active'; }).length;
+  $('userList').innerHTML=a.length?a.map(function(p){ var rs=(by[p.id]||[]).filter(function(r){ return r.status==='active'; });
+    return '<div class="row"><div class="h"><b>'+esc(p.full_name||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+(p.company?'<div class="s">'+esc(p.company)+'</div>':'')+
+      '<div class="chips">'+(rs.length?rs.map(function(r){ return '<span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'; }).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div></div>'; }).join('')
+    +(orphan?'<div class="row"><div class="s">'+esc(orphan+' · '+T('ineff'))+'</div></div>':''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
+}
+$('uq').addEventListener('input',renderUsers);
+function renderSign(){
+  var q=($('gq').value||'').toLowerCase(), a=D.sign.filter(function(s){ return !q||String(s.email||'').toLowerCase().indexOf(q)>=0; }).slice(0,300);
+  $('signList').innerHTML=a.length?a.map(function(s){ return '<div class="row"><div class="h"><b>'+esc(s.email||'—')+'</b><span class="t">'+esc(ago(s.at))+'</span></div>'+
+    '<div class="s">'+esc(fmt(s.at)+' · '+T('m_'+(s.method||'other'))+' · '+device(s.user_agent))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
+}
+$('gq').addEventListener('input',renderSign);
+
+/* Kurulum (PWA) */
+var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+function paintInstall(){
+  var ios=/iPhone|iPad/.test(navigator.userAgent||'');
+  if(standalone){ $('instCard').hidden=true; return; }
+  if(deferredPrompt){ $('instCard').hidden=false; $('instTxt').textContent=T('inst_and'); $('instBtn').hidden=false; return; }
+  if(ios){ $('instCard').hidden=false; $('instTxt').textContent=T('inst_ios'); $('instBtn').hidden=true; return; }
+  $('instCard').hidden=true;
+}
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferredPrompt=e; paintInstall(); });
+window.addEventListener('appinstalled',function(){ deferredPrompt=null; standalone=true; paintInstall(); });
+$('instBtn').addEventListener('click',async function(){ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; paintInstall(); });
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('/yonetim/sw.js',{scope:'/yonetim/'}).catch(function(){}); }catch(e){} }
+window.addEventListener('online',function(){ if(me) load(); });
+document.addEventListener('visibilitychange',function(){ if(!document.hidden&&me) load(); });
+
+async function boot(){
+  paintI18n(); paintInstall();
+  if(!sb){ show('vWait'); $('vWait').textContent=T('neterr'); return; }
+  try{
+    var s=await sb.auth.getSession(); var u=s&&s.data&&s.data.session&&s.data.session.user;
+    if(!u){ toLogin(''); return; }
+    if(!(await isAdmin())){ await sb.auth.signOut(); toLogin(T('denied')); return; }
+    me=u; await enter();
+  }catch(e){ toLogin(T('neterr')); }
+}
+boot();
+})();
+</script>
+</body>
+</html>
