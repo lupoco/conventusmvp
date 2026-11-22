@@ -153,7 +153,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <div class="tbtns">
     <button type="button" class="tbtn" id="langBtn">EN</button>
     <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
-    <span class="ver">v0.3</span>
+    <span class="ver">v0.4</span>
   </div>
 </header>
 
@@ -241,7 +241,7 @@ var I18N={tr:{
   email:'E-posta',pass:'Parola',in:'Giriş',n_login:'Her giriş kayda geçer: kim, ne zaman, hangi cihazdan.',loading:'Yükleniyor…',
   eb_pano:'GENEL BAKIŞ',eb_week:'SON 7 GÜN · GİRİŞLER',install:'Telefona kur',eb_req:'ERİŞİM TALEPLERİ',p_req:'“Yakında” sayfasından gelen talepler. Bir talebe dokunun: durumunu değiştirin, not düşün.',
   eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Bir kişiye dokunun: rol verin ya da geri alın.',eb_sign:'KAYITLAR',p_sign:'Girişler, çıkışlar ve yönetici işlemleri; kayıtlar silinemez ve değiştirilemez.',
-  search:'Ad ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Kayıtlar',
+  search:'Ad, e-posta ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Kayıtlar',
   hello:'Merhaba',k_req:'Yeni talep',k_req_s:'yanıt bekliyor',k_users:'Kullanıcı',k_users_s:'hesabı olan',k_admin:'Yönetici',k_admin_s:'etkin ekosistem rolü',k_sign:'Bugünkü giriş',k_sign_s:'son 24 saat',
   required:'E-posta ve parolayı yazın.',wrong:'E-posta ya da parola yanlış.',denied:'Bu hesabın yönetici yetkisi yok.',neterr:'Bağlantı sorunu. Yeniden deneyin.',
   loaderr:'Bazı veriler yüklenemedi: ',empty:'Kayıt yok.',none_match:'Bu aramaya uyan kayıt yok.',all:'Tümü',
@@ -256,10 +256,10 @@ var I18N={tr:{
   ev_signin:'Giriş',ev_signout:'Çıkış',save:'Kaydet',saved:'Kaydedildi.',cancel:'Vazgeç',note:'Not',status:'Durum',
   roles_h:'Roller',revoke:'Geri al',revoked:'Rol geri alındı.',add_role:'Rol ver',scope:'Alan',role:'Rol',granted:'Rol verildi.',
   confirm_admin:'Ekosistem yöneticisi her şeyi görür ve değiştirir. Eminim.',need_confirm:'Ekosistem yöneticiliği için onay kutusunu işaretleyin.',
-  no_person:'Bu hesabın kişi kaydı yok; rol vermek için Core’da kişi kaydı açılmalı.',dup_role:'Bu rol zaten var.',err_save:'Kaydedilemedi: ',
+  dup_role:'Bu rol zaten var.',err_save:'Kaydedilemedi: ',
   self_admin:'Kendi yöneticiliğinizi buradan geri alamazsınız.',
   refresh:'Yenile',fresh:'Güncellendi: {t}',eb_feed:'SON OLANLAR',eb_todo:'SİZİ BEKLEYENLER',todo_none:'Bekleyen iş yok.',
-  td_req:'Yeni talep',td_norole:'Rolü yok',td_noperson:'Kişi kaydı yok',td_open:'Aç',td_more:'{n} tane daha',
+  td_req:'Yeni talep',td_norole:'Rolü yok',td_open:'Aç',td_more:'{n} tane daha',
   tr_week:'bu hafta +{n}',tr_up:'düne göre +{n}',tr_dn:'düne göre −{n}',tr_same:'dünle aynı',
   f_signin:'{who} giriş yaptı',f_signout:'{who} çıkış yaptı',f_req:'Yeni talep: {who}',
   f_grant:'{actor} rol verdi: {role} → {who}',f_revoke:'{actor} rolü geri aldı: {role} → {who}',f_role:'{actor} rolü değiştirdi: {role} → {who}',
@@ -267,13 +267,13 @@ var I18N={tr:{
   someone:'Biri',system:'Sistem',feed_none:'Henüz kayıt yok.',
   u_mail:'E-posta',u_last:'Son giriş',u_since:'Hesap',u_hist:'Geçmiş',u_never:'kayıt yok',
   lm_sign:'Girişler',lm_audit:'İşlemler',lr_day:'Bugün',lr_week:'7 gün',lr_all:'Tümü',newdev:'yeni cihaz',search_log:'Ara',
-  audit_none:'Yönetici işlemi kaydı yok.',audit_err:'İşlem kayıtları okunamadı.'
+  audit_none:'Yönetici işlemi kaydı yok.',audit_err:'İşlem kayıtları okunamadı.',users_err:'Hesap listesi okunamadı; yalnız profili olan hesaplar görünüyor (sql/20_admin_users.sql).'
 },en:{
   sub:'ADMIN',out:'Sign out',eb_login:'ADMIN SIGN-IN',h_login:'Conventity Admin',p_login:'Sign in with your personal account. The app opens only for ecosystem admins.',
   email:'Email',pass:'Password',in:'Sign in',n_login:'Every sign-in is recorded: who, when and from which device.',loading:'Loading…',
   eb_pano:'OVERVIEW',eb_week:'LAST 7 DAYS · SIGN-INS',install:'Install on phone',eb_req:'ACCESS REQUESTS',p_req:'Requests from the “coming soon” page. Tap a request to change its status or add a note.',
   eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Tap a person to grant or revoke a role.',eb_sign:'RECORDS',p_sign:'Sign-ins, sign-outs and admin actions; entries cannot be deleted or changed.',
-  search:'Search name or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Records',
+  search:'Search name, email or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Records',
   hello:'Hello',k_req:'New requests',k_req_s:'awaiting reply',k_users:'Users',k_users_s:'with an account',k_admin:'Admins',k_admin_s:'active ecosystem role',k_sign:'Sign-ins today',k_sign_s:'last 24 hours',
   required:'Enter email and password.',wrong:'Wrong email or password.',denied:'This account has no admin rights.',neterr:'Connection problem. Try again.',
   loaderr:'Some data could not be loaded: ',empty:'No entries.',none_match:'No entries match this search.',all:'All',
@@ -288,10 +288,10 @@ var I18N={tr:{
   ev_signin:'Sign-in',ev_signout:'Sign-out',save:'Save',saved:'Saved.',cancel:'Cancel',note:'Note',status:'Status',
   roles_h:'Roles',revoke:'Revoke',revoked:'Role revoked.',add_role:'Grant role',scope:'Area',role:'Role',granted:'Role granted.',
   confirm_admin:'An ecosystem admin sees and changes everything. I am sure.',need_confirm:'Tick the confirmation box for ecosystem admin.',
-  no_person:'This account has no person record; a person record must be created in Core before granting roles.',dup_role:'This role already exists.',err_save:'Could not save: ',
+  dup_role:'This role already exists.',err_save:'Could not save: ',
   self_admin:'You cannot revoke your own admin role here.',
   refresh:'Refresh',fresh:'Updated: {t}',eb_feed:'LATEST',eb_todo:'WAITING FOR YOU',todo_none:'Nothing is waiting.',
-  td_req:'New request',td_norole:'No role',td_noperson:'No person record',td_open:'Open',td_more:'{n} more',
+  td_req:'New request',td_norole:'No role',td_open:'Open',td_more:'{n} more',
   tr_week:'+{n} this week',tr_up:'+{n} vs yesterday',tr_dn:'−{n} vs yesterday',tr_same:'same as yesterday',
   f_signin:'{who} signed in',f_signout:'{who} signed out',f_req:'New request: {who}',
   f_grant:'{actor} granted a role: {role} → {who}',f_revoke:'{actor} revoked a role: {role} → {who}',f_role:'{actor} changed a role: {role} → {who}',
@@ -299,7 +299,7 @@ var I18N={tr:{
   someone:'Someone',system:'System',feed_none:'No entries yet.',
   u_mail:'Email',u_last:'Last sign-in',u_since:'Account',u_hist:'History',u_never:'no record',
   lm_sign:'Sign-ins',lm_audit:'Actions',lr_day:'Today',lr_week:'7 days',lr_all:'All',newdev:'new device',search_log:'Search',
-  audit_none:'No admin actions recorded.',audit_err:'Could not read the action log.'
+  audit_none:'No admin actions recorded.',audit_err:'Could not read the action log.',users_err:'Could not read the account list; only accounts with a profile are shown (sql/20_admin_users.sql).'
 }};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
@@ -314,7 +314,7 @@ function paintI18n(){
   document.querySelectorAll('[data-ph]').forEach(function(e){e.setAttribute('placeholder',T(e.getAttribute('data-ph')));});
   $('langBtn').textContent=lang==='tr'?'EN':'TR';
 }
-var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null, logMode='sign', logRange='week', lastLoad=0, auditErr=false;
+var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null, logMode='sign', logRange='week', lastLoad=0, auditErr=false, usersErr=false;
 function fmt(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleString(lang==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
 function ago(iso){ var d=(Date.now()-new Date(iso).getTime())/60000; if(!(d>=0)) return ''; if(d<1) return T('now'); if(d<60) return Tf('ago_min',{n:Math.floor(d)}); if(d<1440) return Tf('ago_h',{n:Math.floor(d/60)}); return Tf('ago_d',{n:Math.floor(d/1440)}); }
 function device(ua){ ua=ua||''; var os=/iPhone|iPad/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac OS X/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'?';
@@ -397,13 +397,21 @@ async function load(){
         if(r.error){ auditErr=true; return []; } return r.data||[]; }catch(e){ auditErr=true; return []; } })()
   ]);
   D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4],audit:res[5]}; lastLoad=Date.now();
-  $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):'');
+  /* Hesap listesi (sql/20_admin_users.sql). İşlev yoksa eski davranış: yalnız profiles. */
+  usersErr=false;
+  try{ var ur=await sb.rpc('conventity_admin_users');
+    if(ur.error||!Array.isArray(ur.data)) usersErr=true;
+    else { var pr={}; D.prof.forEach(function(x){ pr[x.id]=x; });
+      D.prof=ur.data.map(function(u){ var x=pr[u.id]||{}, pe=D.people.filter(function(q){ return q.auth_user_id===u.id; })[0]||{};
+        return {id:u.id,full_name:x.full_name||pe.full_name||'',company:x.company||'',created_at:u.created_at,email:u.email||pe.email||'',last_sign_in_at:u.last_sign_in_at||null}; }); }
+  }catch(e){ usersErr=true; }
+  $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):(usersErr?T('users_err'):''));
   renderAll();
 }
 function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); renderSign(); }
 
 /* Ad çözümleme ve denetim kaydını cümleye çevirme (pano akışı ve Kayıtlar → İşlemler aynı işlevi kullanır). */
-function uName(uid){ if(!uid) return ''; var p=D.prof.filter(function(x){ return x.id===uid; })[0]; if(p&&p.full_name) return p.full_name;
+function uName(uid){ if(!uid) return ''; var p=D.prof.filter(function(x){ return x.id===uid; })[0]; if(p&&(p.full_name||p.email)) return p.full_name||p.email;
   var q=D.people.filter(function(x){ return x.auth_user_id===uid; })[0]; return (q&&q.full_name)||''; }
 function pName(pid){ if(!pid) return ''; var q=D.people.filter(function(x){ return x.id===pid; })[0]; return (q&&q.full_name)||''; }
 function spill(r){ var sc=String(r.scope||''); return '<span class="sp sc-'+esc(sc.replace(/[^a-z]/g,''))+'">'+esc(sc+' · '+(r.role||''))+'</span>'; }
@@ -443,7 +451,7 @@ function renderPano(){
   $('todo').innerHTML='<div class="cardh"><div class="eb">'+esc(T('eb_todo'))+'</div>'+(nTodo?'<span class="cnt">'+nTodo+'</span>':'')+'</div>'+
     (nTodo?news.slice(0,3).map(function(r){ return td('data-gr="'+esc(r.id)+'"',r.full_name||'—',[r.org_name,ago(r.created_at)].filter(Boolean).join(' · '),T('td_req')); }).join('')+
       (nNew>3?td('data-gt="tTalep"',Tf('td_more',{n:nNew-3}),T('td_req'),T('td_open')):'')+
-      norole.slice(0,3).map(function(x){ var hasP=D.people.some(function(q){ return q.auth_user_id===x.id; }); return td('data-gu="'+esc(x.id)+'"',x.full_name||'—',x.company||'',T(hasP?'td_norole':'td_noperson')); }).join('')+
+      norole.slice(0,3).map(function(x){ return td('data-gu="'+esc(x.id)+'"',x.full_name||x.email||'—',x.full_name?(x.email||x.company||''):(x.company||''),T('td_norole')); }).join('')+
       (norole.length>3?td('data-gt="tKisi"',Tf('td_more',{n:norole.length-3}),T('td_norole'),T('td_open')):'')
     :'<div class="alldone">✓ '+esc(T('todo_none'))+'</div>');
 
@@ -515,10 +523,10 @@ $('reqChips').addEventListener('click',function(e){ var b=e.target.closest('butt
 function renderUsers(){
   var q=($('uq').value||'').toLocaleLowerCase(lang), by={};
   D.roles.forEach(function(r){ if(!r.auth_user_id) return; (by[r.auth_user_id]=by[r.auth_user_id]||[]).push(r); });
-  var a=D.prof.filter(function(p){ return !q||[p.full_name,p.company].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0; });
+  var a=D.prof.filter(function(p){ return !q||[p.full_name,p.company,p.email].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0; });
   var orphan=D.roles.filter(function(r){ return !r.auth_user_id && r.status==='active'; }).length;
   $('userList').innerHTML=a.length?a.map(function(p){ var rs=(by[p.id]||[]).filter(function(r){ return r.status==='active'; }), op=openUser===p.id;
-    return '<div class="row tap" data-u="'+esc(p.id)+'"><div class="h"><b>'+esc(p.full_name||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+(p.company?'<div class="s">'+esc(p.company)+'</div>':'')+
+    return '<div class="row tap" data-u="'+esc(p.id)+'"><div class="h"><b>'+esc(p.full_name||p.email||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+((p.full_name&&p.email)||p.company?'<div class="s">'+esc([p.full_name?p.email:'',p.company].filter(Boolean).join(' · '))+'</div>':'')+
       '<div class="chips">'+(rs.length?rs.map(spill).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div>'+
       (op?roleEditor(p,rs):'')+'</div>'; }).join('')
     +(orphan?'<div class="row"><div class="s">'+esc(orphan+' · '+T('ineff'))+'</div></div>':''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
@@ -529,21 +537,21 @@ var PROLES=['member','organizer','event_manager','vendor','admin','owner'];
 function roleEditor(p,rs){
   var person=D.people.filter(function(x){ return x.auth_user_id===p.id; })[0];
   var last=D.sign.filter(function(x){ return x.auth_user_id===p.id&&(x.event||'signin')==='signin'; })[0];
-  var mail=(person&&person.email)||(D.sign.filter(function(x){ return x.auth_user_id===p.id&&x.email; })[0]||{}).email||'';
+  var mail=p.email||(person&&person.email)||(D.sign.filter(function(x){ return x.auth_user_id===p.id&&x.email; })[0]||{}).email||'';
   var hist=D.audit.filter(function(a){ if(a.table_name!=='conventity_roles') return false; var r=(a.diff&&(a.diff['new']||a.diff.old))||{}; return r.auth_user_id===p.id; }).slice(0,5).map(describe);
   return '<div class="ed"><dl class="kv">'+
       '<dt>'+esc(T('u_mail'))+'</dt><dd>'+esc(mail||'—')+'</dd>'+
-      '<dt>'+esc(T('u_last'))+'</dt><dd>'+esc(last?(fmt(last.at)+' · '+ago(last.at)+' · '+device(last.user_agent)):T('u_never'))+'</dd>'+
+      '<dt>'+esc(T('u_last'))+'</dt><dd>'+esc(last?(fmt(last.at)+' · '+ago(last.at)+' · '+device(last.user_agent)):p.last_sign_in_at?(fmt(p.last_sign_in_at)+' · '+ago(p.last_sign_in_at)):T('u_never'))+'</dd>'+
       '<dt>'+esc(T('u_since'))+'</dt><dd>'+esc(fmt(p.created_at))+'</dd></dl>'+
     (hist.length?'<div class="eb">'+esc(T('u_hist'))+'</div><div class="hist">'+hist.map(function(x){ return '<span>'+esc(fmt(x.at)+' · '+x.text)+'</span>'; }).join('')+'</div>':'')+
     '<div class="eb">'+esc(T('roles_h'))+'</div>'+
     (rs.length?rs.map(function(r){ return '<div class="rl">'+spill(r)+
       ((r.scope==='community'||r.scope==='activity')?'':'<button type="button" class="btn dn sm" data-rv="'+esc(r.id)+'">'+esc(T('revoke'))+'</button>')+'</div>'; }).join(''):'')+
-    (person?'<div class="acts"><select data-sc aria-label="'+esc(T('scope'))+'">'+PSCOPES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select>'+
+    ('<div class="acts"><select data-sc aria-label="'+esc(T('scope'))+'">'+PSCOPES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select>'+
       '<select data-ro aria-label="'+esc(T('role'))+'">'+PROLES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select></div>'+
       '<label class="note" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" data-cf> <span>'+esc(T('confirm_admin'))+'</span></label>'+
       '<div class="acts"><button type="button" class="btn sm" data-gr>'+esc(T('add_role'))+'</button><span class="note" data-m></span></div>'
-     :'<div class="note">'+esc(T('no_person'))+'</div><div class="acts"><span class="note" data-m></span></div>')+'</div>';
+     )+'</div>';
 }
 $('userList').addEventListener('click',async function(e){
   var row=e.target.closest('.row[data-u]'); if(!row) return; var uid=row.getAttribute('data-u'), msg=row.querySelector('[data-m]');
@@ -556,11 +564,11 @@ $('userList').addEventListener('click',async function(e){
         D.roles.forEach(function(x){ if(x.id===rid) x.status='revoked'; }); renderUsers(); renderPano(); load(); }catch(err){ msg.textContent=T('neterr'); rv.disabled=false; }
       return; }
     if(gr){ var sc=row.querySelector('[data-sc]').value, ro=row.querySelector('[data-ro]').value, cf=row.querySelector('[data-cf]').checked;
-      var person=D.people.filter(function(x){ return x.auth_user_id===uid; })[0]; if(!person){ msg.textContent=T('no_person'); return; }
+      var person=D.people.filter(function(x){ return x.auth_user_id===uid; })[0];
       if(sc==='ecosystem'&&(ro==='admin'||ro==='owner')&&!cf){ msg.textContent=T('need_confirm'); return; }
       if(D.roles.some(function(x){ return x.auth_user_id===uid&&x.scope===sc&&x.role===ro&&x.status==='active'; })){ msg.textContent=T('dup_role'); return; }
       gr.disabled=true;
-      try{ var ins=await sb.from('conventity_roles').insert({person_id:person.id,auth_user_id:uid,scope:sc,role:ro,status:'active',granted_by:me?me.id:null}).select('id,person_id,auth_user_id,scope,role,status,title');
+      try{ var ins=await sb.from('conventity_roles').insert({person_id:person?person.id:null,auth_user_id:uid,scope:sc,role:ro,status:'active',granted_by:me?me.id:null}).select('id,person_id,auth_user_id,scope,role,status,title');
         if(ins.error){ msg.textContent=T('err_save')+ins.error.message; gr.disabled=false; return; }
         (ins.data||[]).forEach(function(x){ D.roles.push(x); }); renderUsers(); renderPano(); load(); }catch(err){ msg.textContent=T('neterr'); gr.disabled=false; }
       return; }
