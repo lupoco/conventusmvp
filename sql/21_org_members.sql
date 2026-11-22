@@ -15,6 +15,8 @@
 --   * Üye kendi satırına doğrudan yazamaz; yalnız aşağıdaki işlevlerle.
 --   * Paydaş türünü yalnız yönetici verir.
 --   * Bülten rızasının zamanı saklanır (bulletin_at); rıza geri alınınca silinir.
+--   * Üyelik yalnız e-postaya gelen kodla açılan oturumda işlem görür (conventity_org_verified).
+--   * Ayrılan üyenin hesabı da silinir, başka kaydı yoksa (conventity_org_forget).
 --   * Üye ayrılınca satırı SİLİNİR. Bu yüzden tabloya denetim tetikleyicisi
 --     bağlanmaz: conventity_audit silinemez ve e-postayı tutmaya devam ederdi.
 --
@@ -26,8 +28,9 @@
 do $cvguard$
 declare n_prof bigint := 0;
 begin
-  if to_regprocedure('public.conventity_is_admin(text)') is null then
-    raise exception E'\n\n  conventity_is_admin(text) yok — once 02_clean_install.sql calistir.\n';
+  if to_regprocedure('public.conventity_is_admin(text)') is null
+     or to_regclass('public.conventity_roles') is null or to_regclass('public.conventity_people') is null or to_regclass('public.profiles') is null then
+    raise exception E'\n\n  omurga eksik (conventity_is_admin, conventity_roles, conventity_people, profiles) — once 02_clean_install.sql calistir.\n';
   end if;
   if to_regclass('public.convexus_profiles') is not null then
     select count(*) into n_prof from public.convexus_profiles;
@@ -113,12 +116,24 @@ returns boolean language sql stable security definer set search_path = public as
   select coalesce((select value = 'true'::jsonb from conventity_org_settings where key = 'membership_open'), false);
 $fn$;
 
+-- Oturum, e-postaya gelen tek kullanımlık kodla (ya da bağlantıyla) açıldıysa true.
+-- Ortak altyapıda parolayla açılmış bir hesap, adresi doğrulanmamış olabilir; böyle bir oturum
+-- başkasının davetini kabul edememeli. Bu yüzden .org üyeliği yalnız kodla açılan oturumda işlem görür.
+create or replace function public.conventity_org_verified()
+returns boolean language sql stable security definer set search_path = public, auth as $fn$
+  select auth.uid() is not null
+     and exists (select 1 from auth.users u where u.id = auth.uid() and u.email_confirmed_at is not null
+                   and lower(u.email::text) = lower(nullif(trim(auth.jwt() ->> 'email'), '')))
+     and exists (select 1 from jsonb_array_elements(coalesce(auth.jwt() -> 'amr', '[]'::jsonb)) a
+                  where a ->> 'method' in ('otp', 'magiclink'));
+$fn$;
+
 -- Kendi üyelik durumum: { open, invited, member }. invited: bu e-postaya yönetici davet açmış, henüz kabul edilmemiş.
 create or replace function public.conventity_org_me()
 returns jsonb language sql stable security definer set search_path = public as $fn$
   select jsonb_build_object(
     'open', conventity_org_open(),
-    'invited', exists(select 1 from conventity_org_members i
+    'invited', conventity_org_verified() and exists(select 1 from conventity_org_members i
                        where i.email = lower(nullif(trim(auth.jwt() ->> 'email'), '')) and i.auth_user_id is null and i.status = 'invited'),
     'member', (select jsonb_build_object('email', m.email, 'kind', m.kind, 'status', m.status,
                                          'bulletin', m.bulletin, 'org_name', m.org_name, 'created_at', m.created_at)
@@ -134,7 +149,7 @@ declare
   v_row   conventity_org_members%rowtype;
   v_org   text := nullif(left(trim(coalesce(p_org_name, '')), 160), '');
 begin
-  if v_uid is null or v_email is null then
+  if v_uid is null or v_email is null or not conventity_org_verified() then
     return jsonb_build_object('ok', false, 'reason', 'signin');
   end if;
 
@@ -189,11 +204,35 @@ begin
 end
 $fn$;
 
+-- Hesabı da sil: yalnız kişinin .org üyeliği ve başka hiçbir Conventity kaydı yoksa.
+-- Üyelikten ayrılan ya da üyelik kapalıyken kod isteyip "açık değil" yanıtı alan kişinin adresi
+-- ortak hesap tablosunda kalmasın diye. Başka bir tabloda kaydı varsa (ör. conventity.com) hesap kalır.
+create or replace function public.conventity_org_forget()
+returns jsonb language plpgsql security definer set search_path = public, auth as $fn$
+declare v_uid uuid := auth.uid();
+begin
+  if v_uid is null then return jsonb_build_object('ok', false); end if;
+  if exists (select 1 from conventity_org_members m where m.auth_user_id = v_uid)
+     or exists (select 1 from conventity_roles r where r.auth_user_id = v_uid)
+     or exists (select 1 from conventity_people p where p.auth_user_id = v_uid)
+     or exists (select 1 from profiles p where p.id = v_uid) then
+    return jsonb_build_object('ok', false, 'reason', 'in_use');
+  end if;
+  begin
+    delete from auth.users where id = v_uid;
+  exception when others then
+    -- Başka bir tablo bu hesaba bağlıysa silme reddedilir; hesap kalır.
+    return jsonb_build_object('ok', false, 'reason', 'in_use');
+  end;
+  return jsonb_build_object('ok', true);
+end
+$fn$;
+
 do $gr$
 declare f text;
 begin
-  foreach f in array array['conventity_org_open()', 'conventity_org_me()', 'conventity_org_join(text, boolean, text)',
-                           'conventity_org_set_bulletin(boolean)', 'conventity_org_leave()'] loop
+  foreach f in array array['conventity_org_open()', 'conventity_org_verified()', 'conventity_org_me()', 'conventity_org_join(text, boolean, text)',
+                           'conventity_org_set_bulletin(boolean)', 'conventity_org_leave()', 'conventity_org_forget()'] loop
     execute format('revoke all on function public.%s from public', f);
     execute format('revoke all on function public.%s from anon', f);
     execute format('grant execute on function public.%s to authenticated', f);
