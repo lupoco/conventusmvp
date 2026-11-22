@@ -49,7 +49,7 @@ h1{font-weight:700;font-size:24px;line-height:1.15;margin:4px 0 0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .login{max-width:420px;margin:8vh auto 0;display:flex;flex-direction:column;gap:12px}
 .fld{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600}
-.fld input{padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px}
+.fld input{min-width:0;width:100%;padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px}
 .btn{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{background:var(--gold);color:var(--navy)}}
 :root[data-theme="dark"] .btn{background:var(--gold);color:var(--navy)}
@@ -102,8 +102,8 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 .ed select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;min-width:0;flex:1 1 140px}
 .ed .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btn.sm{padding:8px 14px;font-size:13px}
-.btn.gh{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn.dn{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+:root:root .btn.gh{background:transparent;color:var(--ink);border:1px solid var(--line)}
+:root:root .btn.dn{background:transparent;color:var(--bad);border:1px solid var(--bad)}
 .rl{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .ok{color:var(--ok)}
 .pill.signout{color:var(--faint)} .pill.signin{color:var(--ok)}
@@ -144,7 +144,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
         <span class="note" data-i="mfa_manual">QR okutamıyorsanız bu anahtarı uygulamaya elle girin:</span>
         <div class="secret" id="mfaSecret"></div>
       </div>
-      <label class="fld"><span data-i="mfa_code">6 haneli kod</span><input id="mfaCode" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"></label>
+      <label class="fld"><span data-i="mfa_code">6 haneli kod</span><input id="mfaCode" class="code" size="6" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"></label>
       <button type="button" class="btn" id="mfaBtn" data-i="mfa_verify">Doğrula</button>
       <p class="msg" id="mfaMsg" role="alert"></p>
       <button type="button" class="btn gh sm" id="mfaBack" data-i="out">Çıkış</button>
@@ -165,21 +165,21 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 
   <!-- Talepler -->
   <section id="tTalep" hidden>
-    <div><div class="eb" data-i="eb_req">ERİŞİM TALEPLERİ</div><p class="lead" data-i="p_req">“Yakında” sayfasından gelen talepler. Davet etmek ve not düşmek için Core’u kullanın.</p></div>
+    <div><div class="eb" data-i="eb_req">ERİŞİM TALEPLERİ</div><p class="lead" data-i="p_req">“Yakında” sayfasından gelen talepler. Bir talebe dokunun: durumunu değiştirin, not düşün.</p></div>
     <div class="chips" id="reqChips"></div>
     <div class="list" id="reqList"></div>
   </section>
 
   <!-- Kullanıcılar -->
   <section id="tKisi" hidden>
-    <div><div class="eb" data-i="eb_users">KULLANICILAR VE ROLLER</div><p class="lead" data-i="p_users">Hesabı olan herkes ve rolleri. Rol vermek ve geri almak Core’dadır.</p></div>
+    <div><div class="eb" data-i="eb_users">KULLANICILAR VE ROLLER</div><p class="lead" data-i="p_users">Hesabı olan herkes ve rolleri. Bir kişiye dokunun: rol verin ya da geri alın.</p></div>
     <div class="tools"><input id="uq" type="search" autocomplete="off" data-ph="search"></div>
     <div class="list" id="userList"></div>
   </section>
 
   <!-- Girişler -->
   <section id="tGiris" hidden>
-    <div><div class="eb" data-i="eb_sign">GİRİŞ KAYITLARI</div><p class="lead" data-i="p_sign">Başarılı her giriş; kayıtlar silinemez ve değiştirilemez.</p></div>
+    <div><div class="eb" data-i="eb_sign">GİRİŞ KAYITLARI</div><p class="lead" data-i="p_sign">Her giriş ve çıkış; kayıtlar silinemez ve değiştirilemez.</p></div>
     <div class="tools"><input id="gq" type="search" autocomplete="off" data-ph="search_mail"></div>
     <div class="list" id="signList"></div>
   </section>
@@ -199,8 +199,8 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 var I18N={tr:{
   sub:'YÖNETİM',out:'Çıkış',eb_login:'YÖNETİCİ GİRİŞİ',h_login:'Conventity Yönetim',p_login:'Kişisel hesabınızla girin. Uygulama yalnız ekosistem yöneticilerine açılır.',
   email:'E-posta',pass:'Parola',in:'Giriş',n_login:'Her giriş kayda geçer: kim, ne zaman, hangi cihazdan.',loading:'Yükleniyor…',
-  eb_pano:'GENEL BAKIŞ',eb_week:'SON 7 GÜN · GİRİŞLER',install:'Telefona kur',eb_req:'ERİŞİM TALEPLERİ',p_req:'“Yakında” sayfasından gelen talepler. Davet etmek ve not düşmek için Core’u kullanın.',
-  eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Rol vermek ve geri almak Core’dadır.',eb_sign:'GİRİŞ KAYITLARI',p_sign:'Başarılı her giriş; kayıtlar silinemez ve değiştirilemez.',
+  eb_pano:'GENEL BAKIŞ',eb_week:'SON 7 GÜN · GİRİŞLER',install:'Telefona kur',eb_req:'ERİŞİM TALEPLERİ',p_req:'“Yakında” sayfasından gelen talepler. Bir talebe dokunun: durumunu değiştirin, not düşün.',
+  eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Bir kişiye dokunun: rol verin ya da geri alın.',eb_sign:'GİRİŞ KAYITLARI',p_sign:'Her giriş ve çıkış; kayıtlar silinemez ve değiştirilemez.',
   search:'Ad ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Girişler',
   hello:'Merhaba',k_req:'Yeni talep',k_req_s:'yanıt bekliyor',k_users:'Kullanıcı',k_users_s:'hesabı olan',k_admin:'Yönetici',k_admin_s:'etkin ekosistem rolü',k_sign:'Bugünkü giriş',k_sign_s:'son 24 saat',
   required:'E-posta ve parolayı yazın.',wrong:'E-posta ya da parola yanlış.',denied:'Bu hesabın yönetici yetkisi yok.',neterr:'Bağlantı sorunu. Yeniden deneyin.',
@@ -208,12 +208,21 @@ var I18N={tr:{
   st_new:'Yeni',st_contacted:'Görüşüldü',st_invited:'Davet edildi',st_declined:'Reddedildi',st_spam:'İstenmeyen',
   m_password:'Parola',m_google:'Google',m_linkedin_oidc:'LinkedIn',m_other:'Diğer',noRole:'rol yok',ineff:'etkisiz (hesap bağlı değil)',
   inst_ios:'iPhone’da kurmak için: Safari’de Paylaş → “Ana Ekrana Ekle”.',inst_and:'Bu uygulamayı telefonunuzun ana ekranına ekleyebilirsiniz.',inst_ok:'Uygulama kurulu.',
-  ago_min:'{n} dk önce',ago_h:'{n} sa önce',ago_d:'{n} gün önce',now:'şimdi',offline:'Bağlantı yok. Veriler bağlantı gelince yüklenecek.'
+  ago_min:'{n} dk önce',ago_h:'{n} sa önce',ago_d:'{n} gün önce',now:'şimdi',offline:'Bağlantı yok. Veriler bağlantı gelince yüklenecek.',
+  eb_mfa:'İKİ ADIMLI DOĞRULAMA',mfa_code:'6 haneli kod',mfa_verify:'Doğrula',mfa_manual:'QR okutamıyorsanız bu anahtarı uygulamaya elle girin:',
+  mfa_h_enroll:'Telefonunuzu bağlayın',mfa_p_enroll:'Bir doğrulama uygulamasıyla (Google Authenticator, Microsoft Authenticator ya da benzeri) QR kodu okutun, uygulamanın gösterdiği 6 haneli kodu yazın. Bu adım bir kez yapılır.',
+  mfa_h_code:'Doğrulama kodu',mfa_p_code:'Doğrulama uygulamanızdaki 6 haneli kodu yazın.',mfa_bad:'Kod doğru değil ya da süresi doldu. Uygulamadaki yeni kodu yazın.',mfa_need:'6 haneli kodu yazın.',
+  mfa_off:'İki adımlı doğrulama bu projede açık değil; giriş yalnız parolayla korunuyor. Supabase → Authentication → Multi-Factor’dan TOTP’yi açın.',
+  ev_signin:'Giriş',ev_signout:'Çıkış',save:'Kaydet',saved:'Kaydedildi.',cancel:'Vazgeç',note:'Not',status:'Durum',
+  roles_h:'Roller',revoke:'Geri al',revoked:'Rol geri alındı.',add_role:'Rol ver',scope:'Alan',role:'Rol',granted:'Rol verildi.',
+  confirm_admin:'Ekosistem yöneticisi her şeyi görür ve değiştirir. Eminim.',need_confirm:'Ekosistem yöneticiliği için onay kutusunu işaretleyin.',
+  no_person:'Bu hesabın kişi kaydı yok; rol vermek için Core’da kişi kaydı açılmalı.',dup_role:'Bu rol zaten var.',err_save:'Kaydedilemedi: ',
+  self_admin:'Kendi yöneticiliğinizi buradan geri alamazsınız.'
 },en:{
   sub:'ADMIN',out:'Sign out',eb_login:'ADMIN SIGN-IN',h_login:'Conventity Admin',p_login:'Sign in with your personal account. The app opens only for ecosystem admins.',
   email:'Email',pass:'Password',in:'Sign in',n_login:'Every sign-in is recorded: who, when and from which device.',loading:'Loading…',
-  eb_pano:'OVERVIEW',eb_week:'LAST 7 DAYS · SIGN-INS',install:'Install on phone',eb_req:'ACCESS REQUESTS',p_req:'Requests from the “coming soon” page. Use Core to invite and add notes.',
-  eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Granting and revoking roles is done in Core.',eb_sign:'SIGN-IN LOG',p_sign:'Every successful sign-in; entries cannot be deleted or changed.',
+  eb_pano:'OVERVIEW',eb_week:'LAST 7 DAYS · SIGN-INS',install:'Install on phone',eb_req:'ACCESS REQUESTS',p_req:'Requests from the “coming soon” page. Tap a request to change its status or add a note.',
+  eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Tap a person to grant or revoke a role.',eb_sign:'SIGN-IN LOG',p_sign:'Every sign-in and sign-out; entries cannot be deleted or changed.',
   search:'Search name or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Sign-ins',
   hello:'Hello',k_req:'New requests',k_req_s:'awaiting reply',k_users:'Users',k_users_s:'with an account',k_admin:'Admins',k_admin_s:'active ecosystem role',k_sign:'Sign-ins today',k_sign_s:'last 24 hours',
   required:'Enter email and password.',wrong:'Wrong email or password.',denied:'This account has no admin rights.',neterr:'Connection problem. Try again.',
@@ -221,7 +230,16 @@ var I18N={tr:{
   st_new:'New',st_contacted:'Contacted',st_invited:'Invited',st_declined:'Declined',st_spam:'Spam',
   m_password:'Password',m_google:'Google',m_linkedin_oidc:'LinkedIn',m_other:'Other',noRole:'no role',ineff:'ineffective (no linked account)',
   inst_ios:'To install on iPhone: in Safari, Share → “Add to Home Screen”.',inst_and:'You can add this app to your phone’s home screen.',inst_ok:'App installed.',
-  ago_min:'{n} min ago',ago_h:'{n} h ago',ago_d:'{n} days ago',now:'just now',offline:'No connection. Data will load when you are back online.'
+  ago_min:'{n} min ago',ago_h:'{n} h ago',ago_d:'{n} days ago',now:'just now',offline:'No connection. Data will load when you are back online.',
+  eb_mfa:'TWO-STEP VERIFICATION',mfa_code:'6-digit code',mfa_verify:'Verify',mfa_manual:'If you cannot scan the QR code, enter this key in the app:',
+  mfa_h_enroll:'Link your phone',mfa_p_enroll:'Scan the QR code with an authenticator app (Google Authenticator, Microsoft Authenticator or similar) and enter the 6-digit code it shows. You only do this once.',
+  mfa_h_code:'Verification code',mfa_p_code:'Enter the 6-digit code from your authenticator app.',mfa_bad:'The code is wrong or has expired. Enter the new code from the app.',mfa_need:'Enter the 6-digit code.',
+  mfa_off:'Two-step verification is not enabled in this project; sign-in is protected by the password only. Enable TOTP in Supabase → Authentication → Multi-Factor.',
+  ev_signin:'Sign-in',ev_signout:'Sign-out',save:'Save',saved:'Saved.',cancel:'Cancel',note:'Note',status:'Status',
+  roles_h:'Roles',revoke:'Revoke',revoked:'Role revoked.',add_role:'Grant role',scope:'Area',role:'Role',granted:'Role granted.',
+  confirm_admin:'An ecosystem admin sees and changes everything. I am sure.',need_confirm:'Tick the confirmation box for ecosystem admin.',
+  no_person:'This account has no person record; a person record must be created in Core before granting roles.',dup_role:'This role already exists.',err_save:'Could not save: ',
+  self_admin:'You cannot revoke your own admin role here.'
 }};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
@@ -236,13 +254,13 @@ function paintI18n(){
   document.querySelectorAll('[data-ph]').forEach(function(e){e.setAttribute('placeholder',T(e.getAttribute('data-ph')));});
   $('langBtn').textContent=lang==='tr'?'EN':'TR';
 }
-var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[]}, reqFilter='new', deferredPrompt=null;
+var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null;
 function fmt(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleString(lang==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
 function ago(iso){ var d=(Date.now()-new Date(iso).getTime())/60000; if(!(d>=0)) return ''; if(d<1) return T('now'); if(d<60) return Tf('ago_min',{n:Math.floor(d)}); if(d<1440) return Tf('ago_h',{n:Math.floor(d/60)}); return Tf('ago_d',{n:Math.floor(d/1440)}); }
 function device(ua){ ua=ua||''; var os=/iPhone|iPad/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac OS X/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'?';
   var br=/Edg\//.test(ua)?'Edge':/OPR\//.test(ua)?'Opera':/CriOS|Chrome\//.test(ua)?'Chrome':/FxiOS|Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':''; return os+(br?' · '+br:''); }
 
-function show(id){ ['vLogin','vWait','tPano','tTalep','tKisi','tGiris'].forEach(function(x){ $(x).hidden=(x!==id); }); }
+function show(id){ ['vLogin','vMfa','vWait','tPano','tTalep','tKisi','tGiris'].forEach(function(x){ $(x).hidden=(x!==id); }); }
 function tab(id){ show(id); $('tabs').querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected',String(b.getAttribute('data-t')===id)); }); lsSet('cv-yon-tab',id); window.scrollTo(0,0); }
 $('tabs').addEventListener('click',function(e){ var b=e.target.closest('button[data-t]'); if(b) tab(b.getAttribute('data-t')); });
 $('langBtn').addEventListener('click',function(){ lang=lang==='tr'?'en':'tr'; lsSet('cv-lang',lang); paintI18n(); renderAll(); });
@@ -263,12 +281,46 @@ $('inBtn').addEventListener('click',async function(){
     if(r.error){ $('inMsg').textContent=T('wrong'); return; }
     if(window.cvSigninLog) await window.cvSigninLog('password');
     if(!(await isAdmin())){ await sb.auth.signOut(); $('inMsg').textContent=T('denied'); return; }
-    $('pass').value=''; me=r.data.user; await enter();
+    $('pass').value=''; me=r.data.user; await mfaThen();
   }catch(e){ $('inMsg').textContent=T('neterr'); }
   finally{ b.disabled=false; }
 });
 $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inBtn').click(); });
-$('outBtn').addEventListener('click',async function(){ try{ await sb.auth.signOut(); }catch(e){} me=null; D={req:[],prof:[],roles:[],sign:[]}; toLogin(''); });
+async function signOut(){
+  try{ if(me) await sb.from('conventity_signin_log').insert({auth_user_id:me.id,email:me.email||null,method:'other',event:'signout',user_agent:(navigator.userAgent||'').slice(0,300)}); }catch(e){} /* 18_signin_events.sql çalışmadıysa sessizce geçer */
+  try{ await sb.auth.signOut(); }catch(e){}
+  me=null; mfaOff=false; D={req:[],prof:[],roles:[],sign:[],people:[]}; toLogin('');
+}
+$('outBtn').addEventListener('click',signOut);
+$('mfaBack').addEventListener('click',signOut);
+
+/* İki adımlı doğrulama (TOTP). Doğrulanmış etken varsa kod sorulur; yoksa bir kez kurulur.
+   Projede MFA kapalıysa uygulama açılır ama panoda uyarı durur (kilitlenme olmasın). */
+var mfaOff=false, mfaFactor=null;
+async function mfaThen(){
+  try{
+    var a=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(a.data&&a.data.currentLevel==='aal2'){ await enter(); return; }
+    var f=await sb.auth.mfa.listFactors(); if(f.error) throw f.error;
+    var all=(f.data&&f.data.all)||[], ver=all.filter(function(x){ return x.factor_type==='totp'&&x.status==='verified'; });
+    $('mfaCode').value=''; $('mfaMsg').textContent='';
+    if(ver.length){ mfaFactor=ver[0].id; $('mfaEnroll').hidden=true; $('mfaH').textContent=T('mfa_h_code'); $('mfaP').textContent=T('mfa_p_code'); show('vMfa'); $('mfaCode').focus(); return; }
+    for(var i=0;i<all.length;i++){ if(all[i].status!=='verified'){ try{ await sb.auth.mfa.unenroll({factorId:all[i].id}); }catch(e){} } }
+    var en=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'Conventity Yönetim'});
+    if(en.error) throw en.error;
+    mfaFactor=en.data.id; $('mfaQr').src=en.data.totp.qr_code; $('mfaSecret').textContent=en.data.totp.secret;
+    $('mfaEnroll').hidden=false; $('mfaH').textContent=T('mfa_h_enroll'); $('mfaP').textContent=T('mfa_p_enroll'); show('vMfa');
+  }catch(e){ mfaOff=true; await enter(); }
+}
+$('mfaBtn').addEventListener('click',async function(){
+  var c=($('mfaCode').value||'').replace(/\D/g,''), b=this; $('mfaMsg').textContent='';
+  if(c.length!==6){ $('mfaMsg').textContent=T('mfa_need'); return; }
+  b.disabled=true;
+  try{ var r=await sb.auth.mfa.challengeAndVerify({factorId:mfaFactor,code:c}); if(r.error){ $('mfaMsg').textContent=T('mfa_bad'); return; } $('mfaCode').value=''; await enter(); }
+  catch(e){ $('mfaMsg').textContent=T('neterr'); }
+  finally{ b.disabled=false; }
+});
+$('mfaCode').addEventListener('keydown',function(e){ if(e.key==='Enter') $('mfaBtn').click(); });
 
 async function load(){
   var errs=[];
@@ -276,10 +328,13 @@ async function load(){
   var res=await Promise.all([
     q('conventity_access_requests',sb.from('conventity_access_requests').select('id,full_name,email,org_name,purpose,status,note,created_at,handled_at').order('created_at',{ascending:false}).limit(500)),
     q('profiles',sb.from('profiles').select('id,full_name,company,created_at').order('created_at',{ascending:false}).limit(1000)),
-    q('conventity_roles',sb.from('conventity_roles').select('auth_user_id,scope,role,status,title').limit(2000)),
-    q('conventity_signin_log',sb.from('conventity_signin_log').select('email,method,user_agent,at').order('at',{ascending:false}).limit(500))
+    q('conventity_roles',sb.from('conventity_roles').select('id,person_id,auth_user_id,scope,role,status,title').limit(2000)),
+    (async function(){ try{ var r=await sb.from('conventity_signin_log').select('email,method,user_agent,at,event').order('at',{ascending:false}).limit(500);
+        if(r.error){ r=await sb.from('conventity_signin_log').select('email,method,user_agent,at').order('at',{ascending:false}).limit(500); } /* 18 çalışmadıysa event yok */
+        if(r.error){ errs.push('conventity_signin_log'); return []; } return r.data||[]; }catch(e){ errs.push('conventity_signin_log'); return []; } })(),
+    q('conventity_people',sb.from('conventity_people').select('id,full_name,email,auth_user_id').limit(5000))
   ]);
-  D={req:res[0],prof:res[1],roles:res[2],sign:res[3]};
+  D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4]};
   $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):'');
   renderAll();
 }
@@ -288,14 +343,16 @@ function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); 
 function renderPano(){
   var nm=(me&&me.email)||''; var p=D.prof.filter(function(x){ return me&&x.id===me.id; })[0]; if(p&&p.full_name) nm=p.full_name;
   $('hello').textContent=T('hello')+(nm?', '+nm:'');
+  $('mfaWarn').hidden=!mfaOff; $('mfaWarn').textContent=T('mfa_off');
+  var SI=D.sign.filter(function(s){ return (s.event||'signin')==='signin'; });
   var nNew=D.req.filter(function(r){ return r.status==='new'; }).length;
   var adm=D.roles.filter(function(r){ return r.scope==='ecosystem'&&r.role==='admin'&&r.status==='active'; }).length;
-  var day=Date.now()-864e5, nDay=D.sign.filter(function(s){ return new Date(s.at).getTime()>day; }).length;
+  var day=Date.now()-864e5, nDay=SI.filter(function(s){ return new Date(s.at).getTime()>day; }).length;
   function k(l,v,s,c){ return '<div class="kpi '+(c||'')+'"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><i>'+esc(s)+'</i></div>'; }
   $('kpis').innerHTML=k(T('k_req'),nNew,T('k_req_s'),nNew?'warn':'ok')+k(T('k_users'),D.prof.length,T('k_users_s'))+k(T('k_admin'),adm,T('k_admin_s'))+k(T('k_sign'),nDay,T('k_sign_s'));
   $('reqDot').hidden=!nNew; $('reqDot').textContent=nNew;
   var days=[], i; for(i=6;i>=0;i--){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
-  var cnt=days.map(function(d){ var e=d.getTime()+864e5; return D.sign.filter(function(s){ var t=new Date(s.at).getTime(); return t>=d.getTime()&&t<e; }).length; }), mx=Math.max(1,Math.max.apply(null,cnt));
+  var cnt=days.map(function(d){ var e=d.getTime()+864e5; return SI.filter(function(s){ var t=new Date(s.at).getTime(); return t>=d.getTime()&&t<e; }).length; }), mx=Math.max(1,Math.max.apply(null,cnt));
   $('bars').innerHTML=days.map(function(d,j){ return '<div><em>'+cnt[j]+'</em><i style="height:'+Math.round(cnt[j]/mx*64)+'px"></i><span>'+d.toLocaleDateString(lang==='tr'?'tr-TR':'en-GB',{weekday:'short'})+'</span></div>'; }).join('');
 }
 var ST=['new','contacted','invited','declined','spam'];
@@ -303,26 +360,84 @@ function renderReq(){
   $('reqChips').innerHTML=['all'].concat(ST).map(function(s){ var n=s==='all'?D.req.length:D.req.filter(function(r){ return r.status===s; }).length;
     return '<button type="button" class="chip" data-s="'+s+'" aria-pressed="'+(reqFilter===s)+'">'+esc((s==='all'?T('all'):T('st_'+s))+' · '+n)+'</button>'; }).join('');
   var a=D.req.filter(function(r){ return reqFilter==='all'||r.status===reqFilter; });
-  $('reqList').innerHTML=a.length?a.map(function(r){ return '<div class="row"><div class="h"><b>'+esc(r.full_name)+'</b><span class="pill '+esc(r.status)+'">'+esc(T('st_'+r.status))+'</span></div>'+
-    '<div class="s">'+esc([r.email,r.org_name].filter(Boolean).join(' · '))+'</div>'+(r.purpose?'<div class="s">'+esc(r.purpose)+'</div>':'')+(r.note?'<div class="s">✎ '+esc(r.note)+'</div>':'')+
-    '<div class="t">'+esc(fmt(r.created_at))+' · '+esc(ago(r.created_at))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T('empty'))+'</div>';
+  $('reqList').innerHTML=a.length?a.map(function(r){ var op=openReq===r.id;
+    return '<div class="row tap" data-r="'+esc(r.id)+'"><div class="h"><b>'+esc(r.full_name)+'</b><span class="pill '+esc(r.status)+'">'+esc(T('st_'+r.status))+'</span></div>'+
+    '<div class="s">'+esc([r.email,r.org_name].filter(Boolean).join(' · '))+'</div>'+(r.purpose?'<div class="s">'+esc(r.purpose)+'</div>':'')+(r.note&&!op?'<div class="s">✎ '+esc(r.note)+'</div>':'')+
+    '<div class="t">'+esc(fmt(r.created_at))+' · '+esc(ago(r.created_at))+'</div>'+
+    (op?'<div class="ed"><div class="chips" data-st>'+ST.map(function(x){ return '<button type="button" class="chip" data-v="'+x+'" aria-pressed="'+(x===r.status)+'">'+esc(T('st_'+x))+'</button>'; }).join('')+'</div>'+
+      '<textarea maxlength="1000" data-note aria-label="'+esc(T('note'))+'" placeholder="'+esc(T('note'))+'">'+esc(r.note||'')+'</textarea>'+
+      '<div class="acts"><button type="button" class="btn sm" data-save>'+esc(T('save'))+'</button><button type="button" class="btn gh sm" data-cancel>'+esc(T('cancel'))+'</button><span class="note" data-m></span></div></div>':'')+'</div>'; }).join(''):'<div class="empty">'+esc(T('empty'))+'</div>';
 }
+$('reqList').addEventListener('click',async function(e){
+  var row=e.target.closest('.row[data-r]'); if(!row) return; var id=row.getAttribute('data-r');
+  if(e.target.closest('.ed')){
+    var c=e.target.closest('button[data-v]'); if(c){ row.querySelectorAll('[data-st] .chip').forEach(function(x){ x.setAttribute('aria-pressed',String(x===c)); }); return; }
+    if(e.target.closest('[data-cancel]')){ openReq=null; renderReq(); return; }
+    var sv=e.target.closest('[data-save]'); if(!sv) return;
+    var stb=row.querySelector('[data-st] .chip[aria-pressed="true"]'), st=stb?stb.getAttribute('data-v'):'new', nt=(row.querySelector('[data-note]').value||'').trim()||null;
+    sv.disabled=true;
+    try{ var u=await sb.from('conventity_access_requests').update({status:st,note:nt,handled_at:new Date().toISOString()}).eq('id',id);
+      if(u.error){ row.querySelector('[data-m]').textContent=T('err_save')+u.error.message; sv.disabled=false; return; }
+      D.req.forEach(function(r){ if(r.id===id){ r.status=st; r.note=nt; } }); openReq=null; renderReq(); renderPano();
+    }catch(err){ row.querySelector('[data-m]').textContent=T('neterr'); sv.disabled=false; }
+    return;
+  }
+  openReq=openReq===id?null:id; renderReq();
+});
 $('reqChips').addEventListener('click',function(e){ var b=e.target.closest('button[data-s]'); if(!b) return; reqFilter=b.getAttribute('data-s'); renderReq(); });
 function renderUsers(){
   var q=($('uq').value||'').toLocaleLowerCase(lang), by={};
   D.roles.forEach(function(r){ if(!r.auth_user_id) return; (by[r.auth_user_id]=by[r.auth_user_id]||[]).push(r); });
   var a=D.prof.filter(function(p){ return !q||[p.full_name,p.company].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0; });
   var orphan=D.roles.filter(function(r){ return !r.auth_user_id && r.status==='active'; }).length;
-  $('userList').innerHTML=a.length?a.map(function(p){ var rs=(by[p.id]||[]).filter(function(r){ return r.status==='active'; });
-    return '<div class="row"><div class="h"><b>'+esc(p.full_name||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+(p.company?'<div class="s">'+esc(p.company)+'</div>':'')+
-      '<div class="chips">'+(rs.length?rs.map(function(r){ return '<span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'; }).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div></div>'; }).join('')
+  $('userList').innerHTML=a.length?a.map(function(p){ var rs=(by[p.id]||[]).filter(function(r){ return r.status==='active'; }), op=openUser===p.id;
+    return '<div class="row tap" data-u="'+esc(p.id)+'"><div class="h"><b>'+esc(p.full_name||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+(p.company?'<div class="s">'+esc(p.company)+'</div>':'')+
+      '<div class="chips">'+(rs.length?rs.map(function(r){ return '<span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'; }).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div>'+
+      (op?roleEditor(p,rs):'')+'</div>'; }).join('')
     +(orphan?'<div class="row"><div class="s">'+esc(orphan+' · '+T('ineff'))+'</div></div>':''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
 }
 $('uq').addEventListener('input',renderUsers);
+var PSCOPES=(window.CV&&CV.platformScopes)||['ecosystem','convexus','conventus','conventlab','connectus','consultus','convergens'];
+var PROLES=['member','organizer','event_manager','vendor','admin','owner'];
+function roleEditor(p,rs){
+  var person=D.people.filter(function(x){ return x.auth_user_id===p.id; })[0];
+  return '<div class="ed"><div class="eb">'+esc(T('roles_h'))+'</div>'+
+    (rs.length?rs.map(function(r){ return '<div class="rl"><span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'+
+      ((r.scope==='community'||r.scope==='activity')?'':'<button type="button" class="btn dn sm" data-rv="'+esc(r.id)+'">'+esc(T('revoke'))+'</button>')+'</div>'; }).join(''):'')+
+    (person?'<div class="acts"><select data-sc aria-label="'+esc(T('scope'))+'">'+PSCOPES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select>'+
+      '<select data-ro aria-label="'+esc(T('role'))+'">'+PROLES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select></div>'+
+      '<label class="note" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" data-cf> <span>'+esc(T('confirm_admin'))+'</span></label>'+
+      '<div class="acts"><button type="button" class="btn sm" data-gr>'+esc(T('add_role'))+'</button><span class="note" data-m></span></div>'
+     :'<div class="note">'+esc(T('no_person'))+'</div><div class="acts"><span class="note" data-m></span></div>')+'</div>';
+}
+$('userList').addEventListener('click',async function(e){
+  var row=e.target.closest('.row[data-u]'); if(!row) return; var uid=row.getAttribute('data-u'), msg=row.querySelector('[data-m]');
+  if(e.target.closest('.ed')){
+    var rv=e.target.closest('[data-rv]'), gr=e.target.closest('[data-gr]');
+    if(rv){ var rid=rv.getAttribute('data-rv'), r0=D.roles.filter(function(x){ return x.id===rid; })[0];
+      if(r0&&me&&r0.auth_user_id===me.id&&r0.scope==='ecosystem'&&r0.role==='admin'){ msg.textContent=T('self_admin'); return; }
+      rv.disabled=true;
+      try{ var u=await sb.from('conventity_roles').update({status:'revoked'}).eq('id',rid); if(u.error){ msg.textContent=T('err_save')+u.error.message; rv.disabled=false; return; }
+        D.roles.forEach(function(x){ if(x.id===rid) x.status='revoked'; }); renderUsers(); renderPano(); }catch(err){ msg.textContent=T('neterr'); rv.disabled=false; }
+      return; }
+    if(gr){ var sc=row.querySelector('[data-sc]').value, ro=row.querySelector('[data-ro]').value, cf=row.querySelector('[data-cf]').checked;
+      var person=D.people.filter(function(x){ return x.auth_user_id===uid; })[0]; if(!person){ msg.textContent=T('no_person'); return; }
+      if(sc==='ecosystem'&&(ro==='admin'||ro==='owner')&&!cf){ msg.textContent=T('need_confirm'); return; }
+      if(D.roles.some(function(x){ return x.auth_user_id===uid&&x.scope===sc&&x.role===ro&&x.status==='active'; })){ msg.textContent=T('dup_role'); return; }
+      gr.disabled=true;
+      try{ var ins=await sb.from('conventity_roles').insert({person_id:person.id,auth_user_id:uid,scope:sc,role:ro,status:'active',granted_by:me?me.id:null}).select('id,person_id,auth_user_id,scope,role,status,title');
+        if(ins.error){ msg.textContent=T('err_save')+ins.error.message; gr.disabled=false; return; }
+        (ins.data||[]).forEach(function(x){ D.roles.push(x); }); renderUsers(); renderPano(); }catch(err){ msg.textContent=T('neterr'); gr.disabled=false; }
+      return; }
+    return;
+  }
+  openUser=openUser===uid?null:uid; renderUsers();
+});
 function renderSign(){
   var q=($('gq').value||'').toLowerCase(), a=D.sign.filter(function(s){ return !q||String(s.email||'').toLowerCase().indexOf(q)>=0; }).slice(0,300);
-  $('signList').innerHTML=a.length?a.map(function(s){ return '<div class="row"><div class="h"><b>'+esc(s.email||'—')+'</b><span class="t">'+esc(ago(s.at))+'</span></div>'+
-    '<div class="s">'+esc(fmt(s.at)+' · '+T('m_'+(s.method||'other'))+' · '+device(s.user_agent))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
+  $('signList').innerHTML=a.length?a.map(function(s){ var ev=s.event||'signin';
+    return '<div class="row"><div class="h"><b>'+esc(s.email||'—')+'</b><span class="pill '+ev+'">'+esc(T('ev_'+ev))+'</span></div>'+
+    '<div class="s">'+esc(fmt(s.at)+' · '+ago(s.at)+' · '+(ev==='signin'?T('m_'+(s.method||'other'))+' · ':'')+device(s.user_agent))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
 }
 $('gq').addEventListener('input',renderSign);
 
@@ -349,7 +464,7 @@ async function boot(){
     var s=await sb.auth.getSession(); var u=s&&s.data&&s.data.session&&s.data.session.user;
     if(!u){ toLogin(''); return; }
     if(!(await isAdmin())){ await sb.auth.signOut(); toLogin(T('denied')); return; }
-    me=u; await enter();
+    me=u; await mfaThen();
   }catch(e){ toLogin(T('neterr')); }
 }
 boot();
