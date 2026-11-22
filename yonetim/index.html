@@ -701,7 +701,7 @@ $('memList').addEventListener('click',async function(e){
       if(x.error) return {error:{message:T('mem_no22')}}; if(x.data&&x.data.ok===false) return {error:{message:x.data.reason||'?'}}; return {error:null}; })();
   else if(t.hasAttribute('data-save')) q=sb.from('conventity_org_members').update({note:note}).eq('id',id);
   else if(t.getAttribute('data-st')==='closed') q=sb.from('conventity_org_members').update({status:'closed',closed_at:new Date().toISOString(),note:note}).eq('id',id);
-  else if(t.getAttribute('data-st')==='reopen') q=sb.from('conventity_org_members').update({status:m.auth_user_id?'active':'invited',closed_at:null,note:note}).eq('id',id);
+  else if(t.getAttribute('data-st')==='reopen') q=sb.from('conventity_org_members').update(m.auth_user_id?{status:'active',closed_at:null,note:note}:{status:'invited',closed_at:null,note:note,created_at:new Date().toISOString()}).eq('id',id); /* yeniden açılan tanımın 30 günü baştan başlar */
   else return;
   t.disabled=true;
   try{ var r=await q; if(r.error){ if(msg) msg.textContent=T('err_save')+r.error.message; t.disabled=false; return; } openMem=null; delMem=null; await load(); }
