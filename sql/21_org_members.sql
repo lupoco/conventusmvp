@@ -204,24 +204,32 @@ begin
 end
 $fn$;
 
--- Hesabı da sil: yalnız kişinin .org üyeliği ve başka hiçbir Conventity kaydı yoksa.
+-- Hesabı da sil: YALNIZ bu sayfanın kodla oluşturduğu, başka hiçbir izi olmayan hesap.
 -- Üyelikten ayrılan ya da üyelik kapalıyken kod isteyip "açık değil" yanıtı alan kişinin adresi
--- ortak hesap tablosunda kalmasın diye. Başka bir tabloda kaydı varsa (ör. conventity.com) hesap kalır.
+-- ortak hesap tablosunda kalmasın diye. Şunlardan biri varsa hesap KALIR:
+--   * parola (conventity.com'a kayıt olmuş ya da onay bekliyor olabilir: 06_pending_members.sql),
+--   * e-posta dışında bir kimlik sağlayıcı (Google, LinkedIn),
+--   * .org üyeliği, rol, profil, hesaba ya da aynı e-postaya bağlı kişi kaydı,
+--   * başka bir tablonun bu hesaba bağı (silme reddedilir).
 create or replace function public.conventity_org_forget()
 returns jsonb language plpgsql security definer set search_path = public, auth as $fn$
-declare v_uid uuid := auth.uid();
+declare
+  v_uid   uuid := auth.uid();
+  v_email text;
 begin
   if v_uid is null then return jsonb_build_object('ok', false); end if;
-  if exists (select 1 from conventity_org_members m where m.auth_user_id = v_uid)
+  select lower(u.email::text) into v_email from auth.users u where u.id = v_uid;
+  if exists (select 1 from auth.users u where u.id = v_uid and coalesce(u.encrypted_password, '') <> '')
+     or exists (select 1 from auth.identities i where i.user_id = v_uid and i.provider <> 'email')
+     or exists (select 1 from conventity_org_members m where m.auth_user_id = v_uid)
      or exists (select 1 from conventity_roles r where r.auth_user_id = v_uid)
-     or exists (select 1 from conventity_people p where p.auth_user_id = v_uid)
+     or exists (select 1 from conventity_people p where p.auth_user_id = v_uid or (v_email is not null and lower(p.email) = v_email))
      or exists (select 1 from profiles p where p.id = v_uid) then
     return jsonb_build_object('ok', false, 'reason', 'in_use');
   end if;
   begin
     delete from auth.users where id = v_uid;
   exception when others then
-    -- Başka bir tablo bu hesaba bağlıysa silme reddedilir; hesap kalır.
     return jsonb_build_object('ok', false, 'reason', 'in_use');
   end;
   return jsonb_build_object('ok', true);
