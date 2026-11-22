@@ -156,7 +156,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <div class="tbtns">
     <button type="button" class="tbtn" id="langBtn">EN</button>
     <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
-    <span class="ver">v0.5</span>
+    <span class="ver">v0.6</span>
   </div>
 </header>
 
@@ -289,11 +289,11 @@ var I18N={tr:{
   u_mail:'E-posta',u_last:'Son giriş',u_since:'Hesap',u_hist:'Geçmiş',u_never:'kayıt yok',
   lm_sign:'Girişler',lm_audit:'İşlemler',lr_day:'Bugün',lr_week:'7 gün',lr_all:'Tümü',newdev:'yeni cihaz',search_log:'Ara',
   t_mem:'Üyeler',eb_mem:'ÜYELER · CONVENTITY.ORG',p_mem:'conventity.org üyeleri. Adres tanımlayın; kişi kendi e-postasına gelen kodla girer. Kabul edilmeyen tanım 30 gün sonra silinir.',
-  mem_add_h:'ADRES TANIMLA',mem_kind:'Tür',mem_note:'Not (isteğe bağlı)',mem_add:'Tanımla',mem_added:'Tanımlandı. Kişi giriş yaptığında üyeliği başlar.',
+  mem_add_h:'ADRES TANIMLA',mem_kind:'Tür',mem_note:'Not (isteğe bağlı)',mem_add:'Tanımla',mem_added:'Tanımlandı. Kişi giriş yaptığında üyeliği başlar.',mem_added_nofn:'Tanım yazıldı, ama hesap açılamadı: sunucu işlevi (org-invite) dağıtılmamış. Bu kişi şimdilik giriş yapamaz.',mem_fn_err:'Tanımlanamadı. Biraz sonra yeniden deneyin.',
   mem_rule:'Yalnız kişinin Conventity için verdiği ya da kendisinin herkese açık yayımladığı adresi yazın; görev sırasında edinilen adres girmez. Nota yalnız yönetim için gerekeni yazın.',
   mem_bad:'Geçerli bir e-posta adresi yazın.',mem_dup:'Bu adres zaten listede.',mem_bul:'bülten',
   mk_stakeholder:'Davetli üye',mk_firm:'Firma temsilcisi',mk_subscriber:'Bülten abonesi',ms_invited:'Bekliyor',ms_active:'Üye',ms_closed:'Kapatıldı',
-  mem_close:'Kapat',mem_reopen:'Yeniden aç',mem_del:'Sil',mem_del_q:'Kayıt tümüyle silinir; kişi yeniden tanımlanabilir. Emin misiniz?',mem_del_yes:'Evet, sil',
+  mem_close:'Kapat',mem_reopen:'Yeniden aç',mem_del:'Sil',mem_del_q:'Kayıt tümüyle silinir; yalnız bu iş için açılmış hesabı varsa o da silinir. Kişi yeniden tanımlanabilir. Emin misiniz?',mem_del_yes:'Evet, sil',
   mem_closed:'Üyelik kapalı: yalnız burada tanımladığınız adresler girebilir. Sitedeki giriş sayfası açılmadan onlar da giremez.',mem_open:'Üyelik açık: herkes kendi kaydolabilir.',
   mem_err:'Üye tablosu okunamadı. sql/21_org_members.sql çalıştırılmamış olabilir.',
   audit_none:'Yönetici işlemi kaydı yok.',audit_err:'İşlem kayıtları okunamadı.',users_err:'Hesap listesi okunamadı; yalnız profili olan hesaplar görünüyor (sql/20_admin_users.sql).'
@@ -329,11 +329,11 @@ var I18N={tr:{
   u_mail:'Email',u_last:'Last sign-in',u_since:'Account',u_hist:'History',u_never:'no record',
   lm_sign:'Sign-ins',lm_audit:'Actions',lr_day:'Today',lr_week:'7 days',lr_all:'All',newdev:'new device',search_log:'Search',
   t_mem:'Members',eb_mem:'MEMBERS · CONVENTITY.ORG',p_mem:'conventity.org members. Define an address; the person signs in with the code sent to their own email. A definition that is not accepted is deleted after 30 days.',
-  mem_add_h:'DEFINE AN ADDRESS',mem_kind:'Type',mem_note:'Note (optional)',mem_add:'Define',mem_added:'Defined. Membership starts when the person signs in.',
+  mem_add_h:'DEFINE AN ADDRESS',mem_kind:'Type',mem_note:'Note (optional)',mem_add:'Define',mem_added:'Defined. Membership starts when the person signs in.',mem_added_nofn:'The definition was saved, but no account could be opened: the server function (org-invite) is not deployed. This person cannot sign in for now.',mem_fn_err:'Could not define the address. Try again shortly.',
   mem_rule:'Enter only an address the person gave for Conventity or published themselves; addresses obtained on duty are not entered. In the note, write only what management needs.',
   mem_bad:'Enter a valid email address.',mem_dup:'This address is already listed.',mem_bul:'bulletin',
   mk_stakeholder:'Invited member',mk_firm:'Company representative',mk_subscriber:'Bulletin subscriber',ms_invited:'Pending',ms_active:'Member',ms_closed:'Closed',
-  mem_close:'Close',mem_reopen:'Reopen',mem_del:'Delete',mem_del_q:'The record is deleted entirely; the person can be defined again. Are you sure?',mem_del_yes:'Yes, delete',
+  mem_close:'Close',mem_reopen:'Reopen',mem_del:'Delete',mem_del_q:'The record is deleted entirely, together with the account if it was opened only for this. The person can be defined again. Are you sure?',mem_del_yes:'Yes, delete',
   mem_closed:'Membership is closed: only addresses you define here can enter. They cannot enter either until the sign-in page on the site is opened.',mem_open:'Membership is open: anyone can register.',
   mem_err:'Could not read the member table. sql/21_org_members.sql may not have been run.',
   audit_none:'No admin actions recorded.',audit_err:'Could not read the action log.',users_err:'Could not read the account list; only accounts with a profile are shown (sql/20_admin_users.sql).'
@@ -677,9 +677,19 @@ $('mAdd').addEventListener('click',async function(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)||em.length>254){ msg.textContent=T('mem_bad'); return; }
   if(D.mem.some(function(m){ return m.email===em; })){ msg.textContent=T('mem_dup'); return; }
   b.disabled=true;
-  try{ var r=await sb.from('conventity_org_members').insert({email:em,kind:kind,status:'invited',note:note,invited_by:me?me.id:null});
+  /* Tanımlama sunucu işlevinden geçer (org-invite): hesabı da o açar. conventity.org üyelik sayfası yeni hesap açmadığı için
+     işlev olmadan tanımlanan kişi giriş yapamaz; bu durumda satır yine yazılır ama ekranda açıkça söylenir. */
+  try{ var ses=await sb.auth.getSession(), tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token, res=null, body=null;
+    try{ res=await fetch(window.__CV_SUPABASE_URL+'/functions/v1/org-invite',{method:'POST',headers:{'Authorization':'Bearer '+tok,'apikey':window.__CV_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:em,kind:kind,note:note})});
+      body=await res.json().catch(function(){ return null; }); }catch(e){ res=null; }
+    if(res&&res.ok&&body&&body.ok){ $('mEmail').value=''; $('mNote').value=''; await load(); $('mMsg').textContent=T('mem_added'); return; }
+    if(res&&res.status===409){ msg.textContent=T('mem_dup'); return; }
+    if(res&&(res.status===401||res.status===403)){ msg.textContent=T('denied'); return; }
+    if(res&&res.status===400){ msg.textContent=T(body&&body.error==='bad_email'?'mem_bad':'mem_fn_err'); return; }
+    if(res&&res.status!==404){ msg.textContent=T('mem_fn_err'); return; }
+    var r=await sb.from('conventity_org_members').insert({email:em,kind:kind,status:'invited',note:note,invited_by:me?me.id:null});
     if(r.error){ msg.textContent=T('err_save')+r.error.message; return; }
-    $('mEmail').value=''; $('mNote').value=''; msg.textContent=T('mem_added'); await load();
+    $('mEmail').value=''; $('mNote').value=''; await load(); $('mMsg').textContent=T('mem_added_nofn');
   }catch(e){ msg.textContent=T('neterr'); } finally{ b.disabled=false; }
 });
 $('memList').addEventListener('click',async function(e){
@@ -689,7 +699,8 @@ $('memList').addEventListener('click',async function(e){
   if(t.hasAttribute('data-del')){ delMem=id; renderMem(); return; }
   if(t.hasAttribute('data-delno')){ delMem=null; renderMem(); return; }
   var q, note=(row.querySelector('[data-note]').value||'').trim()||null;
-  if(t.hasAttribute('data-delyes')) q=sb.from('conventity_org_members').delete().eq('id',id);
+  if(t.hasAttribute('data-delyes')) q=(async function(){ var x=await sb.rpc('conventity_org_admin_remove',{p_id:id}); /* sql/22 yoksa yalnız satır silinir */
+      if(x.error) return await sb.from('conventity_org_members').delete().eq('id',id); if(x.data&&x.data.ok===false) return {error:{message:x.data.reason||'?'}}; return {error:null}; })();
   else if(t.hasAttribute('data-save')) q=sb.from('conventity_org_members').update({note:note}).eq('id',id);
   else if(t.getAttribute('data-st')==='closed') q=sb.from('conventity_org_members').update({status:'closed',closed_at:new Date().toISOString(),note:note}).eq('id',id);
   else if(t.getAttribute('data-st')==='reopen') q=sb.from('conventity_org_members').update({status:m.auth_user_id?'active':'invited',closed_at:null,note:note}).eq('id',id);
