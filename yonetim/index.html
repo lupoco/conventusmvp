@@ -91,6 +91,22 @@ nav.tabs button{border:0;background:transparent;color:var(--muted);display:flex;
 nav.tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--panel2)}
 nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;font:700 10px/17px var(--m)}
+.qr{display:flex;justify-content:center;padding:10px;background:#fff;border-radius:12px}
+.qr img{width:200px;height:200px}
+.secret{font:600 14px var(--m);letter-spacing:.08em;word-break:break-all;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;background:var(--panel2);user-select:all}
+.code{font:700 26px var(--m)!important;letter-spacing:.4em;text-align:center}
+.warnbar{border:1px solid var(--warn);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:13px}
+.row.tap{cursor:pointer}
+.ed{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding-top:10px;border-top:1px dashed var(--line)}
+.ed textarea{width:100%;min-height:64px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;resize:vertical}
+.ed select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;min-width:0;flex:1 1 140px}
+.ed .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn.sm{padding:8px 14px;font-size:13px}
+.btn.gh{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.dn{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.rl{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ok{color:var(--ok)}
+.pill.signout{color:var(--faint)} .pill.signin{color:var(--ok)}
 .install{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 </style>
 </head>
@@ -103,7 +119,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <div class="tbtns">
     <button type="button" class="tbtn" id="langBtn">EN</button>
     <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
-    <span class="ver">v0.1</span>
+    <span class="ver">v0.2</span>
   </div>
 </header>
 
@@ -120,11 +136,27 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
     </div>
   </section>
 
+  <section id="vMfa" class="login" hidden>
+    <div><div class="eb" data-i="eb_mfa">İKİ ADIMLI DOĞRULAMA</div><h1 id="mfaH"></h1><p class="lead" id="mfaP"></p></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div id="mfaEnroll" hidden style="display:flex;flex-direction:column;gap:10px">
+        <div class="qr"><img id="mfaQr" alt=""></div>
+        <span class="note" data-i="mfa_manual">QR okutamıyorsanız bu anahtarı uygulamaya elle girin:</span>
+        <div class="secret" id="mfaSecret"></div>
+      </div>
+      <label class="fld"><span data-i="mfa_code">6 haneli kod</span><input id="mfaCode" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"></label>
+      <button type="button" class="btn" id="mfaBtn" data-i="mfa_verify">Doğrula</button>
+      <p class="msg" id="mfaMsg" role="alert"></p>
+      <button type="button" class="btn gh sm" id="mfaBack" data-i="out">Çıkış</button>
+    </div>
+  </section>
+
   <section id="vWait" class="card"><span data-i="loading">Yükleniyor…</span></section>
 
   <!-- Pano -->
   <section id="tPano" hidden>
     <div><div class="eb" data-i="eb_pano">GENEL BAKIŞ</div><h1 id="hello"></h1></div>
+    <div class="warnbar" id="mfaWarn" hidden></div>
     <div class="kpis" id="kpis"></div>
     <div class="card"><div class="eb" data-i="eb_week">SON 7 GÜN · GİRİŞLER</div><div class="bars" id="bars"></div></div>
     <div class="card install" id="instCard" hidden><span class="note" id="instTxt"></span><button type="button" class="btn" id="instBtn" data-i="install">Telefona kur</button></div>
