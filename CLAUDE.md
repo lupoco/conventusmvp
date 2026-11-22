@@ -51,6 +51,8 @@ Prensipler: **omurga önce · discovery before DDL · correctness over speed · 
   convexus-selection-setup.html   convexus-selection-apply.html   sel-event-setup.html
   shared.css   favicon.svg   README.md   BOOTSTRAP.md
   admin/       dashboard/     assets/
+  yonetim/                     telefona kurulabilen yönetici uygulaması (PWA): pano, talepler, kişiler ve roller, kayıtlar;
+                               iki adımlı doğrulama. Yalnız `conventity_is_admin('ecosystem')`. Service worker yalnız kabuğu saklar.
   assets/js/cv-config.js       ortam yapılandırması — TEK KAYNAK (URL + anon key)
   platforms/
     conventus/   index overview event-studio new-event my-events my-event applications
