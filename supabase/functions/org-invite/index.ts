@@ -19,7 +19,9 @@
 //      kişi yine de yalnız kendi posta kutusuna gelen kodla girebilir).
 //      Hesap varsa dokunmaz.
 //   2) conventity_org_members içinde satır yoksa 'invited' olarak ekler.
-// Kişiye E-POSTA GÖNDERMEZ. Yanıtta e-posta dışında kişisel veri dönmez.
+// Kişiye E-POSTA GÖNDERMEZ: kişiye haber vermek tanımlayanın işidir (yalnız kişinin bu iş için
+// verdiği adres tanımlanır). Yanıtta kişisel veri dönmez. Kabul edilmeyen tanım ve hesabı 30 günde
+// sunucuda silinir (sql/22 → conventity_org_purge).
 //
 // DEPLOY: supabase functions deploy org-invite   (verify_jwt açık kalır)
 // ============================================================
@@ -82,14 +84,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // 4) Hesap: yoksa aç. "Zaten kayıtlı" hata değildir.
     let created = false
-    const { error: cErr } = await admin.auth.admin.createUser({ email, email_confirm: true })
-    if (!cErr) created = true
+    let createdId: string | null = null
+    const { data: cData, error: cErr } = await admin.auth.admin.createUser({ email, email_confirm: true })
+    if (!cErr) { created = true; createdId = cData?.user?.id ?? null }
     else if (!/already|registered|exists/i.test(cErr.message || '')) return json(400, { error: 'account_failed' })
 
     // 5) Üyelik satırı
     const { error: iErr } = await admin.from('conventity_org_members')
       .insert({ email, kind, status: 'invited', note, invited_by: uData.user.id })
-    if (iErr) return json(400, { error: 'insert_failed' })
+    if (iErr) {
+      // Satır yazılamadıysa az önce açılan hesap öksüz kalmasın.
+      if (created && createdId) { try { await admin.auth.admin.deleteUser(createdId) } catch (_) { /* yoksay */ } }
+      return json(400, { error: 'insert_failed' })
+    }
 
     return json(200, { ok: true, account_created: created })
   } catch (_) {
