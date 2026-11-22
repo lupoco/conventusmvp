@@ -18,20 +18,21 @@
 <script src="/assets/cv-core.js"></script>
 <style>
 /* Conventity Yönetim: telefona kurulabilen yönetici uygulaması (PWA).
-   Veri Core ile aynı tablolardan gelir; görünürlüğü RLS belirler (yalnız ekosistem yöneticisi). Bu sürüm yalnız okur. */
+   Veri Core ile aynı tablolardan gelir; görünürlüğü RLS belirler (yalnız ekosistem yöneticisi). Talep ve rol işlemleri de buradan yapılır; her işlem conventity_audit tablosuna tetikleyiciyle yazılır. */
 :root{
   --bg:#F5F2EC;--panel:#FFFFFF;--panel2:#FBF9F5;--line:#E4DED3;--ink:#0E2148;--muted:#5C6680;--faint:#8A93A8;
   --navy:#0E2148;--blue:#06488A;--gold:#E2B65E;--gold-t:#9A6B12;--ok:#1F9E50;--warn:#B8791F;--bad:#B3261E;--chip:#0E2148;--chipInk:#FFFFFF;
+  --c-ecosystem:#9A6B12;--c-convexus:#5B5BD6;--c-conventus:#06488A;--c-consultus:#0E8894;--c-connectus:#17803F;--c-convergens:#8B47CE;--c-conventlab:#B85C3E;--c-other:#5C6680;
   --f:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--m:'JetBrains Mono',ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#070D1C;--panel:#0E1730;--panel2:#111C38;--line:#1F2C4D;--ink:#EAF0FF;--muted:#9BA9C8;--faint:#6F7E9F;
-  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;color-scheme:dark}}
+  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;--c-ecosystem:#E2B65E;--c-convexus:#9A9AF5;--c-conventus:#6FA8E8;--c-consultus:#3FD0DC;--c-connectus:#4ADE80;--c-convergens:#BE8CF0;--c-conventlab:#EE9A7C;--c-other:#9BA9C8;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#070D1C;--panel:#0E1730;--panel2:#111C38;--line:#1F2C4D;--ink:#EAF0FF;--muted:#9BA9C8;--faint:#6F7E9F;
-  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;color-scheme:dark}
+  --gold-t:#E2B65E;--ok:#4ADE80;--warn:#F6C15B;--bad:#FF8E8E;--chip:#EAF0FF;--chipInk:#0E2148;--c-ecosystem:#E2B65E;--c-convexus:#9A9AF5;--c-conventus:#6FA8E8;--c-consultus:#3FD0DC;--c-connectus:#4ADE80;--c-convergens:#BE8CF0;--c-conventlab:#EE9A7C;--c-other:#9BA9C8;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased;min-height:100vh;overscroll-behavior-y:contain;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
 [hidden]{display:none!important}
 button,input{font:inherit}
 .top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -83,7 +84,7 @@ main>section.login{gap:12px}
 .chip[aria-pressed="true"]{background:var(--chip);color:var(--chipInk);border-color:var(--chip)}
 .bars{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:6px}
 .bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
-.bars i{display:block;width:100%;max-width:34px;background:var(--blue);border-radius:6px 6px 2px 2px;min-height:2px}
+.bars i{display:block;width:100%;max-width:34px;background:var(--c-conventus);border-radius:6px 6px 2px 2px;min-height:2px}
 .bars span{font:500 10px var(--m);color:var(--faint)}
 .bars em{font-style:normal;font:600 10.5px var(--m);color:var(--muted)}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
@@ -107,6 +108,39 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 .rl{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .ok{color:var(--ok)}
 .pill.signout{color:var(--faint)} .pill.signin{color:var(--ok)}
+.kpi.tap{cursor:pointer;text-align:left;font:inherit;color:inherit;transition:transform .12s ease,border-color .12s ease}
+.kpi.tap:active{transform:scale(.97)} .kpi.tap:hover{border-color:var(--gold)}
+.kpi u{text-decoration:none;font:600 11px var(--m);color:var(--muted)} .kpi u.up{color:var(--ok)} .kpi u.dn{color:var(--warn)}
+.sp{display:inline-flex;align-items:center;gap:6px;font:600 10.5px var(--m);letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 8px;white-space:nowrap;color:var(--sc,var(--c-other))}
+.sp::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.sc-ecosystem{--sc:var(--c-ecosystem)} .sc-convexus{--sc:var(--c-convexus)} .sc-conventus{--sc:var(--c-conventus)} .sc-consultus{--sc:var(--c-consultus)} .sc-connectus{--sc:var(--c-connectus)} .sc-convergens{--sc:var(--c-convergens)} .sc-conventlab{--sc:var(--c-conventlab)}
+.fresh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.fresh .live{display:inline-flex;align-items:center;gap:7px;font:500 11.5px var(--m);color:var(--muted)}
+.fresh .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.kpi,.fd,.td{animation:rise .28s ease both}
+@media (prefers-reduced-motion:reduce){.kpi,.fd,.td,.fresh .live::before,.ptr.on i{animation:none}}
+.cardh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.cnt{font:700 11px var(--m);background:var(--warn);color:#fff;border-radius:999px;padding:1px 8px}
+.td{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border:0;border-top:1px solid var(--line);background:transparent;color:inherit;font:inherit;text-align:left;width:100%;cursor:pointer;min-width:0}
+.td:first-of-type{border-top:0}
+.td span{min-width:0;display:flex;flex-direction:column;gap:1px} .td b{font-weight:700;overflow-wrap:anywhere} .td small{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.td em{font-style:normal;font:600 12px var(--m);color:var(--gold-t);white-space:nowrap}
+.alldone{color:var(--ok);font-weight:600;font-size:14px}
+.fd{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);min-width:0}
+.fd:first-of-type{border-top:0}
+.fd i{flex:none;width:9px;height:9px;border-radius:50%;margin-top:6px;background:var(--fc,var(--faint))}
+.fd.in{--fc:var(--ok)} .fd.rq{--fc:var(--warn)} .fd.rl{--fc:var(--c-convergens)} .fd.out{--fc:var(--faint)}
+.fd p{margin:0;flex:1;min-width:0;font-size:13.5px;overflow-wrap:anywhere} .fd time{flex:none;font:500 11px var(--m);color:var(--faint);white-space:nowrap;margin-top:3px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:13px;margin:0}
+.kv dt{font:600 10.5px var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding-top:2px} .kv dd{margin:0;overflow-wrap:anywhere}
+.hist{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.pill.newdev{color:var(--warn)}
+.ptr{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));left:50%;z-index:25;width:36px;height:36px;margin-left:-18px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+.ptr i{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold);border-top-color:transparent}
+.ptr.on{opacity:1} .ptr.on i{animation:spin .7s linear infinite}
 .install{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 </style>
 </head>
@@ -119,10 +153,11 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <div class="tbtns">
     <button type="button" class="tbtn" id="langBtn">EN</button>
     <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
-    <span class="ver">v0.2</span>
+    <span class="ver">v0.3</span>
   </div>
 </header>
 
+<div class="ptr" id="ptr" aria-hidden="true"><i></i></div>
 <main>
   <!-- Giriş -->
   <section id="vLogin" class="login" hidden>
@@ -157,7 +192,10 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <section id="tPano" hidden>
     <div><div class="eb" data-i="eb_pano">GENEL BAKIŞ</div><h1 id="hello"></h1></div>
     <div class="warnbar" id="mfaWarn" hidden></div>
+    <div class="fresh"><span class="live" id="fresh"></span><button type="button" class="btn gh sm" id="refBtn" data-i="refresh">Yenile</button></div>
+    <div class="card" id="todo"></div>
     <div class="kpis" id="kpis"></div>
+    <div class="card"><div class="eb" data-i="eb_feed">SON OLANLAR</div><div id="feed"></div></div>
     <div class="card"><div class="eb" data-i="eb_week">SON 7 GÜN · GİRİŞLER</div><div class="bars" id="bars"></div></div>
     <div class="card install" id="instCard" hidden><span class="note" id="instTxt"></span><button type="button" class="btn" id="instBtn" data-i="install">Telefona kur</button></div>
     <p class="note" id="err" role="status"></p>
@@ -179,8 +217,10 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 
   <!-- Girişler -->
   <section id="tGiris" hidden>
-    <div><div class="eb" data-i="eb_sign">GİRİŞ KAYITLARI</div><p class="lead" data-i="p_sign">Her giriş ve çıkış; kayıtlar silinemez ve değiştirilemez.</p></div>
-    <div class="tools"><input id="gq" type="search" autocomplete="off" data-ph="search_mail"></div>
+    <div><div class="eb" data-i="eb_sign">KAYITLAR</div><p class="lead" data-i="p_sign">Girişler, çıkışlar ve yönetici işlemleri; kayıtlar silinemez ve değiştirilemez.</p></div>
+    <div class="chips" id="logMode"></div>
+    <div class="chips" id="logRange"></div>
+    <div class="tools"><input id="gq" type="search" autocomplete="off" data-ph="search_log"></div>
     <div class="list" id="signList"></div>
   </section>
 </main>
@@ -189,7 +229,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <button type="button" data-t="tPano" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span data-i="t_pano">Pano</span></button>
   <button type="button" data-t="tTalep" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg><span data-i="t_req">Talepler</span><i class="dot" id="reqDot" hidden></i></button>
   <button type="button" data-t="tKisi" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 6 4.5"/></svg><span data-i="t_users">Kişiler</span></button>
-  <button type="button" data-t="tGiris" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M3 12h11"/><path d="M10 8l4 4-4 4"/></svg><span data-i="t_sign">Girişler</span></button>
+  <button type="button" data-t="tGiris" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M3 12h11"/><path d="M10 8l4 4-4 4"/></svg><span data-i="t_sign">Kayıtlar</span></button>
 </nav>
 
 <script src="/assets/signin-log.js" defer></script>
@@ -200,8 +240,8 @@ var I18N={tr:{
   sub:'YÖNETİM',out:'Çıkış',eb_login:'YÖNETİCİ GİRİŞİ',h_login:'Conventity Yönetim',p_login:'Kişisel hesabınızla girin. Uygulama yalnız ekosistem yöneticilerine açılır.',
   email:'E-posta',pass:'Parola',in:'Giriş',n_login:'Her giriş kayda geçer: kim, ne zaman, hangi cihazdan.',loading:'Yükleniyor…',
   eb_pano:'GENEL BAKIŞ',eb_week:'SON 7 GÜN · GİRİŞLER',install:'Telefona kur',eb_req:'ERİŞİM TALEPLERİ',p_req:'“Yakında” sayfasından gelen talepler. Bir talebe dokunun: durumunu değiştirin, not düşün.',
-  eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Bir kişiye dokunun: rol verin ya da geri alın.',eb_sign:'GİRİŞ KAYITLARI',p_sign:'Her giriş ve çıkış; kayıtlar silinemez ve değiştirilemez.',
-  search:'Ad ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Girişler',
+  eb_users:'KULLANICILAR VE ROLLER',p_users:'Hesabı olan herkes ve rolleri. Bir kişiye dokunun: rol verin ya da geri alın.',eb_sign:'KAYITLAR',p_sign:'Girişler, çıkışlar ve yönetici işlemleri; kayıtlar silinemez ve değiştirilemez.',
+  search:'Ad ya da kurum ara',search_mail:'E-posta ara',t_pano:'Pano',t_req:'Talepler',t_users:'Kişiler',t_sign:'Kayıtlar',
   hello:'Merhaba',k_req:'Yeni talep',k_req_s:'yanıt bekliyor',k_users:'Kullanıcı',k_users_s:'hesabı olan',k_admin:'Yönetici',k_admin_s:'etkin ekosistem rolü',k_sign:'Bugünkü giriş',k_sign_s:'son 24 saat',
   required:'E-posta ve parolayı yazın.',wrong:'E-posta ya da parola yanlış.',denied:'Bu hesabın yönetici yetkisi yok.',neterr:'Bağlantı sorunu. Yeniden deneyin.',
   loaderr:'Bazı veriler yüklenemedi: ',empty:'Kayıt yok.',none_match:'Bu aramaya uyan kayıt yok.',all:'Tümü',
@@ -217,13 +257,23 @@ var I18N={tr:{
   roles_h:'Roller',revoke:'Geri al',revoked:'Rol geri alındı.',add_role:'Rol ver',scope:'Alan',role:'Rol',granted:'Rol verildi.',
   confirm_admin:'Ekosistem yöneticisi her şeyi görür ve değiştirir. Eminim.',need_confirm:'Ekosistem yöneticiliği için onay kutusunu işaretleyin.',
   no_person:'Bu hesabın kişi kaydı yok; rol vermek için Core’da kişi kaydı açılmalı.',dup_role:'Bu rol zaten var.',err_save:'Kaydedilemedi: ',
-  self_admin:'Kendi yöneticiliğinizi buradan geri alamazsınız.'
+  self_admin:'Kendi yöneticiliğinizi buradan geri alamazsınız.',
+  refresh:'Yenile',fresh:'Güncellendi: {t}',eb_feed:'SON OLANLAR',eb_todo:'SİZİ BEKLEYENLER',todo_none:'Bekleyen iş yok.',
+  td_req:'Yeni talep',td_norole:'Rolü yok',td_noperson:'Kişi kaydı yok',td_open:'Aç',td_more:'{n} tane daha',
+  tr_week:'bu hafta +{n}',tr_up:'düne göre +{n}',tr_dn:'düne göre −{n}',tr_same:'dünle aynı',
+  f_signin:'{who} giriş yaptı',f_signout:'{who} çıkış yaptı',f_req:'Yeni talep: {who}',
+  f_grant:'{actor} rol verdi: {role} → {who}',f_revoke:'{actor} rolü geri aldı: {role} → {who}',f_role:'{actor} rolü değiştirdi: {role} → {who}',
+  f_reqst:'{actor} talebi güncelledi: {who} → {st}',f_reqnote:'{actor} talebe not düştü: {who}',f_reqdel:'{actor} talebi sildi: {who}',f_other:'{actor} · {tbl} · {act}',
+  someone:'Biri',system:'Sistem',feed_none:'Henüz kayıt yok.',
+  u_mail:'E-posta',u_last:'Son giriş',u_since:'Hesap',u_hist:'Geçmiş',u_never:'kayıt yok',
+  lm_sign:'Girişler',lm_audit:'İşlemler',lr_day:'Bugün',lr_week:'7 gün',lr_all:'Tümü',newdev:'yeni cihaz',search_log:'Ara',
+  audit_none:'Yönetici işlemi kaydı yok.',audit_err:'İşlem kayıtları okunamadı.'
 },en:{
   sub:'ADMIN',out:'Sign out',eb_login:'ADMIN SIGN-IN',h_login:'Conventity Admin',p_login:'Sign in with your personal account. The app opens only for ecosystem admins.',
   email:'Email',pass:'Password',in:'Sign in',n_login:'Every sign-in is recorded: who, when and from which device.',loading:'Loading…',
   eb_pano:'OVERVIEW',eb_week:'LAST 7 DAYS · SIGN-INS',install:'Install on phone',eb_req:'ACCESS REQUESTS',p_req:'Requests from the “coming soon” page. Tap a request to change its status or add a note.',
-  eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Tap a person to grant or revoke a role.',eb_sign:'SIGN-IN LOG',p_sign:'Every sign-in and sign-out; entries cannot be deleted or changed.',
-  search:'Search name or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Sign-ins',
+  eb_users:'USERS AND ROLES',p_users:'Everyone with an account and their roles. Tap a person to grant or revoke a role.',eb_sign:'RECORDS',p_sign:'Sign-ins, sign-outs and admin actions; entries cannot be deleted or changed.',
+  search:'Search name or organisation',search_mail:'Search email',t_pano:'Overview',t_req:'Requests',t_users:'People',t_sign:'Records',
   hello:'Hello',k_req:'New requests',k_req_s:'awaiting reply',k_users:'Users',k_users_s:'with an account',k_admin:'Admins',k_admin_s:'active ecosystem role',k_sign:'Sign-ins today',k_sign_s:'last 24 hours',
   required:'Enter email and password.',wrong:'Wrong email or password.',denied:'This account has no admin rights.',neterr:'Connection problem. Try again.',
   loaderr:'Some data could not be loaded: ',empty:'No entries.',none_match:'No entries match this search.',all:'All',
@@ -239,7 +289,17 @@ var I18N={tr:{
   roles_h:'Roles',revoke:'Revoke',revoked:'Role revoked.',add_role:'Grant role',scope:'Area',role:'Role',granted:'Role granted.',
   confirm_admin:'An ecosystem admin sees and changes everything. I am sure.',need_confirm:'Tick the confirmation box for ecosystem admin.',
   no_person:'This account has no person record; a person record must be created in Core before granting roles.',dup_role:'This role already exists.',err_save:'Could not save: ',
-  self_admin:'You cannot revoke your own admin role here.'
+  self_admin:'You cannot revoke your own admin role here.',
+  refresh:'Refresh',fresh:'Updated: {t}',eb_feed:'LATEST',eb_todo:'WAITING FOR YOU',todo_none:'Nothing is waiting.',
+  td_req:'New request',td_norole:'No role',td_noperson:'No person record',td_open:'Open',td_more:'{n} more',
+  tr_week:'+{n} this week',tr_up:'+{n} vs yesterday',tr_dn:'−{n} vs yesterday',tr_same:'same as yesterday',
+  f_signin:'{who} signed in',f_signout:'{who} signed out',f_req:'New request: {who}',
+  f_grant:'{actor} granted a role: {role} → {who}',f_revoke:'{actor} revoked a role: {role} → {who}',f_role:'{actor} changed a role: {role} → {who}',
+  f_reqst:'{actor} updated a request: {who} → {st}',f_reqnote:'{actor} added a note to a request: {who}',f_reqdel:'{actor} deleted a request: {who}',f_other:'{actor} · {tbl} · {act}',
+  someone:'Someone',system:'System',feed_none:'No entries yet.',
+  u_mail:'Email',u_last:'Last sign-in',u_since:'Account',u_hist:'History',u_never:'no record',
+  lm_sign:'Sign-ins',lm_audit:'Actions',lr_day:'Today',lr_week:'7 days',lr_all:'All',newdev:'new device',search_log:'Search',
+  audit_none:'No admin actions recorded.',audit_err:'Could not read the action log.'
 }};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
@@ -254,7 +314,7 @@ function paintI18n(){
   document.querySelectorAll('[data-ph]').forEach(function(e){e.setAttribute('placeholder',T(e.getAttribute('data-ph')));});
   $('langBtn').textContent=lang==='tr'?'EN':'TR';
 }
-var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null;
+var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null, logMode='sign', logRange='week', lastLoad=0, auditErr=false;
 function fmt(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleString(lang==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
 function ago(iso){ var d=(Date.now()-new Date(iso).getTime())/60000; if(!(d>=0)) return ''; if(d<1) return T('now'); if(d<60) return Tf('ago_min',{n:Math.floor(d)}); if(d<1440) return Tf('ago_h',{n:Math.floor(d/60)}); return Tf('ago_d',{n:Math.floor(d/1440)}); }
 function device(ua){ ua=ua||''; var os=/iPhone|iPad/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac OS X/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'?';
@@ -289,7 +349,7 @@ $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inBtn')
 async function signOut(){
   try{ if(me) await sb.from('conventity_signin_log').insert({auth_user_id:me.id,email:me.email||null,method:'other',event:'signout',user_agent:(navigator.userAgent||'').slice(0,300)}); }catch(e){} /* 18_signin_events.sql çalışmadıysa sessizce geçer */
   try{ await sb.auth.signOut(); }catch(e){}
-  me=null; mfaOff=false; D={req:[],prof:[],roles:[],sign:[],people:[]}; toLogin('');
+  me=null; mfaOff=false; D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}; toLogin('');
 }
 $('outBtn').addEventListener('click',signOut);
 $('mfaBack').addEventListener('click',signOut);
@@ -329,32 +389,99 @@ async function load(){
     q('conventity_access_requests',sb.from('conventity_access_requests').select('id,full_name,email,org_name,purpose,status,note,created_at,handled_at').order('created_at',{ascending:false}).limit(500)),
     q('profiles',sb.from('profiles').select('id,full_name,company,created_at').order('created_at',{ascending:false}).limit(1000)),
     q('conventity_roles',sb.from('conventity_roles').select('id,person_id,auth_user_id,scope,role,status,title').limit(2000)),
-    (async function(){ try{ var r=await sb.from('conventity_signin_log').select('email,method,user_agent,at,event').order('at',{ascending:false}).limit(500);
-        if(r.error){ r=await sb.from('conventity_signin_log').select('email,method,user_agent,at').order('at',{ascending:false}).limit(500); } /* 18 çalışmadıysa event yok */
+    (async function(){ try{ var r=await sb.from('conventity_signin_log').select('auth_user_id,email,method,user_agent,at,event').order('at',{ascending:false}).limit(500);
+        if(r.error){ r=await sb.from('conventity_signin_log').select('auth_user_id,email,method,user_agent,at').order('at',{ascending:false}).limit(500); } /* 18 çalışmadıysa event yok */
         if(r.error){ errs.push('conventity_signin_log'); return []; } return r.data||[]; }catch(e){ errs.push('conventity_signin_log'); return []; } })(),
-    q('conventity_people',sb.from('conventity_people').select('id,full_name,email,auth_user_id').limit(5000))
+    q('conventity_people',sb.from('conventity_people').select('id,full_name,email,auth_user_id').limit(5000)),
+    (async function(){ auditErr=false; try{ var r=await sb.from('conventity_audit').select('id,actor_auth_uid,actor_person_id,table_name,record_id,action,diff,at').order('at',{ascending:false}).limit(300);
+        if(r.error){ auditErr=true; return []; } return r.data||[]; }catch(e){ auditErr=true; return []; } })()
   ]);
-  D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4]};
+  D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4],audit:res[5]}; lastLoad=Date.now();
   $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):'');
   renderAll();
 }
 function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); renderSign(); }
 
+/* Ad çözümleme ve denetim kaydını cümleye çevirme (pano akışı ve Kayıtlar → İşlemler aynı işlevi kullanır). */
+function uName(uid){ if(!uid) return ''; var p=D.prof.filter(function(x){ return x.id===uid; })[0]; if(p&&p.full_name) return p.full_name;
+  var q=D.people.filter(function(x){ return x.auth_user_id===uid; })[0]; return (q&&q.full_name)||''; }
+function pName(pid){ if(!pid) return ''; var q=D.people.filter(function(x){ return x.id===pid; })[0]; return (q&&q.full_name)||''; }
+function spill(r){ var sc=String(r.scope||''); return '<span class="sp sc-'+esc(sc.replace(/[^a-z]/g,''))+'">'+esc(sc+' · '+(r.role||''))+'</span>'; }
+function describe(a){
+  var n=(a.diff&&a.diff['new'])||{}, o=(a.diff&&a.diff.old)||{}, act=a.actor_auth_uid?(uName(a.actor_auth_uid)||pName(a.actor_person_id)||T('someone')):T('system');
+  if(a.table_name==='conventity_roles'){ var r=a.action==='delete'?o:n, who=uName(r.auth_user_id)||pName(r.person_id)||'—', role=(r.scope||'')+' · '+(r.role||'');
+    var k=a.action==='insert'?'f_grant':(a.action==='delete'||(o.status==='active'&&n.status!=='active'))?'f_revoke':'f_role';
+    return {cls:'rl',text:Tf(k,{actor:act,role:role,who:who}),uid:r.auth_user_id||null,at:a.at}; }
+  if(a.table_name==='conventity_access_requests'){ var q=a.action==='delete'?o:n, w=q.full_name||'—';
+    if(a.action==='delete') return {cls:'rq',text:Tf('f_reqdel',{actor:act,who:w}),at:a.at};
+    if(o.status!==n.status) return {cls:'rq',text:Tf('f_reqst',{actor:act,who:w,st:T('st_'+n.status)}),at:a.at};
+    return {cls:'rq',text:Tf('f_reqnote',{actor:act,who:w}),at:a.at}; }
+  return {cls:'out',text:Tf('f_other',{actor:act,tbl:a.table_name,act:a.action}),at:a.at};
+}
+function fdRow(x){ return '<div class="fd '+x.cls+'"><i></i><p>'+esc(x.text)+'</p><time>'+esc(ago(x.at))+'</time></div>'; }
+function goReq(id){ openReq=id||null; reqFilter=id?'all':'new'; if(id){ var r=D.req.filter(function(x){ return x.id===id; })[0]; if(r&&r.status==='new') reqFilter='new'; } tab('tTalep'); renderReq(); focusRow('[data-r="'+id+'"]'); }
+function goUser(id){ openUser=id||null; $('uq').value=''; tab('tKisi'); renderUsers(); focusRow('[data-u="'+id+'"]'); }
+function focusRow(sel){ try{ var e=document.querySelector('.row'+sel); if(e) e.scrollIntoView({block:'center'}); }catch(e){} }
+function activeRoles(uid){ return D.roles.filter(function(r){ return r.auth_user_id===uid&&r.status==='active'; }); }
+function paintFresh(){ if(lastLoad) $('fresh').textContent=Tf('fresh',{t:ago(new Date(lastLoad).toISOString())}); }
+setInterval(paintFresh,30000);
+
 function renderPano(){
   var nm=(me&&me.email)||''; var p=D.prof.filter(function(x){ return me&&x.id===me.id; })[0]; if(p&&p.full_name) nm=p.full_name;
   $('hello').textContent=T('hello')+(nm?', '+nm:'');
-  $('mfaWarn').hidden=!mfaOff; $('mfaWarn').textContent=T('mfa_off');
+  $('mfaWarn').hidden=!mfaOff; $('mfaWarn').textContent=T('mfa_off'); paintFresh();
+  var now=Date.now(), day=now-864e5, wk=now-7*864e5, ts=function(x){ return new Date(x).getTime(); };
   var SI=D.sign.filter(function(s){ return (s.event||'signin')==='signin'; });
-  var nNew=D.req.filter(function(r){ return r.status==='new'; }).length;
+  var news=D.req.filter(function(r){ return r.status==='new'; }), nNew=news.length;
   var adm=D.roles.filter(function(r){ return r.scope==='ecosystem'&&r.role==='admin'&&r.status==='active'; }).length;
-  var day=Date.now()-864e5, nDay=SI.filter(function(s){ return new Date(s.at).getTime()>day; }).length;
-  function k(l,v,s,c){ return '<div class="kpi '+(c||'')+'"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><i>'+esc(s)+'</i></div>'; }
-  $('kpis').innerHTML=k(T('k_req'),nNew,T('k_req_s'),nNew?'warn':'ok')+k(T('k_users'),D.prof.length,T('k_users_s'))+k(T('k_admin'),adm,T('k_admin_s'))+k(T('k_sign'),nDay,T('k_sign_s'));
+  var nDay=SI.filter(function(s){ return ts(s.at)>day; }).length, nPrev=SI.filter(function(s){ var t=ts(s.at); return t<=day&&t>day-864e5; }).length;
+  var reqWk=D.req.filter(function(r){ return ts(r.created_at)>wk; }).length, usrWk=D.prof.filter(function(x){ return ts(x.created_at)>wk; }).length;
+
+  /* Sizi bekleyenler */
+  var norole=D.prof.filter(function(x){ return !activeRoles(x.id).length; }), nTodo=nNew+norole.length;
+  function td(attr,title,sub,tag){ return '<button type="button" class="td" '+attr+'><span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><em>'+esc(tag)+'</em></button>'; }
+  $('todo').innerHTML='<div class="cardh"><div class="eb">'+esc(T('eb_todo'))+'</div>'+(nTodo?'<span class="cnt">'+nTodo+'</span>':'')+'</div>'+
+    (nTodo?news.slice(0,3).map(function(r){ return td('data-gr="'+esc(r.id)+'"',r.full_name||'—',[r.org_name,ago(r.created_at)].filter(Boolean).join(' · '),T('td_req')); }).join('')+
+      (nNew>3?td('data-gt="tTalep"',Tf('td_more',{n:nNew-3}),T('td_req'),T('td_open')):'')+
+      norole.slice(0,3).map(function(x){ var hasP=D.people.some(function(q){ return q.auth_user_id===x.id; }); return td('data-gu="'+esc(x.id)+'"',x.full_name||'—',x.company||'',T(hasP?'td_norole':'td_noperson')); }).join('')+
+      (norole.length>3?td('data-gt="tKisi"',Tf('td_more',{n:norole.length-3}),T('td_norole'),T('td_open')):'')
+    :'<div class="alldone">✓ '+esc(T('todo_none'))+'</div>');
+
+  /* Sayılar: dokununca ilgili listeye gider */
+  function k(l,v,sub,c,go,tr,trc){ return '<button type="button" class="kpi tap '+(c||'')+'" data-go="'+go+'"><span>'+esc(l)+'</span><b>'+esc(v)+'</b><i>'+esc(sub)+'</i>'+(tr?'<u class="'+(trc||'')+'">'+esc(tr)+'</u>':'')+'</button>'; }
+  var dlt=nDay-nPrev;
+  $('kpis').innerHTML=k(T('k_req'),nNew,T('k_req_s'),nNew?'warn':'ok','req',reqWk?Tf('tr_week',{n:reqWk}):'')+
+    k(T('k_users'),D.prof.length,T('k_users_s'),'','users',usrWk?Tf('tr_week',{n:usrWk}):'','up')+
+    k(T('k_admin'),adm,T('k_admin_s'),'','users','')+
+    k(T('k_sign'),nDay,T('k_sign_s'),'','sign',dlt>0?Tf('tr_up',{n:dlt}):dlt<0?Tf('tr_dn',{n:-dlt}):T('tr_same'),dlt>0?'up':dlt<0?'dn':'');
   $('reqDot').hidden=!nNew; $('reqDot').textContent=nNew;
+
+  /* Son olanlar: girişler, yeni talepler ve yönetici işlemleri tek akışta */
+  var items=D.sign.slice(0,25).map(function(s){ var ev=s.event||'signin'; return {at:s.at,cls:ev==='signin'?'in':'out',text:Tf('f_'+ev,{who:uName(s.auth_user_id)||s.email||'—'})}; })
+    .concat(D.req.slice(0,25).map(function(r){ return {at:r.created_at,cls:'rq',text:Tf('f_req',{who:[r.full_name,r.org_name].filter(Boolean).join(' · ')||'—'})}; }))
+    .concat(D.audit.slice(0,25).map(describe))
+    .filter(function(x){ return x.at; }).sort(function(a,b){ return ts(b.at)-ts(a.at); }).slice(0,8);
+  $('feed').innerHTML=items.length?items.map(fdRow).join(''):'<div class="note">'+esc(T('feed_none'))+'</div>';
+
   var days=[], i; for(i=6;i>=0;i--){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
-  var cnt=days.map(function(d){ var e=d.getTime()+864e5; return SI.filter(function(s){ var t=new Date(s.at).getTime(); return t>=d.getTime()&&t<e; }).length; }), mx=Math.max(1,Math.max.apply(null,cnt));
+  var cnt=days.map(function(d){ var e=d.getTime()+864e5; return SI.filter(function(s){ var t=ts(s.at); return t>=d.getTime()&&t<e; }).length; }), mx=Math.max(1,Math.max.apply(null,cnt));
   $('bars').innerHTML=days.map(function(d,j){ return '<div><em>'+cnt[j]+'</em><i style="height:'+Math.round(cnt[j]/mx*64)+'px"></i><span>'+d.toLocaleDateString(lang==='tr'?'tr-TR':'en-GB',{weekday:'short'})+'</span></div>'; }).join('');
 }
+$('todo').addEventListener('click',function(e){ var b=e.target.closest('.td'); if(!b) return;
+  if(b.hasAttribute('data-gr')) goReq(b.getAttribute('data-gr')); else if(b.hasAttribute('data-gu')) goUser(b.getAttribute('data-gu'));
+  else if(b.getAttribute('data-gt')==='tTalep'){ reqFilter='new'; tab('tTalep'); renderReq(); } else tab('tKisi'); });
+$('kpis').addEventListener('click',function(e){ var b=e.target.closest('[data-go]'); if(!b) return; var g=b.getAttribute('data-go');
+  if(g==='req'){ reqFilter='new'; tab('tTalep'); renderReq(); } else if(g==='users'){ tab('tKisi'); } else { logMode='sign'; logRange='day'; tab('tGiris'); renderSign(); } });
+
+/* Yenile: düğme ve aşağı çekme */
+var busy=false;
+async function refresh(){ if(busy||!me) return; busy=true; $('ptr').classList.add('on'); $('refBtn').disabled=true; try{ await load(); }catch(e){} busy=false; $('ptr').classList.remove('on'); $('refBtn').disabled=false; }
+$('refBtn').addEventListener('click',refresh);
+(function(){ var y0=null, dy=0;
+  window.addEventListener('touchstart',function(e){ y0=(me&&!$('tabs').hidden&&window.scrollY<=0&&e.touches.length===1)?e.touches[0].clientY:null; dy=0; },{passive:true});
+  window.addEventListener('touchmove',function(e){ if(y0==null) return; dy=e.touches[0].clientY-y0; $('ptr').style.opacity=busy?'':String(Math.max(0,Math.min(1,dy/90))); },{passive:true});
+  window.addEventListener('touchend',function(){ $('ptr').style.opacity=''; if(y0!=null&&dy>90) refresh(); y0=null; dy=0; },{passive:true});
+})();
 var ST=['new','contacted','invited','declined','spam'];
 function renderReq(){
   $('reqChips').innerHTML=['all'].concat(ST).map(function(s){ var n=s==='all'?D.req.length:D.req.filter(function(r){ return r.status===s; }).length;
@@ -378,7 +505,7 @@ $('reqList').addEventListener('click',async function(e){
     sv.disabled=true;
     try{ var u=await sb.from('conventity_access_requests').update({status:st,note:nt,handled_at:new Date().toISOString()}).eq('id',id);
       if(u.error){ row.querySelector('[data-m]').textContent=T('err_save')+u.error.message; sv.disabled=false; return; }
-      D.req.forEach(function(r){ if(r.id===id){ r.status=st; r.note=nt; } }); openReq=null; renderReq(); renderPano();
+      D.req.forEach(function(r){ if(r.id===id){ r.status=st; r.note=nt; } }); openReq=null; renderReq(); renderPano(); load();
     }catch(err){ row.querySelector('[data-m]').textContent=T('neterr'); sv.disabled=false; }
     return;
   }
@@ -392,7 +519,7 @@ function renderUsers(){
   var orphan=D.roles.filter(function(r){ return !r.auth_user_id && r.status==='active'; }).length;
   $('userList').innerHTML=a.length?a.map(function(p){ var rs=(by[p.id]||[]).filter(function(r){ return r.status==='active'; }), op=openUser===p.id;
     return '<div class="row tap" data-u="'+esc(p.id)+'"><div class="h"><b>'+esc(p.full_name||'—')+'</b><span class="t">'+esc(fmt(p.created_at))+'</span></div>'+(p.company?'<div class="s">'+esc(p.company)+'</div>':'')+
-      '<div class="chips">'+(rs.length?rs.map(function(r){ return '<span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'; }).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div>'+
+      '<div class="chips">'+(rs.length?rs.map(spill).join(''):'<span class="pill other">'+esc(T('noRole'))+'</span>')+'</div>'+
       (op?roleEditor(p,rs):'')+'</div>'; }).join('')
     +(orphan?'<div class="row"><div class="s">'+esc(orphan+' · '+T('ineff'))+'</div></div>':''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
 }
@@ -401,8 +528,16 @@ var PSCOPES=(window.CV&&CV.platformScopes)||['ecosystem','convexus','conventus',
 var PROLES=['member','organizer','event_manager','vendor','admin','owner'];
 function roleEditor(p,rs){
   var person=D.people.filter(function(x){ return x.auth_user_id===p.id; })[0];
-  return '<div class="ed"><div class="eb">'+esc(T('roles_h'))+'</div>'+
-    (rs.length?rs.map(function(r){ return '<div class="rl"><span class="pill '+(r.role==='admin'||r.role==='owner'?r.role:'other')+'">'+esc(r.scope+' · '+r.role)+'</span>'+
+  var last=D.sign.filter(function(x){ return x.auth_user_id===p.id&&(x.event||'signin')==='signin'; })[0];
+  var mail=(person&&person.email)||(D.sign.filter(function(x){ return x.auth_user_id===p.id&&x.email; })[0]||{}).email||'';
+  var hist=D.audit.filter(function(a){ if(a.table_name!=='conventity_roles') return false; var r=(a.diff&&(a.diff['new']||a.diff.old))||{}; return r.auth_user_id===p.id; }).slice(0,5).map(describe);
+  return '<div class="ed"><dl class="kv">'+
+      '<dt>'+esc(T('u_mail'))+'</dt><dd>'+esc(mail||'—')+'</dd>'+
+      '<dt>'+esc(T('u_last'))+'</dt><dd>'+esc(last?(fmt(last.at)+' · '+ago(last.at)+' · '+device(last.user_agent)):T('u_never'))+'</dd>'+
+      '<dt>'+esc(T('u_since'))+'</dt><dd>'+esc(fmt(p.created_at))+'</dd></dl>'+
+    (hist.length?'<div class="eb">'+esc(T('u_hist'))+'</div><div class="hist">'+hist.map(function(x){ return '<span>'+esc(fmt(x.at)+' · '+x.text)+'</span>'; }).join('')+'</div>':'')+
+    '<div class="eb">'+esc(T('roles_h'))+'</div>'+
+    (rs.length?rs.map(function(r){ return '<div class="rl">'+spill(r)+
       ((r.scope==='community'||r.scope==='activity')?'':'<button type="button" class="btn dn sm" data-rv="'+esc(r.id)+'">'+esc(T('revoke'))+'</button>')+'</div>'; }).join(''):'')+
     (person?'<div class="acts"><select data-sc aria-label="'+esc(T('scope'))+'">'+PSCOPES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select>'+
       '<select data-ro aria-label="'+esc(T('role'))+'">'+PROLES.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('')+'</select></div>'+
@@ -418,7 +553,7 @@ $('userList').addEventListener('click',async function(e){
       if(r0&&me&&r0.auth_user_id===me.id&&r0.scope==='ecosystem'&&r0.role==='admin'){ msg.textContent=T('self_admin'); return; }
       rv.disabled=true;
       try{ var u=await sb.from('conventity_roles').update({status:'revoked'}).eq('id',rid); if(u.error){ msg.textContent=T('err_save')+u.error.message; rv.disabled=false; return; }
-        D.roles.forEach(function(x){ if(x.id===rid) x.status='revoked'; }); renderUsers(); renderPano(); }catch(err){ msg.textContent=T('neterr'); rv.disabled=false; }
+        D.roles.forEach(function(x){ if(x.id===rid) x.status='revoked'; }); renderUsers(); renderPano(); load(); }catch(err){ msg.textContent=T('neterr'); rv.disabled=false; }
       return; }
     if(gr){ var sc=row.querySelector('[data-sc]').value, ro=row.querySelector('[data-ro]').value, cf=row.querySelector('[data-cf]').checked;
       var person=D.people.filter(function(x){ return x.auth_user_id===uid; })[0]; if(!person){ msg.textContent=T('no_person'); return; }
@@ -427,18 +562,36 @@ $('userList').addEventListener('click',async function(e){
       gr.disabled=true;
       try{ var ins=await sb.from('conventity_roles').insert({person_id:person.id,auth_user_id:uid,scope:sc,role:ro,status:'active',granted_by:me?me.id:null}).select('id,person_id,auth_user_id,scope,role,status,title');
         if(ins.error){ msg.textContent=T('err_save')+ins.error.message; gr.disabled=false; return; }
-        (ins.data||[]).forEach(function(x){ D.roles.push(x); }); renderUsers(); renderPano(); }catch(err){ msg.textContent=T('neterr'); gr.disabled=false; }
+        (ins.data||[]).forEach(function(x){ D.roles.push(x); }); renderUsers(); renderPano(); load(); }catch(err){ msg.textContent=T('neterr'); gr.disabled=false; }
       return; }
     return;
   }
   openUser=openUser===uid?null:uid; renderUsers();
 });
 function renderSign(){
-  var q=($('gq').value||'').toLowerCase(), a=D.sign.filter(function(s){ return !q||String(s.email||'').toLowerCase().indexOf(q)>=0; }).slice(0,300);
-  $('signList').innerHTML=a.length?a.map(function(s){ var ev=s.event||'signin';
-    return '<div class="row"><div class="h"><b>'+esc(s.email||'—')+'</b><span class="pill '+ev+'">'+esc(T('ev_'+ev))+'</span></div>'+
+  function chips(id,arr,cur,pre){ $(id).innerHTML=arr.map(function(x){ return '<button type="button" class="chip" data-v="'+x+'" aria-pressed="'+(cur===x)+'">'+esc(T(pre+x))+'</button>'; }).join(''); }
+  chips('logMode',['sign','audit'],logMode,'lm_'); chips('logRange',['day','week','all'],logRange,'lr_');
+  var q=($('gq').value||'').toLocaleLowerCase(lang), lim=logRange==='day'?Date.now()-864e5:logRange==='week'?Date.now()-7*864e5:0;
+  function inR(at){ return !lim||new Date(at).getTime()>lim; }
+  if(logMode==='audit'){
+    var b=D.audit.filter(function(x){ return inR(x.at); }).map(describe).filter(function(x){ return !q||x.text.toLocaleLowerCase(lang).indexOf(q)>=0; }).slice(0,300);
+    $('signList').innerHTML=b.length?b.map(function(x){ return '<div class="row"><div class="s" style="color:var(--ink)">'+esc(x.text)+'</div><div class="t">'+esc(fmt(x.at)+' · '+ago(x.at))+'</div></div>'; }).join('')
+      :'<div class="empty">'+esc(T(auditErr?'audit_err':q?'none_match':'audit_none'))+'</div>';
+    return;
+  }
+  /* Yeni cihaz: aynı kişinin daha eski girişleri var ve hiçbirinde bu cihaz yok. */
+  var SI=D.sign.filter(function(s){ return (s.event||'signin')==='signin'; }), nd={};
+  SI.forEach(function(s,i){ var k=s.auth_user_id||s.email, dv=device(s.user_agent), older=SI.slice(i+1).filter(function(o){ return (o.auth_user_id||o.email)===k; });
+    if(older.length&&!older.some(function(o){ return device(o.user_agent)===dv; })) nd[i]=1; });
+  var a=D.sign.map(function(s){ return {s:s,nd:(s.event||'signin')==='signin'&&nd[SI.indexOf(s)]}; })
+    .filter(function(x){ var s=x.s; return inR(s.at)&&(!q||[s.email,uName(s.auth_user_id)].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0); }).slice(0,300);
+  $('signList').innerHTML=a.length?a.map(function(x){ var s=x.s, ev=s.event||'signin', nm=uName(s.auth_user_id);
+    return '<div class="row"><div class="h"><b>'+esc(nm||s.email||'—')+'</b><span class="chips">'+(x.nd?'<span class="pill newdev">'+esc(T('newdev'))+'</span>':'')+'<span class="pill '+ev+'">'+esc(T('ev_'+ev))+'</span></span></div>'+
+    (nm&&s.email?'<div class="s">'+esc(s.email)+'</div>':'')+
     '<div class="s">'+esc(fmt(s.at)+' · '+ago(s.at)+' · '+(ev==='signin'?T('m_'+(s.method||'other'))+' · ':'')+device(s.user_agent))+'</div></div>'; }).join(''):'<div class="empty">'+esc(T(q?'none_match':'empty'))+'</div>';
 }
+$('logMode').addEventListener('click',function(e){ var b=e.target.closest('button[data-v]'); if(!b) return; logMode=b.getAttribute('data-v'); renderSign(); });
+$('logRange').addEventListener('click',function(e){ var b=e.target.closest('button[data-v]'); if(!b) return; logRange=b.getAttribute('data-v'); renderSign(); });
 $('gq').addEventListener('input',renderSign);
 
 /* Kurulum (PWA) */
