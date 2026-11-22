@@ -87,8 +87,8 @@ main>section.login{gap:12px}
 .bars i{display:block;width:100%;max-width:34px;background:var(--c-conventus);border-radius:6px 6px 2px 2px;min-height:2px}
 .bars span{font:500 10px var(--m);color:var(--faint)}
 .bars em{font-style:normal;font:600 10.5px var(--m);color:var(--muted)}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
-nav.tabs button{border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11.5px;font-weight:700;cursor:pointer;border-radius:10px;position:relative}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.tabs button{min-width:0;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11.5px;font-weight:700;cursor:pointer;border-radius:10px;position:relative}
 nav.tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--panel2)}
 nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;font:700 10px/17px var(--m)}
@@ -141,6 +141,9 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
 .ptr{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));left:50%;z-index:25;width:36px;height:36px;margin-left:-18px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
 .ptr i{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold);border-top-color:transparent}
 .ptr.on{opacity:1} .ptr.on i{animation:spin .7s linear infinite}
+.pill.invited{color:var(--warn)} .pill.active{color:var(--ok)} .pill.closed{color:var(--faint)}
+.mf{display:flex;flex-direction:column;gap:10px}
+.mf input,.mf select{min-width:0;width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;font-size:15px}
 .install{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 </style>
 </head>
@@ -153,7 +156,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <div class="tbtns">
     <button type="button" class="tbtn" id="langBtn">EN</button>
     <button type="button" class="tbtn" id="outBtn" hidden data-i="out">Çıkış</button>
-    <span class="ver">v0.4</span>
+    <span class="ver">v0.5</span>
   </div>
 </header>
 
@@ -215,6 +218,23 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
     <div class="list" id="userList"></div>
   </section>
 
+  <!-- Üyeler (conventity.org) -->
+  <section id="tUye" hidden>
+    <div><div class="eb" data-i="eb_mem">ÜYELER · CONVENTITY.ORG</div><p class="lead" data-i="p_mem"></p></div>
+    <div class="warnbar" id="memState" hidden></div>
+    <div class="card mf" id="memAdd">
+      <div class="eb" data-i="mem_add_h">ADRES TANIMLA</div>
+      <label class="fld"><span data-i="email">E-posta</span><input id="mEmail" type="email" autocomplete="off" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254"></label>
+      <label class="fld"><span data-i="mem_kind">Tür</span><select id="mKind"></select></label>
+      <label class="fld"><span data-i="mem_note">Not (isteğe bağlı)</span><input id="mNote" type="text" maxlength="200" autocomplete="off"></label>
+      <p class="note" data-i="mem_rule"></p>
+      <div class="acts"><button type="button" class="btn sm" id="mAdd" data-i="mem_add">Tanımla</button><span class="note" id="mMsg" role="status"></span></div>
+    </div>
+    <div class="chips" id="memChips"></div>
+    <div class="tools"><input id="mq" type="search" autocomplete="off" data-ph="search_log"></div>
+    <div class="list" id="memList"></div>
+  </section>
+
   <!-- Girişler -->
   <section id="tGiris" hidden>
     <div><div class="eb" data-i="eb_sign">KAYITLAR</div><p class="lead" data-i="p_sign">Girişler, çıkışlar ve yönetici işlemleri; kayıtlar silinemez ve değiştirilemez.</p></div>
@@ -229,6 +249,7 @@ nav.tabs .dot{position:absolute;top:3px;left:calc(50% + 8px);min-width:17px;heig
   <button type="button" data-t="tPano" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span data-i="t_pano">Pano</span></button>
   <button type="button" data-t="tTalep" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg><span data-i="t_req">Talepler</span><i class="dot" id="reqDot" hidden></i></button>
   <button type="button" data-t="tKisi" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 6 4.5"/></svg><span data-i="t_users">Kişiler</span></button>
+  <button type="button" data-t="tUye" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16a3.6 3.6 0 0 1 7 0"/><path d="M15 10h4M15 14h3"/></svg><span data-i="t_mem">Üyeler</span></button>
   <button type="button" data-t="tGiris" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M14 4h5v16h-5"/><path d="M3 12h11"/><path d="M10 8l4 4-4 4"/></svg><span data-i="t_sign">Kayıtlar</span></button>
 </nav>
 
@@ -267,6 +288,14 @@ var I18N={tr:{
   someone:'Biri',system:'Sistem',feed_none:'Henüz kayıt yok.',
   u_mail:'E-posta',u_last:'Son giriş',u_since:'Hesap',u_hist:'Geçmiş',u_never:'kayıt yok',
   lm_sign:'Girişler',lm_audit:'İşlemler',lr_day:'Bugün',lr_week:'7 gün',lr_all:'Tümü',newdev:'yeni cihaz',search_log:'Ara',
+  t_mem:'Üyeler',eb_mem:'ÜYELER · CONVENTITY.ORG',p_mem:'conventity.org üyeleri. Adres tanımlayın; kişi kendi e-postasına gelen kodla girer. Kabul edilmeyen tanım 30 gün sonra silinir.',
+  mem_add_h:'ADRES TANIMLA',mem_kind:'Tür',mem_note:'Not (isteğe bağlı)',mem_add:'Tanımla',mem_added:'Tanımlandı. Kişi giriş yaptığında üyeliği başlar.',
+  mem_rule:'Yalnız kişinin Conventity için verdiği ya da kendisinin herkese açık yayımladığı adresi yazın; görev sırasında edinilen adres girmez. Nota yalnız yönetim için gerekeni yazın.',
+  mem_bad:'Geçerli bir e-posta adresi yazın.',mem_dup:'Bu adres zaten listede.',mem_bul:'bülten',
+  mk_stakeholder:'Davetli üye',mk_firm:'Firma temsilcisi',mk_subscriber:'Bülten abonesi',ms_invited:'Bekliyor',ms_active:'Üye',ms_closed:'Kapatıldı',
+  mem_close:'Kapat',mem_reopen:'Yeniden aç',mem_del:'Sil',mem_del_q:'Kayıt tümüyle silinir; kişi yeniden tanımlanabilir. Emin misiniz?',mem_del_yes:'Evet, sil',
+  mem_closed:'Üyelik kapalı: yalnız burada tanımladığınız adresler girebilir. Sitedeki giriş sayfası açılmadan onlar da giremez.',mem_open:'Üyelik açık: herkes kendi kaydolabilir.',
+  mem_err:'Üye tablosu okunamadı. sql/21_org_members.sql çalıştırılmamış olabilir.',
   audit_none:'Yönetici işlemi kaydı yok.',audit_err:'İşlem kayıtları okunamadı.',users_err:'Hesap listesi okunamadı; yalnız profili olan hesaplar görünüyor (sql/20_admin_users.sql).'
 },en:{
   sub:'ADMIN',out:'Sign out',eb_login:'ADMIN SIGN-IN',h_login:'Conventity Admin',p_login:'Sign in with your personal account. The app opens only for ecosystem admins.',
@@ -299,6 +328,14 @@ var I18N={tr:{
   someone:'Someone',system:'System',feed_none:'No entries yet.',
   u_mail:'Email',u_last:'Last sign-in',u_since:'Account',u_hist:'History',u_never:'no record',
   lm_sign:'Sign-ins',lm_audit:'Actions',lr_day:'Today',lr_week:'7 days',lr_all:'All',newdev:'new device',search_log:'Search',
+  t_mem:'Members',eb_mem:'MEMBERS · CONVENTITY.ORG',p_mem:'conventity.org members. Define an address; the person signs in with the code sent to their own email. A definition that is not accepted is deleted after 30 days.',
+  mem_add_h:'DEFINE AN ADDRESS',mem_kind:'Type',mem_note:'Note (optional)',mem_add:'Define',mem_added:'Defined. Membership starts when the person signs in.',
+  mem_rule:'Enter only an address the person gave for Conventity or published themselves; addresses obtained on duty are not entered. In the note, write only what management needs.',
+  mem_bad:'Enter a valid email address.',mem_dup:'This address is already listed.',mem_bul:'bulletin',
+  mk_stakeholder:'Invited member',mk_firm:'Company representative',mk_subscriber:'Bulletin subscriber',ms_invited:'Pending',ms_active:'Member',ms_closed:'Closed',
+  mem_close:'Close',mem_reopen:'Reopen',mem_del:'Delete',mem_del_q:'The record is deleted entirely; the person can be defined again. Are you sure?',mem_del_yes:'Yes, delete',
+  mem_closed:'Membership is closed: only addresses you define here can enter. They cannot enter either until the sign-in page on the site is opened.',mem_open:'Membership is open: anyone can register.',
+  mem_err:'Could not read the member table. sql/21_org_members.sql may not have been run.',
   audit_none:'No admin actions recorded.',audit_err:'Could not read the action log.',users_err:'Could not read the account list; only accounts with a profile are shown (sql/20_admin_users.sql).'
 }};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
@@ -314,13 +351,13 @@ function paintI18n(){
   document.querySelectorAll('[data-ph]').forEach(function(e){e.setAttribute('placeholder',T(e.getAttribute('data-ph')));});
   $('langBtn').textContent=lang==='tr'?'EN':'TR';
 }
-var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null, logMode='sign', logRange='week', lastLoad=0, auditErr=false, usersErr=false;
+var sb=window.cvClient?window.cvClient():null, me=null, D={req:[],prof:[],roles:[],sign:[],people:[],audit:[],mem:[]}, reqFilter='new', deferredPrompt=null, openReq=null, openUser=null, logMode='sign', logRange='week', lastLoad=0, auditErr=false, usersErr=false, memErr=false, memOpen=null, memFilter='all', openMem=null, delMem=null;
 function fmt(iso){ if(!iso) return ''; try{ return new Date(iso).toLocaleString(lang==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
 function ago(iso){ var d=(Date.now()-new Date(iso).getTime())/60000; if(!(d>=0)) return ''; if(d<1) return T('now'); if(d<60) return Tf('ago_min',{n:Math.floor(d)}); if(d<1440) return Tf('ago_h',{n:Math.floor(d/60)}); return Tf('ago_d',{n:Math.floor(d/1440)}); }
 function device(ua){ ua=ua||''; var os=/iPhone|iPad/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Mac OS X/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'?';
   var br=/Edg\//.test(ua)?'Edge':/OPR\//.test(ua)?'Opera':/CriOS|Chrome\//.test(ua)?'Chrome':/FxiOS|Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':''; return os+(br?' · '+br:''); }
 
-function show(id){ ['vLogin','vMfa','vWait','tPano','tTalep','tKisi','tGiris'].forEach(function(x){ $(x).hidden=(x!==id); }); }
+function show(id){ ['vLogin','vMfa','vWait','tPano','tTalep','tKisi','tUye','tGiris'].forEach(function(x){ $(x).hidden=(x!==id); }); }
 function tab(id){ show(id); $('tabs').querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected',String(b.getAttribute('data-t')===id)); }); lsSet('cv-yon-tab',id); window.scrollTo(0,0); }
 $('tabs').addEventListener('click',function(e){ var b=e.target.closest('button[data-t]'); if(b) tab(b.getAttribute('data-t')); });
 $('langBtn').addEventListener('click',function(){ lang=lang==='tr'?'en':'tr'; lsSet('cv-lang',lang); paintI18n(); renderAll(); });
@@ -329,7 +366,7 @@ async function isAdmin(){ try{ var r=await sb.rpc('conventity_is_admin',{p_scope
 function toLogin(msg){ $('tabs').hidden=true; $('outBtn').hidden=true; show('vLogin'); $('inMsg').textContent=msg||''; }
 async function enter(){
   $('tabs').hidden=false; $('outBtn').hidden=false;
-  var t=lsGet('cv-yon-tab'); tab(['tPano','tTalep','tKisi','tGiris'].indexOf(t)>=0?t:'tPano');
+  var t=lsGet('cv-yon-tab'); tab(['tPano','tTalep','tKisi','tUye','tGiris'].indexOf(t)>=0?t:'tPano');
   await load();
 }
 $('inBtn').addEventListener('click',async function(){
@@ -349,7 +386,7 @@ $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('inBtn')
 async function signOut(){
   try{ if(me) await sb.from('conventity_signin_log').insert({auth_user_id:me.id,email:me.email||null,method:'other',event:'signout',user_agent:(navigator.userAgent||'').slice(0,300)}); }catch(e){} /* 18_signin_events.sql çalışmadıysa sessizce geçer */
   try{ await sb.auth.signOut(); }catch(e){}
-  me=null; mfaOff=false; D={req:[],prof:[],roles:[],sign:[],people:[],audit:[]}; toLogin('');
+  me=null; mfaOff=false; D={req:[],prof:[],roles:[],sign:[],people:[],audit:[],mem:[]}; toLogin('');
 }
 $('outBtn').addEventListener('click',signOut);
 $('mfaBack').addEventListener('click',signOut);
@@ -396,7 +433,17 @@ async function load(){
     (async function(){ auditErr=false; try{ var r=await sb.from('conventity_audit').select('id,actor_auth_uid,actor_person_id,table_name,record_id,action,diff,at').order('at',{ascending:false}).limit(300);
         if(r.error){ auditErr=true; return []; } return r.data||[]; }catch(e){ auditErr=true; return []; } })()
   ]);
-  D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4],audit:res[5]}; lastLoad=Date.now();
+  D={req:res[0],prof:res[1],roles:res[2],sign:res[3],people:res[4],audit:res[5],mem:[]}; lastLoad=Date.now();
+  /* conventity.org üyeleri (sql/21_org_members.sql). Tablo yoksa sekme bunu söyler. Kabul edilmeyen davet 30 günde silinir. */
+  memErr=false; memOpen=null;
+  try{ var old=new Date(Date.now()-30*864e5).toISOString();
+    await sb.from('conventity_org_members').delete().eq('status','invited').lt('created_at',old);
+    var mr=await sb.from('conventity_org_members').select('id,email,kind,status,bulletin,org_name,note,created_at,accepted_at,auth_user_id').order('created_at',{ascending:false}).limit(2000);
+    if(mr.error) memErr=true; else D.mem=mr.data||[];
+    var ms=await sb.from('conventity_org_settings').select('key,value').limit(20);
+    if(!ms.error) (ms.data||[]).forEach(function(x){ if(x.key==='membership_open') memOpen=(x.value===true); });
+  }catch(e){ memErr=true; }
+  if(memErr) D.mem=[];
   /* Hesap listesi (sql/20_admin_users.sql). İşlev yoksa eski davranış: yalnız profiles. */
   usersErr=false;
   try{ var ur=await sb.rpc('conventity_admin_users');
@@ -408,7 +455,7 @@ async function load(){
   $('err').textContent=errs.length?(T('loaderr')+errs.join(', ')):(navigator.onLine===false?T('offline'):(usersErr?T('users_err'):''));
   renderAll();
 }
-function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); renderSign(); }
+function renderAll(){ if(!me) return; renderPano(); renderReq(); renderUsers(); renderMem(); renderSign(); }
 
 /* Ad çözümleme ve denetim kaydını cümleye çevirme (pano akışı ve Kayıtlar → İşlemler aynı işlevi kullanır). */
 function uName(uid){ if(!uid) return ''; var p=D.prof.filter(function(x){ return x.id===uid; })[0]; if(p&&(p.full_name||p.email)) return p.full_name||p.email;
@@ -601,6 +648,56 @@ function renderSign(){
 $('logMode').addEventListener('click',function(e){ var b=e.target.closest('button[data-v]'); if(!b) return; logMode=b.getAttribute('data-v'); renderSign(); });
 $('logRange').addEventListener('click',function(e){ var b=e.target.closest('button[data-v]'); if(!b) return; logRange=b.getAttribute('data-v'); renderSign(); });
 $('gq').addEventListener('input',renderSign);
+
+/* Üyeler: conventity.org üyeliği. Adresleri yalnız yönetici buradan girer. */
+var MK=['stakeholder','firm','subscriber'], MS=['invited','active','closed'];
+function renderMem(){
+  $('mKind').innerHTML=MK.map(function(k){ return '<option value="'+k+'">'+esc(T('mk_'+k))+'</option>'; }).join('');
+  var st=$('memState'); st.hidden=false; st.textContent=memErr?T('mem_err'):T(memOpen?'mem_open':'mem_closed');
+  $('memAdd').hidden=memErr;
+  $('memChips').innerHTML=['all'].concat(MS).map(function(x){ var n=x==='all'?D.mem.length:D.mem.filter(function(m){ return m.status===x; }).length;
+    return '<button type="button" class="chip" data-s="'+x+'" aria-pressed="'+(memFilter===x)+'">'+esc((x==='all'?T('all'):T('ms_'+x))+' · '+n)+'</button>'; }).join('');
+  var q=($('mq').value||'').toLocaleLowerCase(lang);
+  var a=D.mem.filter(function(m){ return (memFilter==='all'||m.status===memFilter)&&(!q||[m.email,m.org_name,m.note].join(' ').toLocaleLowerCase(lang).indexOf(q)>=0); });
+  $('memList').innerHTML=a.length?a.map(function(m){ var op=openMem===m.id;
+    return '<div class="row tap" data-m="'+esc(m.id)+'"><div class="h"><b>'+esc(m.email)+'</b><span class="pill '+esc(m.status)+'">'+esc(T('ms_'+m.status))+'</span></div>'+
+      '<div class="s">'+esc([T('mk_'+m.kind),m.org_name,m.bulletin?T('mem_bul'):''].filter(Boolean).join(' · '))+'</div>'+(m.note&&!op?'<div class="s">✎ '+esc(m.note)+'</div>':'')+
+      '<div class="t">'+esc(fmt(m.created_at)+(m.accepted_at?' → '+fmt(m.accepted_at):''))+'</div>'+
+      (op?'<div class="ed"><textarea maxlength="200" data-note aria-label="'+esc(T('note'))+'" placeholder="'+esc(T('note'))+'">'+esc(m.note||'')+'</textarea>'+
+        (delMem===m.id?'<div class="note">'+esc(T('mem_del_q'))+'</div><div class="acts"><button type="button" class="btn dn sm" data-delyes>'+esc(T('mem_del_yes'))+'</button><button type="button" class="btn gh sm" data-delno>'+esc(T('cancel'))+'</button><span class="note" data-m></span></div>'
+        :'<div class="acts"><button type="button" class="btn sm" data-save>'+esc(T('save'))+'</button>'+
+          (m.status==='closed'?'<button type="button" class="btn gh sm" data-st="reopen">'+esc(T('mem_reopen'))+'</button>':'<button type="button" class="btn dn sm" data-st="closed">'+esc(T('mem_close'))+'</button>')+
+          '<button type="button" class="btn gh sm" data-del>'+esc(T('mem_del'))+'</button><span class="note" data-m></span></div>')+'</div>':'')+'</div>'; }).join('')
+    :'<div class="empty">'+esc(T(memErr?'mem_err':q?'none_match':'empty'))+'</div>';
+}
+$('memChips').addEventListener('click',function(e){ var b=e.target.closest('button[data-s]'); if(!b) return; memFilter=b.getAttribute('data-s'); renderMem(); });
+$('mq').addEventListener('input',renderMem);
+$('mAdd').addEventListener('click',async function(){
+  var em=($('mEmail').value||'').trim().toLowerCase(), kind=$('mKind').value, note=($('mNote').value||'').trim()||null, b=this, msg=$('mMsg'); msg.textContent='';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)||em.length>254){ msg.textContent=T('mem_bad'); return; }
+  if(D.mem.some(function(m){ return m.email===em; })){ msg.textContent=T('mem_dup'); return; }
+  b.disabled=true;
+  try{ var r=await sb.from('conventity_org_members').insert({email:em,kind:kind,status:'invited',note:note,invited_by:me?me.id:null});
+    if(r.error){ msg.textContent=T('err_save')+r.error.message; return; }
+    $('mEmail').value=''; $('mNote').value=''; msg.textContent=T('mem_added'); await load();
+  }catch(e){ msg.textContent=T('neterr'); } finally{ b.disabled=false; }
+});
+$('memList').addEventListener('click',async function(e){
+  var row=e.target.closest('.row[data-m]'); if(!row) return; var id=row.getAttribute('data-m'), m=D.mem.filter(function(x){ return x.id===id; })[0], msg=row.querySelector('[data-m]:not(.row)');
+  if(!e.target.closest('.ed')){ openMem=openMem===id?null:id; delMem=null; renderMem(); return; }
+  var t=e.target.closest('button'); if(!t||!m) return;
+  if(t.hasAttribute('data-del')){ delMem=id; renderMem(); return; }
+  if(t.hasAttribute('data-delno')){ delMem=null; renderMem(); return; }
+  var q, note=(row.querySelector('[data-note]').value||'').trim()||null;
+  if(t.hasAttribute('data-delyes')) q=sb.from('conventity_org_members').delete().eq('id',id);
+  else if(t.hasAttribute('data-save')) q=sb.from('conventity_org_members').update({note:note}).eq('id',id);
+  else if(t.getAttribute('data-st')==='closed') q=sb.from('conventity_org_members').update({status:'closed',closed_at:new Date().toISOString(),note:note}).eq('id',id);
+  else if(t.getAttribute('data-st')==='reopen') q=sb.from('conventity_org_members').update({status:m.auth_user_id?'active':'invited',closed_at:null,note:note}).eq('id',id);
+  else return;
+  t.disabled=true;
+  try{ var r=await q; if(r.error){ if(msg) msg.textContent=T('err_save')+r.error.message; t.disabled=false; return; } openMem=null; delMem=null; await load(); }
+  catch(err){ if(msg) msg.textContent=T('neterr'); t.disabled=false; }
+});
 
 /* Kurulum (PWA) */
 var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;

@@ -1,5 +1,6 @@
 -- 21_org_members_ROLLBACK.sql  ·  21'i geri alır.
 -- DİKKAT: üye tablosunu ve içindeki bütün üyelikleri SİLER. Hesaplar (auth.users) kalır.
+drop function if exists public.conventity_org_gate();
 drop function if exists public.conventity_org_forget();
 drop function if exists public.conventity_org_leave();
 drop function if exists public.conventity_org_set_bulletin(boolean);

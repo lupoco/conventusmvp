@@ -50,6 +50,12 @@ create table if not exists public.conventity_org_settings (
 insert into public.conventity_org_settings(key, value)
 select 'membership_open', 'false'::jsonb
  where not exists (select 1 from public.conventity_org_settings where key = 'membership_open');
+-- Kapı belirteci: kapalı önizleme süresince, giriş yapan üyeye haftalık kod sorulmaması için.
+-- Değeri bu dosyada DURMAZ ve boş kurulur; kurulumda ayrıca yazılır ve conventity.org
+-- deposundaki .htaccess ile aynı olmalıdır. Boşken hiçbir üyeye belirteç verilmez.
+insert into public.conventity_org_settings(key, value)
+select 'gate_token', 'null'::jsonb
+ where not exists (select 1 from public.conventity_org_settings where key = 'gate_token');
 
 alter table public.conventity_org_settings enable row level security;
 drop policy if exists org_settings_admin on public.conventity_org_settings;
@@ -204,6 +210,16 @@ begin
 end
 $fn$;
 
+-- Kapı belirteci: yalnız etkin üyeye (kodla açılmış oturumda) ve yöneticiye verilir.
+-- Üyeliği kapatılan kişi yeni belirteç alamaz; tarayıcısındaki eski belirteç en geç 24 saatte düşer.
+create or replace function public.conventity_org_gate()
+returns text language sql stable security definer set search_path = public as $fn$
+  select case when (conventity_org_verified() and exists (select 1 from conventity_org_members m
+                                                           where m.auth_user_id = auth.uid() and m.status = 'active'))
+                then (select nullif(value #>> '{}', '') from conventity_org_settings where key = 'gate_token')
+          end;
+$fn$;
+
 -- Hesabı da sil: YALNIZ bu sayfanın kodla oluşturduğu, başka hiçbir izi olmayan hesap.
 -- Üyelikten ayrılan ya da üyelik kapalıyken kod isteyip "açık değil" yanıtı alan kişinin adresi
 -- ortak hesap tablosunda kalmasın diye. Şunlardan biri varsa hesap KALIR:
@@ -240,7 +256,7 @@ do $gr$
 declare f text;
 begin
   foreach f in array array['conventity_org_open()', 'conventity_org_verified()', 'conventity_org_me()', 'conventity_org_join(text, boolean, text)',
-                           'conventity_org_set_bulletin(boolean)', 'conventity_org_leave()', 'conventity_org_forget()'] loop
+                           'conventity_org_set_bulletin(boolean)', 'conventity_org_leave()', 'conventity_org_forget()', 'conventity_org_gate()'] loop
     execute format('revoke all on function public.%s from public', f);
     execute format('revoke all on function public.%s from anon', f);
     execute format('grant execute on function public.%s to authenticated', f);
